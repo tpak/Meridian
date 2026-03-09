@@ -15,7 +15,7 @@
                     <li>Move Start at Login and Check for Updates to About tab</li>
                 </ul>
             ]]></description>
-            <enclosure url="https://github.com/tpak/meridian/releases/download/v2.6.0/Meridian.app.zip" length="3149613" type="application/octet-stream" sparkle:edSignature="ZF9sX9hQ+JX2VbnTKSKyUZJ/Tkj86DU9yDzYnjdEZeIY2ssqIahYVuDZ9V6a8/xC356+ANvlnmxLsmi+TiYxCA=="/>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.6.0/Meridian.app.zip" length="3149613" type="application/octet-stream" sparkle:edSignature="ZF9sX9hQ+JX2VbnTKSKyUZJ/Tkj86DU9yDzYnjdEZeIY2ssqIahYVuDZ9V6a8/xC356+ANvlnmxLsmi+TiYxCA=="/>
         </item>
     </channel>
 </rss>

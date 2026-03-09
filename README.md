@@ -5,10 +5,10 @@
 <h1 align="center">Meridian</h1>
 
 <p align="center">
-  <a href="https://github.com/tpak/meridian/actions/workflows/ci.yml"><img src="https://github.com/tpak/meridian/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://github.com/tpak/meridian/actions/workflows/codeql.yml"><img src="https://github.com/tpak/meridian/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
-  <a href="https://github.com/tpak/meridian/blob/main/.swiftlint.yml"><img src="https://img.shields.io/badge/SwiftLint-configured-brightgreen" alt="SwiftLint"></a>
-  <a href="https://github.com/tpak/meridian/blob/main/LICENSE"><img src="https://img.shields.io/github/license/tpak/meridian" alt="License"></a>
+  <a href="https://github.com/tpak/Meridian/actions/workflows/ci.yml"><img src="https://github.com/tpak/Meridian/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/tpak/Meridian/actions/workflows/codeql.yml"><img src="https://github.com/tpak/Meridian/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
+  <a href="https://github.com/tpak/Meridian/blob/main/.swiftlint.yml"><img src="https://img.shields.io/badge/SwiftLint-configured-brightgreen" alt="SwiftLint"></a>
+  <a href="https://github.com/tpak/Meridian/blob/main/LICENSE"><img src="https://img.shields.io/github/license/tpak/Meridian" alt="License"></a>
 </p>
 
 A macOS menu bar world clock. Track time across zones for your team, friends, and family.
@@ -26,7 +26,7 @@ A macOS menu bar world clock. Track time across zones for your team, friends, an
 
 ## Install
 
-Download the latest release from [GitHub Releases](https://github.com/tpak/meridian/releases).
+Download the latest release from [GitHub Releases](https://github.com/tpak/Meridian/releases).
 
 Requires macOS 13 (Ventura) or later.
 
@@ -35,8 +35,8 @@ Requires macOS 13 (Ventura) or later.
 Requires Xcode 15+ and macOS 13 (Ventura) or later.
 
 ```bash
-git clone https://github.com/tpak/meridian.git
-cd meridian
+git clone https://github.com/tpak/Meridian.git
+cd Meridian
 ```
 
 ### Build & Run
@@ -61,7 +61,7 @@ Version is set via `MARKETING_VERSION` in the Xcode project (3 build configurati
 
 1. Search for `MARKETING_VERSION` in `Meridian/Meridian.xcodeproj/project.pbxproj`
 2. Update all 3 occurrences to the new version
-3. Commit, tag, and create a [GitHub Release](https://github.com/tpak/meridian/releases)
+3. Commit, tag, and create a [GitHub Release](https://github.com/tpak/Meridian/releases)
 
 ### Project Structure
 
