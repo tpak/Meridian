@@ -41,7 +41,7 @@
 	<key>RequestsOpenAccess</key>
 	<string>YES</string>
 	<key>SUFeedURL</key>
-	<string>https://raw.githubusercontent.com/tpak/meridian/main/appcast.xml</string>
+	<string>https://raw.githubusercontent.com/tpak/Meridian/main/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>6aLwQvjUe74RhVN1IVlf9IIIAc6kwbQF74tC8CBifqU=</string>
 </dict>

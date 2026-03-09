@@ -4,10 +4,10 @@ import Cocoa
 import SwiftUI
 
 struct AboutUsConstants {
-    static let GitHubURL = "https://github.com/tpak/meridian"
-    static let GitHubIssuesURL = "https://github.com/tpak/meridian/issues"
-    static let AppStoreLink = "https://github.com/tpak/meridian"
-    static let FAQsLink = "https://github.com/tpak/meridian/wiki"
+    static let GitHubURL = "https://github.com/tpak/Meridian"
+    static let GitHubIssuesURL = "https://github.com/tpak/Meridian/issues"
+    static let AppStoreLink = "https://github.com/tpak/Meridian"
+    static let FAQsLink = "https://github.com/tpak/Meridian/wiki"
     static let OriginalProjectURL = "https://github.com/n0shake/Clocker"
     static let CrowdInLocalizationLink = "https://crwd.in/clocker"
 }
