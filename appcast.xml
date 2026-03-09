@@ -3,6 +3,21 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>2.7.0</title>
+            <pubDate>Mon, 09 Mar 2026 23:00:01 +1100</pubDate>
+            <sparkle:version>2.7.0</sparkle:version>
+            <sparkle:shortVersionString>2.7.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Complete rebrand: all internal references renamed from Clocker to Meridian</li>
+                    <li>Menu items now say "About Meridian", "Hide Meridian", "Quit Meridian"</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.7.0/Meridian.app.zip" length="3128346" type="application/octet-stream" sparkle:edSignature="eElKfmnQvBAqT+68GCNUDWdtWsVg6r3YQ49uzJf4QeJVG8QFNI7bmoMc3a+HcBNLS8AP63mbQNTYZQrrwopcCw=="/>
+        </item>
+        <item>
             <title>2.6.0</title>
             <pubDate>Mon, 09 Mar 2026 22:18:54 +1100</pubDate>
             <sparkle:version>2.6.0</sparkle:version>
