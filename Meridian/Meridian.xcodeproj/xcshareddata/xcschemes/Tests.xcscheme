@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DD4F7C0313C30F9F00825C6E"
-               BuildableName = "Clocker.app"
-               BlueprintName = "Clocker"
+               BuildableName = "Meridian.app"
+               BlueprintName = "Meridian"
                ReferencedContainer = "container:Meridian.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,13 +32,13 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Backup UserDefaults"
-               scriptText = "defaults export com.abhishek.Clocker &quot;${TMPDIR}clocker-defaults-backup.plist&quot; 2&gt;/dev/null || true&#10;">
+               scriptText = "defaults export com.tpak.Meridian &quot;${TMPDIR}meridian-defaults-backup.plist&quot; 2&gt;/dev/null || true&#10;">
                <EnvironmentBuildable>
                   <BuildableReference
                      BuildableIdentifier = "primary"
                      BlueprintIdentifier = "DD4F7C0313C30F9F00825C6E"
-                     BuildableName = "Clocker.app"
-                     BlueprintName = "Clocker"
+                     BuildableName = "Meridian.app"
+                     BlueprintName = "Meridian"
                      ReferencedContainer = "container:Meridian.xcodeproj">
                   </BuildableReference>
                </EnvironmentBuildable>
@@ -50,13 +50,13 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Restore UserDefaults"
-               scriptText = "if [ -f &quot;${TMPDIR}clocker-defaults-backup.plist&quot; ]; then&#10;  defaults import com.abhishek.Clocker &quot;${TMPDIR}clocker-defaults-backup.plist&quot;&#10;  rm -f &quot;${TMPDIR}clocker-defaults-backup.plist&quot;&#10;fi&#10;">
+               scriptText = "if [ -f &quot;${TMPDIR}meridian-defaults-backup.plist&quot; ]; then&#10;  defaults import com.tpak.Meridian &quot;${TMPDIR}meridian-defaults-backup.plist&quot;&#10;  rm -f &quot;${TMPDIR}meridian-defaults-backup.plist&quot;&#10;fi&#10;">
                <EnvironmentBuildable>
                   <BuildableReference
                      BuildableIdentifier = "primary"
                      BlueprintIdentifier = "DD4F7C0313C30F9F00825C6E"
-                     BuildableName = "Clocker.app"
-                     BlueprintName = "Clocker"
+                     BuildableName = "Meridian.app"
+                     BlueprintName = "Meridian"
                      ReferencedContainer = "container:Meridian.xcodeproj">
                   </BuildableReference>
                </EnvironmentBuildable>
@@ -67,8 +67,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DD4F7C0313C30F9F00825C6E"
-            BuildableName = "Clocker.app"
-            BlueprintName = "Clocker"
+            BuildableName = "Meridian.app"
+            BlueprintName = "Meridian"
             ReferencedContainer = "container:Meridian.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -78,8 +78,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "C20839C621515C1E00C86589"
-               BuildableName = "ClockerUnitTests.xctest"
-               BlueprintName = "ClockerUnitTests"
+               BuildableName = "MeridianUnitTests.xctest"
+               BlueprintName = "MeridianUnitTests"
                ReferencedContainer = "container:Meridian.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -100,8 +100,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DD4F7C0313C30F9F00825C6E"
-            BuildableName = "Clocker.app"
-            BlueprintName = "Clocker"
+            BuildableName = "Meridian.app"
+            BlueprintName = "Meridian"
             ReferencedContainer = "container:Meridian.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -117,8 +117,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DD4F7C0313C30F9F00825C6E"
-            BuildableName = "Clocker.app"
-            BlueprintName = "Clocker"
+            BuildableName = "Meridian.app"
+            BlueprintName = "Meridian"
             ReferencedContainer = "container:Meridian.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

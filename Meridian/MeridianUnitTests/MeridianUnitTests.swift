@@ -5,7 +5,7 @@ import CoreModelKit
 @testable import Meridian
 import XCTest
 
-class ClockerUnitTests: XCTestCase {
+class MeridianUnitTests: XCTestCase {
     override func tearDown() {
         // Remove test-specific timezone entries that could pollute UserDefaults
         // when tests run in parallel across multiple workers.
@@ -451,7 +451,7 @@ class ClockerUnitTests: XCTestCase {
 
     func testDefaultsWiping() {
         let defaultsDict: [String: Any] = ["test1": "testString", "test2": 24]
-        let domainName = "com.test.clocker"
+        let domainName = "com.test.meridian"
         let defaults = UserDefaults(suiteName: domainName)
         defaults?.setPersistentDomain(defaultsDict, forName: domainName)
         defaults?.wipe(for: domainName)

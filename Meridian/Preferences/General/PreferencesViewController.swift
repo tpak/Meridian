@@ -410,7 +410,7 @@ extension PreferencesViewController {
 // Helpers
 extension PreferencesViewController {
     private func insert(timezone: TimezoneData, at index: Int) {
-        guard let encodedObject = NSKeyedArchiver.clocker_archive(with: timezone) else {
+        guard let encodedObject = NSKeyedArchiver.secureArchive(with: timezone) else {
             return
         }
         var newDefaults = selectedTimeZones

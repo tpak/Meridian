@@ -81,7 +81,7 @@ jobs:
             -scheme "$SCHEME" \
             -configuration Debug \
             test \
-            -only-testing:ClockerUnitTests \
+            -only-testing:MeridianUnitTests \
             -disable-concurrent-destination-testing \
             -parallel-testing-enabled NO \
             -enableCodeCoverage YES \

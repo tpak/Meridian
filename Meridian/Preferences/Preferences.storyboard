@@ -15,7 +15,7 @@
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="245" y="301" width="480" height="270"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
-                        <accessibility identifier="Clocker"/>
+                        <accessibility identifier="Meridian"/>
                         <connections>
                             <outlet property="delegate" destination="RHq-9Z-auA" id="Agy-uL-jlB"/>
                         </connections>
@@ -621,7 +621,7 @@
                                                     <constraints>
                                                         <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="150" id="7zy-Fe-aNw"/>
                                                     </constraints>
-                                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Show Clocker in" id="Ujt-R0-aDS">
+                                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Show Meridian in" id="Ujt-R0-aDS">
                                                         <font key="font" size="13" name="Avenir-Light"/>
                                                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -1245,7 +1245,7 @@ CA
     <resources>
         <image name="Add Icon" width="700" height="700"/>
         <image name="Appearance Dynamic" width="350" height="350"/>
-        <image name="ClockerIcon-512" width="1024" height="1024"/>
+        <image name="MeridianIcon-512" width="1024" height="1024"/>
         <image name="CurrentLocation" width="350" height="350"/>
         <image name="Extra" width="700" height="700"/>
         <image name="NSDescendingSortIndicator" width="9" height="9"/>

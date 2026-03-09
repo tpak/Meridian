@@ -15,7 +15,7 @@ debug:
 
 test:
 	xcodebuild -project $(PROJECT) -scheme $(SCHEME) -configuration Debug \
-		-only-testing:ClockerUnitTests \
+		-only-testing:MeridianUnitTests \
 		-parallel-testing-enabled NO -disable-concurrent-destination-testing \
 		$(SIGNING) test
 

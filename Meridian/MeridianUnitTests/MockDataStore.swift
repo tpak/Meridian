@@ -34,7 +34,7 @@ class MockDataStore: DataStoring {
     }
 
     func addTimezone(_ timezone: TimezoneData) {
-        guard let encodedTimezone = NSKeyedArchiver.clocker_archive(with: timezone) else {
+        guard let encodedTimezone = NSKeyedArchiver.secureArchive(with: timezone) else {
             return
         }
         storedTimezones.append(encodedTimezone)

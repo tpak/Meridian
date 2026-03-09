@@ -70,7 +70,7 @@ User-facing names — product, bundle, scheme — are all "Meridian".
 ```
 Meridian/
 ├── Meridian.xcodeproj      # Xcode project (scheme: Meridian)
-├── Clocker/                # Main app source (localization, Info.plist)
+├── App/                    # Localization, Info.plist, entitlements
 │   ├── Overall App/        # AppDelegate, DataStore, extensions
 │   ├── Panel/              # Menu bar panel UI + data layer
 │   ├── Preferences/        # Settings (General, Appearance, About)

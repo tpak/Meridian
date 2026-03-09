@@ -59,7 +59,7 @@ class StatusItemHandler: NSObject {
             case .standardText:
                 setupForStandardTextMode()
             case .icon:
-                setClockerIcon()
+                setMenubarIcon()
             }
 
             Logger.info("Status Bar Current State changed: \(currentState)\n")
@@ -99,7 +99,7 @@ class StatusItemHandler: NSObject {
         }
 
         statusItem.button?.target = self
-        statusItem.autosaveName = NSStatusItem.AutosaveName("ClockerStatusItem")
+        statusItem.autosaveName = NSStatusItem.AutosaveName("MeridianStatusItem")
         setSelector()
     }
 
@@ -267,7 +267,7 @@ class StatusItemHandler: NSObject {
             statusItem.button?.attributedTitle = NSAttributedString(string: title, attributes: attributes)
             updateMenubar()
         } else {
-            setClockerIcon()
+            setMenubarIcon()
             menubarTimer?.invalidate()
         }
     }
@@ -301,7 +301,7 @@ class StatusItemHandler: NSObject {
             invalidation()
 
             if show {
-                setClockerIcon()
+                setMenubarIcon()
             }
 
         } else {
@@ -313,7 +313,7 @@ class StatusItemHandler: NSObject {
         menubarTimer?.invalidate()
     }
 
-    private func setClockerIcon() {
+    private func setMenubarIcon() {
         if statusItem.button?.subviews.isEmpty == false {
             statusItem.button?.subviews = []
         }
@@ -332,7 +332,7 @@ class StatusItemHandler: NSObject {
         }
 
         guard !menubarText.isEmpty else {
-            setClockerIcon()
+            setMenubarIcon()
             return
         }
 

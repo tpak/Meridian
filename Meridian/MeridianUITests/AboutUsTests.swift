@@ -33,7 +33,7 @@ class AboutUsTests: XCTestCase {
 
         tapAboutTab()
 
-        let privateFeedbackButton = app.buttons["ClockerPrivateFeedback"]
+        let privateFeedbackButton = app.buttons["MeridianPrivateFeedback"]
         XCTAssertTrue(privateFeedbackButton.exists, "Private Feedback button should exist on the About tab")
     }
 }

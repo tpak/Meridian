@@ -90,8 +90,8 @@ class PanelTests: XCTestCase {
 
         app.tables["mainTableView"].typeKey(",", modifierFlags: .command)
 
-        let clockerWindow = app.windows["Meridian"]
-        let toolbarsQuery = clockerWindow.toolbars.buttons
+        let meridianWindow = app.windows["Meridian"]
+        let toolbarsQuery = meridianWindow.toolbars.buttons
         toolbarsQuery.element(boundBy: 2).click()
 
         if app.windows["Meridian"].staticTexts["InfoField"].exists {
@@ -102,7 +102,7 @@ class PanelTests: XCTestCase {
         let yesPredicate = NSPredicate(format: "title like %@", "Yes")
         let noPredicate = NSPredicate(format: "title like %@", "No")
 
-        let elementsMatching = clockerWindow.radioGroups.firstMatch.radioButtons
+        let elementsMatching = meridianWindow.radioGroups.firstMatch.radioButtons
 
         let yesBar = elementsMatching.element(matching: yesPredicate)
 
@@ -113,7 +113,7 @@ class PanelTests: XCTestCase {
             yesBar.click()
         }
 
-        clockerWindow.buttons[XCUIIdentifierCloseWindow].click()
+        meridianWindow.buttons[XCUIIdentifierCloseWindow].click()
 
         app.tapMenubarIcon()
 
