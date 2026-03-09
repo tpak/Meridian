@@ -38,8 +38,8 @@ if [[ "$(git branch --show-current)" != "main" ]]; then
     exit 1
 fi
 
-if [[ -n "$(git status --porcelain)" ]]; then
-    echo "Error: Working tree is not clean. Commit or stash changes first."
+if [[ -n "$(git diff --stat HEAD)" ]]; then
+    echo "Error: Working tree has uncommitted changes. Commit or stash changes first."
     exit 1
 fi
 
