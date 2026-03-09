@@ -352,29 +352,38 @@ class TimezoneAdditionHandler: NSObject {
         data.selectionType = .timezone
         data.isSystemTimezone = metaInfo.0.name == NSTimeZone.system.identifier
 
-        let operationObject = TimezoneDataOperations(with: data, store: dataStore)
-        operationObject.saveObject()
-
-        // Geocode coordinates for sunrise/sunset display
+        // Geocode coordinates before saving so sunrise/sunset works immediately
         let timezoneID = metaInfo.0.name
+        let store = self.dataStore
         Task { @MainActor in
-            await TimezoneAdditionHandler.backfillCoordinates(for: timezoneID, in: self.dataStore)
+            let components = timezoneID.split(separator: "/")
+            if let cityComponent = components.last {
+                let cityName = cityComponent.replacingOccurrences(of: "_", with: " ")
+                if let placemark = try? await NetworkManager.geocodeAddress(cityName),
+                   let location = placemark.location {
+                    data.latitude = location.coordinate.latitude
+                    data.longitude = location.coordinate.longitude
+                }
+            }
+
+            let operationObject = TimezoneDataOperations(with: data, store: store)
+            operationObject.saveObject()
+
+            host.searchResultsDataSource.cleanupFilterArray()
+            host.searchResultsDataSource.timezoneFilteredArray = []
+            host.placeholderLabel.placeholderString = UserDefaultKeys.emptyString
+            host.searchField.stringValue = UserDefaultKeys.emptyString
+
+            self.reloadSearchResults()
+            host.refreshTimezoneTableView(true)
+            host.refreshMainTable()
+
+            host.timezonePanel.close()
+            host.searchField.placeholderString = NSLocalizedString("Search Field Placeholder",
+                                                                   comment: "Search Field Placeholder")
+            host.availableTimezoneTableView.isHidden = false
+            self.isActivityInProgress = false
         }
-
-        host.searchResultsDataSource.cleanupFilterArray()
-        host.searchResultsDataSource.timezoneFilteredArray = []
-        host.placeholderLabel.placeholderString = UserDefaultKeys.emptyString
-        host.searchField.stringValue = UserDefaultKeys.emptyString
-
-        reloadSearchResults()
-        host.refreshTimezoneTableView(true)
-        host.refreshMainTable()
-
-        host.timezonePanel.close()
-        host.searchField.placeholderString = NSLocalizedString("Search Field Placeholder",
-                                                               comment: "Search Field Placeholder")
-        host.availableTimezoneTableView.isHidden = false
-        isActivityInProgress = false
     }
 
     private func metadata(for selection: TimezoneMetadata) -> (NSTimeZone, TimezoneMetadata) {
@@ -442,38 +451,3 @@ extension TimezoneAdditionHandler {
     }
 }
 
-// MARK: - Coordinate Backfill
-
-extension TimezoneAdditionHandler {
-    /// Geocode coordinates for a timezone entry and update the stored data.
-    /// Extracts city name from IANA timezone ID (e.g. "America/New_York" → "New York").
-    static func backfillCoordinates(for timezoneID: String, in store: DataStoring) async {
-        let components = timezoneID.split(separator: "/")
-        guard let cityComponent = components.last else { return }
-        let cityName = cityComponent.replacingOccurrences(of: "_", with: " ")
-
-        do {
-            let placemark = try await NetworkManager.geocodeAddress(cityName)
-            guard let location = placemark.location else { return }
-
-            let allTimezones = store.timezones()
-            var updated = false
-            let newTimezones: [Data] = allTimezones.compactMap { data in
-                guard let tz = TimezoneData.customObject(from: data) else { return data }
-                guard tz.timezoneID == timezoneID,
-                      tz.latitude == nil || tz.longitude == nil else { return data }
-
-                tz.latitude = location.coordinate.latitude
-                tz.longitude = location.coordinate.longitude
-                updated = true
-                return NSKeyedArchiver.clocker_archive(with: tz)
-            }
-
-            if updated {
-                store.setTimezones(newTimezones)
-            }
-        } catch {
-            Logger.info("Failed to geocode coordinates for \(timezoneID): \(error.localizedDescription)")
-        }
-    }
-}

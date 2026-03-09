@@ -1,7 +1,6 @@
 // Copyright © 2015 Abhishek Banthia
 
 import Cocoa
-import CoreLocation
 import CoreLoggerKit
 import CoreModelKit
 import Sparkle
@@ -55,69 +54,6 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         assignShortcut()
 
         setActivationPolicy()
-
-        // Backfill coordinates for timezone entries that lack them (needed for sunrise/sunset)
-        backfillMissingCoordinates()
-    }
-
-    private func backfillMissingCoordinates() {
-        let store = DataStore.shared()
-        let timezones = store.timezones()
-
-        // Collect timezone IDs that need coordinate backfill
-        var idsToBackfill: [String] = []
-        for data in timezones {
-            guard let tz = TimezoneData.customObject(from: data),
-                  tz.selectionType == .timezone,
-                  tz.latitude == nil || tz.longitude == nil,
-                  let timezoneID = tz.timezoneID
-            else { continue }
-            idsToBackfill.append(timezoneID)
-        }
-
-        guard !idsToBackfill.isEmpty else { return }
-
-        // Geocode sequentially to avoid CLGeocoder rate limiting
-        Task.detached(priority: .utility) {
-            var results: [String: CLLocationCoordinate2D] = [:]
-            for id in idsToBackfill {
-                if let (resolvedID, coord) = await Self.geocodeTimezone(id) {
-                    results[resolvedID] = coord
-                }
-            }
-
-            let coordinates = results
-            guard !coordinates.isEmpty else { return }
-
-            await MainActor.run {
-                let allTimezones = store.timezones()
-                let updated: [Data] = allTimezones.compactMap { data in
-                    guard let tz = TimezoneData.customObject(from: data),
-                          tz.selectionType == .timezone,
-                          tz.latitude == nil || tz.longitude == nil,
-                          let id = tz.timezoneID,
-                          let coord = coordinates[id]
-                    else { return data }
-                    tz.latitude = coord.latitude
-                    tz.longitude = coord.longitude
-                    return NSKeyedArchiver.clocker_archive(with: tz)
-                }
-                store.setTimezones(updated)
-            }
-        }
-    }
-
-    private static func geocodeTimezone(_ timezoneID: String) async -> (String, CLLocationCoordinate2D)? {
-        let components = timezoneID.components(separatedBy: "/")
-        guard let city = components.last else { return nil }
-        let cityName = city.replacingOccurrences(of: "_", with: " ")
-        do {
-            let placemark = try await NetworkManager.geocodeAddress(cityName)
-            guard let location = placemark.location else { return nil }
-            return (timezoneID, location.coordinate)
-        } catch {
-            return nil
-        }
     }
 
     // Should we have a dock icon or just stay in the menubar?
