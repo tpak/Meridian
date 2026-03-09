@@ -7,8 +7,7 @@ struct AboutView: View {
     private let versionString: String = {
         let appName = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") ?? "Meridian"
         let shortVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "N/A"
-        let buildVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") ?? "N/A"
-        return "\(appName) \(shortVersion) (\(buildVersion))"
+        return "\(appName) \(shortVersion)"
     }()
 
     var body: some View {

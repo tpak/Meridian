@@ -39,9 +39,6 @@ class PreferencesViewController: ParentViewController {
 
     @IBOutlet private var tableview: NSView!
     @IBOutlet private var additionalSortOptions: NSView!
-    @IBOutlet var startAtLoginLabel: NSTextField!
-
-    @IBOutlet var startupCheckbox: NSButton!
 
     // Sorting
     private var arePlacesSortedInAscendingOrder = false
@@ -56,8 +53,6 @@ class PreferencesViewController: ParentViewController {
     private var selectionsDataSource: PreferencesDataSource!
     // Search Results Data Source Handler
     var searchResultsDataSource: SearchDataSource!
-    private lazy var startupManager = StartupManager()
-
     private lazy var notimezoneView: NoTimezoneView? = NoTimezoneView(frame: tableview.frame)
 
     private var timezoneAdditionHandler: TimezoneAdditionHandler!
@@ -90,8 +85,6 @@ class PreferencesViewController: ParentViewController {
     }
 
     private func setupLocalizedText() {
-        startAtLoginLabel.stringValue = NSLocalizedString("Start at Login",
-                                                          comment: "Start at Login")
         timezoneSortButton.title = NSLocalizedString("Sort by Time Difference",
                                                      comment: "Start at Login")
         timezoneNameSortButton.title = NSLocalizedString("Sort by Name",
@@ -178,14 +171,10 @@ class PreferencesViewController: ParentViewController {
 
         setupColor()
 
-        startupCheckbox.integerValue = dataStore.retrieve(key: UserDefaultKeys.startAtLogin) as? Int ?? 0
-
         searchField.bezelStyle = .roundedBezel
     }
 
     private func setupColor() {
-        startAtLoginLabel.textColor = NSColor.labelColor
-
         [timezoneNameSortButton, labelSortButton, timezoneSortButton].forEach {
             $0?.attributedTitle = NSAttributedString(string: $0?.title ?? UserDefaultKeys.emptyString, attributes: [
                 NSAttributedString.Key.foregroundColor: NSColor.labelColor,
@@ -380,12 +369,6 @@ extension PreferencesViewController {
         }
 
         statusItem.setupStatusItem()
-    }
-}
-
-extension PreferencesViewController {
-    @IBAction func loginPreferenceChanged(_ sender: NSButton) {
-        startupManager.toggleLogin(sender.state == .on)
     }
 }
 
