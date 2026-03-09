@@ -4,5 +4,18 @@
         <title>Meridian Updates</title>
         <description>Most recent changes with links to updates.</description>
         <language>en</language>
+        <item>
+            <title>Version 2.6.0</title>
+            <pubDate>Sun, 09 Mar 2026 10:42:28 +0000</pubDate>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:version>2.6.0</sparkle:version>
+            <description><![CDATA[
+                <ul>
+                    <li>Fix slow startup caused by coordinate geocoding on every launch</li>
+                    <li>Move Start at Login and Check for Updates to About tab</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/meridian/releases/download/v2.6.0/Meridian.app.zip" sparkle:edSignature="auK8Nk8JXx7eahLZhxWZfc18zMwIywEkVbJ32ZdOc9i5ggF7y03qohulumjYKKlfglRoIszktmihcXhuW5nTAA==" length="3159387" type="application/octet-stream"/>
+        </item>
     </channel>
 </rss>
