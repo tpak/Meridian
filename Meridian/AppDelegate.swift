@@ -4,11 +4,13 @@ import Cocoa
 import CoreLocation
 import CoreLoggerKit
 import CoreModelKit
+import Sparkle
 
 @main
 open class AppDelegate: NSObject, NSApplicationDelegate {
     internal lazy var panelController = PanelController(windowNibName: .panel)
     private var statusBarHandler: StatusItemHandler!
+    let updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
 
     public func applicationDidFinishLaunching(_: Notification) {
         AppDefaults.initialize(with: DataStore.shared(), defaults: UserDefaults.standard)
@@ -20,9 +22,11 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
 
         let toggleMenuItem = NSMenuItem(title: "Toggle Panel", action: #selector(AppDelegate.togglePanel(_:)), keyEquivalent: "")
         let openPreferences = NSMenuItem(title: "Settings", action: #selector(AppDelegate.openPreferencesWindow), keyEquivalent: ",")
+        let checkForUpdates = NSMenuItem(title: "Check for Updates…", action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)), keyEquivalent: "")
+        checkForUpdates.target = updaterController
         let hideFromDockMenuItem = NSMenuItem(title: "Hide from Dock", action: #selector(AppDelegate.hideFromDock), keyEquivalent: "")
 
-        [toggleMenuItem, openPreferences, hideFromDockMenuItem].forEach {
+        [toggleMenuItem, openPreferences, checkForUpdates, hideFromDockMenuItem].forEach {
             $0.isEnabled = true
             menu.addItem($0)
         }

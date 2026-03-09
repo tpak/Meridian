@@ -1,6 +1,7 @@
 // Copyright © 2015 Abhishek Banthia
 
 import Cocoa
+import Sparkle
 
 /// Builds the "More Options" context menu for the panel.
 /// Extracted from ParentPanelController to reduce god-class complexity.
@@ -14,6 +15,19 @@ enum PanelContextMenu {
                                       action: #selector(ParentPanelController.rate), keyEquivalent: "")
         let sendFeedback = NSMenuItem(title: "Send Feedback...",
                                       action: #selector(ParentPanelController.reportIssue), keyEquivalent: "")
+
+        // Check for Updates via Sparkle
+        let checkForUpdates: NSMenuItem
+        if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
+            checkForUpdates = NSMenuItem(title: "Check for Updates…",
+                                         action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)),
+                                         keyEquivalent: "")
+            checkForUpdates.target = appDelegate.updaterController
+        } else {
+            checkForUpdates = NSMenuItem(title: "Check for Updates…", action: nil, keyEquivalent: "")
+            checkForUpdates.isEnabled = false
+        }
+
         let terminateOption = NSMenuItem(title: "Quit Meridian",
                                          action: #selector(ParentPanelController.terminateClocker), keyEquivalent: "")
 
@@ -25,6 +39,8 @@ enum PanelContextMenu {
         clockerVersionInfo.isEnabled = false
 
         menu.addItem(openPreferences)
+        menu.addItem(checkForUpdates)
+        menu.addItem(NSMenuItem.separator())
         menu.addItem(rateMeridian)
         menu.addItem(withTitle: "FAQs", action: #selector(ParentPanelController.openFAQs), keyEquivalent: "")
         menu.addItem(sendFeedback)
