@@ -319,7 +319,7 @@ class StatusItemHandler: NSObject {
         }
 
         statusItem.button?.title = UserDefaultKeys.emptyString
-        statusItem.button?.image = NSImage(systemSymbolName: "globe", accessibilityDescription: "Meridian")
+        statusItem.button?.image = NSImage(systemSymbolName: "clock.fill", accessibilityDescription: "Meridian")
         statusItem.button?.imagePosition = .imageOnly
         statusItem.button?.toolTip = "Meridian"
     }
