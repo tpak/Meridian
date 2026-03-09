@@ -6,8 +6,8 @@ import Foundation
 
 extension ParentPanelController: NSCollectionViewDataSource {
     func collectionView(_: NSCollectionView, numberOfItemsInSection _: Int) -> Int {
-        let futureSliderDayPreference = DataStore.shared().retrieve(key: UserDefaultKeys.futureSliderRange) as? NSNumber ?? 5
-        let futureSliderDayRange = (futureSliderDayPreference.intValue + 1)
+        let futureSliderDayPreference = DataStore.shared().retrieve(key: UserDefaultKeys.futureSliderRange) as? NSNumber ?? 6
+        let futureSliderDayRange = futureSliderDayPreference.intValue
         return (PanelConstants.modernSliderPointsInADay * futureSliderDayRange * 2) + 1
     }
 
@@ -147,8 +147,8 @@ extension ParentPanelController {
     }
 
     public func setDefaultDateLabel(_ index: Int) -> Int {
-        let futureSliderDayPreference = DataStore.shared().retrieve(key: UserDefaultKeys.futureSliderRange) as? NSNumber ?? 5
-        let futureSliderDayRange = (futureSliderDayPreference.intValue + 1)
+        let futureSliderDayPreference = DataStore.shared().retrieve(key: UserDefaultKeys.futureSliderRange) as? NSNumber ?? 6
+        let futureSliderDayRange = futureSliderDayPreference.intValue
         let totalCount = (PanelConstants.modernSliderPointsInADay * futureSliderDayRange * 2) + 1
         let centerPoint = Int(ceil(Double(totalCount / 2)))
         if index >= (centerPoint + 1) {

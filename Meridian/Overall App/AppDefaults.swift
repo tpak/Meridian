@@ -29,7 +29,7 @@ class AppDefaults {
                 UserDefaultKeys.sunriseSunsetTime: 1,
                 UserDefaultKeys.userFontSizePreference: 4,
                 UserDefaultKeys.showAppInForeground: 0,
-                UserDefaultKeys.futureSliderRange: 0,
+                UserDefaultKeys.futureSliderRange: 6,
                 UserDefaultKeys.truncateTextLength: 30,
                 UserDefaultKeys.appDisplayOptions: 0,
                 UserDefaultKeys.menubarCompactMode: 1]

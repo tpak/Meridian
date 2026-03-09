@@ -3,6 +3,7 @@
 import Cocoa
 import CoreLoggerKit
 import CoreModelKit
+import Sparkle
 
 class AppearanceViewController: ParentViewController {
     @IBOutlet var timeFormat: NSPopUpButton!
@@ -17,6 +18,16 @@ class AppearanceViewController: ParentViewController {
     @IBOutlet var appearanceTab: NSTabView!
     @IBOutlet var appDisplayControl: NSSegmentedControl!
 
+    // Start at Login
+    @IBOutlet var startAtLoginLabel: NSTextField!
+    @IBOutlet var startupCheckbox: NSButton!
+
+    // Sparkle Update Controls
+    @IBOutlet var updateCheckIntervalPopup: NSPopUpButton!
+
+    private lazy var startupManager = StartupManager()
+    private static let sliderDayValues = [1, 2, 3, 4, 5, 6, 7, 14, 30, 90]
+
     private var previewTimezones: [TimezoneData] = []
 
     override func viewDidLoad() {
@@ -29,7 +40,14 @@ class AppearanceViewController: ParentViewController {
         setupTimeFormatPopup()
 
         sliderDayRangePopup.removeAllItems()
-        sliderDayRangePopup.addItems(withTitles: (1...7).map { $0 == 1 ? "1 day" : "\($0) days" })
+        sliderDayRangePopup.addItems(withTitles: Self.sliderDayValues.map { days in
+            switch days {
+            case 1: return "1 day"
+            case 30: return "1 month"
+            case 90: return "3 months"
+            default: return "\(days) days"
+            }
+        })
 
         setup()
 
@@ -84,8 +102,18 @@ class AppearanceViewController: ParentViewController {
             informationLabel.isHidden = menubarFavourites.isEmpty ? false : true
         }
 
-        if let selectedIndex = dataStore.retrieve(key: UserDefaultKeys.futureSliderRange) as? NSNumber {
-            sliderDayRangePopup.selectItem(at: selectedIndex.intValue)
+        if let storedValue = dataStore.retrieve(key: UserDefaultKeys.futureSliderRange) as? NSNumber {
+            let dayValue = storedValue.intValue
+            if let index = Self.sliderDayValues.firstIndex(of: dayValue) {
+                sliderDayRangePopup.selectItem(at: index)
+            } else {
+                // Legacy: stored value was an index (0-6), migrate to day value
+                let legacyDays = dayValue + 1
+                if let index = Self.sliderDayValues.firstIndex(of: legacyDays) {
+                    sliderDayRangePopup.selectItem(at: index)
+                    UserDefaults.standard.set(legacyDays, forKey: UserDefaultKeys.futureSliderRange)
+                }
+            }
         }
 
         let shouldDisplayCompact = dataStore.shouldDisplay(.menubarCompactMode)
@@ -94,6 +122,12 @@ class AppearanceViewController: ParentViewController {
         // True is Menubar Only and False is Menubar + Dock
         let appDisplayOptions = dataStore.shouldDisplay(.appDisplayOptions)
         appDisplayControl.setSelected(true, forSegment: appDisplayOptions ? 0 : 1)
+
+        // Start at Login
+        startupCheckbox?.integerValue = dataStore.retrieve(key: UserDefaultKeys.startAtLogin) as? Int ?? 0
+
+        // Sparkle update check interval
+        setupUpdateCheckIntervalPopup()
     }
 
     @IBOutlet var timeFormatLabel: NSTextField!
@@ -128,12 +162,14 @@ class AppearanceViewController: ParentViewController {
         menubarModeLabel.stringValue = "Menubar Mode".localized()
         previewLabel.stringValue = "Preview".localized()
         miscelleaneousLabel.stringValue = "Miscellaneous".localized()
+        startAtLoginLabel?.stringValue = NSLocalizedString("Start at Login",
+                                                           comment: "Start at Login")
 
         [timeFormatLabel, panelTheme,
          dayDisplayOptionsLabel, showSliderLabel,
          showSunriseLabel, largerTextLabel, futureSliderRangeLabel,
          includeDayLabel, includeDateLabel, includePlaceLabel, appDisplayLabel, menubarModeLabel,
-         previewLabel, miscelleaneousLabel].forEach {
+         previewLabel, miscelleaneousLabel, startAtLoginLabel].forEach {
             $0?.textColor = NSColor.labelColor
         }
 
@@ -285,6 +321,53 @@ class AppearanceViewController: ParentViewController {
 
     @IBAction func fontSliderChanged(_: Any) {
         previewPanelTableView.reloadData()
+    }
+
+    // MARK: - Start at Login
+
+    @IBAction func loginPreferenceChanged(_ sender: NSButton) {
+        startupManager.toggleLogin(sender.state == .on)
+    }
+
+    // MARK: - Slider Day Range
+
+    @IBAction func sliderDayRangeChanged(_ sender: NSPopUpButton) {
+        let index = sender.indexOfSelectedItem
+        guard index >= 0, index < Self.sliderDayValues.count else { return }
+        let dayValue = Self.sliderDayValues[index]
+        UserDefaults.standard.set(dayValue, forKey: UserDefaultKeys.futureSliderRange)
+    }
+
+    // MARK: - Sparkle Update Check Interval
+
+    private static let updateIntervalValues: [TimeInterval] = [86400, 604800, 2592000]
+    private static let updateIntervalLabels = ["Daily", "Weekly", "Monthly"]
+
+    private func setupUpdateCheckIntervalPopup() {
+        guard let popup = updateCheckIntervalPopup else { return }
+        popup.removeAllItems()
+        popup.addItems(withTitles: Self.updateIntervalLabels)
+
+        guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
+        let currentInterval = appDelegate.updaterController.updater.updateCheckInterval
+        if let index = Self.updateIntervalValues.firstIndex(of: currentInterval) {
+            popup.selectItem(at: index)
+        } else {
+            // Default to weekly if no match
+            popup.selectItem(at: 1)
+        }
+    }
+
+    @IBAction func checkForUpdatesNow(_: NSButton) {
+        guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
+        appDelegate.updaterController.checkForUpdates(self)
+    }
+
+    @IBAction func updateCheckIntervalChanged(_ sender: NSPopUpButton) {
+        let index = sender.indexOfSelectedItem
+        guard index >= 0, index < Self.updateIntervalValues.count else { return }
+        guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
+        appDelegate.updaterController.updater.updateCheckInterval = Self.updateIntervalValues[index]
     }
 }
 
