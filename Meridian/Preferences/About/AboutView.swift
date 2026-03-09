@@ -2,6 +2,7 @@
 
 import SwiftUI
 import CoreLoggerKit
+import Sparkle
 
 struct AboutView: View {
     private let versionString: String = {
@@ -9,6 +10,12 @@ struct AboutView: View {
         let shortVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "N/A"
         return "\(appName) \(shortVersion)"
     }()
+
+    @AppStorage(UserDefaultKeys.startAtLogin) private var startAtLogin = false
+    private let startupManager = StartupManager()
+
+    fileprivate static let updateIntervalValues: [TimeInterval] = [86400, 604800, 2592000]
+    fileprivate static let updateIntervalLabels = ["Daily", "Weekly", "Monthly"]
 
     var body: some View {
         VStack(spacing: 15) {
@@ -41,6 +48,23 @@ struct AboutView: View {
             ) {
                 openURL(AboutUsConstants.GitHubURL, logEvent: "Opened GitHub",
                         metadata: ["Country": Locale.autoupdatingCurrent.region?.identifier ?? ""])
+            }
+
+            Divider()
+                .padding(.horizontal, 20)
+
+            Toggle("Start at Login", isOn: $startAtLogin)
+                .font(.custom("Avenir-Book", size: 13))
+                .toggleStyle(.checkbox)
+                .accessibilityIdentifier("StartAtLogin")
+                .onChange(of: startAtLogin) { newValue in
+                    startupManager.toggleLogin(newValue)
+                }
+
+            HStack(spacing: 8) {
+                Text("Check for Updates")
+                    .font(.custom("Avenir-Light", size: 13))
+                UpdateCheckControls()
             }
         }
         .padding(20)
@@ -88,6 +112,37 @@ struct AboutView: View {
         guard let url = URL(string: urlString) else { return }
         NSWorkspace.shared.open(url)
         Logger.log(object: metadata, for: logEvent as NSString)
+    }
+}
+
+private struct UpdateCheckControls: View {
+    @State private var selectedIndex: Int
+
+    init() {
+        let updater = (NSApplication.shared.delegate as? AppDelegate)?.updaterController.updater
+        let currentInterval = updater?.updateCheckInterval ?? 604800
+        let index = AboutView.updateIntervalValues.firstIndex(of: currentInterval) ?? 1
+        _selectedIndex = State(initialValue: index)
+    }
+
+    var body: some View {
+        Picker("", selection: $selectedIndex) {
+            ForEach(0..<AboutView.updateIntervalLabels.count, id: \.self) { index in
+                Text(AboutView.updateIntervalLabels[index]).tag(index)
+            }
+        }
+        .labelsHidden()
+        .frame(width: 100)
+        .onChange(of: selectedIndex) { newValue in
+            guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
+            appDelegate.updaterController.updater.updateCheckInterval = AboutView.updateIntervalValues[newValue]
+        }
+
+        Button("Check Now") {
+            guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
+            appDelegate.updaterController.checkForUpdates(nil)
+        }
+        .font(.custom("Avenir-Light", size: 12))
     }
 }
 

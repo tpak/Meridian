@@ -3,7 +3,6 @@
 import Cocoa
 import CoreLoggerKit
 import CoreModelKit
-import Sparkle
 
 class AppearanceViewController: ParentViewController {
     @IBOutlet var timeFormat: NSPopUpButton!
@@ -18,14 +17,6 @@ class AppearanceViewController: ParentViewController {
     @IBOutlet var appearanceTab: NSTabView!
     @IBOutlet var appDisplayControl: NSSegmentedControl!
 
-    // Start at Login
-    @IBOutlet var startAtLoginLabel: NSTextField!
-    @IBOutlet var startupCheckbox: NSButton!
-
-    // Sparkle Update Controls
-    @IBOutlet var updateCheckIntervalPopup: NSPopUpButton!
-
-    private lazy var startupManager = StartupManager()
     private static let sliderDayValues = [1, 2, 3, 4, 5, 6, 7, 14, 30, 90]
 
     private var previewTimezones: [TimezoneData] = []
@@ -123,11 +114,6 @@ class AppearanceViewController: ParentViewController {
         let appDisplayOptions = dataStore.shouldDisplay(.appDisplayOptions)
         appDisplayControl.setSelected(true, forSegment: appDisplayOptions ? 0 : 1)
 
-        // Start at Login
-        startupCheckbox?.integerValue = dataStore.retrieve(key: UserDefaultKeys.startAtLogin) as? Int ?? 0
-
-        // Sparkle update check interval
-        setupUpdateCheckIntervalPopup()
     }
 
     @IBOutlet var timeFormatLabel: NSTextField!
@@ -162,14 +148,12 @@ class AppearanceViewController: ParentViewController {
         menubarModeLabel.stringValue = "Menubar Mode".localized()
         previewLabel.stringValue = "Preview".localized()
         miscelleaneousLabel.stringValue = "Miscellaneous".localized()
-        startAtLoginLabel?.stringValue = NSLocalizedString("Start at Login",
-                                                           comment: "Start at Login")
 
         [timeFormatLabel, panelTheme,
          dayDisplayOptionsLabel, showSliderLabel,
          showSunriseLabel, largerTextLabel, futureSliderRangeLabel,
          includeDayLabel, includeDateLabel, includePlaceLabel, appDisplayLabel, menubarModeLabel,
-         previewLabel, miscelleaneousLabel, startAtLoginLabel].forEach {
+         previewLabel, miscelleaneousLabel].forEach {
             $0?.textColor = NSColor.labelColor
         }
 
@@ -323,12 +307,6 @@ class AppearanceViewController: ParentViewController {
         previewPanelTableView.reloadData()
     }
 
-    // MARK: - Start at Login
-
-    @IBAction func loginPreferenceChanged(_ sender: NSButton) {
-        startupManager.toggleLogin(sender.state == .on)
-    }
-
     // MARK: - Slider Day Range
 
     @IBAction func sliderDayRangeChanged(_ sender: NSPopUpButton) {
@@ -338,37 +316,6 @@ class AppearanceViewController: ParentViewController {
         UserDefaults.standard.set(dayValue, forKey: UserDefaultKeys.futureSliderRange)
     }
 
-    // MARK: - Sparkle Update Check Interval
-
-    private static let updateIntervalValues: [TimeInterval] = [86400, 604800, 2592000]
-    private static let updateIntervalLabels = ["Daily", "Weekly", "Monthly"]
-
-    private func setupUpdateCheckIntervalPopup() {
-        guard let popup = updateCheckIntervalPopup else { return }
-        popup.removeAllItems()
-        popup.addItems(withTitles: Self.updateIntervalLabels)
-
-        guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
-        let currentInterval = appDelegate.updaterController.updater.updateCheckInterval
-        if let index = Self.updateIntervalValues.firstIndex(of: currentInterval) {
-            popup.selectItem(at: index)
-        } else {
-            // Default to weekly if no match
-            popup.selectItem(at: 1)
-        }
-    }
-
-    @IBAction func checkForUpdatesNow(_: NSButton) {
-        guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
-        appDelegate.updaterController.checkForUpdates(self)
-    }
-
-    @IBAction func updateCheckIntervalChanged(_ sender: NSPopUpButton) {
-        let index = sender.indexOfSelectedItem
-        guard index >= 0, index < Self.updateIntervalValues.count else { return }
-        guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
-        appDelegate.updaterController.updater.updateCheckInterval = Self.updateIntervalValues[index]
-    }
 }
 
 extension AppearanceViewController: NSTableViewDataSource, NSTableViewDelegate {

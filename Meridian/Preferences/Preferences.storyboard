@@ -670,77 +670,6 @@
                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                 </textField>
-                                                <box verticalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="sep-SL-2nd">
-                                                    <rect key="frame" x="-3" y="50" width="546" height="5"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="height" constant="1" id="sep-h1-cst"/>
-                                                    </constraints>
-                                                </box>
-                                                <button translatesAutoresizingMaskIntoConstraints="NO" id="sal-CB-new">
-                                                    <rect key="frame" x="242" y="25" width="18" height="18"/>
-                                                    <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" alignment="center" inset="2" id="sal-BC-cel">
-                                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                        <font key="font" size="13" name="Avenir-Book"/>
-                                                    </buttonCell>
-                                                    <constraints>
-                                                        <constraint firstAttribute="height" constant="14" id="sal-h-cst"/>
-                                                        <constraint firstAttribute="width" relation="lessThanOrEqual" constant="20" id="sal-w-cst"/>
-                                                    </constraints>
-                                                    <accessibility identifier="StartAtLogin"/>
-                                                    <connections>
-                                                        <action selector="loginPreferenceChanged:" target="1aL-zR-8L4" id="sal-act-1"/>
-                                                        <binding destination="Gpv-Gr-MxZ" name="value" keyPath="values.startAtLogin" id="sal-bnd-1"/>
-                                                    </connections>
-                                                </button>
-                                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="sal-LB-new">
-                                                    <rect key="frame" x="264" y="27" width="84" height="18"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="80" id="sal-lb-w"/>
-                                                    </constraints>
-                                                    <textFieldCell key="cell" lineBreakMode="clipping" alignment="left" title="Start at Login" id="sal-LB-cel">
-                                                        <font key="font" size="13" name="Avenir-Book"/>
-                                                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                </textField>
-                                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" preferredMaxLayoutWidth="120" translatesAutoresizingMaskIntoConstraints="NO" id="uci-LB-new">
-                                                    <rect key="frame" x="17" y="-10" width="204" height="18"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="uci-LB-wc"/>
-                                                    </constraints>
-                                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Check for Updates" id="uci-LB-cel">
-                                                        <font key="font" size="13" name="Avenir-Light"/>
-                                                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                </textField>
-                                                <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uci-PU-new">
-                                                    <rect key="frame" x="239" y="-15" width="100" height="25"/>
-                                                    <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="uci-PU-cel">
-                                                        <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                                        <font key="font" size="12" name="Avenir-Light"/>
-                                                        <menu key="menu" id="uci-PU-mnu">
-                                                            <items>
-                                                                <menuItem title="Daily" id="uci-MI-d"/>
-                                                                <menuItem title="Weekly" id="uci-MI-w"/>
-                                                                <menuItem title="Monthly" id="uci-MI-m"/>
-                                                            </items>
-                                                        </menu>
-                                                    </popUpButtonCell>
-                                                    <connections>
-                                                        <action selector="updateCheckIntervalChanged:" target="1aL-zR-8L4" id="uci-act-1"/>
-                                                    </connections>
-                                                </popUpButton>
-                                                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cfu-BT-new">
-                                                    <rect key="frame" x="360" y="-15" width="150" height="25"/>
-                                                    <buttonCell key="cell" type="push" title="Check Now" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="cfu-BT-cel">
-                                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                        <font key="font" size="12" name="Avenir-Light"/>
-                                                    </buttonCell>
-                                                    <connections>
-                                                        <action selector="checkForUpdatesNow:" target="1aL-zR-8L4" id="cfu-act-1"/>
-                                                    </connections>
-                                                </button>
                                                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ffU-Ce-sfU">
                                                     <rect key="frame" x="214" y="185" width="112" height="22"/>
                                                     <constraints>
@@ -794,19 +723,6 @@
                                                 <constraint firstItem="HNj-dh-8gr" firstAttribute="trailing" secondItem="Utg-yF-Rso" secondAttribute="trailing" id="yPE-hM-Mbb"/>
                                                 <constraint firstItem="DjV-qq-hr9" firstAttribute="leading" secondItem="Mai-SZ-AEi" secondAttribute="leading" id="ykI-Ig-kwf"/>
                                                 <constraint firstItem="GaR-Qm-7u4" firstAttribute="top" secondItem="HNj-dh-8gr" secondAttribute="bottom" constant="14" id="z8z-AY-l8y"/>
-                                                <constraint firstItem="sep-SL-2nd" firstAttribute="leading" secondItem="mF4-bp-EID" secondAttribute="leading" constant="-3" id="sep-l-cst"/>
-                                                <constraint firstAttribute="trailing" secondItem="sep-SL-2nd" secondAttribute="trailing" constant="-3" id="sep-r-cst"/>
-                                                <constraint firstItem="sep-SL-2nd" firstAttribute="top" secondItem="pk6-co-N73" secondAttribute="bottom" constant="14" id="sep-t-cst"/>
-                                                <constraint firstItem="sal-CB-new" firstAttribute="top" secondItem="sep-SL-2nd" secondAttribute="bottom" constant="12" id="sal-t-cst"/>
-                                                <constraint firstItem="sal-CB-new" firstAttribute="leading" secondItem="DjV-qq-hr9" secondAttribute="leading" id="sal-l-cst"/>
-                                                <constraint firstItem="sal-LB-new" firstAttribute="leading" secondItem="sal-CB-new" secondAttribute="trailing" constant="8" id="sal-lb-l"/>
-                                                <constraint firstItem="sal-LB-new" firstAttribute="centerY" secondItem="sal-CB-new" secondAttribute="centerY" constant="-1.5" id="sal-lb-cy"/>
-                                                <constraint firstItem="uci-LB-new" firstAttribute="top" secondItem="sal-CB-new" secondAttribute="bottom" constant="14" id="uci-lb-t"/>
-                                                <constraint firstItem="uci-LB-new" firstAttribute="trailing" secondItem="GaR-Qm-7u4" secondAttribute="trailing" id="uci-lb-tr"/>
-                                                <constraint firstItem="uci-PU-new" firstAttribute="centerY" secondItem="uci-LB-new" secondAttribute="centerY" id="uci-pu-cy"/>
-                                                <constraint firstItem="uci-PU-new" firstAttribute="leading" secondItem="DjV-qq-hr9" secondAttribute="leading" constant="-2" id="uci-pu-l"/>
-                                                <constraint firstItem="cfu-BT-new" firstAttribute="centerY" secondItem="uci-PU-new" secondAttribute="centerY" id="cfu-bt-cy"/>
-                                                <constraint firstItem="cfu-BT-new" firstAttribute="leading" secondItem="uci-PU-new" secondAttribute="trailing" constant="8" id="cfu-bt-l"/>
                                             </constraints>
                                         </view>
                                     </tabViewItem>
@@ -847,9 +763,6 @@
                         <outlet property="timeFormat" destination="iiG-Xu-4id" id="oM3-1Y-fAF"/>
                         <outlet property="timeFormatLabel" destination="wtO-uL-QBf" id="udS-d6-Tep"/>
                         <outlet property="visualEffectView" destination="Wj2-aw-ZDm" id="TZy-V2-JFS"/>
-                        <outlet property="startAtLoginLabel" destination="sal-LB-new" id="sal-out-lb"/>
-                        <outlet property="startupCheckbox" destination="sal-CB-new" id="sal-out-cb"/>
-                        <outlet property="updateCheckIntervalPopup" destination="uci-PU-new" id="uci-out-pu"/>
                     </connections>
                 </viewController>
                 <customObject id="u7K-hb-gdM" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
