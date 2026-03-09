@@ -33,6 +33,12 @@ xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration 
 
 # Lint
 swiftlint
+
+# Release (bumps version, builds, signs, creates GitHub release, updates appcast)
+make release VERSION=X.Y.Z
+# With inline notes (one bullet per line):
+make release VERSION=X.Y.Z NOTES="Fix bug
+Add feature"
 ```
 
 **Critical**: Always use `-parallel-testing-enabled NO` for unit tests. Parallel runners crash with "exit code 0" on macOS 15 due to Launch Services failures.
