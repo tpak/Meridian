@@ -46,28 +46,10 @@ class PanelTests: XCTestCase {
         continueAfterFailure = false
         app = XCUIApplication()
         app.launch()
-
-        if app.tables["FloatingTableView"].exists {
-            app.buttons["FloatingPin"].click()
-        }
     }
 
     override func tearDown() {
         super.tearDown()
-    }
-
-    func testPinningPanelAndBack() {
-        app.tapMenubarIcon()
-
-        app.buttons["Pin"].click()
-
-        XCTAssertTrue(app.tables["FloatingTableView"].exists, "Floating Table unexpectedly doesn't exist.")
-
-        app.buttons["FloatingPin"].click()
-
-        app.tapMenubarIcon()
-
-        XCTAssertTrue(app.tables["mainTableView"].exists, "Main Table unexpectedly doesn't exist")
     }
 
     func testChangingLabelFromPopover() {
@@ -106,7 +88,7 @@ class PanelTests: XCTestCase {
         let upcomingView = app.collectionViews["UpcomingEventCollectionView"]
         let beforeUpcomingEventViewExist = upcomingView.exists
 
-        app.buttons["Preferences"].click()
+        app.tables["mainTableView"].typeKey(",", modifierFlags: .command)
 
         let clockerWindow = app.windows["Meridian"]
         let toolbarsQuery = clockerWindow.toolbars.buttons

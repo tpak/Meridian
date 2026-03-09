@@ -15,10 +15,7 @@ class PreferencesTest: XCTestCase {
         app = XCUIApplication()
         app.launchArguments.append(CLUITestingLaunchArgument)
         app.launch()
-        if app.tables["FloatingTableView"].exists {
-            app.tapMenubarIcon()
-            app.buttons["FloatingPin"].click()
-        }
+        app.tapMenubarIcon()
     }
 
     func testRemovingButtonVisibility() {
@@ -267,7 +264,7 @@ class PreferencesTest: XCTestCase {
 
     func testNoTimezone() {
         app.tapMenubarIcon()
-        app.buttons["Preferences"].click()
+        app.tables["mainTableView"].typeKey(",", modifierFlags: .command)
 
         deleteAllTimezones()
 
@@ -291,7 +288,7 @@ class PreferencesTest: XCTestCase {
 
     func testWarningIfMoreThanOneMenubarIsSelected() {
         app.tapMenubarIcon()
-        app.buttons["Preferences"].click()
+        app.tables["mainTableView"].typeKey(",", modifierFlags: .command)
 
         let preferencesTable = app.tables["TimezoneTableView"]
         XCTAssertTrue(preferencesTable.exists)

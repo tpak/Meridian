@@ -31,7 +31,7 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openPreferencesWindow() {
-        panelController.openPreferences(NSButton())
+        panelController.openPreferencesWindow()
     }
 
     @objc func hideFromDock() {

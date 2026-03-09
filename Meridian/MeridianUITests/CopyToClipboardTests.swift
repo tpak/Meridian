@@ -9,11 +9,6 @@ class CopyToClipboardTests: XCTestCase {
         continueAfterFailure = false
         app = XCUIApplication()
         app.launch()
-
-        if app.tables["FloatingTableView"].exists == false {
-            app.tapMenubarIcon()
-            app.buttons["Pin"].click()
-        }
     }
 
     override func tearDownWithError() throws {
@@ -21,7 +16,9 @@ class CopyToClipboardTests: XCTestCase {
     }
 
     func testFullCopy() throws {
-        let cell = app.tables["FloatingTableView"].cells.firstMatch
+        app.tapMenubarIcon()
+
+        let cell = app.tables["mainTableView"].cells.firstMatch
         let customLabel = cell.staticTexts["CustomNameLabelForCell"]
         guard let value = customLabel.value else { return }
         let time = cell.staticTexts["ActualTime"].value ?? "Nil Value"
@@ -35,27 +32,21 @@ class CopyToClipboardTests: XCTestCase {
                   "Clipboard value (\(actualValue)) doesn't match expected result: \(expectedValue)")
 
         // Test full copy
-        let cellCount = app.tables["FloatingTableView"].cells.count
+        let cellCount = app.tables["mainTableView"].cells.count
         var clipboardValue: [String] = []
         for cellIndex in 0 ..< cellCount {
-            let cell = app.tables["FloatingTableView"].cells.element(boundBy: cellIndex)
+            let cell = app.tables["mainTableView"].cells.element(boundBy: cellIndex)
             let time = cell.staticTexts["ActualTime"].value ?? "Nil Value"
             clipboardValue.append("\(time)")
         }
-        
-        
 
         app.buttons["Share"].click()
     }
 
     func testModernSlider() {
-        if app.buttons["FloatingPin"].exists {
-            app.buttons["FloatingPin"].click()
-        }
-
         app.tapMenubarIcon()
         let modernSliderExists = app.collectionViews["ModernSlider"].exists
-        app.buttons["Preferences"].click()
+        app.tables["mainTableView"].typeKey(",", modifierFlags: .command)
 
         let appearanceTab = app.toolbars.buttons.element(boundBy: 1)
         appearanceTab.click()

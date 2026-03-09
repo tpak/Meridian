@@ -16,10 +16,7 @@ class AboutUsTests: XCTestCase {
         app.launchArguments.append(CLUITestingLaunchArgument)
         app.launch()
 
-        if app.tables["FloatingTableView"].exists {
-            app.tapMenubarIcon()
-            app.buttons["FloatingPin"].click()
-        }
+        app.tapMenubarIcon()
     }
 
     private func tapAboutTab() {
@@ -32,8 +29,7 @@ class AboutUsTests: XCTestCase {
     // We verify the button exists and is clickable; actual URL opening
     // cannot be validated in a UI test.
     func testPrivateFeedbackButtonExists() {
-        app.tapMenubarIcon()
-        app.buttons["Preferences"].click()
+        app.tables["mainTableView"].typeKey(",", modifierFlags: .command)
 
         tapAboutTab()
 

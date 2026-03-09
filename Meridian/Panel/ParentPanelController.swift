@@ -38,11 +38,7 @@ class ParentPanelController: NSWindowController {
 
     @IBOutlet var scrollViewHeight: NSLayoutConstraint!
 
-    @IBOutlet var shutdownButton: NSButton!
-
-    @IBOutlet var preferencesButton: NSButton!
-
-    @IBOutlet var pinButton: NSButton!
+    @IBOutlet var settingsButton: NSButton!
 
     @IBOutlet var roundedDateView: NSView!
 
@@ -104,10 +100,8 @@ class ParentPanelController: NSWindowController {
         mainTableView.enclosingScrollView?.hasVerticalScroller = false
         mainTableView.style = .plain
 
-        // Setup images using system symbols
-        shutdownButton.image = NSImage(systemSymbolName: "power", accessibilityDescription: "Quit")!
-        preferencesButton.image = NSImage(systemSymbolName: "gearshape", accessibilityDescription: "Settings")!
-        pinButton.image = NSImage(systemSymbolName: "pin", accessibilityDescription: "Pin")!
+        // Setup settings button
+        settingsButton.image = NSImage(systemSymbolName: "gearshape", accessibilityDescription: "Settings")!
 
         // Setup KVO observers for user default changes
         setupObservers()
@@ -327,12 +321,7 @@ class ParentPanelController: NSWindowController {
         .baselineOffset: 0.1
     ]
 
-    @IBAction func openPreferences(_: NSButton) {
-        updatePopoverDisplayState()
-        openPreferencesWindow()
-    }
-
-    @IBAction func showMoreOptions(_ sender: NSButton) {
+    @IBAction func showSettingsMenu(_ sender: NSButton) {
         guard let event = NSApp.currentEvent else { return }
         let menu = PanelContextMenu.build(target: self)
         NSMenu.popUpContextMenu(menu,
