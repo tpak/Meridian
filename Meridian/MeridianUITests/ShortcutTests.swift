@@ -15,7 +15,6 @@ class ShortcutTests: XCTestCase {
         app.tapMenubarIcon()
 
         if !app.tables["mainTableView"].exists {
-            app.buttons["FloatingPin"].click()
             app.tapMenubarIcon()
         }
     }

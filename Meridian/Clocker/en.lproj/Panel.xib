@@ -16,11 +16,9 @@
                 <outlet property="modernContainerView" destination="8W7-rS-Uob" id="qgZ-SS-ayy"/>
                 <outlet property="modernSlider" destination="lxA-64-3QU" id="kS5-ub-7gV"/>
                 <outlet property="modernSliderLabel" destination="e2d-EI-Dm0" id="eby-rL-B21"/>
-                <outlet property="pinButton" destination="YXE-4J-5cn" id="k6V-HK-7XG"/>
-                <outlet property="preferencesButton" destination="Ctq-BV-GPN" id="cdL-5h-qmx"/>
                 <outlet property="resetModernSliderButton" destination="TK5-db-7bd" id="Mie-WC-5YN"/>
                 <outlet property="scrollViewHeight" destination="dff-DX-W1o" id="vYe-lb-h9x"/>
-                <outlet property="shutdownButton" destination="1cR-pI-osG" id="ZFz-9l-yNi"/>
+                <outlet property="settingsButton" destination="1cR-pI-osG" id="ZFz-9l-yNi"/>
                 <outlet property="stackView" destination="OZA-6o-SbE" id="lIT-4b-8WZ"/>
 
                 <outlet property="window" destination="5" id="7"/>
@@ -371,62 +369,28 @@
                             <customView wantsLayer="YES" focusRingType="none" translatesAutoresizingMaskIntoConstraints="NO" id="B8X-sx-cjT">
                                 <rect key="frame" x="0.0" y="0.0" width="379" height="40"/>
                                 <subviews>
-                                    <button toolTip="Options" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1cR-pI-osG">
-                                        <rect key="frame" x="339" y="7" width="30" height="26"/>
-                                        <buttonCell key="cell" type="recessed" bezelStyle="recessed" image="PowerIcon" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Fp1-89-Nwm">
-                                            <behavior key="behavior" lightByContents="YES"/>
-                                            <font key="font" metaFont="systemBold" size="12"/>
-                                        </buttonCell>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="25" id="WSi-Xj-Kfl"/>
-                                            <constraint firstAttribute="width" constant="30" id="j2s-C4-pK5"/>
-                                        </constraints>
-                                        <accessibility identifier="Close"/>
-                                        <connections>
-                                            <action selector="showMoreOptions:" target="-2" id="xl5-rm-4JK"/>
-                                        </connections>
-                                    </button>
-                                    <button toolTip="Switch between Menubar/Floating mode." verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="YXE-4J-5cn">
-                                        <rect key="frame" x="180" y="10" width="30" height="19"/>
-                                        <buttonCell key="cell" type="recessed" bezelStyle="recessed" image="Float-White" imagePosition="only" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="iwC-c9-CBS">
-                                            <behavior key="behavior" lightByContents="YES"/>
-                                            <font key="font" metaFont="systemBold" size="12"/>
-                                        </buttonCell>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="30" id="fWo-31-i3M"/>
-                                            <constraint firstAttribute="height" constant="18" id="v7I-PR-eTK"/>
-                                        </constraints>
-                                        <accessibility identifier="Pin"/>
-                                        <connections>
-                                            <action selector="convertToFloatingWindow:" target="-2" id="cuu-WJ-Sd9"/>
-                                        </connections>
-                                    </button>
-                                    <button toolTip="Add Location" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ctq-BV-GPN">
-                                        <rect key="frame" x="10" y="10" width="30" height="19"/>
-                                        <buttonCell key="cell" type="recessed" bezelStyle="recessed" imagePosition="only" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="SIv-Ve-UkG">
+                                    <button toolTip="Settings" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1cR-pI-osG">
+                                        <rect key="frame" x="10" y="7" width="30" height="26"/>
+                                        <buttonCell key="cell" type="recessed" bezelStyle="recessed" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Fp1-89-Nwm">
                                             <behavior key="behavior" lightByContents="YES"/>
                                             <font key="font" metaFont="systemBold" size="12"/>
                                             <string key="keyEquivalent">,</string>
                                             <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                                         </buttonCell>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="30" id="oaD-Rr-qht"/>
-                                            <constraint firstAttribute="height" constant="18" id="t4M-6L-Vqi"/>
+                                            <constraint firstAttribute="height" constant="25" id="WSi-Xj-Kfl"/>
+                                            <constraint firstAttribute="width" constant="30" id="j2s-C4-pK5"/>
                                         </constraints>
-                                        <accessibility identifier="Preferences"/>
+                                        <accessibility identifier="Settings"/>
                                         <connections>
-                                            <action selector="openPreferences:" target="-2" id="Wwy-xc-psI"/>
+                                            <action selector="showSettingsMenu:" target="-2" id="xl5-rm-4JK"/>
                                         </connections>
                                     </button>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="Ctq-BV-GPN" firstAttribute="centerY" secondItem="B8X-sx-cjT" secondAttribute="centerY" id="6Q7-jc-cTL"/>
-                                    <constraint firstItem="YXE-4J-5cn" firstAttribute="centerY" secondItem="B8X-sx-cjT" secondAttribute="centerY" id="OHe-Tc-b0V"/>
-                                    <constraint firstItem="YXE-4J-5cn" firstAttribute="leading" secondItem="Ctq-BV-GPN" secondAttribute="trailing" constant="55" id="bL5-Kt-zaC"/>
                                     <constraint firstAttribute="height" constant="40" id="iYW-fj-EE2"/>
                                     <constraint firstItem="1cR-pI-osG" firstAttribute="centerY" secondItem="B8X-sx-cjT" secondAttribute="centerY" id="oVJ-Xa-cTw"/>
-                                    <constraint firstAttribute="trailing" secondItem="1cR-pI-osG" secondAttribute="trailing" constant="10" id="rb9-gW-QZS"/>
-                                    <constraint firstItem="Ctq-BV-GPN" firstAttribute="leading" secondItem="B8X-sx-cjT" secondAttribute="leading" constant="10" id="ydm-oF-sVc"/>
+                                    <constraint firstItem="1cR-pI-osG" firstAttribute="leading" secondItem="B8X-sx-cjT" secondAttribute="leading" constant="10" id="ydm-oF-sVc"/>
                                 </constraints>
                             </customView>
                         </subviews>

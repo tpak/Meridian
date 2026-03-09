@@ -38,14 +38,15 @@ class AppDelegateTests: XCTestCase {
         let items = dockMenu?.items ?? []
 
         XCTAssertEqual(dockMenu?.title, "Quick Access")
-        XCTAssertEqual(items.first?.title, "Toggle Panel")
+        XCTAssertEqual(items[0].title, "Toggle Panel")
         XCTAssertEqual(items[1].title, "Settings")
         XCTAssertEqual(items[1].keyEquivalent, ",")
-        XCTAssertEqual(items[2].title, "Hide from Dock")
+        XCTAssertEqual(items[2].title, "Check for Updates…")
+        XCTAssertEqual(items[3].title, "Hide from Dock")
 
         // Test selections
-        XCTAssertEqual(items.first?.action, #selector(AppDelegate.togglePanel(_:)))
-        XCTAssertEqual(items[2].action, #selector(AppDelegate.hideFromDock))
+        XCTAssertEqual(items[0].action, #selector(AppDelegate.togglePanel(_:)))
+        XCTAssertEqual(items[3].action, #selector(AppDelegate.hideFromDock))
 
         items.forEach { menuItem in
             XCTAssertTrue(menuItem.isEnabled)
