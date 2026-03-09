@@ -2,7 +2,7 @@
 
 // NOTE: These UI tests require a real macOS session with menu bar access.
 // They are not run in CI (GitHub Actions lacks NSStatusItem accessibility).
-// Run locally via: xcodebuild test -only-testing:ClockerUITests ...
+// Run locally via: xcodebuild test -only-testing:MeridianUITests ...
 
 import XCTest
 
@@ -334,16 +334,16 @@ class PreferencesTest: XCTestCase {
     }
 
     private func deleteAllTimezones() {
-        let clockerWindow = app.windows["Meridian"]
-        let rowQueryCount = clockerWindow.tables["TimezoneTableView"].tableRows.count
+        let meridianWindow = app.windows["Meridian"]
+        let rowQueryCount = meridianWindow.tables["TimezoneTableView"].tableRows.count
 
         if rowQueryCount > 0 {
             // Table Rows aren't hittable in Xcode 12.0 (10/7/20) and so we need to find a closer co-ordinate and perform click()
-            let currentElement = clockerWindow.tables["TimezoneTableView"].tableRows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
+            let currentElement = meridianWindow.tables["TimezoneTableView"].tableRows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
             currentElement.click()
 
             for _ in 0 ..< rowQueryCount {
-                clockerWindow.typeKey(XCUIKeyboardKey.delete,
+                meridianWindow.typeKey(XCUIKeyboardKey.delete,
                                       modifierFlags: XCUIElement.KeyModifierFlags())
             }
         }

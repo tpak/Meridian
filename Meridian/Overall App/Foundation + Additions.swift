@@ -26,7 +26,7 @@ extension NSView {
 }
 
 extension NSKeyedArchiver {
-    static func clocker_archive(with object: Any) -> Data? {
+    static func secureArchive(with object: Any) -> Data? {
         return try? NSKeyedArchiver.archivedData(withRootObject: object, requiringSecureCoding: true)
     }
 }

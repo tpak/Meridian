@@ -27,11 +27,11 @@ def increment_version_to(new_version):
 	handle_command_execution(check_version_command, os.system(check_version_command))
 
 def clean_build_analyze_release_config():
-	build_command = "xcodebuild -scheme Clocker -project Clocker.xcodeproj/ -configuration Release clean build analyze -quiet"
+	build_command = "xcodebuild -scheme Meridian -project Meridian.xcodeproj/ -configuration Release clean build analyze -quiet"
 	handle_command_execution(build_command, os.system(build_command))
 
 def test_release_config():
-	build_command = "xcodebuild -scheme Clocker -project Clocker.xcodeproj/ test"
+	build_command = "xcodebuild -scheme Meridian -project Meridian.xcodeproj/ test"
 	handle_command_execution(build_command, os.system(build_command))
 
 def main():

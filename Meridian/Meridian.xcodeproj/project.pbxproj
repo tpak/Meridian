@@ -94,7 +94,7 @@
 		9AC678E41C1ABAB9003B4F6B /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC678E31C1ABAB9003B4F6B /* QuartzCore.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		9ACF469D1DCBD45200C49B51 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9ACF469C1DCBD45200C49B51 /* Quartz.framework */; };
 		9ACF618D231DABAE00F5E51E /* SearchDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF618C231DABAE00F5E51E /* SearchDataSource.swift */; };
-		C20839CA21515C1E00C86589 /* ClockerUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20839C921515C1E00C86589 /* ClockerUnitTests.swift */; };
+		C20839CA21515C1E00C86589 /* MeridianUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20839C921515C1E00C86589 /* MeridianUnitTests.swift */; };
 		C22F3D802107778A0001D5E1 /* ShortcutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22F3D7F2107778A0001D5E1 /* ShortcutTests.swift */; };
 		C264A0C520B897D800CCD875 /* PreferencesTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C264A0C420B897D800CCD875 /* PreferencesTest.swift */; };
 		C264A0C820B898D600CCD875 /* PanelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C264A0C720B898D600CCD875 /* PanelTests.swift */; };
@@ -119,14 +119,14 @@
 			containerPortal = DD4F7BFB13C30F9F00825C6E /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = DD4F7C0313C30F9F00825C6E;
-			remoteInfo = Clocker;
+			remoteInfo = Meridian;
 		};
 		C2BFE3E82049F82300825BE5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DD4F7BFB13C30F9F00825C6E /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = DD4F7C0313C30F9F00825C6E;
-			remoteInfo = Clocker;
+			remoteInfo = Meridian;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -199,11 +199,11 @@
 		9A13BAEB1CA88A76007C6CBE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		9A20A04A1C4DEED200FB45AB /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		9A20A06F1C4E804D00FB45AB /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
-		9A3169C01D2CC5AA0079FDF8 /* com.tpak.MeridianHelper.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = com.tpak.MeridianHelper.plist; path = Clocker/com.tpak.MeridianHelper.plist; sourceTree = "<group>"; };
+		9A3169C01D2CC5AA0079FDF8 /* com.tpak.MeridianHelper.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = com.tpak.MeridianHelper.plist; path = App/com.tpak.MeridianHelper.plist; sourceTree = "<group>"; };
 		9A4379291BEC230A00F4E27F /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		9A43792B1BEC231100F4E27F /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
-		9A56DB7D1C1CFB73004CE6AF /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = MainMenu.xib; path = Clocker/MainMenu.xib; sourceTree = "<group>"; };
-		9A5B1A8D1BECDFB700A77C68 /* Clocker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = Clocker.entitlements; path = Clocker/Clocker.entitlements; sourceTree = "<group>"; };
+		9A56DB7D1C1CFB73004CE6AF /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = MainMenu.xib; path = App/MainMenu.xib; sourceTree = "<group>"; };
+		9A5B1A8D1BECDFB700A77C68 /* Meridian.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = Meridian.entitlements; path = App/Meridian.entitlements; sourceTree = "<group>"; };
 		9A5E6B9F1CAF71C1006E7C5C /* libicucore.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.tbd; path = usr/lib/libicucore.tbd; sourceTree = SDKROOT; };
 		9A6D93361CF3E82F005A8690 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
 		9A9E87611C1FEDB500A7A2DF /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -224,18 +224,18 @@
 		9AC678E31C1ABAB9003B4F6B /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		9ACF469C1DCBD45200C49B51 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 		9ACF618C231DABAE00F5E51E /* SearchDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchDataSource.swift; sourceTree = "<group>"; };
-		C20839C721515C1E00C86589 /* ClockerUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClockerUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		C20839C921515C1E00C86589 /* ClockerUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockerUnitTests.swift; sourceTree = "<group>"; };
+		C20839C721515C1E00C86589 /* MeridianUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeridianUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C20839C921515C1E00C86589 /* MeridianUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeridianUnitTests.swift; sourceTree = "<group>"; };
 		C20839CB21515C1F00C86589 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C22F3D7F2107778A0001D5E1 /* ShortcutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutTests.swift; sourceTree = "<group>"; };
 		C264A0C420B897D800CCD875 /* PreferencesTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesTest.swift; sourceTree = "<group>"; };
 		C264A0C720B898D600CCD875 /* PanelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelTests.swift; sourceTree = "<group>"; };
-		C2BFE3E32049F82300825BE5 /* ClockerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClockerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C2BFE3E32049F82300825BE5 /* MeridianUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeridianUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2BFE3E72049F82300825BE5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C2CCCD8120619C4C00F2DFC2 /* LocationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LocationController.swift; path = Clocker/LocationController.swift; sourceTree = "<group>"; };
+		C2CCCD8120619C4C00F2DFC2 /* LocationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LocationController.swift; path = App/LocationController.swift; sourceTree = "<group>"; };
 
 		C2F7821A20B70E3700B6CD07 /* AboutUsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutUsTests.swift; sourceTree = "<group>"; };
-		DD4F7C0413C30F9F00825C6E /* Clocker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Clocker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD4F7C0413C30F9F00825C6E /* Meridian.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Meridian.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD4F7C0813C30F9F00825C6E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		DD4F7C0B13C30F9F00825C6E /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		527EBAA6C18049AE931DDE49 /* PanelContextMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelContextMenu.swift; sourceTree = "<group>"; };
@@ -522,10 +522,10 @@
 			path = Frameworks;
 			sourceTree = "<group>";
 		};
-		C20839C821515C1E00C86589 /* ClockerUnitTests */ = {
+		C20839C821515C1E00C86589 /* MeridianUnitTests */ = {
 			isa = PBXGroup;
 			children = (
-				C20839C921515C1E00C86589 /* ClockerUnitTests.swift */,
+				C20839C921515C1E00C86589 /* MeridianUnitTests.swift */,
 				C20839CB21515C1F00C86589 /* Info.plist */,
 				9A0385BA269E3434003B5E72 /* StandardMenubarHandlerTests.swift */,
 				35584D1727F0B019006E3EAD /* DateFormatterManagerTests.swift */,
@@ -543,7 +543,7 @@
 			path = MeridianUnitTests;
 			sourceTree = "<group>";
 		};
-		C2BFE3E42049F82300825BE5 /* ClockerUITests */ = {
+		C2BFE3E42049F82300825BE5 /* MeridianUITests */ = {
 			isa = PBXGroup;
 			children = (
 				9ABF4559268FDABA002C779B /* CopyToClipboardTests.swift */,
@@ -568,12 +568,12 @@
 				35C36F1D22596212002FA5C6 /* Preferences */,
 				35C36EB522595834002FA5C6 /* Dependencies */,
 				9AB89E021CE97A4900EC8EB1 /* Media.xcassets */,
-				9A5B1A8D1BECDFB700A77C68 /* Clocker.entitlements */,
+				9A5B1A8D1BECDFB700A77C68 /* Meridian.entitlements */,
 				9A2000C61BFBCEF6002BFDE8 /* Utilties */,
 				9A8605E01BEC15F400A810A4 /* XIB */,
 				9A8605E41BEC164C00A810A4 /* Main */,
-				C2BFE3E42049F82300825BE5 /* ClockerUITests */,
-				C20839C821515C1E00C86589 /* ClockerUnitTests */,
+				C2BFE3E42049F82300825BE5 /* MeridianUITests */,
+				C20839C821515C1E00C86589 /* MeridianUnitTests */,
 				DD4F7C0713C30F9F00825C6E /* Frameworks */,
 				DD4F7C0513C30F9F00825C6E /* Products */,
 			);
@@ -582,9 +582,9 @@
 		DD4F7C0513C30F9F00825C6E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DD4F7C0413C30F9F00825C6E /* Clocker.app */,
-				C2BFE3E32049F82300825BE5 /* ClockerUITests.xctest */,
-				C20839C721515C1E00C86589 /* ClockerUnitTests.xctest */,
+				DD4F7C0413C30F9F00825C6E /* Meridian.app */,
+				C2BFE3E32049F82300825BE5 /* MeridianUITests.xctest */,
+				C20839C721515C1E00C86589 /* MeridianUnitTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -617,9 +617,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		C20839C621515C1E00C86589 /* ClockerUnitTests */ = {
+		C20839C621515C1E00C86589 /* MeridianUnitTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C20839D221515C1F00C86589 /* Build configuration list for PBXNativeTarget "ClockerUnitTests" */;
+			buildConfigurationList = C20839D221515C1F00C86589 /* Build configuration list for PBXNativeTarget "MeridianUnitTests" */;
 			buildPhases = (
 				C20839C321515C1E00C86589 /* Sources */,
 				C20839C421515C1E00C86589 /* Frameworks */,
@@ -630,14 +630,14 @@
 			dependencies = (
 				C20839CD21515C1F00C86589 /* PBXTargetDependency */,
 			);
-			name = ClockerUnitTests;
-			productName = ClockerUnitTests;
-			productReference = C20839C721515C1E00C86589 /* ClockerUnitTests.xctest */;
+			name = MeridianUnitTests;
+			productName = MeridianUnitTests;
+			productReference = C20839C721515C1E00C86589 /* MeridianUnitTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		C2BFE3E22049F82300825BE5 /* ClockerUITests */ = {
+		C2BFE3E22049F82300825BE5 /* MeridianUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C2BFE3EA2049F82300825BE5 /* Build configuration list for PBXNativeTarget "ClockerUITests" */;
+			buildConfigurationList = C2BFE3EA2049F82300825BE5 /* Build configuration list for PBXNativeTarget "MeridianUITests" */;
 			buildPhases = (
 				C2BFE3DF2049F82300825BE5 /* Sources */,
 				C2BFE3E02049F82300825BE5 /* Frameworks */,
@@ -648,14 +648,14 @@
 			dependencies = (
 				C2BFE3E92049F82300825BE5 /* PBXTargetDependency */,
 			);
-			name = ClockerUITests;
-			productName = ClockerUITests;
-			productReference = C2BFE3E32049F82300825BE5 /* ClockerUITests.xctest */;
+			name = MeridianUITests;
+			productName = MeridianUITests;
+			productReference = C2BFE3E32049F82300825BE5 /* MeridianUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		DD4F7C0313C30F9F00825C6E /* Clocker */ = {
+		DD4F7C0313C30F9F00825C6E /* Meridian_App */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DD4F7C2213C30F9F00825C6E /* Build configuration list for PBXNativeTarget "Clocker" */;
+			buildConfigurationList = DD4F7C2213C30F9F00825C6E /* Build configuration list for PBXNativeTarget "Meridian" */;
 			buildPhases = (
 				DD4F7C0013C30F9F00825C6E /* Sources */,
 				DD4F7C0113C30F9F00825C6E /* Frameworks */,
@@ -665,14 +665,14 @@
 			);
 			dependencies = (
 					);
-			name = Clocker;
+			name = Meridian;
 			packageProductDependencies = (
 				35B2FEDC259A2291005DA84D /* CoreLoggerKit */,
 				35B2FEF0259A2DB1005DA84D /* CoreModelKit */,
 				SP000002SPARKLE00000002 /* Sparkle */,
 			);
 			productName = Popup;
-			productReference = DD4F7C0413C30F9F00825C6E /* Clocker.app */;
+			productReference = DD4F7C0413C30F9F00825C6E /* Meridian.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -723,9 +723,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				DD4F7C0313C30F9F00825C6E /* Clocker */,
-				C2BFE3E22049F82300825BE5 /* ClockerUITests */,
-				C20839C621515C1E00C86589 /* ClockerUnitTests */,
+				DD4F7C0313C30F9F00825C6E /* Meridian_App */,
+				C2BFE3E22049F82300825BE5 /* MeridianUITests */,
+				C20839C621515C1E00C86589 /* MeridianUnitTests */,
 			);
 		};
 /* End PBXProject section */
@@ -779,7 +779,7 @@
 				9A0385BB269E3434003B5E72 /* StandardMenubarHandlerTests.swift in Sources */,
 				35621CFC27F66C1900926D5C /* SearchDataSourceTests.swift in Sources */,
 				35584D1827F0B019006E3EAD /* DateFormatterManagerTests.swift in Sources */,
-				C20839CA21515C1E00C86589 /* ClockerUnitTests.swift in Sources */,
+				C20839CA21515C1E00C86589 /* MeridianUnitTests.swift in Sources */,
 				A1B2C3D400000001MOCK0001 /* MockURLProtocol.swift in Sources */,
 				A1B2C3D400000003NWTEST01 /* NetworkManagerTests.swift in Sources */,
 				B730E37E4596MOCKDATASTORE /* MockDataStore.swift in Sources */,
@@ -881,12 +881,12 @@
 		};
 		C20839CD21515C1F00C86589 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DD4F7C0313C30F9F00825C6E /* Clocker */;
+			target = DD4F7C0313C30F9F00825C6E /* Meridian_App */;
 			targetProxy = C20839CC21515C1F00C86589 /* PBXContainerItemProxy */;
 		};
 		C2BFE3E92049F82300825BE5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DD4F7C0313C30F9F00825C6E /* Clocker */;
+			target = DD4F7C0313C30F9F00825C6E /* Meridian_App */;
 			targetProxy = C2BFE3E82049F82300825BE5 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -898,7 +898,7 @@
 				9A13BAD71CA87F08007C6CBE /* en */,
 			);
 			name = Panel.xib;
-			path = Clocker;
+			path = App;
 			sourceTree = "<group>";
 		};
 		9A13BAE21CA882FA007C6CBE /* InfoPlist.strings */ = {
@@ -907,7 +907,7 @@
 				9A13BAE11CA882FA007C6CBE /* en */,
 			);
 			name = InfoPlist.strings;
-			path = Clocker;
+			path = App;
 			sourceTree = "<group>";
 		};
 		9A13BAEC1CA88A76007C6CBE /* Localizable.strings */ = {
@@ -916,7 +916,7 @@
 				9A13BAEB1CA88A76007C6CBE /* en */,
 			);
 			name = Localizable.strings;
-			path = Clocker;
+			path = App;
 			sourceTree = "<group>";
 		};
 		9AA522BE23415BDD00C9E005 /* InfoPlist.strings */ = {
@@ -1005,7 +1005,7 @@
 				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = YES;
 				CLANG_WARN_SEMICOLON_BEFORE_METHOD_BODY = YES;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
-				CODE_SIGN_ENTITLEMENTS = Clocker/Clocker.entitlements;
+				CODE_SIGN_ENTITLEMENTS = App/Meridian.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Manual;
@@ -1021,7 +1021,7 @@
 					"$(PROJECT_DIR)/Frameworks",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Clocker/Clocker-Prefix.pch";
+				GCC_PREFIX_HEADER = "App/Meridian-Prefix.pch";
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "";
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
@@ -1037,7 +1037,7 @@
 				GCC_WARN_UNKNOWN_PRAGMAS = YES;
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_PARAMETER = NO;
-				INFOPLIST_FILE = "Clocker/Clocker-Info.plist";
+				INFOPLIST_FILE = "App/Meridian-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1241,7 +1241,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = Clocker;
+				TEST_TARGET_NAME = Meridian;
 			};
 			name = Debug;
 		};
@@ -1286,7 +1286,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = Clocker;
+				TEST_TARGET_NAME = Meridian;
 			};
 			name = Release;
 		};
@@ -1331,7 +1331,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = Clocker;
+				TEST_TARGET_NAME = Meridian;
 			};
 			name = Distribution;
 		};
@@ -1460,7 +1460,7 @@
 				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = YES;
 				CLANG_WARN_SEMICOLON_BEFORE_METHOD_BODY = YES;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
-				CODE_SIGN_ENTITLEMENTS = Clocker/Clocker.entitlements;
+				CODE_SIGN_ENTITLEMENTS = App/Meridian.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Manual;
@@ -1477,7 +1477,7 @@
 					"$(PROJECT_DIR)/Frameworks",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Clocker/Clocker-Prefix.pch";
+				GCC_PREFIX_HEADER = "App/Meridian-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
@@ -1493,7 +1493,7 @@
 				GCC_WARN_UNKNOWN_PRAGMAS = YES;
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;
-				INFOPLIST_FILE = "Clocker/Clocker-Info.plist";
+				INFOPLIST_FILE = "App/Meridian-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1540,7 +1540,7 @@
 				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = YES;
 				CLANG_WARN_SEMICOLON_BEFORE_METHOD_BODY = YES;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
-				CODE_SIGN_ENTITLEMENTS = Clocker/Clocker.entitlements;
+				CODE_SIGN_ENTITLEMENTS = App/Meridian.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Manual;
@@ -1556,7 +1556,7 @@
 					"$(PROJECT_DIR)/Frameworks",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Clocker/Clocker-Prefix.pch";
+				GCC_PREFIX_HEADER = "App/Meridian-Prefix.pch";
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = RELEASE;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
@@ -1572,7 +1572,7 @@
 				GCC_WARN_UNKNOWN_PRAGMAS = YES;
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_PARAMETER = NO;
-				INFOPLIST_FILE = "Clocker/Clocker-Info.plist";
+				INFOPLIST_FILE = "App/Meridian-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1598,7 +1598,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C20839D221515C1F00C86589 /* Build configuration list for PBXNativeTarget "ClockerUnitTests" */ = {
+		C20839D221515C1F00C86589 /* Build configuration list for PBXNativeTarget "MeridianUnitTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C20839CE21515C1F00C86589 /* Debug */,
@@ -1608,7 +1608,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		C2BFE3EA2049F82300825BE5 /* Build configuration list for PBXNativeTarget "ClockerUITests" */ = {
+		C2BFE3EA2049F82300825BE5 /* Build configuration list for PBXNativeTarget "MeridianUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C2BFE3EB2049F82300825BE5 /* Debug */,
@@ -1628,7 +1628,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		DD4F7C2213C30F9F00825C6E /* Build configuration list for PBXNativeTarget "Clocker" */ = {
+		DD4F7C2213C30F9F00825C6E /* Build configuration list for PBXNativeTarget "Meridian" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DD4F7C2313C30F9F00825C6E /* Debug */,

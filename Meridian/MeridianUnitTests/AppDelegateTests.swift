@@ -57,7 +57,7 @@ class AppDelegateTests: XCTestCase {
         let subject = NSApplication.shared.delegate as? AppDelegate
 
         let statusItemHandler = subject?.statusItemForPanel()
-        XCTAssertEqual(statusItemHandler?.statusItem.autosaveName, NSStatusItem.AutosaveName("ClockerStatusItem"))
+        XCTAssertEqual(statusItemHandler?.statusItem.autosaveName, NSStatusItem.AutosaveName("MeridianStatusItem"))
     }
 
     func testActivationPolicy() {
@@ -101,7 +101,7 @@ class AppDelegateTests: XCTestCase {
         timezone1.formattedAddress = "MenubarTimezone"
         timezone1.isFavourite = 1
 
-        let encodedTimezone = try XCTUnwrap(NSKeyedArchiver.clocker_archive(with: timezone1))
+        let encodedTimezone = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: timezone1))
         DataStore.shared().setTimezones([encodedTimezone])
 
         subject?.setupMenubarTimer()
@@ -134,7 +134,7 @@ class AppDelegateTests: XCTestCase {
         timezone1.formattedAddress = "MenubarTimezone"
         timezone1.isFavourite = 1
 
-        let encodedTimezone = try XCTUnwrap(NSKeyedArchiver.clocker_archive(with: timezone1))
+        let encodedTimezone = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: timezone1))
         DataStore.shared().setTimezones([encodedTimezone])
 
         subject?.setupMenubarTimer()

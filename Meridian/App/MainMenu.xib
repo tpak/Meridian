@@ -14,10 +14,10 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <menu title="AMainMenu" systemMenu="main" id="29">
             <items>
-                <menuItem title="Clocker" id="56">
-                    <menu key="submenu" title="Clocker" systemMenu="apple" id="57">
+                <menuItem title="Meridian" id="56">
+                    <menu key="submenu" title="Meridian" systemMenu="apple" id="57">
                         <items>
-                            <menuItem title="About Clocker" id="58">
+                            <menuItem title="About Meridian" id="58">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="orderFrontStandardAboutPanel:" target="-2" id="142"/>
@@ -36,7 +36,7 @@
                             <menuItem isSeparatorItem="YES" id="144">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
-                            <menuItem title="Hide Clocker" keyEquivalent="h" id="134">
+                            <menuItem title="Hide Meridian" keyEquivalent="h" id="134">
                                 <connections>
                                     <action selector="hide:" target="-1" id="367"/>
                                 </connections>
@@ -55,7 +55,7 @@
                             <menuItem isSeparatorItem="YES" id="149">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
-                            <menuItem title="Quit Clocker" keyEquivalent="q" id="136">
+                            <menuItem title="Quit Meridian" keyEquivalent="q" id="136">
                                 <connections>
                                     <action selector="terminate:" target="-3" id="449"/>
                                 </connections>

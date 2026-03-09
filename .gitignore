@@ -9,8 +9,8 @@ build/
 DerivedData/
 
 # Secrets & config
-Clocker/Internal/Keys.plist
-Clocker/Config/Keys.xcconfig
+App/Internal/Keys.plist
+App/Config/Keys.xcconfig
 
 # Claude Code
 .claude/settings.local.json

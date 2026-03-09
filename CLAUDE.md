@@ -23,12 +23,12 @@ xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration 
 
 # All unit tests
 xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug test \
-  -only-testing:ClockerUnitTests -parallel-testing-enabled NO -disable-concurrent-destination-testing \
+  -only-testing:MeridianUnitTests -parallel-testing-enabled NO -disable-concurrent-destination-testing \
   CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=
 
 # Single test
 xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug test \
-  -only-testing:ClockerUnitTests/ClockerUnitTests/testTimeDifference -parallel-testing-enabled NO \
+  -only-testing:MeridianUnitTests/MeridianUnitTests/testTimeDifference -parallel-testing-enabled NO \
   CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=
 
 # Lint
@@ -107,10 +107,4 @@ Config in `.swiftlint.yml`. Key limits: line length 160/200, type body 300/600, 
 
 ## Directory Structure Note
 
-Top-level project directory is `Meridian/`. Inside it, the main app source subdirectory is still named `Clocker/` (contains localization resources, Info.plist, entitlements). Target names in the Xcode project (e.g., "Clocker", "ClockerUnitTests", "ClockerUITests") are internal identifiers and do not need to match directory names. User-facing names (product, bundle, scheme) are all "Meridian".
-
-## Rebrand Artifacts Kept
-
-- `ClockerStatusItem` autosave name on `NSStatusItem` (preserves user's menu bar position)
-- `ClockerIcon-512` asset name (xcassets internal)
-- `terminateClocker()` method name (avoids #selector cascade)
+Top-level project directory is `Meridian/`. Inside it, `App/` contains localization resources, Info.plist, and entitlements. All target names, product names, and user-facing names are "Meridian".

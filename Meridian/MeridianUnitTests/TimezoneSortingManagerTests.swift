@@ -54,10 +54,10 @@ class TimezoneSortingManagerTests: XCTestCase {
         ]
 
         testTimezones = [
-            NSKeyedArchiver.clocker_archive(with: TimezoneData(with: sanFrancisco))!,
-            NSKeyedArchiver.clocker_archive(with: TimezoneData(with: newYork))!,
-            NSKeyedArchiver.clocker_archive(with: TimezoneData(with: london))!,
-            NSKeyedArchiver.clocker_archive(with: TimezoneData(with: tokyo))!
+            NSKeyedArchiver.secureArchive(with: TimezoneData(with: sanFrancisco))!,
+            NSKeyedArchiver.secureArchive(with: TimezoneData(with: newYork))!,
+            NSKeyedArchiver.secureArchive(with: TimezoneData(with: london))!,
+            NSKeyedArchiver.secureArchive(with: TimezoneData(with: tokyo))!
         ]
     }
 

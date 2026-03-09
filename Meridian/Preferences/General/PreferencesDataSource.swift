@@ -42,7 +42,7 @@ extension PreferencesDataSource: NSTableViewDelegate {
     }
 
     func tableView(_: NSTableView, writeRowsWith rowIndexes: IndexSet, to pboard: NSPasteboard) -> Bool {
-        let data = NSKeyedArchiver.clocker_archive(with: rowIndexes)
+        let data = NSKeyedArchiver.secureArchive(with: rowIndexes)
 
         pboard.declareTypes([.dragSession], owner: self)
         pboard.setData(data, forType: .dragSession)
@@ -187,7 +187,7 @@ extension PreferencesDataSource: NSTableViewDataSource {
     }
 
     private func insert(timezone: TimezoneData, at index: Int) {
-        guard let encodedObject = NSKeyedArchiver.clocker_archive(with: timezone) else {
+        guard let encodedObject = NSKeyedArchiver.secureArchive(with: timezone) else {
             return
         }
         var newDefaults = selectedTimezones

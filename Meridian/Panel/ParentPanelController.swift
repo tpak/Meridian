@@ -183,7 +183,7 @@ class ParentPanelController: NSWindowController {
         var datas: [Data] = []
 
         for updatedObject in timezoneObjects {
-            guard let dataObject = NSKeyedArchiver.clocker_archive(with: updatedObject) else {
+            guard let dataObject = NSKeyedArchiver.secureArchive(with: updatedObject) else {
                 continue
             }
             datas.append(dataObject)
@@ -503,7 +503,7 @@ extension ParentPanelController {
         return Calendar.current.dateComponents([.minute], from: date, to: other).minute ?? 0
     }
 
-    @objc dynamic func terminateClocker() {
+    @objc dynamic func terminateMeridian() {
         NSApplication.shared.terminate(nil)
     }
 

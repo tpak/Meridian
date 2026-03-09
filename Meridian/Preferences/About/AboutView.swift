@@ -22,7 +22,7 @@ struct AboutView: View {
             Text(versionString)
                 .font(.custom("Avenir-Light", size: 28))
                 .multilineTextAlignment(.center)
-                .accessibilityIdentifier("ClockerVersion")
+                .accessibilityIdentifier("MeridianVersion")
 
             Image(nsImage: NSApp.applicationIconImage)
                 .resizable()
@@ -35,7 +35,7 @@ struct AboutView: View {
                 title: "1. Open an issue on GitHub",
                 underlineRange: 3..<26,
                 font: .custom("Avenir-Light", size: 15),
-                accessibilityID: "ClockerPrivateFeedback"
+                accessibilityID: "MeridianPrivateFeedback"
             ) {
                 openURL(AboutUsConstants.GitHubIssuesURL, logEvent: "Opened GitHub Issues",
                         metadata: ["Country": Locale.autoupdatingCurrent.region?.identifier ?? ""])

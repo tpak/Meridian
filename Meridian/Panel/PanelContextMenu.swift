@@ -12,17 +12,17 @@ enum PanelContextMenu {
                                          action: #selector(ParentPanelController.openPreferencesWindow), keyEquivalent: "")
 
         let terminateOption = NSMenuItem(title: "Quit Meridian",
-                                         action: #selector(ParentPanelController.terminateClocker), keyEquivalent: "")
+                                         action: #selector(ParentPanelController.terminateMeridian), keyEquivalent: "")
 
         let appDisplayName = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") ?? "Meridian"
         let shortVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "N/A"
         let versionInfo = "\(appDisplayName) \(shortVersion)"
-        let clockerVersionInfo = NSMenuItem(title: versionInfo, action: nil, keyEquivalent: "")
-        clockerVersionInfo.isEnabled = false
+        let versionMenuItem = NSMenuItem(title: versionInfo, action: nil, keyEquivalent: "")
+        versionMenuItem.isEnabled = false
 
         menu.addItem(openPreferences)
         menu.addItem(NSMenuItem.separator())
-        menu.addItem(clockerVersionInfo)
+        menu.addItem(versionMenuItem)
         menu.addItem(NSMenuItem.separator())
         menu.addItem(terminateOption)
 

@@ -283,7 +283,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                     </scrollView>
-                                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="hma-wI-Sc9" userLabel="Modern Slider Metadata View" customClass="ClockerTextBackgroundView" customModule="Meridian" customModuleProvider="target">
+                                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="hma-wI-Sc9" userLabel="Modern Slider Metadata View" >
                                         <rect key="frame" x="125" y="3" width="100" height="20"/>
                                         <subviews>
                                             <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="e2d-EI-Dm0">
