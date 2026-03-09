@@ -1,7 +1,7 @@
 .PHONY: build test clean install
 
 SCHEME = Meridian
-PROJECT = Clocker/Clocker.xcodeproj
+PROJECT = Meridian/Meridian.xcodeproj
 BUILD_DIR = build
 SIGNING = CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=
 

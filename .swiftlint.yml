@@ -5,10 +5,10 @@ opt_in_rules:
   - empty_count
 
 excluded:
-  - Clocker/Dependencies
-  - Clocker/ClockerUnitTests
-  - Clocker/ClockerUITests
-  - Clocker/CoreLoggerKit/.build
+  - Meridian/Dependencies
+  - Meridian/MeridianUnitTests
+  - Meridian/MeridianUITests
+  - Meridian/CoreLoggerKit/.build
 
 analyzer_rules:
   - explicit_self

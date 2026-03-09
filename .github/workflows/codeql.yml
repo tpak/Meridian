@@ -26,7 +26,7 @@ jobs:
 
       - name: Build
         run: |
-          xcodebuild -project Clocker/Clocker.xcodeproj \
+          xcodebuild -project Meridian/Meridian.xcodeproj \
             -scheme Meridian -configuration Debug build \
             CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=
 

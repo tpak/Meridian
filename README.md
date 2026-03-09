@@ -59,26 +59,26 @@ make lint         # Run SwiftLint
 
 Version is set via `MARKETING_VERSION` in the Xcode project (3 build configurations). To bump:
 
-1. Search for `MARKETING_VERSION` in `Clocker/Clocker.xcodeproj/project.pbxproj`
+1. Search for `MARKETING_VERSION` in `Meridian/Meridian.xcodeproj/project.pbxproj`
 2. Update all 3 occurrences to the new version
 3. Commit, tag, and create a [GitHub Release](https://github.com/tpak/meridian/releases)
 
 ### Project Structure
 
-On-disk directories use `Clocker/` (renaming would break Xcode project refs). User-facing names — product, bundle, scheme — are all "Meridian".
+User-facing names — product, bundle, scheme — are all "Meridian".
 
 ```
-Clocker/
-├── Clocker.xcodeproj       # Xcode project (scheme: Meridian)
-├── Clocker/                # Main app source
+Meridian/
+├── Meridian.xcodeproj      # Xcode project (scheme: Meridian)
+├── Clocker/                # Main app source (localization, Info.plist)
 │   ├── Overall App/        # AppDelegate, DataStore, extensions
 │   ├── Panel/              # Menu bar panel UI + data layer
 │   ├── Preferences/        # Settings (General, Appearance, About)
 │   └── Dependencies/       # Vendored: DateTools, Solar
 ├── CoreLoggerKit/          # SPM package — OSLog wrapper
 ├── CoreModelKit/           # SPM package — TimezoneData model
-├── ClockerUnitTests/       # 112 unit tests
-└── ClockerUITests/         # UI tests
+├── MeridianUnitTests/      # 112 unit tests
+└── MeridianUITests/        # UI tests
 ```
 
 ## Contributing

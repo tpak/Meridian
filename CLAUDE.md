@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## App Identity
 
-**Meridian** (formerly Clocker) — macOS menu bar world clock app. ~11K lines of Swift across 77 files. Directory structure uses `Clocker/` on disk (renaming would break Xcode project refs). Bundle ID: `com.tpak.Meridian`. Forked from [Clocker](https://github.com/n0shake/Clocker) by Abhishek Banthia.
+**Meridian** (formerly Clocker) — macOS menu bar world clock app. ~11K lines of Swift across 77 files. Bundle ID: `com.tpak.Meridian`. Forked from [Clocker](https://github.com/n0shake/Clocker) by Abhishek Banthia.
 
 ## Git Workflow
 
@@ -14,20 +14,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Build (Debug)
-xcodebuild -project Clocker/Clocker.xcodeproj -scheme Meridian -configuration Debug build \
+xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug build \
   CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=
 
 # Build + Static Analysis
-xcodebuild -project Clocker/Clocker.xcodeproj -scheme Meridian -configuration Debug build analyze \
+xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug build analyze \
   CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=
 
 # All unit tests
-xcodebuild -project Clocker/Clocker.xcodeproj -scheme Meridian -configuration Debug test \
+xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug test \
   -only-testing:ClockerUnitTests -parallel-testing-enabled NO -disable-concurrent-destination-testing \
   CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=
 
 # Single test
-xcodebuild -project Clocker/Clocker.xcodeproj -scheme Meridian -configuration Debug test \
+xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug test \
   -only-testing:ClockerUnitTests/ClockerUnitTests/testTimeDifference -parallel-testing-enabled NO \
   CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=
 
@@ -70,7 +70,7 @@ swiftlint
 
 `StartupManager` uses `SMAppService.mainApp` (macOS 13+). No helper app needed.
 
-### SPM Packages (local, under `Clocker/`)
+### SPM Packages (local, under `Meridian/`)
 
 - **CoreLoggerKit** — OSLog wrapper
 - **CoreModelKit** — TimezoneData model (depends on CoreLoggerKit)
@@ -80,7 +80,7 @@ swiftlint
 - **DateTools** (Swift) — date formatting utilities
 - **Solar** (Swift) — sunrise/sunset calculations
 
-All in `Clocker/Dependencies/`.
+All in `Meridian/Dependencies/`.
 
 ## Key Files
 
@@ -96,18 +96,18 @@ All in `Clocker/Dependencies/`.
 
 ## Test Notes
 
-- Unit tests in `Clocker/ClockerUnitTests/` (112 tests)
+- Unit tests in `Meridian/MeridianUnitTests/` (112 tests)
 - `MockDataStore` available for DI; `MockURLProtocol` for network mocking
-- UI tests in `Clocker/ClockerUITests/` (panel interactions)
+- UI tests in `Meridian/MeridianUITests/` (panel interactions)
 - `@testable import Meridian` (module follows PRODUCT_NAME)
 
 ## SwiftLint Rules
 
-Config in `.swiftlint.yml`. Key limits: line length 160/200, type body 300/600, function body 50/100, `force_cast` and `force_try` are errors. `Clocker/Dependencies/` and test directories are excluded.
+Config in `.swiftlint.yml`. Key limits: line length 160/200, type body 300/600, function body 50/100, `force_cast` and `force_try` are errors. `Meridian/Dependencies/` and test directories are excluded.
 
 ## Directory Structure Note
 
-On-disk directories still named `Clocker/`, `ClockerHelper/`, `ClockerUnitTests/`, `ClockerUITests/`. Renaming would break hundreds of pbxproj references. User-facing names (product, bundle, scheme) are all "Meridian".
+Top-level project directory is `Meridian/`. Inside it, the main app source subdirectory is still named `Clocker/` (contains localization resources, Info.plist, entitlements). Target names in the Xcode project (e.g., "Clocker", "ClockerUnitTests", "ClockerUITests") are internal identifiers and do not need to match directory names. User-facing names (product, bundle, scheme) are all "Meridian".
 
 ## Rebrand Artifacts Kept
 

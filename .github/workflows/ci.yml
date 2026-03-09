@@ -8,7 +8,7 @@ on:
 
 env:
   SCHEME: Meridian
-  PROJECT: Clocker/Clocker.xcodeproj
+  PROJECT: Meridian/Meridian.xcodeproj
   CODE_SIGNING_REQUIRED: "NO"
   CODE_SIGNING_ALLOWED: "NO"
   CODE_SIGN_IDENTITY: ""
@@ -33,7 +33,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/Library/Developer/Xcode/DerivedData
-          key: deriveddata-${{ runner.os }}-${{ hashFiles('Clocker/Clocker.xcodeproj/project.pbxproj', 'Clocker/CoreLoggerKit/Package.swift', 'Clocker/CoreModelKit/Package.swift') }}
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('Meridian/Meridian.xcodeproj/project.pbxproj', 'Meridian/CoreLoggerKit/Package.swift', 'Meridian/CoreModelKit/Package.swift') }}
           restore-keys: |
             deriveddata-${{ runner.os }}-
 
@@ -70,7 +70,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/Library/Developer/Xcode/DerivedData
-          key: deriveddata-${{ runner.os }}-${{ hashFiles('Clocker/Clocker.xcodeproj/project.pbxproj', 'Clocker/CoreLoggerKit/Package.swift', 'Clocker/CoreModelKit/Package.swift') }}
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('Meridian/Meridian.xcodeproj/project.pbxproj', 'Meridian/CoreLoggerKit/Package.swift', 'Meridian/CoreModelKit/Package.swift') }}
           restore-keys: |
             deriveddata-${{ runner.os }}-
 
