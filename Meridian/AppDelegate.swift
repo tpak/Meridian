@@ -77,23 +77,16 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
 
         guard !idsToBackfill.isEmpty else { return }
 
-        // Geocode all in parallel, then write a single store update
-        Task {
-            let coordinates = await withTaskGroup(
-                of: (String, CLLocationCoordinate2D)?.self
-            ) { group in
-                for id in idsToBackfill {
-                    group.addTask { await Self.geocodeTimezone(id) }
+        // Geocode sequentially to avoid CLGeocoder rate limiting
+        Task.detached(priority: .utility) {
+            var results: [String: CLLocationCoordinate2D] = [:]
+            for id in idsToBackfill {
+                if let (resolvedID, coord) = await Self.geocodeTimezone(id) {
+                    results[resolvedID] = coord
                 }
-                var results: [String: CLLocationCoordinate2D] = [:]
-                for await result in group {
-                    if let (id, coord) = result {
-                        results[id] = coord
-                    }
-                }
-                return results
             }
 
+            let coordinates = results
             guard !coordinates.isEmpty else { return }
 
             await MainActor.run {
