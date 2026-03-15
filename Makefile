@@ -35,9 +35,8 @@ clean:
 	xcodebuild -project $(PROJECT) -scheme $(SCHEME) clean 2>/dev/null || true
 
 release:
-	@if [ -z "$(VERSION)" ]; then echo "Usage: make release VERSION=X.Y.Z"; exit 1; fi
-	@if [ -n "$(NOTES)" ]; then \
-		bash scripts/release.sh -n "$(NOTES)" "$(VERSION)"; \
-	else \
-		bash scripts/release.sh "$(VERSION)"; \
-	fi
+	@if [ -z "$(VERSION)" ]; then echo "Usage: make release VERSION=X.Y.Z [PR=123] [NOTES=\"...\"]"; exit 1; fi
+	@args=""; \
+	if [ -n "$(NOTES)" ]; then args="$$args -n \"$(NOTES)\""; fi; \
+	if [ -n "$(PR)" ]; then args="$$args -p $(PR)"; fi; \
+	eval bash scripts/release.sh $$args "$(VERSION)"

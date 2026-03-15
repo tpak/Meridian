@@ -3,12 +3,17 @@ set -euo pipefail
 
 VERSION=""
 NOTES=""
+PR_NUMBER=""
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -n)
             NOTES="$2"
+            shift 2
+            ;;
+        -p)
+            PR_NUMBER="$2"
             shift 2
             ;;
         *)
@@ -95,6 +100,33 @@ fi
 echo "Using sign_update: $SIGN_UPDATE"
 
 # ── Collect release notes ───────────────────────────────────────────
+
+# Pull notes from a PR if specified or auto-detect last merged PR
+if [[ -z "$NOTES" && -z "$PR_NUMBER" ]]; then
+    # Auto-detect: find the last merged PR
+    PR_NUMBER="$(gh pr list --state merged --limit 1 --json number --jq '.[0].number' 2>/dev/null || true)"
+    if [[ -n "$PR_NUMBER" ]]; then
+        echo "── Auto-detected last merged PR: #$PR_NUMBER"
+    fi
+fi
+
+if [[ -z "$NOTES" && -n "$PR_NUMBER" ]]; then
+    PR_TITLE="$(gh pr view "$PR_NUMBER" --json title --jq '.title' 2>/dev/null || true)"
+    PR_BODY="$(gh pr view "$PR_NUMBER" --json body --jq '.body' 2>/dev/null || true)"
+
+    # Extract bullet points from PR body (lines starting with - or *)
+    PR_BULLETS="$(echo "$PR_BODY" | grep -E '^\s*[-*] ' | sed 's/^\s*[-*] //' | head -10)"
+
+    if [[ -n "$PR_BULLETS" ]]; then
+        NOTES="$PR_BULLETS"
+    elif [[ -n "$PR_TITLE" ]]; then
+        NOTES="$PR_TITLE"
+    fi
+
+    if [[ -n "$NOTES" ]]; then
+        echo "── Using notes from PR #$PR_NUMBER"
+    fi
+fi
 
 if [[ -z "$NOTES" ]] && ! tty -s; then
     # Read from stdin (piped input)
