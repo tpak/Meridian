@@ -130,10 +130,13 @@ sed -i '' "s/MARKETING_VERSION = [^;]*;/MARKETING_VERSION = $VERSION;/g" "$PBXPR
 sed -i '' "s/CURRENT_PROJECT_VERSION = [^;]*;/CURRENT_PROJECT_VERSION = $VERSION;/g" "$PBXPROJ"
 
 git add "$PBXPROJ"
-git commit -m "Bump version to $VERSION"
-git push origin main
-
-echo "── Version bumped and pushed."
+if git diff --cached --quiet; then
+    echo "── Version already set to $VERSION, skipping commit."
+else
+    git commit -m "Bump version to $VERSION"
+    git push origin main
+    echo "── Version bumped and pushed."
+fi
 
 # ── Phase 3: Build + sign ──────────────────────────────────────────
 
