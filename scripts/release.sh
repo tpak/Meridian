@@ -129,8 +129,8 @@ if [[ -z "$NOTES" ]]; then
             PR_TITLE="$(gh pr view "$pr" --json title --jq '.title' 2>/dev/null || true)"
             PR_BODY="$(gh pr view "$pr" --json body --jq '.body' 2>/dev/null || true)"
 
-            # Extract bullet points from PR body, fall back to title
-            PR_BULLETS="$(echo "$PR_BODY" | grep -E '^\s*[-*] ' | sed 's/^\s*[-*] //' | head -10)"
+            # Extract bullet points from PR body (skip checkboxes, test plan items, generated lines)
+            PR_BULLETS="$(echo "$PR_BODY" | grep -E '^\s*[-*] ' | grep -v -E '\[[ x]\]|Generated with|Test plan' | sed 's/^\s*[-*] //' | head -10)"
 
             if [[ -n "$PR_BULLETS" ]]; then
                 NOTES="${NOTES:+$NOTES
@@ -149,7 +149,7 @@ if [[ -z "$NOTES" ]] && ! tty -s; then
     NOTES="$(cat)"
 fi
 
-if [[ -z "$NOTES" ]]; then
+if [[ -z "$NOTES" ]] && tty -s; then
     # Interactive: open $EDITOR
     TMPFILE="$(mktemp /tmp/meridian-release-notes.XXXXXX)"
     echo "# Enter release notes (one per line, lines starting with # are ignored)" > "$TMPFILE"
