@@ -40,6 +40,8 @@
 	<true/>
 	<key>RequestsOpenAccess</key>
 	<string>YES</string>
+	<key>SUEnableInstallerLauncherService</key>
+	<true/>
 	<key>SUFeedURL</key>
 	<string>https://raw.githubusercontent.com/tpak/Meridian/main/appcast.xml</string>
 	<key>SUPublicEDKey</key>
