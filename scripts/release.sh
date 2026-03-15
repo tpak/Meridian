@@ -101,30 +101,46 @@ echo "Using sign_update: $SIGN_UPDATE"
 
 # ── Collect release notes ───────────────────────────────────────────
 
-# Pull notes from a PR if specified or auto-detect last merged PR
-if [[ -z "$NOTES" && -z "$PR_NUMBER" ]]; then
-    # Auto-detect: find the last merged PR
-    PR_NUMBER="$(gh pr list --state merged --limit 1 --json number --jq '.[0].number' 2>/dev/null || true)"
+# Collect notes from PRs merged since last release
+if [[ -z "$NOTES" ]]; then
+    # Find the date of the last release tag
+    LAST_TAG="$(git tag --sort=-v:refname | head -1)"
+    if [[ -n "$LAST_TAG" ]]; then
+        SINCE_DATE="$(git log -1 --format=%aI "$LAST_TAG")"
+        echo "── Finding PRs merged since $LAST_TAG ($SINCE_DATE)..."
+    else
+        SINCE_DATE=""
+        echo "── Finding merged PRs (no previous release found)..."
+    fi
+
+    # Get all PRs merged since last release (or a specific one)
     if [[ -n "$PR_NUMBER" ]]; then
-        echo "── Auto-detected last merged PR: #$PR_NUMBER"
-    fi
-fi
-
-if [[ -z "$NOTES" && -n "$PR_NUMBER" ]]; then
-    PR_TITLE="$(gh pr view "$PR_NUMBER" --json title --jq '.title' 2>/dev/null || true)"
-    PR_BODY="$(gh pr view "$PR_NUMBER" --json body --jq '.body' 2>/dev/null || true)"
-
-    # Extract bullet points from PR body (lines starting with - or *)
-    PR_BULLETS="$(echo "$PR_BODY" | grep -E '^\s*[-*] ' | sed 's/^\s*[-*] //' | head -10)"
-
-    if [[ -n "$PR_BULLETS" ]]; then
-        NOTES="$PR_BULLETS"
-    elif [[ -n "$PR_TITLE" ]]; then
-        NOTES="$PR_TITLE"
+        PR_NUMBERS="$PR_NUMBER"
+    elif [[ -n "$SINCE_DATE" ]]; then
+        PR_NUMBERS="$(gh pr list --state merged --json number,mergedAt \
+            --jq "[.[] | select(.mergedAt > \"$SINCE_DATE\")] | .[].number" 2>/dev/null || true)"
+    else
+        PR_NUMBERS="$(gh pr list --state merged --limit 5 --json number --jq '.[].number' 2>/dev/null || true)"
     fi
 
-    if [[ -n "$NOTES" ]]; then
-        echo "── Using notes from PR #$PR_NUMBER"
+    if [[ -n "$PR_NUMBERS" ]]; then
+        while IFS= read -r pr; do
+            [[ -z "$pr" ]] && continue
+            PR_TITLE="$(gh pr view "$pr" --json title --jq '.title' 2>/dev/null || true)"
+            PR_BODY="$(gh pr view "$pr" --json body --jq '.body' 2>/dev/null || true)"
+
+            # Extract bullet points from PR body, fall back to title
+            PR_BULLETS="$(echo "$PR_BODY" | grep -E '^\s*[-*] ' | sed 's/^\s*[-*] //' | head -10)"
+
+            if [[ -n "$PR_BULLETS" ]]; then
+                NOTES="${NOTES:+$NOTES
+}$PR_BULLETS"
+            elif [[ -n "$PR_TITLE" ]]; then
+                NOTES="${NOTES:+$NOTES
+}$PR_TITLE"
+            fi
+            echo "  PR #$pr: $PR_TITLE"
+        done <<< "$PR_NUMBERS"
     fi
 fi
 
