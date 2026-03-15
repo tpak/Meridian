@@ -6,5 +6,12 @@
 	<true/>
 	<key>com.apple.security.network.client</key>
 	<true/>
+	<key>com.apple.security.network.server</key>
+	<true/>
+	<key>com.apple.security.temporary-exception.mach-lookup.global-name</key>
+	<array>
+		<string>com.tpak.Meridian-spks</string>
+		<string>com.tpak.Meridian-spki</string>
+	</array>
 </dict>
 </plist>
