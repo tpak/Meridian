@@ -48,12 +48,28 @@ if git tag -l "v$VERSION" | grep -q "v$VERSION"; then
     exit 1
 fi
 
-for cmd in xcodebuild gh ditto; do
+for cmd in xcodebuild gh ditto xcrun; do
     if ! command -v "$cmd" &>/dev/null; then
         echo "Error: Required tool '$cmd' not found"
         exit 1
     fi
 done
+
+# Verify Developer ID certificate is available
+SIGN_IDENTITY="Developer ID Application"
+if ! security find-identity -v -p codesigning | grep -q "$SIGN_IDENTITY"; then
+    echo "Error: No '$SIGN_IDENTITY' certificate found in keychain."
+    echo "       Install a Developer ID Application certificate from https://developer.apple.com"
+    exit 1
+fi
+
+# Verify notarization credentials are stored
+if ! xcrun notarytool history --keychain-profile "meridian-notary" &>/dev/null; then
+    echo "Error: Notarization credentials not found. Store them with:"
+    echo "  xcrun notarytool store-credentials \"meridian-notary\" \\"
+    echo "    --apple-id \"YOUR_APPLE_ID\" --team-id \"YOUR_TEAM_ID\" --password \"APP_SPECIFIC_PASSWORD\""
+    exit 1
+fi
 
 # Find sign_update
 SIGN_UPDATE=""
@@ -127,7 +143,9 @@ rm -rf "$RELEASE_DIR"
 echo "── Building release..."
 xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Release \
     -derivedDataPath "$RELEASE_DIR" \
-    CODE_SIGN_IDENTITY="-" clean build 2>&1 | tail -5
+    CODE_SIGN_IDENTITY="$SIGN_IDENTITY" \
+    DEVELOPMENT_TEAM=3LWTY5PDSS \
+    clean build 2>&1 | tail -5
 
 APP_PATH="$(find "$RELEASE_DIR" -name "Meridian.app" -type d | head -1)"
 if [[ -z "$APP_PATH" ]]; then
@@ -135,9 +153,29 @@ if [[ -z "$APP_PATH" ]]; then
     exit 1
 fi
 
+# Verify the app is properly signed
+echo "── Verifying code signature..."
+if ! codesign --verify --deep --strict "$APP_PATH" 2>&1; then
+    echo "Error: Code signature verification failed"
+    exit 1
+fi
+echo "  Signature valid."
+
 ZIP_PATH="$RELEASE_DIR/Meridian.app.zip"
 echo "── Creating zip..."
 ditto -c -k --keepParent "$APP_PATH" "$ZIP_PATH"
+
+# Notarize
+echo "── Submitting for notarization (this may take a few minutes)..."
+xcrun notarytool submit "$ZIP_PATH" --keychain-profile "meridian-notary" --wait
+
+echo "── Stapling notarization ticket..."
+xcrun stapler staple "$APP_PATH"
+
+# Re-zip after stapling so the downloaded zip includes the ticket
+rm "$ZIP_PATH"
+ditto -c -k --keepParent "$APP_PATH" "$ZIP_PATH"
+echo "  Notarized and stapled."
 
 echo "── Signing with Sparkle..."
 SIGN_OUTPUT="$("$SIGN_UPDATE" "$ZIP_PATH")"
