@@ -190,8 +190,8 @@ fi
 echo "  Signature valid."
 
 ZIP_PATH="$RELEASE_DIR/Meridian.app.zip"
-echo "── Creating zip..."
-ditto -c -k --keepParent "$APP_PATH" "$ZIP_PATH"
+echo "── Creating zip for notarization..."
+ditto -c -k --norsrc --keepParent "$APP_PATH" "$ZIP_PATH"
 
 # Notarize
 echo "── Submitting for notarization (this may take a few minutes)..."
@@ -200,9 +200,11 @@ xcrun notarytool submit "$ZIP_PATH" --keychain-profile "meridian-notary" --wait
 echo "── Stapling notarization ticket..."
 xcrun stapler staple "$APP_PATH"
 
-# Re-zip after stapling so the downloaded zip includes the ticket
+# Strip all xattrs after stapling, then re-zip without resource forks
+# This prevents ._* AppleDouble files from appearing on extraction
+xattr -rc "$APP_PATH"
 rm "$ZIP_PATH"
-ditto -c -k --keepParent "$APP_PATH" "$ZIP_PATH"
+ditto -c -k --norsrc --keepParent "$APP_PATH" "$ZIP_PATH"
 echo "  Notarized and stapled."
 
 echo "── Signing with Sparkle..."
