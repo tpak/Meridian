@@ -158,6 +158,11 @@ if [[ -z "$APP_PATH" ]]; then
     exit 1
 fi
 
+# Remove AppleDouble/resource fork files that break framework seal
+echo "── Cleaning AppleDouble files..."
+find "$APP_PATH" -name '._*' -delete
+dot_clean "$APP_PATH"
+
 # Re-sign Sparkle components (SPM pre-built binaries need our identity)
 echo "── Re-signing Sparkle framework components..."
 SPARKLE_FW="$APP_PATH/Contents/Frameworks/Sparkle.framework"
