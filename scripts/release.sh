@@ -148,6 +148,8 @@ xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration 
     -derivedDataPath "$RELEASE_DIR" \
     CODE_SIGN_IDENTITY="$SIGN_IDENTITY" \
     DEVELOPMENT_TEAM=3LWTY5PDSS \
+    OTHER_CODE_SIGN_FLAGS=--timestamp \
+    CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO \
     clean build 2>&1 | tail -5
 
 APP_PATH="$(find "$RELEASE_DIR" -name "Meridian.app" -type d | head -1)"
@@ -155,6 +157,25 @@ if [[ -z "$APP_PATH" ]]; then
     echo "Error: Meridian.app not found after build"
     exit 1
 fi
+
+# Re-sign Sparkle components (SPM pre-built binaries need our identity)
+echo "── Re-signing Sparkle framework components..."
+SPARKLE_FW="$APP_PATH/Contents/Frameworks/Sparkle.framework"
+if [[ -d "$SPARKLE_FW" ]]; then
+    # Sign inside-out: XPC services first, then helper apps, then framework, then main app
+    for xpc in "$SPARKLE_FW"/Versions/B/XPCServices/*.xpc; do
+        [[ -d "$xpc" ]] && codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$xpc"
+    done
+    for helper in "$SPARKLE_FW"/Versions/B/*.app; do
+        [[ -d "$helper" ]] && codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$helper"
+    done
+    codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$SPARKLE_FW/Versions/B/Autoupdate"
+    codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$SPARKLE_FW"
+fi
+
+# Re-sign the main app (picks up entitlements, ensures timestamp)
+ENTITLEMENTS="Meridian/App/Meridian.entitlements"
+codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" --entitlements "$ENTITLEMENTS" "$APP_PATH"
 
 # Verify the app is properly signed
 echo "── Verifying code signature..."
