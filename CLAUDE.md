@@ -43,6 +43,32 @@ Add feature"
 
 **Critical**: Always use `-parallel-testing-enabled NO` for unit tests. Parallel runners crash with "exit code 0" on macOS 15 due to Launch Services failures.
 
+## Release Workflow
+
+After merging PRs to `main`:
+
+```bash
+git checkout main && git pull
+make release VERSION=X.Y.Z
+```
+
+The release script (`scripts/release.sh`) handles everything:
+1. Bumps version in `project.pbxproj` (skips if already set)
+2. Builds with Developer ID Application certificate (team `3LWTY5PDSS`)
+3. Strips xattrs and re-signs Sparkle framework components
+4. Notarizes with Apple via `xcrun notarytool` (keychain profile: `meridian-notary`)
+5. Staples notarization ticket, creates clean zip (no `._*` files)
+6. Signs zip with Sparkle EdDSA key
+7. Creates GitHub release with zip attached
+8. Updates `appcast.xml` with new entry, commits, and pushes
+
+**Release notes** are auto-collected from all PRs merged since the last release tag. Override with `NOTES="..."` or specify a single PR with `PR=35`. If no PRs found, opens `$EDITOR`.
+
+**Prerequisites** (one-time setup, see `developer-id.md`):
+- Developer ID Application certificate in keychain
+- Notarization credentials stored: `xcrun notarytool store-credentials "meridian-notary"`
+- Sparkle EdDSA key (generated on first use by `sign_update`)
+
 ## Architecture
 
 ### Data Flow
