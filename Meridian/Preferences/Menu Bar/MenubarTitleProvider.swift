@@ -4,12 +4,11 @@ import Cocoa
 import CoreLoggerKit
 import CoreModelKit
 
-class MenubarTitleProvider: NSObject {
+class MenubarTitleProvider {
     private let store: DataStoring
 
     init(with dataStore: DataStoring) {
         store = dataStore
-        super.init()
     }
 
     func titleForMenubar() -> String? {

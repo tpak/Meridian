@@ -6,7 +6,7 @@ import Foundation
 
 extension ParentPanelController: NSCollectionViewDataSource {
     func collectionView(_: NSCollectionView, numberOfItemsInSection _: Int) -> Int {
-        let futureSliderDayPreference = DataStore.shared().retrieve(key: UserDefaultKeys.futureSliderRange) as? NSNumber ?? 6
+        let futureSliderDayPreference = dataStore.retrieve(key: UserDefaultKeys.futureSliderRange) as? NSNumber ?? 6
         let futureSliderDayRange = futureSliderDayPreference.intValue
         return (PanelConstants.modernSliderPointsInADay * futureSliderDayRange * 2) + 1
     }
@@ -147,13 +147,13 @@ extension ParentPanelController {
     }
 
     public func setDefaultDateLabel(_ index: Int) -> Int {
-        let futureSliderDayPreference = DataStore.shared().retrieve(key: UserDefaultKeys.futureSliderRange) as? NSNumber ?? 6
+        let futureSliderDayPreference = dataStore.retrieve(key: UserDefaultKeys.futureSliderRange) as? NSNumber ?? 6
         let futureSliderDayRange = futureSliderDayPreference.intValue
         let totalCount = (PanelConstants.modernSliderPointsInADay * futureSliderDayRange * 2) + 1
         let centerPoint = Int(ceil(Double(totalCount / 2)))
         if index >= (centerPoint + 1) {
             let remainder = (index % (centerPoint + 1))
-            let nextDate = Calendar.current.date(byAdding: .minute, value: remainder * 15, to: closestQuarterTimeRepresentation ?? Date())!
+            let nextDate = Calendar.current.date(byAdding: .minute, value: remainder * PanelConstants.minutesPerSliderPoint, to: closestQuarterTimeRepresentation ?? Date())!
             modernSliderLabel.stringValue = timezoneFormattedStringRepresentation(nextDate)
             if resetModernSliderButton.isHidden {
                 animateButton(false)
@@ -162,7 +162,7 @@ extension ParentPanelController {
             return nextDate.minutes(from: Date()) + 1
         } else if index < centerPoint {
             let remainder = centerPoint - index + 1
-            let previousDate = Calendar.current.date(byAdding: .minute, value: -1 * remainder * 15, to: closestQuarterTimeRepresentation ?? Date())!
+            let previousDate = Calendar.current.date(byAdding: .minute, value: -1 * remainder * PanelConstants.minutesPerSliderPoint, to: closestQuarterTimeRepresentation ?? Date())!
             modernSliderLabel.stringValue = timezoneFormattedStringRepresentation(previousDate)
             if resetModernSliderButton.isHidden {
                 animateButton(false)

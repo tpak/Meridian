@@ -5,7 +5,11 @@ import CoreLocation
 import CoreLoggerKit
 import CoreModelKit
 
-class TimezoneDataOperations: NSObject {
+class TimezoneDataOperations {
+    private enum Constants {
+        static let dstDaysLookahead = 8
+    }
+
     private let dataObject: TimezoneData
     private let store: DataStoring
     private lazy var calendar = Calendar.autoupdatingCurrent
@@ -15,7 +19,6 @@ class TimezoneDataOperations: NSObject {
     init(with timezone: TimezoneData, store: DataStoring) {
         dataObject = timezone
         self.store = store
-        super.init()
     }
 }
 
@@ -55,7 +58,7 @@ extension TimezoneDataOperations {
 
         // We'd like to show upcoming DST changes within the 7 day range.
         // Using 8 as a fail-safe as timezones behind CDT can sometimes be wrongly attributed
-        if numberOfDays > 8 || numberOfDays < 0 {
+        if numberOfDays > Constants.dstDaysLookahead || numberOfDays < 0 {
             return nil
         }
 

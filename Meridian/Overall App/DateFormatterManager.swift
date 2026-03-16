@@ -2,7 +2,7 @@
 
 import Cocoa
 
-class DateFormatterManager: NSObject {
+enum DateFormatterManager {
     private static var dateFormatter = DateFormatter()
     private static var calendarDateFormatter = DateFormatter()
     private static var simpleFormatter = DateFormatter()
@@ -12,7 +12,7 @@ class DateFormatterManager: NSObject {
     private static var gregorianCalendar = Calendar(identifier: Calendar.Identifier.gregorian)
     private static var USLocale = Locale(identifier: "en_US")
 
-    class func dateFormatter(with style: DateFormatter.Style, for timezoneIdentifier: String) -> DateFormatter {
+    static func dateFormatter(with style: DateFormatter.Style, for timezoneIdentifier: String) -> DateFormatter {
         dateFormatter.dateStyle = style
         dateFormatter.timeStyle = style
         dateFormatter.locale = USLocale
@@ -20,7 +20,7 @@ class DateFormatterManager: NSObject {
         return dateFormatter
     }
 
-    class func dateFormatterWithFormat(with style: DateFormatter.Style,
+    static func dateFormatterWithFormat(with style: DateFormatter.Style,
                                        format: String,
                                        timezoneIdentifier: String,
                                        locale:
@@ -48,7 +48,7 @@ class DateFormatterManager: NSObject {
         return specializedFormatter
     }
 
-    class func localizedFormatter(with format: String, for timezoneIdentifier: String, locale _: Locale = Locale.autoupdatingCurrent) -> DateFormatter {
+    static func localizedFormatter(with format: String, for timezoneIdentifier: String, locale _: Locale = Locale.autoupdatingCurrent) -> DateFormatter {
         dateFormatter.dateStyle = .none
         dateFormatter.timeStyle = .none
         dateFormatter.locale = Locale.autoupdatingCurrent
@@ -57,7 +57,7 @@ class DateFormatterManager: NSObject {
         return dateFormatter
     }
 
-    class func localizedSimpleFormatter(_ format: String) -> DateFormatter {
+    static func localizedSimpleFormatter(_ format: String) -> DateFormatter {
         localizedSimpleFormatter.dateStyle = .none
         localizedSimpleFormatter.timeStyle = .none
         localizedSimpleFormatter.dateFormat = format

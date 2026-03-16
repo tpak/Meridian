@@ -8,6 +8,7 @@ import CoreModelKit
 
 struct PanelConstants {
     static let modernSliderPointsInADay = 96
+    static let minutesPerSliderPoint = 15
 }
 
 class ParentPanelController: NSWindowController {

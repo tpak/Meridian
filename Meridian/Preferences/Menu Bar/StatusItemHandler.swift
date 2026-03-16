@@ -11,6 +11,13 @@ private enum MenubarState {
     case icon
 }
 
+private enum BufferWidthConstants {
+    static let baseWidth = 55
+    static let dayBuffer = 12
+    static let twelveHourBuffer = 20
+    static let dateBuffer = 20
+}
+
 class StatusItemHandler: NSObject {
     var hasActiveIcon: Bool = false
 
@@ -353,18 +360,18 @@ class StatusItemHandler: NSObject {
     }
 
     private func bufferCalculatedWidth() -> Int {
-        var totalWidth = 55
+        var totalWidth = BufferWidthConstants.baseWidth
 
         if store.shouldShowDayInMenubar() {
-            totalWidth += 12
+            totalWidth += BufferWidthConstants.dayBuffer
         }
 
         if store.isBufferRequiredForTwelveHourFormats() {
-            totalWidth += 20
+            totalWidth += BufferWidthConstants.twelveHourBuffer
         }
 
         if store.shouldShowDateInMenubar() {
-            totalWidth += 20
+            totalWidth += BufferWidthConstants.dateBuffer
         }
 
         return totalWidth
