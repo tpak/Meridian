@@ -3,7 +3,7 @@
 import Cocoa
 import CoreLocation
 
-class NetworkManager: NSObject {
+enum NetworkManager {
     static let internalServerError: NSError = {
         let localizedError = """
         There was a problem retrieving your information. Please try again later.
