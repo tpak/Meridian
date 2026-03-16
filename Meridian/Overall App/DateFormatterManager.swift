@@ -7,7 +7,7 @@ enum DateFormatterManager {
     private static var calendarDateFormatter = DateFormatter()
     private static var simpleFormatter = DateFormatter()
     private static var specializedFormatter = DateFormatter()
-    private static var localizedForamtter = DateFormatter()
+    private static var localizedDateFormatter = DateFormatter()
     private static var localizedSimpleFormatter = DateFormatter()
     private static var gregorianCalendar = Calendar(identifier: Calendar.Identifier.gregorian)
     private static var USLocale = Locale(identifier: "en_US")
@@ -49,19 +49,37 @@ enum DateFormatterManager {
     }
 
     static func localizedFormatter(with format: String, for timezoneIdentifier: String, locale _: Locale = Locale.autoupdatingCurrent) -> DateFormatter {
-        dateFormatter.dateStyle = .none
-        dateFormatter.timeStyle = .none
-        dateFormatter.locale = Locale.autoupdatingCurrent
-        dateFormatter.dateFormat = format
-        dateFormatter.timeZone = TimeZone(identifier: timezoneIdentifier)
-        return dateFormatter
+        if localizedDateFormatter.dateStyle != .none {
+            localizedDateFormatter.dateStyle = .none
+        }
+        if localizedDateFormatter.timeStyle != .none {
+            localizedDateFormatter.timeStyle = .none
+        }
+        if localizedDateFormatter.dateFormat != format {
+            localizedDateFormatter.dateFormat = format
+        }
+        if localizedDateFormatter.locale != Locale.autoupdatingCurrent {
+            localizedDateFormatter.locale = Locale.autoupdatingCurrent
+        }
+        if localizedDateFormatter.timeZone?.identifier != timezoneIdentifier {
+            localizedDateFormatter.timeZone = TimeZone(identifier: timezoneIdentifier)
+        }
+        return localizedDateFormatter
     }
 
     static func localizedSimpleFormatter(_ format: String) -> DateFormatter {
-        localizedSimpleFormatter.dateStyle = .none
-        localizedSimpleFormatter.timeStyle = .none
-        localizedSimpleFormatter.dateFormat = format
-        localizedSimpleFormatter.locale = Locale.autoupdatingCurrent
+        if localizedSimpleFormatter.dateStyle != .none {
+            localizedSimpleFormatter.dateStyle = .none
+        }
+        if localizedSimpleFormatter.timeStyle != .none {
+            localizedSimpleFormatter.timeStyle = .none
+        }
+        if localizedSimpleFormatter.dateFormat != format {
+            localizedSimpleFormatter.dateFormat = format
+        }
+        if localizedSimpleFormatter.locale != Locale.autoupdatingCurrent {
+            localizedSimpleFormatter.locale = Locale.autoupdatingCurrent
+        }
         return localizedSimpleFormatter
     }
 }

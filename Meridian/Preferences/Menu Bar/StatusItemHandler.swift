@@ -19,6 +19,13 @@ private enum BufferWidthConstants {
 }
 
 class StatusItemHandler: NSObject {
+    private static let menubarTextAttributes: [NSAttributedString.Key: Any] = [
+        .font: NSFont.monospacedDigitSystemFont(ofSize: 13.0, weight: .regular),
+        .baselineOffset: 0.1
+    ]
+
+    private lazy var clockIcon: NSImage? = NSImage(systemSymbolName: "clock.fill", accessibilityDescription: "Meridian")
+
     var hasActiveIcon: Bool = false
 
     var menubarTimer: Timer?
@@ -269,9 +276,7 @@ class StatusItemHandler: NSObject {
             updateMenubar()
         } else if currentState == .standardText, let title = menubarTitleHandler.titleForMenubar() {
             statusItem.button?.image = nil
-            let attributes = [NSAttributedString.Key.font: NSFont.monospacedDigitSystemFont(ofSize: 13.0, weight: NSFont.Weight.regular),
-                              NSAttributedString.Key.baselineOffset: 0.1] as [NSAttributedString.Key: Any]
-            statusItem.button?.attributedTitle = NSAttributedString(string: title, attributes: attributes)
+            statusItem.button?.attributedTitle = NSAttributedString(string: title, attributes: StatusItemHandler.menubarTextAttributes)
             updateMenubar()
         } else {
             setMenubarIcon()
@@ -326,7 +331,7 @@ class StatusItemHandler: NSObject {
         }
 
         statusItem.button?.title = UserDefaultKeys.emptyString
-        statusItem.button?.image = NSImage(systemSymbolName: "clock.fill", accessibilityDescription: "Meridian")
+        statusItem.button?.image = clockIcon
         statusItem.button?.imagePosition = .imageOnly
         statusItem.button?.toolTip = "Meridian"
     }
@@ -343,9 +348,7 @@ class StatusItemHandler: NSObject {
             return
         }
 
-        let attributes = [NSAttributedString.Key.font: NSFont.monospacedDigitSystemFont(ofSize: 13.0, weight: NSFont.Weight.regular),
-                          NSAttributedString.Key.baselineOffset: 0.1] as [NSAttributedString.Key: Any]
-        statusItem.button?.attributedTitle = NSAttributedString(string: menubarText, attributes: attributes)
+        statusItem.button?.attributedTitle = NSAttributedString(string: menubarText, attributes: StatusItemHandler.menubarTextAttributes)
         statusItem.button?.image = nil
         statusItem.button?.imagePosition = .imageLeft
     }

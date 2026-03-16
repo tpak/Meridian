@@ -58,6 +58,7 @@ class ParentPanelController: NSWindowController {
     }
 
     deinit {
+        NotificationCenter.default.removeObserver(self)
         datasource = nil
     }
 
@@ -478,7 +479,7 @@ extension ParentPanelController {
                 cellView.sunriseImage.contentTintColor = model.isSunriseOrSunset ? NSColor.systemYellow : NSColor.systemOrange
                 if let note = model.note, !note.isEmpty {
                     cellView.noteLabel.stringValue = note
-                } else if let value = TimezoneDataOperations(with: model, store: dataStore).nextDaylightSavingsTransitionIfAvailable(with: futureSliderValue) {
+                } else if let value = dataOperation.nextDaylightSavingsTransitionIfAvailable(with: futureSliderValue) {
                     cellView.noteLabel.stringValue = value
                 } else {
                     cellView.noteLabel.stringValue = UserDefaultKeys.emptyString
