@@ -69,6 +69,70 @@ The release script (`scripts/release.sh`) handles everything:
 - Notarization credentials stored: `xcrun notarytool store-credentials "meridian-notary"`
 - Sparkle EdDSA key (generated on first use by `sign_update`)
 
+## Coming Back After Months Away
+
+If you haven't touched this project in a while, here's how to get back up to speed and ship an update.
+
+### Prerequisites Check
+
+```bash
+# 1. Verify Developer ID certificate is installed
+security find-identity -v -p codesigning | grep "Developer ID"
+# Should show: "Developer ID Application: Christopher Tirpak (3LWTY5PDSS)"
+
+# 2. Verify notarization credentials are stored
+xcrun notarytool history --keychain-profile "meridian-notary"
+# Should list previous submissions (not an error)
+
+# 3. Verify Sparkle sign_update is available (build project in Xcode first if missing)
+find ~/Library/Developer/Xcode/DerivedData/Meridian-*/SourcePackages/artifacts/sparkle/Sparkle/bin/sign_update
+
+# 4. Verify gh CLI is authenticated
+gh auth status
+```
+
+If the Developer ID certificate has expired, renew at [developer.apple.com](https://developer.apple.com) → Certificates. If notarization creds are missing, re-store them:
+```bash
+xcrun notarytool store-credentials "meridian-notary" \
+  --apple-id "YOUR_APPLE_ID" --team-id "3LWTY5PDSS" --password "APP_SPECIFIC_PASSWORD"
+```
+
+### Shipping an Update
+
+```bash
+# 1. Create a feature branch, make changes, push, open PR
+git checkout -b feature/my-change
+# ... make changes ...
+git push -u origin feature/my-change
+gh pr create --title "My change"
+
+# 2. Wait for CI (Build & Lint + Unit Tests), then merge
+gh pr merge --merge
+
+# 3. Release (does everything: version bump, build, sign, notarize, GitHub release, appcast)
+git checkout main && git pull
+make release VERSION=X.Y.Z
+```
+
+### How Sparkle Auto-Update Works
+
+1. App checks `appcast.xml` at `SUFeedURL` (hosted on GitHub raw) on the interval set in About preferences
+2. If a newer `<sparkle:version>` exists, Sparkle downloads the zip from the GitHub release URL
+3. Sparkle verifies the EdDSA signature (`sparkle:edSignature`) matches the public key in Info.plist (`SUPublicEDKey`)
+4. For sandboxed apps, Sparkle uses XPC services (`-spks`, `-spki`) via the Installer Launcher Service
+5. The update replaces the app bundle and relaunches
+
+### Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| `No 'Developer ID Application' certificate found` | Install/renew at developer.apple.com → Certificates, Identifiers & Profiles |
+| `Notarization credentials not found` | Re-run `xcrun notarytool store-credentials "meridian-notary"` |
+| `Sparkle sign_update not found` | Open project in Xcode, build once to resolve SPM packages |
+| Notarization rejected (Invalid) | Check `xcrun notarytool log <submission-id> --keychain-profile "meridian-notary"` for details |
+| Users get Gatekeeper warning | Ensure `xattr -rc` and `ditto --norsrc` are in the release script (prevents `._*` files) |
+| Sparkle update fails silently | Check Console.app for Sparkle logs; verify `SUEnableInstallerLauncherService` is in Info.plist |
+
 ## Architecture
 
 ### Data Flow
