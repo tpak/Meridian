@@ -16,6 +16,9 @@ class TimezoneCellView: NSTableCellView {
     private static let minimumFontSizeForTime: Int = 10
     private static let minimumFontSizeForLabel: Int = 8
 
+    private var lastRelativeDateValue: String?
+    private var lastSunriseValue: String?
+
     var rowNumber: NSInteger = -1
     var isPopoverDisplayed: Bool = false
 
@@ -48,8 +51,14 @@ class TimezoneCellView: NSTableCellView {
             return
         }
 
-        let relativeDateString = relativeDate.stringValue as NSString
-        let sunriseString = sunriseSetTime.stringValue as NSString
+        let currentRelativeDate = relativeDate.stringValue
+        let currentSunrise = sunriseSetTime.stringValue
+        guard currentRelativeDate != lastRelativeDateValue || currentSunrise != lastSunriseValue else { return }
+        lastRelativeDateValue = currentRelativeDate
+        lastSunriseValue = currentSunrise
+
+        let relativeDateString = currentRelativeDate as NSString
+        let sunriseString = currentSunrise as NSString
 
         let relativeWidth = relativeDateString.size(withAttributes: [.font: relativeFont]).width
         let sunriseWidth = sunriseString.size(withAttributes: [.font: sunriseFont]).width
