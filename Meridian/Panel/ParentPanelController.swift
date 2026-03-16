@@ -57,6 +57,7 @@ class ParentPanelController: NSWindowController {
     }
 
     deinit {
+        NotificationCenter.default.removeObserver(self)
         datasource = nil
     }
 
