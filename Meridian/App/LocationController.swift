@@ -51,17 +51,6 @@ class LocationController: NSObject {
         if CLLocationManager.locationServicesEnabled() {
             locationManager.startUpdatingLocation()
         }
-
-        switch authorizationStatus() {
-        case .authorizedAlways:
-            locationManager.startUpdatingLocation()
-        case .notDetermined:
-            locationManager.startUpdatingLocation()
-        case .denied, .restricted:
-            locationManager.startUpdatingLocation()
-        default:
-            fatalError("Unexpected Authorization Status")
-        }
     }
 
     private func updateHomeObject(with customLabel: String, coordinates: CLLocationCoordinate2D?) {
@@ -105,12 +94,9 @@ extension LocationController: CLLocationManagerDelegate {
 
         let reverseGeoCoder = CLGeocoder()
 
-        reverseGeoCoder.reverseGeocodeLocation(locations[0]) { placemarks, _ in
-
-            guard let customLabel = placemarks?.first?.locality else { return }
-
+        reverseGeoCoder.reverseGeocodeLocation(locations[0]) { [weak self] placemarks, _ in
+            guard let self, let customLabel = placemarks?.first?.locality else { return }
             self.updateHomeObject(with: customLabel, coordinates: coordinates)
-
             self.locationManager.stopUpdatingLocation()
         }
     }

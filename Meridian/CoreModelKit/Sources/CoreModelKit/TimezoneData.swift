@@ -113,22 +113,22 @@ public class TimezoneData: NSObject, NSCoding, NSSecureCoding {
     }
 
     public required init?(coder aDecoder: NSCoder) {
-        customLabel = aDecoder.decodeObject(forKey: "customLabel") as? String
-        formattedAddress = aDecoder.decodeObject(forKey: "formattedAddress") as? String
-        placeID = aDecoder.decodeObject(forKey: "place_id") as? String
-        timezoneID = aDecoder.decodeObject(forKey: "timezoneID") as? String
-        latitude = aDecoder.decodeObject(forKey: "latitude") as? Double
-        longitude = aDecoder.decodeObject(forKey: "longitude") as? Double
-        note = aDecoder.decodeObject(forKey: "note") as? String
-        nextUpdate = aDecoder.decodeObject(forKey: "nextUpdate") as? Date
-        sunriseTime = aDecoder.decodeObject(forKey: "sunriseTime") as? Date
-        sunsetTime = aDecoder.decodeObject(forKey: "sunsetTime") as? Date
+        customLabel = aDecoder.decodeObject(of: NSString.self, forKey: "customLabel") as? String
+        formattedAddress = aDecoder.decodeObject(of: NSString.self, forKey: "formattedAddress") as? String
+        placeID = aDecoder.decodeObject(of: NSString.self, forKey: "place_id") as? String
+        timezoneID = aDecoder.decodeObject(of: NSString.self, forKey: "timezoneID") as? String
+        latitude = aDecoder.decodeObject(of: NSNumber.self, forKey: "latitude")?.doubleValue
+        longitude = aDecoder.decodeObject(of: NSNumber.self, forKey: "longitude")?.doubleValue
+        note = aDecoder.decodeObject(of: NSString.self, forKey: "note") as? String
+        nextUpdate = aDecoder.decodeObject(of: NSDate.self, forKey: "nextUpdate") as? Date
+        sunriseTime = aDecoder.decodeObject(of: NSDate.self, forKey: "sunriseTime") as? Date
+        sunsetTime = aDecoder.decodeObject(of: NSDate.self, forKey: "sunsetTime") as? Date
         isFavourite = aDecoder.decodeInteger(forKey: "isFavourite")
         let selection = aDecoder.decodeInteger(forKey: "selectionType")
-        selectionType = SelectionType(rawValue: selection)!
+        selectionType = SelectionType(rawValue: selection) ?? .city
         isSystemTimezone = aDecoder.decodeBool(forKey: "isSystemTimezone")
         let override = aDecoder.decodeInteger(forKey: "overrideFormat")
-        overrideFormat = TimezoneOverride(rawValue: override)!
+        overrideFormat = TimezoneOverride(rawValue: override) ?? .globalFormat
     }
 
     public class func customObject(from encodedData: Data?) -> TimezoneData? {
@@ -137,7 +137,7 @@ public class TimezoneData: NSObject, NSCoding, NSSecureCoding {
         }
 
         guard let unarchiver = try? NSKeyedUnarchiver(forReadingFrom: dataObject) else { return nil }
-        unarchiver.requiresSecureCoding = false
+        unarchiver.requiresSecureCoding = true
         let result = unarchiver.decodeObject(of: TimezoneData.self, forKey: NSKeyedArchiveRootObjectKey)
         unarchiver.finishDecoding()
         return result
