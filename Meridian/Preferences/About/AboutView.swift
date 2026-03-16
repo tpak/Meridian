@@ -61,6 +61,8 @@ struct AboutView: View {
                     startupManager.toggleLogin(newValue)
                 }
 
+            AutoUpdateToggle()
+
             HStack(spacing: 8) {
                 Text("Check for Updates")
                     .font(.custom("Avenir-Light", size: 13))
@@ -112,6 +114,26 @@ struct AboutView: View {
         guard let url = URL(string: urlString) else { return }
         NSWorkspace.shared.open(url)
         Logger.log(object: metadata, for: logEvent as NSString)
+    }
+}
+
+private struct AutoUpdateToggle: View {
+    @State private var autoUpdate: Bool
+
+    init() {
+        let updater = (NSApplication.shared.delegate as? AppDelegate)?.updaterController.updater
+        _autoUpdate = State(initialValue: updater?.automaticallyDownloadsUpdates ?? false)
+    }
+
+    var body: some View {
+        Toggle("Automatically download and install updates", isOn: $autoUpdate)
+            .font(.custom("Avenir-Book", size: 13))
+            .toggleStyle(.checkbox)
+            .accessibilityIdentifier("AutoUpdate")
+            .onChange(of: autoUpdate) { newValue in
+                guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
+                appDelegate.updaterController.updater.automaticallyDownloadsUpdates = newValue
+            }
     }
 }
 
