@@ -3,6 +3,24 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>2.9.0</title>
+            <pubDate>Mon, 16 Mar 2026 11:45:22 +0000</pubDate>
+            <sparkle:version>2.9.0</sparkle:version>
+            <sparkle:shortVersionString>2.9.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Harden security: enable secure coding, fix retain cycles, remove crash-on-unknown-auth</li>
+                    <li>Improve performance: cache fonts/images, fix DateFormatter aliasing bug, skip redundant layout</li>
+                    <li>Code quality: remove unnecessary NSObject, fix dependency injection, extract named constants</li>
+                    <li>Add 36 new unit tests (112 → 148 total) covering critical formatting and serialization paths</li>
+                    <li>Add deployment guide for returning after months away</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.9.0/Meridian.app.zip" length="3134598" type="application/octet-stream" sparkle:edSignature="I+1iJSShhVyRxY9F0VvSoe6b7dESKBvu26Ww7xhozygRKi83dROA1GA0Nc4boeeFiJTkzCft+eYPOB+TdgTtAA=="/>
+        </item>
+        <item>
             <title>2.8.6</title>
             <pubDate>Mon, 16 Mar 2026 10:54:28 +0000</pubDate>
             <sparkle:version>2.8.6</sparkle:version>
