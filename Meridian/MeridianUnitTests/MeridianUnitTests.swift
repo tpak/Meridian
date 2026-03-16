@@ -458,4 +458,77 @@ class MeridianUnitTests: XCTestCase {
         XCTAssertNil(defaults?.object(forKey: "test1"))
         XCTAssertNil(defaults?.object(forKey: "test2"))
     }
+
+    func testDeserializationWithInvalidSelectionType() {
+        // Archive a valid TimezoneData, then tamper with the plist to set an invalid selectionType
+        let original = TimezoneData(with: california)
+        original.selectionType = .city
+
+        guard let archivedData = try? NSKeyedArchiver.archivedData(withRootObject: original, requiringSecureCoding: true) else {
+            XCTFail("Failed to archive TimezoneData")
+            return
+        }
+
+        // Deserialize the archive into a mutable plist, tamper with selectionType, re-serialize
+        guard var plist = try? PropertyListSerialization.propertyList(from: archivedData, format: nil) as? [String: Any],
+              var objects = plist["$objects"] as? [Any]
+        else {
+            XCTFail("Failed to parse archived plist")
+            return
+        }
+
+        // Find the root object and tamper with selectionType
+        // The root object is typically at index 1 in $objects (index 0 is "$null")
+        // Walk objects looking for a dictionary containing "selectionType"
+        for i in 0 ..< objects.count {
+            if var dict = objects[i] as? [String: Any], dict["selectionType"] != nil {
+                dict["selectionType"] = 999 // Invalid raw value
+                objects[i] = dict
+                break
+            }
+        }
+
+        plist["$objects"] = objects
+
+        guard let tamperedData = try? PropertyListSerialization.data(fromPropertyList: plist, format: .binary, options: 0) else {
+            XCTFail("Failed to re-serialize tampered plist")
+            return
+        }
+
+        // Unarchive — init?(coder:) uses `?? .city` so invalid values should default
+        let result = TimezoneData.customObject(from: tamperedData)
+
+        XCTAssertNotNil(result, "Deserialization should not return nil for invalid selectionType")
+        XCTAssertEqual(result?.selectionType, .city, "Invalid selectionType should default to .city")
+    }
+
+    func testSecureCodingRoundtrip() {
+        let original = TimezoneData(with: california)
+        original.isFavourite = 1
+        original.selectionType = .city
+        original.setShouldOverrideGlobalTimeFormat(2) // 24-hour
+        original.note = "Test note"
+
+        // Archive using secureArchive
+        guard let archivedData = NSKeyedArchiver.secureArchive(with: original) else {
+            XCTFail("secureArchive returned nil")
+            return
+        }
+
+        // Unarchive using customObject(from:) which uses requiresSecureCoding = true
+        let restored = TimezoneData.customObject(from: archivedData)
+
+        XCTAssertNotNil(restored, "customObject(from:) should return non-nil")
+        XCTAssertEqual(restored?.placeID, original.placeID, "placeID should match")
+        XCTAssertEqual(restored?.timezoneID, original.timezoneID, "timezoneID should match")
+        XCTAssertEqual(restored?.formattedAddress, original.formattedAddress, "formattedAddress should match")
+        XCTAssertEqual(restored?.customLabel, original.customLabel, "customLabel should match")
+        XCTAssertEqual(restored?.isFavourite, original.isFavourite, "isFavourite should match")
+        XCTAssertEqual(restored?.selectionType, original.selectionType, "selectionType should match")
+        XCTAssertEqual(restored?.overrideFormat, original.overrideFormat, "overrideFormat should match")
+        XCTAssertEqual(restored?.note, original.note, "note should match")
+        XCTAssertEqual(restored?.isSystemTimezone, original.isSystemTimezone, "isSystemTimezone should match")
+        XCTAssertEqual(restored?.latitude, original.latitude, "latitude should match")
+        XCTAssertEqual(restored?.longitude, original.longitude, "longitude should match")
+    }
 }

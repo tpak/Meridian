@@ -91,6 +91,8 @@
 		A1B2C3D4E5F60002SEARCH02 /* TimezoneSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60001SEARCH01 /* TimezoneSearchService.swift */; };
 		AA000001SWIFTUI00000001 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000002SWIFTUI00000001 /* AboutView.swift */; };
 		AA00000400000002PREFSTB1 /* PreferencesStoryboardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000400000001PREFSTB2 /* PreferencesStoryboardTests.swift */; };
+		CC11AA0100TZDATAOPSTEST1 /* TimezoneDataOperationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC11AA0100TZDATAOPSTEST2 /* TimezoneDataOperationsTests.swift */; };
+		CC11AA0200MNBRTITLTEST1 /* MenubarTitleProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC11AA0200MNBRTITLTEST2 /* MenubarTitleProviderTests.swift */; };
 		AA000011MODERN00000001 /* ModernSliderViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000010MODERN00000001 /* ModernSliderViews.swift */; };
 		AA000013STARTU00000001 /* StartupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000012STARTU00000001 /* StartupManager.swift */; };
 		AA1B2C3D0002000000000001 /* TimezoneSortingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D0001000000000001 /* TimezoneSortingManager.swift */; };
@@ -217,6 +219,8 @@
 		A1B2C3D4E5F60001SEARCH01 /* TimezoneSearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneSearchService.swift; sourceTree = "<group>"; };
 		AA000002SWIFTUI00000001 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		AA00000400000001PREFSTB2 /* PreferencesStoryboardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesStoryboardTests.swift; sourceTree = "<group>"; };
+		CC11AA0100TZDATAOPSTEST2 /* TimezoneDataOperationsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneDataOperationsTests.swift; sourceTree = "<group>"; };
+		CC11AA0200MNBRTITLTEST2 /* MenubarTitleProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarTitleProviderTests.swift; sourceTree = "<group>"; };
 		AA000010MODERN00000001 /* ModernSliderViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModernSliderViews.swift; sourceTree = "<group>"; };
 		AA000012STARTU00000001 /* StartupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupManager.swift; sourceTree = "<group>"; };
 		AA1B2C3D0001000000000001 /* TimezoneSortingManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimezoneSortingManager.swift; sourceTree = "<group>"; };
@@ -520,6 +524,8 @@
 				919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */,
 				4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */,
 				AA00000400000001PREFSTB2 /* PreferencesStoryboardTests.swift */,
+				CC11AA0100TZDATAOPSTEST2 /* TimezoneDataOperationsTests.swift */,
+				CC11AA0200MNBRTITLTEST2 /* MenubarTitleProviderTests.swift */,
 			);
 			path = MeridianUnitTests;
 			sourceTree = "<group>";
@@ -763,6 +769,8 @@
 				919639F9D2F3GLOBALSHRTCUT /* GlobalShortcutMonitorTests.swift in Sources */,
 				4726354D81E1NWMGRASYNCTS /* NetworkManagerAsyncTests.swift in Sources */,
 				AA00000400000002PREFSTB1 /* PreferencesStoryboardTests.swift in Sources */,
+				CC11AA0100TZDATAOPSTEST1 /* TimezoneDataOperationsTests.swift in Sources */,
+				CC11AA0200MNBRTITLTEST1 /* MenubarTitleProviderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
