@@ -51,7 +51,7 @@ make clean        # Remove build artifacts
 ### Test & Lint
 
 ```bash
-make test         # Run all 112 unit tests
+make test         # Run all unit tests
 make lint         # Run SwiftLint
 ```
 
@@ -77,9 +77,33 @@ Meridian/
 │   └── Dependencies/       # Vendored: DateTools, Solar
 ├── CoreLoggerKit/          # SPM package — OSLog wrapper
 ├── CoreModelKit/           # SPM package — TimezoneData model
-├── MeridianUnitTests/      # 112 unit tests
+├── MeridianUnitTests/      # Unit tests
 └── MeridianUITests/        # UI tests
 ```
+
+## Localization
+
+Meridian is available in 15 languages. Translations use Apple's [String Catalogs](https://developer.apple.com/documentation/xcode/localizing-and-varying-text-with-a-string-catalog) (`.xcstrings`).
+
+| Language | Status |
+|----------|--------|
+| Croatian, German, Spanish | Excellent |
+| Chinese (Simplified/Traditional), Russian, Turkish, Polish, Portuguese (Brazil) | Good |
+| Korean, Japanese, French, Ukrainian, Arabic, Hindi | Partial |
+
+### Contributing Translations
+
+1. Open `Meridian/App/Localizable.xcstrings` in Xcode's String Catalog editor
+2. Add or improve translations for your language
+3. Submit a pull request
+
+### Translation Credits
+
+Translations were originally contributed to the [Clocker](https://github.com/n0shake/Clocker) project and restored for Meridian:
+
+- **[Abhishek Banthia](https://github.com/n0shake)** — all base translations across 15+ languages
+- **[Ping](https://github.com/milotype)** — Croatian translation updates
+- Community translators via [Crowdin](https://crowdin.com/project/clocker)
 
 ## Contributing
 

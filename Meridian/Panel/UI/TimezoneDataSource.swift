@@ -161,10 +161,10 @@ extension TimezoneDataSource: NSTableViewDataSource, NSTableViewDelegate {
         NSApplication.shared.activate(ignoringOtherApps: true)
 
         let alert = NSAlert()
-        alert.messageText = "Confirm deleting the home row?"
-        alert.informativeText = "This row is automatically updated when Meridian detects a system timezone change. Are you sure you want to delete this?"
-        alert.addButton(withTitle: "Yes")
-        alert.addButton(withTitle: "No")
+        alert.messageText = "Confirm deleting the home row?".localized()
+        alert.informativeText = "This row is automatically updated when Meridian detects a system timezone change. Are you sure you want to delete this?".localized()
+        alert.addButton(withTitle: "Yes".localized())
+        alert.addButton(withTitle: "No".localized())
 
         let response = alert.runModal()
         if response.rawValue == 1000 {
