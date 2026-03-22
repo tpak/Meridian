@@ -5,7 +5,6 @@ xcuserdata/
 
 # Build artifacts
 build/
-*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 *.profraw
 DerivedData/
 
