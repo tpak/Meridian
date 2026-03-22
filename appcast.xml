@@ -3,6 +3,22 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>2.10.0</title>
+            <pubDate>Sun, 22 Mar 2026 07:52:00 +0000</pubDate>
+            <sparkle:version>2.10.0</sparkle:version>
+            <sparkle:shortVersionString>2.10.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Restore internationalization with 15 languages via String Catalogs</li>
+                    <li>Add Homebrew cask support (brew install --cask tpak/tpak/meridian)</li>
+                    <li>Translations recovered from original Clocker project — credit to Abhishek Banthia, Ping (milotype), and Crowdin community</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.10.0/Meridian.app.zip" length="3155408" type="application/octet-stream" sparkle:edSignature="pxG4q69zCzG8vWhcPuNntfhBCQHnwdbGSYZ6kakuPBR7J9ZMVly9CS9+rnV14lJTAPOjac/uJ/Si9AM/mVeQBA=="/>
+        </item>
+        <item>
             <title>2.9.0</title>
             <pubDate>Mon, 16 Mar 2026 11:45:22 +0000</pubDate>
             <sparkle:version>2.9.0</sparkle:version>
