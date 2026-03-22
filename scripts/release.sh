@@ -340,11 +340,38 @@ fi
 
 echo "── Appcast updated and pushed."
 
-# ── Phase 6: Summary ────────────────────────────────────────────────
+# ── Phase 6: Update Homebrew cask ──────────────────────────────────
+
+echo "── Updating Homebrew cask..."
+ZIP_SHA256="$(shasum -a 256 "$ZIP_PATH" | awk '{print $1}')"
+
+CASK_REPO="tpak/homebrew-tpak"
+CASK_FILE="Casks/meridian.rb"
+
+if FILE_SHA="$(gh api "repos/$CASK_REPO/contents/$CASK_FILE" --jq '.sha' 2>/dev/null)"; then
+    CASK_CONTENT="$(gh api "repos/$CASK_REPO/contents/$CASK_FILE" \
+        --jq '.content' | base64 -d \
+        | sed "s/version \".*\"/version \"$VERSION\"/" \
+        | sed "s/sha256 \".*\"/sha256 \"$ZIP_SHA256\"/")"
+
+    ENCODED="$(printf '%s' "$CASK_CONTENT" | base64)"
+
+    gh api --method PUT "repos/$CASK_REPO/contents/$CASK_FILE" \
+        -f message="Update meridian to v$VERSION" \
+        -f content="$ENCODED" \
+        -f sha="$FILE_SHA" > /dev/null
+
+    echo "── Homebrew cask updated to v$VERSION."
+else
+    echo "WARNING: Homebrew cask file not found at $CASK_REPO/$CASK_FILE. Skipping cask update."
+fi
+
+# ── Phase 7: Summary ────────────────────────────────────────────────
 
 echo ""
 echo "=== Release v$VERSION complete! ==="
 echo ""
 echo "  GitHub release: https://github.com/tpak/Meridian/releases/tag/v$VERSION"
 echo "  Appcast updated with signature and download URL"
+echo "  Homebrew cask: brew install --cask tpak/tpak/meridian"
 echo ""

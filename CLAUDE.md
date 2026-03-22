@@ -6,6 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Meridian** (formerly Clocker) — macOS menu bar world clock app. ~11K lines of Swift across 77 files. Bundle ID: `com.tpak.Meridian`. Forked from [Clocker](https://github.com/n0shake/Clocker) by Abhishek Banthia.
 
+## Installation
+
+```bash
+brew tap tpak/tpak
+brew install --cask meridian
+```
+
+Cask definition lives in [`tpak/homebrew-tpak`](https://github.com/tpak/homebrew-tpak). Updated automatically by the release script.
+
 ## Git Workflow
 
 **Always create a feature branch before making changes.** Never commit directly to `main`. Use descriptive branch names like `fix/sunrise-bug` or `feature/accessibility-labels`. Open a PR when the work is ready for review. This applies to all work — bug fixes, features, refactors, doc updates.
@@ -61,6 +70,7 @@ The release script (`scripts/release.sh`) handles everything:
 6. Signs zip with Sparkle EdDSA key
 7. Creates GitHub release with zip attached
 8. Updates `appcast.xml` with new entry, commits, and pushes
+9. Updates Homebrew cask in `tpak/homebrew-tpak` via GitHub API
 
 **Release notes** are auto-collected from all PRs merged since the last release tag. Override with `NOTES="..."` or specify a single PR with `PR=35`. If no PRs found, opens `$EDITOR`.
 
