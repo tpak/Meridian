@@ -279,10 +279,10 @@ extension PreferencesViewController: NSTableViewDataSource, NSTableViewDelegate 
 
         let alert = NSAlert()
         alert.showsSuppressionButton = true
-        alert.messageText = "More than one location added to the menubar 😅"
+        alert.messageText = "More than one location added to the menubar".localized()
         alert.informativeText = infoText
-        alert.addButton(withTitle: "Enable Compact Mode")
-        alert.addButton(withTitle: "Cancel")
+        alert.addButton(withTitle: "Enable Compact Mode".localized())
+        alert.addButton(withTitle: "Cancel".localized())
 
         let response = alert.runModal()
 

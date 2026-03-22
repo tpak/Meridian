@@ -162,6 +162,12 @@ make release VERSION=X.Y.Z
 - `TimezoneSearchService` — searches `TimeZone.knownTimeZoneIdentifiers` locally + geocodes via CLGeocoder
 - No external API keys or third-party services required
 
+### Localization
+
+Uses Apple String Catalogs (`.xcstrings`) — 15 languages. All strings in `App/Localizable.xcstrings`.
+Code uses `NSLocalizedString(key, comment:)` and the `.localized()` extension on `String` (`Overall App/String + Additions.swift`).
+New SwiftUI strings should use `String(localized:)`.
+
 ### Start at Login
 
 `StartupManager` uses `SMAppService.mainApp` (macOS 13+). No helper app needed.

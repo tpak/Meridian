@@ -53,7 +53,7 @@ struct AboutView: View {
             Divider()
                 .padding(.horizontal, 20)
 
-            Toggle("Start at Login", isOn: $startAtLogin)
+            Toggle(String(localized: "Start at Login"), isOn: $startAtLogin)
                 .font(.custom("Avenir-Book", size: 13))
                 .toggleStyle(.checkbox)
                 .accessibilityIdentifier("StartAtLogin")
@@ -64,7 +64,7 @@ struct AboutView: View {
             AutoUpdateToggle()
 
             HStack(spacing: 8) {
-                Text("Check for Updates")
+                Text(String(localized: "Check for Updates"))
                     .font(.custom("Avenir-Light", size: 13))
                 UpdateCheckControls()
             }
@@ -126,7 +126,7 @@ private struct AutoUpdateToggle: View {
     }
 
     var body: some View {
-        Toggle("Automatically download and install updates", isOn: $autoUpdate)
+        Toggle(String(localized: "Automatically download and install updates"), isOn: $autoUpdate)
             .font(.custom("Avenir-Book", size: 13))
             .toggleStyle(.checkbox)
             .accessibilityIdentifier("AutoUpdate")
@@ -160,7 +160,7 @@ private struct UpdateCheckControls: View {
             appDelegate.updaterController.updater.updateCheckInterval = AboutView.updateIntervalValues[newValue]
         }
 
-        Button("Check Now") {
+        Button(String(localized: "Check Now")) {
             guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
             appDelegate.updaterController.checkForUpdates(nil)
         }
