@@ -122,7 +122,7 @@ private struct AutoUpdateToggle: View {
 
     init() {
         let updater = (NSApplication.shared.delegate as? AppDelegate)?.updaterController.updater
-        _autoUpdate = State(initialValue: updater?.automaticallyDownloadsUpdates ?? false)
+        _autoUpdate = State(initialValue: updater?.automaticallyDownloadsUpdates ?? true)
     }
 
     var body: some View {
@@ -132,7 +132,13 @@ private struct AutoUpdateToggle: View {
             .accessibilityIdentifier("AutoUpdate")
             .onChange(of: autoUpdate) { newValue in
                 guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
-                appDelegate.updaterController.updater.automaticallyDownloadsUpdates = newValue
+                let updater = appDelegate.updaterController.updater
+                updater.automaticallyChecksForUpdates = newValue
+                updater.automaticallyDownloadsUpdates = newValue
+            }
+            .onAppear {
+                guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
+                autoUpdate = appDelegate.updaterController.updater.automaticallyDownloadsUpdates
             }
     }
 }
