@@ -3,6 +3,24 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>2.12.0</title>
+            <pubDate>Thu, 26 Mar 2026 12:28:02 +0000</pubDate>
+            <sparkle:version>2.12.0</sparkle:version>
+            <sparkle:shortVersionString>2.12.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Fix the "Automatically download and install updates" checkbox reverting to unchecked every time the About tab is opened</li>
+                    <li>Root cause: Sparkle requires `automaticallyChecksForUpdates` to be `true` for `automaticallyDownloadsUpdates` to persist — we were only setting the latter</li>
+                    <li>Now both properties are set together when the toggle changes</li>
+                    <li>Added `onAppear` to re-sync the checkbox state from Sparkle when the view appears</li>
+                    <li>Default to enabled for new users (one-time setup on first launch)</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.12.0/Meridian.app.zip" length="3157668" type="application/octet-stream" sparkle:edSignature="HMExuKQa0zHpjq3IKwVvTX9FBgNQZnjnxxP8N7QSa0gnL1cGVQg+6jB+a9Z9ef0JuClz3cmiCBxescfPPYhFDw=="/>
+        </item>
+        <item>
             <title>2.11.0</title>
             <pubDate>Thu, 26 Mar 2026 12:16:04 +0000</pubDate>
             <sparkle:version>2.11.0</sparkle:version>
