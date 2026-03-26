@@ -14,7 +14,41 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
     public func applicationDidFinishLaunching(_: Notification) {
         AppDefaults.initialize(with: DataStore.shared(), defaults: UserDefaults.standard)
         enableAutoUpdateByDefault()
+        backfillMissingCoordinates()
         continueUsually()
+    }
+
+    private func backfillMissingCoordinates() {
+        let store = DataStore.shared()
+        var timezones = store.timezones()
+        var indicesToBackfill: [(Int, TimezoneData)] = []
+
+        for (index, data) in timezones.enumerated() {
+            guard let timezone = TimezoneData.customObject(from: data) else { continue }
+            if timezone.latitude == nil || timezone.longitude == nil,
+               let timezoneID = timezone.timezoneID, !timezoneID.isEmpty {
+                indicesToBackfill.append((index, timezone))
+            }
+        }
+
+        guard !indicesToBackfill.isEmpty else { return }
+
+        Task { @MainActor in
+            for (index, timezone) in indicesToBackfill {
+                let components = (timezone.timezoneID ?? "").split(separator: "/")
+                guard let cityComponent = components.last else { continue }
+                let cityName = cityComponent.replacingOccurrences(of: "_", with: " ")
+                if let placemark = try? await NetworkManager.geocodeAddress(cityName),
+                   let location = placemark.location {
+                    timezone.latitude = location.coordinate.latitude
+                    timezone.longitude = location.coordinate.longitude
+                    if let encoded = NSKeyedArchiver.secureArchive(with: timezone) {
+                        timezones[index] = encoded
+                    }
+                }
+            }
+            store.setTimezones(timezones)
+        }
     }
 
     private func enableAutoUpdateByDefault() {
