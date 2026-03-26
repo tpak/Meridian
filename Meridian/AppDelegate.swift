@@ -13,7 +13,16 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
 
     public func applicationDidFinishLaunching(_: Notification) {
         AppDefaults.initialize(with: DataStore.shared(), defaults: UserDefaults.standard)
+        enableAutoUpdateByDefault()
         continueUsually()
+    }
+
+    private func enableAutoUpdateByDefault() {
+        let hasSetAutoUpdate = "HasSetAutoUpdateDefault"
+        guard !UserDefaults.standard.bool(forKey: hasSetAutoUpdate) else { return }
+        UserDefaults.standard.set(true, forKey: hasSetAutoUpdate)
+        updaterController.updater.automaticallyChecksForUpdates = true
+        updaterController.updater.automaticallyDownloadsUpdates = true
     }
 
     public func applicationDockMenu(_: NSApplication) -> NSMenu? {
