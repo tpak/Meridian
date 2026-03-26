@@ -105,7 +105,7 @@ extension TimezoneDataSource: NSTableViewDataSource, NSTableViewDelegate {
                 rowHeight -= 5
             }
 
-            if shouldShowSunrise, model.selectionType == .city {
+            if shouldShowSunrise, model.latitude != nil, model.longitude != nil {
                 rowHeight += 8
             }
 
