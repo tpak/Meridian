@@ -509,6 +509,19 @@ extension ParentPanelController {
         NSApplication.shared.terminate(nil)
     }
 
+    @objc func copyFirstTimezoneToClipboard() {
+        guard mainTableView.numberOfRows > 0,
+              let cellView = mainTableView.view(atColumn: 0, row: 0, makeIfNecessary: false) as? TimezoneCellView else {
+            return
+        }
+
+        let clipboardCopy = "\(cellView.customName.stringValue) - \(cellView.time.stringValue)"
+        let pasteboard = NSPasteboard.general
+        pasteboard.declareTypes([.string], owner: nil)
+        pasteboard.setString(clipboardCopy, forType: .string)
+        window?.contentView?.makeToast("Copied to Clipboard".localized())
+    }
+
     @objc func reportIssue() {
         guard let url = URL(string: AboutUsConstants.GitHubIssuesURL) else { return }
         NSWorkspace.shared.open(url)

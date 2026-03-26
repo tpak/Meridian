@@ -9,10 +9,10 @@ enum PanelContextMenu {
         let menu = NSMenu(title: "More Options")
 
         let openPreferences = NSMenuItem(title: "Settings",
-                                         action: #selector(ParentPanelController.openPreferencesWindow), keyEquivalent: "")
+                                         action: #selector(ParentPanelController.openPreferencesWindow), keyEquivalent: ",")
 
         let terminateOption = NSMenuItem(title: "Quit Meridian",
-                                         action: #selector(ParentPanelController.terminateMeridian), keyEquivalent: "")
+                                         action: #selector(ParentPanelController.terminateMeridian), keyEquivalent: "q")
 
         let appDisplayName = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") ?? "Meridian"
         let shortVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "N/A"

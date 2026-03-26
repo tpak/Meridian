@@ -49,6 +49,18 @@ class ShortcutTests: XCTestCase {
         XCTAssertFalse(app.tables["mainTableView"].exists)
     }
 
+    func testCmdW_closesPanel() {
+        XCTAssertTrue(app.tables["mainTableView"].exists)
+        app.tables["mainTableView"].typeKey("w", modifierFlags: .command)
+        XCTAssertFalse(app.tables["mainTableView"].exists)
+    }
+
+    func testCmdComma_opensSettings() {
+        XCTAssertTrue(app.tables["mainTableView"].exists)
+        app.tables["mainTableView"].typeKey(",", modifierFlags: .command)
+        XCTAssertTrue(app.windows["Meridian"].exists)
+    }
+
     private func randomLetter() -> String {
         let alphabet: [String] = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
         return alphabet[randomIndex]
