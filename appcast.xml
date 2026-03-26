@@ -3,6 +3,22 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>2.11.0</title>
+            <pubDate>Thu, 26 Mar 2026 12:16:04 +0000</pubDate>
+            <sparkle:version>2.11.0</sparkle:version>
+            <sparkle:shortVersionString>2.11.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Add standard macOS keyboard shortcuts when the panel is open: ⌘Q (quit), ⌘, (settings), ⌘W (close panel), ⌘C (copy first timezone to clipboard)</li>
+                    <li>Show shortcut hints in the "More Options" context menu for discoverability</li>
+                    <li>Fix Escape key handling to prevent system beep</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.11.0/Meridian.app.zip" length="3156600" type="application/octet-stream" sparkle:edSignature="4NSawo2Gtr5LERV6uck9jwiv6i/DqcdWA3ONflk4VVkznIGDgYtgTQeMVBtpL83RqcK/sSbsMxCWLM55EERNAQ=="/>
+        </item>
+        <item>
             <title>2.10.0</title>
             <pubDate>Sun, 22 Mar 2026 07:52:00 +0000</pubDate>
             <sparkle:version>2.10.0</sparkle:version>
