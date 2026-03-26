@@ -11,12 +11,39 @@ class CustomPanel: NSPanel {
         return true
     }
 
-    override func keyDown(with event: NSEvent) {
-        super.keyDown(with: event)
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        guard event.modifierFlags.intersection(.deviceIndependentFlagsMask).contains(.command),
+              let key = event.charactersIgnoringModifiers else {
+            return super.performKeyEquivalent(with: event)
+        }
 
-        // Escape key is pressed
+        switch key {
+        case "q":
+            NSApplication.shared.terminate(nil)
+            return true
+        case ",":
+            if let panelController = windowController as? ParentPanelController {
+                panelController.openPreferencesWindow()
+            }
+            return true
+        case "w":
+            close()
+            return true
+        case "c":
+            if let panelController = windowController as? ParentPanelController {
+                panelController.copyFirstTimezoneToClipboard()
+            }
+            return true
+        default:
+            return super.performKeyEquivalent(with: event)
+        }
+    }
+
+    override func keyDown(with event: NSEvent) {
         if event.keyCode == 53 {
             close()
+        } else {
+            super.keyDown(with: event)
         }
     }
 }
