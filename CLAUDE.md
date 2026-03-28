@@ -74,6 +74,8 @@ The release script (`scripts/release.sh`) handles everything:
 
 **Release notes** are auto-collected from all PRs merged since the last release tag. Override with `NOTES="..."` or specify a single PR with `PR=35`. If no PRs found, opens `$EDITOR`.
 
+**Release notes style**: Keep notes short and user-facing. One line per change describing what was fixed or added — not why or how. No internal details (class names, property names, root cause analysis). Write for customers, not developers. Reference closing GitHub issues inline with the relevant change (e.g. "Add keyboard shortcuts (#50)"). Good: "Fix sunrise/sunset not displaying for some timezones". Bad: "Sunrise/sunset was only displayed when selectionType == .city; now checks for coordinates instead".
+
 **Prerequisites** (one-time setup, see `developer-id.md`):
 - Developer ID Application certificate in keychain
 - Notarization credentials stored: `xcrun notarytool store-credentials "meridian-notary"`
