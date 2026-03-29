@@ -59,7 +59,7 @@
             <objects>
                 <viewController id="oFk-9v-L8T" customClass="AboutViewController" customModule="Meridian" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="HdR-qn-zua">
-                        <rect key="frame" x="0.0" y="0.0" width="548" height="468"/>
+                        <rect key="frame" x="0.0" y="0.0" width="548" height="560"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </view>
                 </viewController>

@@ -25,7 +25,7 @@ public enum Logger {
 
     /// Export recent log entries to a file for sharing. Uses OSLogStore.
     public static func exportLog(to url: URL) throws {
-        let store = try OSLogStore(scope: .currentProcessIdentifier)
+        let store = try OSLogStore(scope: .system)
         let cutoff = store.position(date: Date().addingTimeInterval(-7 * 24 * 3600))
         let entries = try store.getEntries(at: cutoff, matching: NSPredicate(format: "subsystem == 'com.tpak.Meridian'"))
         let lines = entries.compactMap { entry -> String? in
