@@ -20,7 +20,7 @@ A macOS menu bar world clock. Track time across zones for your team, friends, an
 - **3 display modes** — icon only, standard text, or compact view
 - **Time scrubbing** — slide to see what time it will be elsewhere
 - **Sunrise/sunset** — know when the sun rises and sets in each zone
-- **Keyboard shortcuts** — global hotkey to toggle the panel
+- **Keyboard shortcuts** — ⌘Q, ⌘W, ⌘,, ⌘C in the panel, plus a configurable global hotkey
 - **Start at login** — launches automatically with your Mac
 - **Ad-free & open source**
 
@@ -104,6 +104,34 @@ Translations were originally contributed to the [Clocker](https://github.com/n0s
 - **[Abhishek Banthia](https://github.com/n0shake)** — all base translations across 15+ languages
 - **[Ping](https://github.com/milotype)** — Croatian translation updates
 - Community translators via [Crowdin](https://crowdin.com/project/clocker)
+
+## Troubleshooting
+
+### Debug Logging
+
+Meridian logs key lifecycle events (launch, quit, sleep/wake) to macOS unified logging by default. To enable verbose debug logging for all user actions and state changes:
+
+1. Open **Settings** (⌘,) → **About** tab
+2. Check **Enable Debug Logging**
+
+View logs in Console.app (filter by process "Meridian") or from the terminal:
+
+```bash
+# All Meridian logs from the last 24 hours
+log show --predicate 'subsystem == "com.tpak.Meridian"' --last 24h
+
+# Lifecycle events only (always on)
+log show --predicate 'subsystem == "com.tpak.Meridian" AND category == "lifecycle"' --last 7d
+
+# Debug events only (when toggle is enabled)
+log show --predicate 'subsystem == "com.tpak.Meridian" AND category == "debug"' --last 1h
+```
+
+To export logs as a text file: enable debug logging, then click **Export Log** in the About tab.
+
+### Crash Detection
+
+If Meridian exits unexpectedly (crash, force quit, or system restart), the next launch will log "Previous session exited uncleanly" to the lifecycle category. Check Console.app or `log show` to see this.
 
 ## Contributing
 

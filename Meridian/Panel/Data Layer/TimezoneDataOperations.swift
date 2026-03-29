@@ -287,7 +287,7 @@ extension TimezoneDataOperations {
     public func timeDifference() -> String {
         let localFormatter = DateFormatterManager.localizedSimpleFormatter("d MMM yyyy HH:mm:ss")
         guard let local = localFormatter.date(from: localeDate(with: "d MMM yyyy HH:mm:ss")) else {
-            Logger.log(object: [:], for: "Date conversion failure - local date is nil")
+            Logger.production("Date conversion failure - local date is nil")
             return UserDefaultKeys.emptyString
         }
         let newDate = timezoneDateByAdding(minutesToAdd: 0, TimezoneDataOperations.gregorianCalendar)
