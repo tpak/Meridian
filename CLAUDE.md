@@ -229,12 +229,42 @@ The Xcode project structure has `Package.resolved` inside `Meridian/Meridian.xco
 
 ## Release Checklist
 
-Before any release, verify:
+Before any release, run a full pre-release check and **show the status of each item** before proceeding:
 1. CI passes on the PR branch **and** on main after merge
 2. All file changes (including Info.plist, storyboards) are committed
 3. Release notes don't break shell interpolation (no unescaped special chars in multiline strings passed to `make release`; use `bash scripts/release.sh -n "..."` directly for multiline notes)
-4. After `make release` completes, run `gh run list --branch main --limit 3` and verify the version bump and appcast commits pass CI
+4. Sparkle appcast configuration is correct (`SUFeedURL`, `SUPublicEDKey` in Info.plist)
+5. After `make release` completes, run `gh run list --branch main --limit 3` and verify the version bump and appcast commits pass CI
+
+## Test-Driven Implementation
+
+Before implementing any feature or fix, follow this workflow:
+
+1. **Write a validation script** at `scripts/validate_feature.sh` that checks for the expected outcome. For example, if adding an export log feature:
+   - Grep the codebase to confirm the new menu item exists in the storyboard
+   - Verify the correct OSLog subsystem/category is used (not a different scope)
+   - Confirm the save dialog dimensions are at least 400x300
+   - Run `xcodebuild build` to verify compilation
+   - Check that all new Logger references use the unified Logger instance
+2. **Run the validation script** — it should FAIL since the feature doesn't exist yet. If it passes, the checks aren't testing the right thing.
+3. **Implement the feature.**
+4. **Run the validation script again.** If ANY check fails, fix the issue and re-run. Do not present the result until all checks pass.
+5. **Show the final diff and the passing validation output.**
+
+## Large Refactors — Parallel Agents
+
+For large refactors, use parallel agents to divide the work by concern. Coordinate results and present a unified summary with any conflicts between agents' changes.
+
+**Agent 1 — UI/Storyboard**: Reorganize storyboard layout. Verify all IBOutlet connections are intact by grepping for `@IBOutlet` and matching against storyboard identifiers.
+
+**Agent 2 — Swift Logic**: Refactor the corresponding Swift view controllers. Run a build after changes to verify compilation.
+
+**Agent 3 — Security Review**: Audit changes for common macOS security concerns — sandbox entitlements, hardened runtime flags, insecure file operations (world-readable temp files, symlink attacks), unvalidated user input passed to shell or `NSAppleScript`, credentials or secrets in UserDefaults or logs, and App Transport Security exceptions. Flag anything that weakens the app's security posture.
+
+**Agent 4 — Integration Validation**: After Agents 1–3 complete, verify the full build succeeds, run all existing tests, check for SwiftLint violations, and confirm no regressions in startup time by reviewing any async/geocoding calls on the main thread.
+
+Adapt the agent breakdown to the specific refactor — not every change needs all four agents. The key principle is: separate concerns, run in parallel where possible, validate as the final step.
 
 ## Code Quality
 
-When migrating APIs or renaming symbols, always grep the **entire codebase** for all remaining references to the old API before marking the task complete. Use `grep -rn "OldName" Meridian/ --include="*.swift"` to catch stragglers. A single missed reference will break the CI build.
+When migrating APIs or renaming symbols, grep the **entire codebase** for all remaining references to the old API/name **before making any edits**. Show the full list of every file with references and **wait for approval** before proceeding. Use `grep -rn "OldName" Meridian/ --include="*.swift"` to catch stragglers. A single missed reference will break the CI build.

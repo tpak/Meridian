@@ -18,3 +18,5 @@ App/Config/Keys.xcconfig
 # Project docs (local only)
 ANALYSIS_AND_TODO.md
 useful.md
+Claude Code Insights.pdf
+report.html
