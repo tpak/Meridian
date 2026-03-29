@@ -68,7 +68,7 @@ class TimezoneAdditionHandler: NSObject {
         isActivityInProgress = true
         host.placeholderLabel.placeholderString = "Searching for \(searchString)"
 
-        Logger.info(host.placeholderLabel.placeholderString ?? "")
+        Logger.debug(host.placeholderLabel.placeholderString ?? "")
 
         searchTask = Task { @MainActor in
             do {
@@ -137,7 +137,7 @@ class TimezoneAdditionHandler: NSObject {
     private func reloadSearchResults() {
         guard let host = host else { return }
         if host.searchResultsDataSource.calculateChangesets() {
-            Logger.info("Reloading Search Results")
+            Logger.debug("Reloading Search Results")
             host.availableTimezoneTableView.reloadData()
         }
     }
@@ -197,7 +197,7 @@ class TimezoneAdditionHandler: NSObject {
     private func installTimezone(_ timezone: TimeZone, for placemark: CLPlacemark) {
         guard let host = host else { return }
         guard let dataObject = host.searchResultsDataSource.retrieveFilteredResultFromGoogleAPI(host.availableTimezoneTableView.selectedRow) else {
-            Logger.info("Data was unexpectedly nil")
+            Logger.debug("Data was unexpectedly nil")
             return
         }
 
@@ -222,7 +222,7 @@ class TimezoneAdditionHandler: NSObject {
         let operationsObject = TimezoneDataOperations(with: timezoneObject, store: dataStore)
         operationsObject.saveObject()
 
-        Logger.log(object: ["PlaceName": filteredAddress, "Timezone": timezone.identifier], for: "Filtered Address")
+        Logger.debug("Filtered Address: PlaceName=\(filteredAddress), Timezone=\(timezone.identifier)")
     }
 
     private func updateViewState() {
@@ -301,7 +301,7 @@ class TimezoneAdditionHandler: NSObject {
     private func cleanupAfterInstallingCity() {
         guard let host = host else { return }
         guard let dataObject = host.searchResultsDataSource.retrieveFilteredResultFromGoogleAPI(host.availableTimezoneTableView.selectedRow) else {
-            Logger.info("Data was unexpectedly nil")
+            Logger.debug("Data was unexpectedly nil")
             return
         }
 
@@ -326,12 +326,12 @@ class TimezoneAdditionHandler: NSObject {
                 let operationsObject = TimezoneDataOperations(with: timezoneObject, store: dataStore)
                 operationsObject.saveObject()
 
-                Logger.log(object: ["PlaceName": filteredAddress, "Timezone": timezoneID], for: "Filtered Address")
+                Logger.debug("Filtered Address: PlaceName=\(filteredAddress), Timezone=\(timezoneID)")
                 updateViewState()
             } else {
                 // Fall back to reverse geocoding if no timezone ID
                 guard let latitude = dataObject.latitude, let longitude = dataObject.longitude else {
-                    Logger.info("Data was unexpectedly nil")
+                    Logger.debug("Data was unexpectedly nil")
                     return
                 }
                 getTimezone(for: latitude, and: longitude)

@@ -107,7 +107,7 @@ class DataStore: NSObject, DataStoring {
 
         currentLineup.removeLast()
 
-        Logger.log(object: [:], for: "Undo Action Executed")
+        Logger.debug("Undo Action Executed")
 
         setTimezones(currentLineup)
     }

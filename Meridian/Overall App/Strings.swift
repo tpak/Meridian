@@ -31,4 +31,5 @@ public enum UserDefaultKeys {
     static let installHomeIndicatorObject = "installHomeIndicatorObject"
     static let switchToCompactModeAlert = "com.tpak.meridian.switchToCompactMode"
     static let appleInterfaceStyleKey = "AppleInterfaceStyle"
+    static let debugLoggingEnabled = "com.tpak.meridian.debugLoggingEnabled"
 }

@@ -76,7 +76,7 @@ class StatusItemHandler: NSObject {
                 setMenubarIcon()
             }
 
-            Logger.info("Status Bar Current State changed: \(currentState)\n")
+            Logger.debug("Status Bar Current State changed: \(currentState)")
         }
     }
 
@@ -135,12 +135,18 @@ class StatusItemHandler: NSObject {
 
         NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.willSleepNotification)
             .receive(on: RunLoop.main)
-            .sink { [weak self] _ in self?.menubarTimer?.invalidate() }
+            .sink { [weak self] _ in
+                Logger.production("System entering sleep")
+                self?.menubarTimer?.invalidate()
+            }
             .store(in: &cancellables)
 
         NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didWakeNotification)
             .receive(on: RunLoop.main)
-            .sink { [weak self] _ in self?.setupStatusItem() }
+            .sink { [weak self] _ in
+                Logger.production("System woke from sleep")
+                self?.setupStatusItem()
+            }
             .store(in: &cancellables)
     }
 
@@ -217,7 +223,7 @@ class StatusItemHandler: NSObject {
         menubarTimer?.tolerance = shouldDisplaySeconds ? 0.5 : 20
 
         guard let runLoopTimer = menubarTimer else {
-            Logger.info("Timer is unexpectedly nil")
+            Logger.debug("Timer is unexpectedly nil")
             return
         }
 
@@ -253,12 +259,12 @@ class StatusItemHandler: NSObject {
         } else if let minutes = components.minute {
             components.minute = minutes + 1
         } else {
-            Logger.info("Unable to create date components for the menubar timewr")
+            Logger.production("Unable to create date components for menubar timer")
             return nil
         }
 
         guard let fireDate = calendar.date(from: components) else {
-            Logger.info("Unable to form Fire Date")
+            Logger.production("Unable to form Fire Date")
             return nil
         }
 
@@ -285,7 +291,7 @@ class StatusItemHandler: NSObject {
     }
 
     private func setupForStandardTextMode() {
-        Logger.info("Initializing menubar timer")
+        Logger.debug("Initializing menubar timer")
 
         // Let's invalidate the previous timer
         menubarTimer?.invalidate()
@@ -299,7 +305,7 @@ class StatusItemHandler: NSObject {
         let menubarFavourites = store.menubarTimezones() ?? []
 
         if menubarFavourites.isEmpty {
-            Logger.info("Invalidating menubar timer!")
+            Logger.debug("Invalidating menubar timer")
 
             invalidation()
 
@@ -308,7 +314,7 @@ class StatusItemHandler: NSObject {
             }
 
         } else if sync {
-            Logger.info("Invalidating menubar timer for sync purposes!")
+            Logger.debug("Invalidating menubar timer for sync")
 
             invalidation()
 
@@ -317,7 +323,7 @@ class StatusItemHandler: NSObject {
             }
 
         } else {
-            Logger.info("Not stopping menubar timer!")
+            Logger.debug("Not stopping menubar timer")
         }
     }
 

@@ -214,7 +214,7 @@ public class TimezoneData: NSObject, NSCoding, NSSecureCoding {
         } else if shouldOverride == 12 {
             overrideFormat = .epochTime
         } else {
-            Logger.info("Chosen a wrong timezone format: \(shouldOverride)")
+            Logger.debug("Chosen a wrong timezone format: \(shouldOverride)")
         }
     }
 

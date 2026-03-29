@@ -92,7 +92,7 @@ class PanelTableView: NSTableView {
 
     private func evaluateForHighlight(at point: NSPoint) {
         if enableHover == false {
-            Logger.info("Unable to show hover button because window is occluded!")
+            Logger.debug("Unable to show hover button because window is occluded!")
             return
         }
 

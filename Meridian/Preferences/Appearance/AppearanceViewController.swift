@@ -168,7 +168,7 @@ class AppearanceViewController: ParentViewController {
 
         if let selectedFormat = sender.selectedItem?.title,
            selectedFormat.contains("ss") {
-            Logger.info("Selected format contains timezone format")
+            Logger.debug("Selected format contains timezone format")
             guard let panelController = PanelController.panel() else { return }
             panelController.pauseTimer()
         }
@@ -197,13 +197,13 @@ class AppearanceViewController: ParentViewController {
 
         switch selectedMenuItem {
         case 0:
-            Logger.log(object: ["themeSelected": "Light"], for: "Theme")
+            Logger.debug("Theme: themeSelected=Light")
         case 1:
-            Logger.log(object: ["themeSelected": "Dark"], for: "Theme")
+            Logger.debug("Theme: themeSelected=Dark")
         case 2:
-            Logger.log(object: ["themeSelected": "System"], for: "Theme")
+            Logger.debug("Theme: themeSelected=System")
         default:
-            Logger.log(object: ["themeSelected": "System"], for: "Theme")
+            Logger.debug("Theme: themeSelected=System")
         }
     }
 
@@ -223,7 +223,7 @@ class AppearanceViewController: ParentViewController {
     }
 
     @IBAction func changeRelativeDayDisplay(_ sender: NSSegmentedControl) {
-        Logger.log(object: ["dayPreference": loggingStringForRelativeDisplaySelection(sender.selectedSegment)], for: "RelativeDate")
+        Logger.debug("RelativeDate: dayPreference=\(loggingStringForRelativeDisplaySelection(sender.selectedSegment))")
 
         refresh(panel: true)
 
@@ -235,17 +235,17 @@ class AppearanceViewController: ParentViewController {
     }
 
     @IBAction func showSunriseSunset(_ sender: NSSegmentedControl) {
-        Logger.log(object: ["Is It Displayed": sender.selectedSegment == 0 ? "YES" : "NO"], for: "Sunrise Sunset")
+        Logger.debug("Sunrise Sunset: IsItDisplayed=\(sender.selectedSegment == 0 ? "YES" : "NO")")
         refresh(panel: true)
         previewPanelTableView.reloadData()
     }
 
     @IBAction func changeAppDisplayOptions(_ sender: NSSegmentedControl) {
         if sender.selectedSegment == 0 {
-            Logger.log(object: ["Selection": "Menubar"], for: "Dock Mode")
+            Logger.debug("Dock Mode: Selection=Menubar")
             NSApp.setActivationPolicy(.accessory)
         } else {
-            Logger.log(object: ["Selection": "Menubar and Dock"], for: "Dock Mode")
+            Logger.debug("Dock Mode: Selection=Menubar and Dock")
             NSApp.setActivationPolicy(.regular)
         }
     }
@@ -297,9 +297,9 @@ class AppearanceViewController: ParentViewController {
         statusItem.setupStatusItem()
 
         if sender.selectedSegment == 0 {
-            Logger.log(object: ["Context": "In Appearance View"], for: "Switched to Compact Mode")
+            Logger.debug("Switched to Compact Mode: Context=In Appearance View")
         } else {
-            Logger.log(object: ["Context": "In Appearance View"], for: "Switched to Standard Mode")
+            Logger.debug("Switched to Standard Mode: Context=In Appearance View")
         }
     }
 
@@ -330,7 +330,7 @@ extension AppearanceViewController: NSTableViewDataSource, NSTableViewDelegate {
 
         let cellID = NSUserInterfaceItemIdentifier(rawValue: "previewTimezoneCell")
         guard let cellView = tableView.makeView(withIdentifier: cellID, owner: self) as? TimezoneCellView else {
-            Logger.info("Unable to create tableviewcell")
+            Logger.debug("Unable to create tableviewcell")
             return NSView()
         }
 

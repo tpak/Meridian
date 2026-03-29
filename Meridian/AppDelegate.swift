@@ -10,13 +10,77 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
     internal lazy var panelController = PanelController(windowNibName: .panel)
     private var statusBarHandler: StatusItemHandler!
     let updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+    private var memoryPressureSource: DispatchSourceMemoryPressure?
 
     public func applicationDidFinishLaunching(_: Notification) {
         AppDefaults.initialize(with: DataStore.shared(), defaults: UserDefaults.standard)
+        logLaunch()
+        checkForPreviousUncleanExit()
+        writeSentinelFile()
         enableAutoUpdateByDefault()
         backfillMissingCoordinates()
         continueUsually()
+        setupMemoryPressureMonitoring()
     }
+
+    public func applicationWillTerminate(_: Notification) {
+        Logger.production("App terminating cleanly")
+        removeSentinelFile()
+    }
+
+    // MARK: - Lifecycle Logging
+
+    private func logLaunch() {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?"
+        let osVersion = ProcessInfo.processInfo.operatingSystemVersionString
+        let tzCount = DataStore.shared().timezones().count
+        Logger.production("App launched v\(version)(\(build)) on macOS \(osVersion), \(tzCount) timezones")
+    }
+
+    // MARK: - Crash Sentinel
+
+    private var sentinelURL: URL? {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+            .appendingPathComponent("Meridian")
+            .appendingPathComponent(".running")
+    }
+
+    private func writeSentinelFile() {
+        guard let url = sentinelURL else { return }
+        try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(),
+                                                  withIntermediateDirectories: true)
+        try? Date().ISO8601Format().write(to: url, atomically: true, encoding: .utf8)
+    }
+
+    private func removeSentinelFile() {
+        guard let url = sentinelURL else { return }
+        try? FileManager.default.removeItem(at: url)
+    }
+
+    private func checkForPreviousUncleanExit() {
+        guard let url = sentinelURL,
+              FileManager.default.fileExists(atPath: url.path) else { return }
+        let timestamp = (try? String(contentsOf: url, encoding: .utf8)) ?? "unknown"
+        Logger.production("Previous session exited uncleanly (launched at \(timestamp))")
+    }
+
+    // MARK: - Memory Pressure
+
+    private func setupMemoryPressureMonitoring() {
+        memoryPressureSource = DispatchSource.makeMemoryPressureSource(eventMask: [.warning, .critical], queue: .main)
+        memoryPressureSource?.setEventHandler { [weak self] in
+            let level = self?.memoryPressureSource?.data ?? []
+            if level.contains(.critical) {
+                Logger.production("Memory pressure: CRITICAL")
+            } else if level.contains(.warning) {
+                Logger.production("Memory pressure: WARNING")
+            }
+        }
+        memoryPressureSource?.resume()
+    }
+
+    // MARK: - Backfill Coordinates
 
     private func backfillMissingCoordinates() {
         let store = DataStore.shared()
@@ -51,6 +115,8 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    // MARK: - Auto-Update Default
+
     private func enableAutoUpdateByDefault() {
         let hasSetAutoUpdate = "HasSetAutoUpdateDefault"
         guard !UserDefaults.standard.bool(forKey: hasSetAutoUpdate) else { return }
@@ -58,6 +124,8 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         updaterController.updater.automaticallyChecksForUpdates = true
         updaterController.updater.automaticallyDownloadsUpdates = true
     }
+
+    // MARK: - Dock Menu
 
     public func applicationDockMenu(_: NSApplication) -> NSMenu? {
         let menu = NSMenu(title: "Quick Access")
@@ -136,7 +204,7 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @IBAction open func togglePanel(_ sender: NSButton) {
-        Logger.info("Toggle Panel called with sender state \(sender.state.rawValue)")
+        Logger.debug("Toggle Panel called with sender state \(sender.state.rawValue)")
         panelController.showWindow(nil)
         panelController.setActivePanel(newValue: sender.state == .on)
         NSApp.activate(ignoringOtherApps: true)

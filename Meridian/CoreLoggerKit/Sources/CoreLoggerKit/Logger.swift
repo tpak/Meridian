@@ -2,19 +2,37 @@
 
 import Cocoa
 import os
-public class Logger: NSObject {
-    let logObjc = OSLog(subsystem: "com.tpak.Meridian", category: "app")
+import OSLog
 
-    public class func log(object annotations: [String: Any]?, for event: NSString) {
-        #if DEBUG
-            os_log(.default, "[%@] - [%@]", event, annotations ?? [:])
-        #endif
+public enum Logger {
+    private static let lifecycle = OSLog(subsystem: "com.tpak.Meridian", category: "lifecycle")
+    private static let debugLog = OSLog(subsystem: "com.tpak.Meridian", category: "debug")
+
+    /// Always-on logging for critical lifecycle events. Visible in Console.app.
+    public static func production(_ message: String) {
+        os_log(.default, log: lifecycle, "%{public}@", message)
     }
 
-    public class func info(_ message: String) {
-        #if DEBUG
-            os_log(.info, "%@", message)
-        #endif
+    /// Opt-in verbose logging for debugging. Visible in Console.app when enabled.
+    public static func debug(_ message: String) {
+        guard debugLoggingEnabled else { return }
+        os_log(.default, log: debugLog, "%{public}@", message)
+    }
+
+    public static var debugLoggingEnabled: Bool {
+        UserDefaults.standard.bool(forKey: "com.tpak.meridian.debugLoggingEnabled")
+    }
+
+    /// Export recent log entries to a file for sharing. Uses OSLogStore.
+    public static func exportLog(to url: URL) throws {
+        let store = try OSLogStore(scope: .currentProcessIdentifier)
+        let cutoff = store.position(date: Date().addingTimeInterval(-7 * 24 * 3600))
+        let entries = try store.getEntries(at: cutoff, matching: NSPredicate(format: "subsystem == 'com.tpak.Meridian'"))
+        let lines = entries.compactMap { entry -> String? in
+            guard let logEntry = entry as? OSLogEntryLog else { return nil }
+            return "[\(logEntry.date.ISO8601Format())] [\(logEntry.category)] \(logEntry.composedMessage)"
+        }
+        try lines.joined(separator: "\n").write(to: url, atomically: true, encoding: .utf8)
     }
 }
 

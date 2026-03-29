@@ -68,7 +68,7 @@ class DraggableClipView: NSClipView {
                 clickPoint = nil
                 gestureInProgress = false
             default:
-                Logger.info("Default mouse event occurred for \(event.type)")
+                Logger.debug("Default mouse event occurred for \(event.type)")
             }
         }
     }

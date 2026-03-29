@@ -162,7 +162,7 @@ class StatusContainerView: NSView {
 
     func updateTime() {
         if subviews.isEmpty {
-            Logger.info("Subviews count should > 0")
+            Logger.debug("Subviews count should > 0")
         }
 
         for view in subviews {
@@ -194,7 +194,7 @@ class StatusContainerView: NSView {
         }
 
         if newWidth != frame.size.width, newWidth > frame.size.width + 2.0 {
-            Logger.info("Correcting our width to \(newWidth) and the previous width was \(frame.size.width)")
+            Logger.debug("Correcting our width to \(newWidth) and the previous width was \(frame.size.width)")
             // NSView move animation
             NSAnimationContext.runAnimationGroup { context in
                 context.duration = 0.2
