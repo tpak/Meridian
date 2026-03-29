@@ -47,7 +47,7 @@ class TimezoneCellView: NSTableCellView {
         guard let relativeFont = relativeDate.font,
               let sunriseFont = sunriseSetTime.font
         else {
-            Logger.info("Unable to convert to NSString")
+            Logger.debug("Unable to convert to NSString")
             return
         }
 
@@ -130,14 +130,14 @@ class TimezoneCellView: NSTableCellView {
 
     private func setupTextSize() {
         guard let userFontSize = DataStore.shared().retrieve(key: UserDefaultKeys.userFontSizePreference) as? NSNumber else {
-            Logger.info("User Font Size is in unexpected format")
+            Logger.debug("User Font Size is in unexpected format")
             return
         }
 
         guard let customFont = customName.font,
               let timeFont = time.font
         else {
-            Logger.info("User Font Size is unexpectedly nil")
+            Logger.debug("User Font Size is unexpectedly nil")
             return
         }
 
@@ -179,7 +179,7 @@ class TimezoneCellView: NSTableCellView {
                                                     relativeTo: bounds,
                                                     andButton: sender)
 
-        Logger.log(object: nil, for: "Open Extra Options")
+        Logger.debug("Open Extra Options")
     }
 
     override func mouseDown(with event: NSEvent) {
@@ -199,6 +199,6 @@ class TimezoneCellView: NSTableCellView {
     override func rightMouseDown(with event: NSEvent) {
         super.rightMouseDown(with: event)
         showExtraOptions(extraOptions)
-        Logger.log(object: nil, for: "Right Click Open Options")
+        Logger.debug("Right Click Open Options")
     }
 }

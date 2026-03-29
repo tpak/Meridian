@@ -78,7 +78,7 @@ class ParentPanelController: NSWindowController {
         UserDefaults.standard.publisher(for: \.userFontSize)
             .receive(on: RunLoop.main)
             .sink { [weak self] newFontSize in
-                Logger.log(object: ["FontSize": newFontSize], for: "User Font Size Preference")
+                Logger.debug("User Font Size Preference: \(newFontSize)")
                 self?.mainTableView.reloadData()
                 self?.setScrollViewConstraint()
             }
@@ -336,7 +336,7 @@ class ParentPanelController: NSWindowController {
         let defaults = dataStore.timezones()
 
         guard let popover = additionalOptionsPopover else {
-            Logger.info("Data was unexpectedly nil")
+            Logger.debug("Data was unexpectedly nil")
             return false
         }
 
@@ -422,7 +422,7 @@ extension ParentPanelController {
                                         object: nil)
 
         // Now log!
-        Logger.log(object: nil, for: "Deleted Timezone Through Swipe")
+        Logger.debug("Deleted Timezone Through Swipe")
     }
 
     private func updateMenubarDisplay() {
@@ -528,7 +528,7 @@ extension ParentPanelController {
 
         if let countryCode = Locale.autoupdatingCurrent.region?.identifier {
             let custom: [String: Any] = ["Country": countryCode]
-            Logger.log(object: custom, for: "Report Issue Opened")
+            Logger.debug("Report Issue Opened: \(custom)")
         }
     }
 

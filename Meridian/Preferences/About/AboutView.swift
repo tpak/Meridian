@@ -63,6 +63,11 @@ struct AboutView: View {
 
             AutoUpdateToggle()
 
+            Divider()
+                .padding(.horizontal, 20)
+
+            DebugLoggingSection()
+
             HStack(spacing: 8) {
                 Text(String(localized: "Check for Updates"))
                     .font(.custom("Avenir-Light", size: 13))
@@ -113,7 +118,7 @@ struct AboutView: View {
     private func openURL(_ urlString: String, logEvent: String, metadata: [String: Any]) {
         guard let url = URL(string: urlString) else { return }
         NSWorkspace.shared.open(url)
-        Logger.log(object: metadata, for: logEvent as NSString)
+        Logger.debug("\(logEvent): \(metadata)")
     }
 }
 
@@ -171,6 +176,32 @@ private struct UpdateCheckControls: View {
             appDelegate.updaterController.checkForUpdates(nil)
         }
         .font(.custom("Avenir-Light", size: 12))
+    }
+}
+
+private struct DebugLoggingSection: View {
+    @AppStorage(UserDefaultKeys.debugLoggingEnabled) private var debugLogging = false
+
+    var body: some View {
+        Toggle(String(localized: "Enable Debug Logging"), isOn: $debugLogging)
+            .font(.custom("Avenir-Book", size: 13))
+            .toggleStyle(.checkbox)
+            .accessibilityIdentifier("DebugLogging")
+
+        if debugLogging {
+            Button(String(localized: "Export Log")) {
+                let panel = NSSavePanel()
+                panel.nameFieldStringValue = "meridian-log.txt"
+                panel.allowedContentTypes = [.plainText]
+                guard panel.runModal() == .OK, let url = panel.url else { return }
+                do {
+                    try Logger.exportLog(to: url)
+                } catch {
+                    Logger.production("Failed to export log: \(error.localizedDescription)")
+                }
+            }
+            .font(.custom("Avenir-Light", size: 12))
+        }
     }
 }
 

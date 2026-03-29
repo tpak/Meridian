@@ -214,7 +214,7 @@ extension TimezoneDataOperations {
 
     func date(with sliderValue: Int, displayType: TimezoneData.DateDisplayType) -> String {
         guard let relativeDayPreference = store.retrieve(key: UserDefaultKeys.relativeDateKey) as? NSNumber else {
-            Logger.info("Data was unexpectedly nil")
+            Logger.production("Data was unexpectedly nil for relative day preference")
             return UserDefaultKeys.emptyString
         }
 
@@ -260,11 +260,7 @@ extension TimezoneDataOperations {
                 return "\(todaysDate(with: sliderValue))\(timeDifference())"
             }
 
-            let errorDictionary: [String: Any] = ["Timezone": dataObject.timezone(),
-                                                  "Current Locale": Locale.autoupdatingCurrent.identifier,
-                                                  "Slider Value": sliderValue,
-                                                  "Today's Date": Date()]
-            Logger.log(object: errorDictionary, for: "Unable to get date")
+            Logger.production("Unable to get date: Timezone=\(dataObject.timezone()), CurrentLocale=\(Locale.autoupdatingCurrent.identifier), SliderValue=\(sliderValue), TodaysDate=\(Date())")
 
             return "Error"
 
@@ -296,12 +292,7 @@ extension TimezoneDataOperations {
         let dateFormatter = DateFormatterManager.localizedFormatter(with: "d MMM yyyy HH:mm:ss", for: dataObject.timezone())
 
         guard let timezoneDate = localFormatter.date(from: dateFormatter.string(from: newDate)) else {
-            let unableToConvertDateParameters = [
-                "New Date": newDate,
-                "Timezone": dataObject.timezone(),
-                "Locale": dateFormatter.locale.identifier
-            ] as [String: Any]
-            Logger.log(object: unableToConvertDateParameters, for: "Date conversion failure - New Date is nil")
+            Logger.production("Date conversion failure - New Date is nil: NewDate=\(newDate), Timezone=\(dataObject.timezone()), Locale=\(dateFormatter.locale.identifier)")
             return UserDefaultKeys.emptyString
         }
 
@@ -349,7 +340,7 @@ extension TimezoneDataOperations {
         guard let lat = dataObject.latitude,
               let long = dataObject.longitude
         else {
-            Logger.info("Data was unexpectedly nil")
+            Logger.production("Sunrise/sunset coordinates unexpectedly nil")
             return
         }
 
@@ -364,7 +355,7 @@ extension TimezoneDataOperations {
             dataObject.sunsetTime = sunset
             dataObject.isSunriseOrSunset = solar.isNighttime
         } else {
-            Logger.log(object: ["Unable to fetch sunrise/sunset": dataObject.formattedTimezoneLabel()], for: "Sunrise/Sunset Error")
+            Logger.production("Sunrise/Sunset Error: Unable to fetch sunrise/sunset for \(dataObject.formattedTimezoneLabel())")
         }
     }
 

@@ -186,7 +186,7 @@ class PanelController: ParentPanelController {
             "Number of Timezones": preferences.count
         ]
 
-        Logger.log(object: panelEvent, for: "openedPanel")
+        Logger.debug("openedPanel: \(panelEvent)")
 
         PerfLogger.endMarker("Logging")
     }
@@ -210,7 +210,7 @@ class PanelController: ParentPanelController {
     }
 
     private func startTimer() {
-        Logger.info("Start timer called")
+        Logger.debug("Start timer called")
 
         parentTimer = Repeater(interval: .seconds(1), mode: .infinite) { _ in
             OperationQueue.main.addOperation {
@@ -225,7 +225,7 @@ class PanelController: ParentPanelController {
 
         if count >= 1 {
             if let delegate = NSApplication.shared.delegate as? AppDelegate {
-                Logger.info("We will be invalidating the menubar timer as we want the parent timer to take care of both panel and menubar ")
+                Logger.debug("We will be invalidating the menubar timer as we want the parent timer to take care of both panel and menubar ")
 
                 delegate.invalidateMenubarTimer(false)
             }
@@ -339,7 +339,7 @@ class PanelController: ParentPanelController {
 
     override func scrollWheel(with event: NSEvent) {
         if event.phase == NSEvent.Phase.ended {
-            Logger.log(object: nil, for: "Scroll Event Ended")
+            Logger.debug("Scroll Event Ended")
         }
 
         // We only want to move the slider if the slider is visible.

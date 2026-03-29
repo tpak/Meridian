@@ -12,7 +12,7 @@ struct StartupManager {
                 try SMAppService.mainApp.unregister()
             }
         } catch {
-            Logger.info("Failed to toggle login item: \(error)")
+            Logger.production("Failed to toggle login item: \(error)")
         }
     }
 }

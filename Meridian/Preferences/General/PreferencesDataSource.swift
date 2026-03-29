@@ -62,12 +62,12 @@ extension PreferencesDataSource: NSTableViewDelegate {
         let pBoard = info.draggingPasteboard
 
         guard let data = pBoard.data(forType: .dragSession) else {
-            Logger.info("Data was unexpectedly nil")
+            Logger.debug("Data was unexpectedly nil")
             return false
         }
 
         guard let rowIndexes = try? NSKeyedUnarchiver.unarchivedObject(ofClass: NSIndexSet.self, from: data) else {
-            Logger.info("Row was unexpectedly nil")
+            Logger.debug("Row was unexpectedly nil")
             return false
         }
 
@@ -165,11 +165,7 @@ extension PreferencesDataSource: NSTableViewDataSource {
         let formattedValue = label.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
 
         if selectedTimezones.count > row {
-            Logger.log(object: [
-                "Old Label": dataObject.customLabel ?? "Error",
-                "New Label": formattedValue
-            ],
-            for: "Custom Label Changed")
+            Logger.debug("Custom Label Changed: OldLabel=\(dataObject.customLabel ?? "Error"), NewLabel=\(formattedValue)")
 
             dataObject.setLabel(formattedValue)
 
@@ -177,12 +173,7 @@ extension PreferencesDataSource: NSTableViewDataSource {
 
             updateMenubarTitles()
         } else {
-            Logger.log(object: [
-                "MethodName": "SetObjectValue",
-                "Selected Timezone Count": selectedTimezones.count,
-                "Current Row": row
-            ],
-            for: "Error in selected row count")
+            Logger.debug("Error in selected row count: MethodName=SetObjectValue, SelectedTimezoneCount=\(selectedTimezones.count), CurrentRow=\(row)")
         }
     }
 

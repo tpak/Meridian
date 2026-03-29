@@ -205,7 +205,7 @@ class PreferencesViewController: ParentViewController {
         if let zeroView = notimezoneView {
             notimezoneView?.wantsLayer = true
             tableview.addSubview(zeroView)
-            Logger.log(object: ["Showing Empty View": "YES"], for: "Showing Empty View")
+            Logger.debug("Showing Empty View")
         }
         additionalSortOptions.isHidden = true
     }
@@ -227,7 +227,7 @@ class PreferencesViewController: ParentViewController {
 extension PreferencesViewController: NSTableViewDataSource, NSTableViewDelegate {
     private func _markAsFavorite(_ dataObject: TimezoneData) {
         if dataObject.customLabel != nil {
-            Logger.log(object: ["label": dataObject.customLabel ?? "Error"], for: "favouriteSelected")
+            Logger.debug("favouriteSelected: label=\(dataObject.customLabel ?? "Error")")
         }
 
         if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
@@ -240,8 +240,7 @@ extension PreferencesViewController: NSTableViewDataSource, NSTableViewDelegate 
     }
 
     private func _unfavourite(_ dataObject: TimezoneData) {
-        Logger.log(object: ["label": dataObject.customLabel ?? "Error"],
-                   for: "favouriteRemoved")
+        Logger.debug("favouriteRemoved: label=\(dataObject.customLabel ?? "Error")")
 
         if let appDelegate = NSApplication.shared.delegate as? AppDelegate,
            let menubarFavourites = dataStore.menubarTimezones(),
@@ -296,7 +295,7 @@ extension PreferencesViewController: NSTableViewDataSource, NSTableViewDelegate 
 
                 self.updateStatusBarAppearance()
 
-                Logger.log(object: ["Context": ">1 Menubar Timezone in Preferences"], for: "Switched to Compact Mode")
+                Logger.debug("Switched to Compact Mode: Context=>1 Menubar Timezone in Preferences")
             }
         }
     }
@@ -330,7 +329,7 @@ extension PreferencesViewController {
         }
 
         if timezoneTableView.selectedRow == -1, selectedTimeZones.count <= timezoneTableView.selectedRow {
-            Logger.info("Data was unexpectedly nil")
+            Logger.debug("Data was unexpectedly nil")
             return
         }
 
