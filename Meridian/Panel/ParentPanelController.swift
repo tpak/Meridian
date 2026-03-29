@@ -103,7 +103,7 @@ class ParentPanelController: NSWindowController {
         mainTableView.style = .plain
 
         // Setup settings button
-        settingsButton.image = NSImage(systemSymbolName: "gearshape", accessibilityDescription: "Settings")!
+        settingsButton.image = NSImage(systemSymbolName: "gearshape", accessibilityDescription: "Settings")
 
         // Setup KVO observers for user default changes
         setupObservers()
@@ -342,7 +342,7 @@ class ParentPanelController: NSWindowController {
 
         var correctRow = row
 
-        target.image = NSImage(systemSymbolName: "ellipsis.circle.fill", accessibilityDescription: "Options")!
+        target.image = NSImage(systemSymbolName: "ellipsis.circle.fill", accessibilityDescription: "Options")
 
         popover.animates = true
 
@@ -474,8 +474,8 @@ extension ParentPanelController {
 
                 cellView.currentLocationIndicator.isHidden = !model.isSystemTimezone
                 cellView.sunriseImage.image = model.isSunriseOrSunset
-                    ? NSImage(systemSymbolName: "sunrise.fill", accessibilityDescription: "Sunrise")!
-                    : NSImage(systemSymbolName: "sunset.fill", accessibilityDescription: "Sunset")!
+                    ? NSImage(systemSymbolName: "sunrise.fill", accessibilityDescription: "Sunrise")
+                    : NSImage(systemSymbolName: "sunset.fill", accessibilityDescription: "Sunset")
                 cellView.sunriseImage.contentTintColor = model.isSunriseOrSunset ? NSColor.systemYellow : NSColor.systemOrange
                 if let note = model.note, !note.isEmpty {
                     cellView.noteLabel.stringValue = note
