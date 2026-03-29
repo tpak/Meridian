@@ -190,12 +190,10 @@ private struct DebugLoggingSection: View {
 
         if debugLogging {
             Button(String(localized: "Export Log")) {
-                let panel = NSSavePanel()
-                panel.nameFieldStringValue = "meridian-log.txt"
-                panel.allowedContentTypes = [.plainText]
-                guard panel.runModal() == .OK, let url = panel.url else { return }
+                let url = FileManager.default.temporaryDirectory.appendingPathComponent("meridian-log.txt")
                 do {
                     try Logger.exportLog(to: url)
+                    NSWorkspace.shared.selectFile(url.path, inFileViewerRootedAtPath: "")
                 } catch {
                     Logger.production("Failed to export log: \(error.localizedDescription)")
                 }
