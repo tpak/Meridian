@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Meridian** (formerly Clocker) — macOS menu bar world clock app. ~11K lines of Swift across 77 files. Bundle ID: `com.tpak.Meridian`. Forked from [Clocker](https://github.com/n0shake/Clocker) by Abhishek Banthia.
 
+GitHub repository: [`tpak/Meridian`](https://github.com/tpak/Meridian) — always use this URL for issues, PRs, and releases. The old Clocker repo is upstream and unrelated.
+
 ## Installation
 
 ```bash
@@ -219,6 +221,20 @@ All in `Meridian/Dependencies/`.
 
 Config in `.swiftlint.yml`. Key limits: line length 160/200, type body 300/600, function body 50/100, `force_cast` and `force_try` are errors. `Meridian/Dependencies/` and test directories are excluded.
 
-## Directory Structure Note
+## Project Structure
 
 Top-level project directory is `Meridian/`. Inside it, `App/` contains localization resources, Info.plist, and entitlements. All target names, product names, and user-facing names are "Meridian".
+
+The Xcode project structure has `Package.resolved` inside `Meridian/Meridian.xcodeproj/project.xcworkspace/xcshareddata/`, not at the repo root. Always verify file paths within the Xcode project structure before making git or file changes.
+
+## Release Checklist
+
+Before any release, verify:
+1. CI passes on the PR branch **and** on main after merge
+2. All file changes (including Info.plist, storyboards) are committed
+3. Release notes don't break shell interpolation (no unescaped special chars in multiline strings passed to `make release`; use `bash scripts/release.sh -n "..."` directly for multiline notes)
+4. After `make release` completes, run `gh run list --branch main --limit 3` and verify the version bump and appcast commits pass CI
+
+## Code Quality
+
+When migrating APIs or renaming symbols, always grep the **entire codebase** for all remaining references to the old API before marking the task complete. Use `grep -rn "OldName" Meridian/ --include="*.swift"` to catch stragglers. A single missed reference will break the CI build.
