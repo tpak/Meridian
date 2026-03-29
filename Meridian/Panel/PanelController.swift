@@ -134,10 +134,12 @@ class PanelController: ParentPanelController {
                 break
             }
 
-            let screenMaxX = (statusItemScreen?.frame)!.maxX
-            let minY = statusItemFrame.origin.y < (statusItemScreen?.frame)!.maxY ?
+            guard let resolvedScreen = statusItemScreen else { return }
+
+            let screenMaxX = resolvedScreen.frame.maxX
+            let minY = statusItemFrame.origin.y < resolvedScreen.frame.maxY ?
             statusItemFrame.origin.y :
-            (statusItemScreen?.frame)!.maxY
+            resolvedScreen.frame.maxY
             statusItemFrame.origin.y = minY
 
             setFrameTheNewWay(statusItemFrame, screenMaxX)
@@ -151,7 +153,7 @@ class PanelController: ParentPanelController {
         let preferences = dataStore.timezones()
 
         guard let theme = dataStore.retrieve(key: UserDefaultKeys.themeKey) as? NSNumber,
-              let displayFutureSliderKey = dataStore.retrieve(key: UserDefaultKeys.themeKey) as? NSNumber,
+              let displayFutureSliderKey = dataStore.retrieve(key: UserDefaultKeys.displayFutureSliderKey) as? NSNumber,
               let showAppInForeground = dataStore.retrieve(key: UserDefaultKeys.showAppInForeground) as? NSNumber,
               let relativeDateKey = dataStore.retrieve(key: UserDefaultKeys.relativeDateKey) as? NSNumber,
               let fontSize = dataStore.retrieve(key: UserDefaultKeys.userFontSizePreference) as? NSNumber,

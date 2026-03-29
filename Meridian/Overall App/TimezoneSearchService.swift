@@ -26,6 +26,10 @@ enum TimezoneSearchService {
             throw SearchError.queryTooShort
         }
 
+        guard compactSearch.count <= 200 else {
+            throw SearchError.queryTooLong
+        }
+
         do {
             let geocoder = CLGeocoder()
             let placemarks = try await geocoder.geocodeAddressString(compactSearch)
@@ -65,6 +69,7 @@ enum TimezoneSearchService {
     /// Errors that can occur during timezone search operations.
     enum SearchError: LocalizedError {
         case queryTooShort
+        case queryTooLong
         case offline
         case network(String)
         case zeroResults
@@ -72,6 +77,7 @@ enum TimezoneSearchService {
         var errorDescription: String? {
             switch self {
             case .queryTooShort: return "Search query too short"
+            case .queryTooLong: return "Search query too long"
             case .offline: return PreferencesConstants.noInternetConnectivityError
             case .network(let message): return message
             case .zeroResults: return "No results! Try entering the exact name."

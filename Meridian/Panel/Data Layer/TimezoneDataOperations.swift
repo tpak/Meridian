@@ -290,7 +290,10 @@ extension TimezoneDataOperations {
     // Exposed to public for tests!
     public func timeDifference() -> String {
         let localFormatter = DateFormatterManager.localizedSimpleFormatter("d MMM yyyy HH:mm:ss")
-        let local = localFormatter.date(from: localeDate(with: "d MMM yyyy HH:mm:ss"))!
+        guard let local = localFormatter.date(from: localeDate(with: "d MMM yyyy HH:mm:ss")) else {
+            Logger.log(object: [:], for: "Date conversion failure - local date is nil")
+            return UserDefaultKeys.emptyString
+        }
         let newDate = timezoneDateByAdding(minutesToAdd: 0, TimezoneDataOperations.gregorianCalendar)
 
         let dateFormatter = DateFormatterManager.localizedFormatter(with: "d MMM yyyy HH:mm:ss", for: dataObject.timezone())
@@ -375,7 +378,7 @@ extension TimezoneDataOperations {
         // if timeAgo < 24h => compare DateTime else compare Date only
         let upToHours: Set<Calendar.Component> = [.second, .minute, .hour]
         let difference = calendar.dateComponents(upToHours, from: earliest, to: latest as Date)
-        return difference.minute!
+        return difference.minute ?? 0
     }
 
     func formattedSunriseTime(with sliderValue: Int) -> String {
