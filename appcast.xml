@@ -3,6 +3,27 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>2.15.0</title>
+            <pubDate>Sun, 29 Mar 2026 01:58:53 +0000</pubDate>
+            <sparkle:version>2.15.0</sparkle:version>
+            <sparkle:shortVersionString>2.15.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Add keyboard shortcuts (#50)</li>
+                    <li>Fix copy-paste bug in analytics logging</li>
+                    <li>Remove force unwraps that could crash in edge cases</li>
+                    <li>Add search input length validation</li>
+                    <li>Add production observability logging visible in Console.app</li>
+                    <li>Add debug logging toggle in Settings > About</li>
+                    <li>Add crash detection for unclean exits</li>
+                    <li>Add troubleshooting docs to README</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.15.0/Meridian.app.zip" length="3174189" type="application/octet-stream" sparkle:edSignature="Mop5TS8Vc6gnxka9CLanlqCtbQXOU+tM0cAdgtC3pcsOYF3u5Br3POi5XCqQcI8uWXe2HHLvzXDzdsk7nZIuBQ=="/>
+        </item>
+        <item>
             <title>2.14.0</title>
             <pubDate>Thu, 26 Mar 2026 12:59:54 +0000</pubDate>
             <sparkle:version>2.14.0</sparkle:version>
