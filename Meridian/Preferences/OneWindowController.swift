@@ -30,6 +30,7 @@ class OneWindowController: NSWindowController {
         window?.titlebarAppearsTransparent = true
         window?.backgroundColor = NSColor.windowBackgroundColor
         window?.identifier = NSUserInterfaceItemIdentifier("Preferences")
+        window?.center()
     }
 
     private func setupToolbarImages() {
