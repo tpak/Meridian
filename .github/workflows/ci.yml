@@ -91,17 +91,6 @@ jobs:
             -resultBundlePath TestResults/unit-tests.xcresult \
             | xcpretty
 
-      - name: Test Results Summary
-        # NOTE: xcresulttool is unmaintained (still Node 16). No drop-in replacement exists.
-        # Remove this step if it stops working after GitHub drops Node 20 (Sept 2026).
-        if: always()
-        continue-on-error: true
-        uses: kishikawakatsumi/xcresulttool@v1
-        with:
-          path: TestResults/unit-tests.xcresult
-          show-passed-tests: false
-          show-code-coverage: true
-
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v7
