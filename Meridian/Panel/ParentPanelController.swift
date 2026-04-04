@@ -41,6 +41,8 @@ class ParentPanelController: NSWindowController {
 
     @IBOutlet var settingsButton: NSButton!
 
+    @IBOutlet var versionStatusLabel: NSTextField!
+
     @IBOutlet var roundedDateView: NSView!
 
     // Modern Slider
@@ -105,6 +107,9 @@ class ParentPanelController: NSWindowController {
         // Setup settings button
         settingsButton.image = NSImage(systemSymbolName: "gearshape", accessibilityDescription: "Settings")
 
+        // Setup version + last checked label
+        updateVersionStatusLabel()
+
         // Setup KVO observers for user default changes
         setupObservers()
 
@@ -153,6 +158,22 @@ class ParentPanelController: NSWindowController {
         roundedDateView.layer?.cornerRadius = 12.0
         roundedDateView.layer?.masksToBounds = false
         roundedDateView.layer?.backgroundColor = NSColor.controlBackgroundColor.cgColor
+    }
+
+    func updateVersionStatusLabel() {
+        guard versionStatusLabel != nil else { return }
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
+        let lastCheckDate = UserDefaults.standard.object(forKey: "SULastCheckTime") as? Date
+        let checkString: String
+        if let date = lastCheckDate {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .short
+            formatter.timeStyle = .short
+            checkString = formatter.string(from: date)
+        } else {
+            checkString = "Never"
+        }
+        versionStatusLabel.stringValue = "v\(version) • \(checkString)"
     }
 
     @objc func systemTimezoneDidChange() {

@@ -19,6 +19,7 @@
                 <outlet property="resetModernSliderButton" destination="TK5-db-7bd" id="Mie-WC-5YN"/>
                 <outlet property="scrollViewHeight" destination="dff-DX-W1o" id="vYe-lb-h9x"/>
                 <outlet property="settingsButton" destination="1cR-pI-osG" id="ZFz-9l-yNi"/>
+                <outlet property="versionStatusLabel" destination="vSt-rL-p9Q" id="vSt-rL-p9V"/>
                 <outlet property="stackView" destination="OZA-6o-SbE" id="lIT-4b-8WZ"/>
 
                 <outlet property="window" destination="5" id="7"/>
@@ -386,11 +387,22 @@
                                             <action selector="showSettingsMenu:" target="-2" id="xl5-rm-4JK"/>
                                         </connections>
                                     </button>
+                                    <textField focusRingType="none" verticalHuggingPriority="750" horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="vSt-rL-p9Q">
+                                        <rect key="frame" x="50" y="12" width="319" height="16"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="" id="vSt-rL-p9R">
+                                            <font key="font" metaFont="smallSystem"/>
+                                            <color key="textColor" name="tertiaryLabelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="iYW-fj-EE2"/>
                                     <constraint firstItem="1cR-pI-osG" firstAttribute="centerY" secondItem="B8X-sx-cjT" secondAttribute="centerY" id="oVJ-Xa-cTw"/>
                                     <constraint firstItem="1cR-pI-osG" firstAttribute="leading" secondItem="B8X-sx-cjT" secondAttribute="leading" constant="10" id="ydm-oF-sVc"/>
+                                    <constraint firstItem="vSt-rL-p9Q" firstAttribute="centerY" secondItem="B8X-sx-cjT" secondAttribute="centerY" id="vSt-rL-p9S"/>
+                                    <constraint firstItem="vSt-rL-p9Q" firstAttribute="leading" secondItem="1cR-pI-osG" secondAttribute="trailing" constant="4" id="vSt-rL-p9T"/>
+                                    <constraint firstAttribute="trailing" secondItem="vSt-rL-p9Q" secondAttribute="trailing" constant="10" id="vSt-rL-p9U"/>
                                 </constraints>
                             </customView>
                         </subviews>
