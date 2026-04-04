@@ -56,6 +56,7 @@ struct AboutView: View {
             Toggle(String(localized: "Start at Login"), isOn: $startAtLogin)
                 .font(.custom("Avenir-Book", size: 13))
                 .toggleStyle(.checkbox)
+                .fixedSize()
                 .accessibilityIdentifier("StartAtLogin")
                 .onChange(of: startAtLogin) { newValue in
                     startupManager.toggleLogin(newValue)
@@ -124,27 +125,47 @@ struct AboutView: View {
 
 private struct AutoUpdateToggle: View {
     @State private var autoUpdate: Bool
+    @State private var lastCheckDate: Date?
 
     init() {
         let updater = (NSApplication.shared.delegate as? AppDelegate)?.updaterController.updater
         _autoUpdate = State(initialValue: updater?.automaticallyDownloadsUpdates ?? true)
+        _lastCheckDate = State(initialValue: updater?.lastUpdateCheckDate)
     }
 
     var body: some View {
-        Toggle(String(localized: "Automatically download and install updates"), isOn: $autoUpdate)
-            .font(.custom("Avenir-Book", size: 13))
-            .toggleStyle(.checkbox)
-            .accessibilityIdentifier("AutoUpdate")
-            .onChange(of: autoUpdate) { newValue in
-                guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
-                let updater = appDelegate.updaterController.updater
-                updater.automaticallyChecksForUpdates = newValue
-                updater.automaticallyDownloadsUpdates = newValue
-            }
-            .onAppear {
-                guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
-                autoUpdate = appDelegate.updaterController.updater.automaticallyDownloadsUpdates
-            }
+        VStack(alignment: .center, spacing: 4) {
+            Toggle(String(localized: "Automatically download and install updates"), isOn: $autoUpdate)
+                .font(.custom("Avenir-Book", size: 13))
+                .toggleStyle(.checkbox)
+                .fixedSize()
+                .accessibilityIdentifier("AutoUpdate")
+                .onChange(of: autoUpdate) { newValue in
+                    guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
+                    let updater = appDelegate.updaterController.updater
+                    updater.automaticallyChecksForUpdates = newValue
+                    updater.automaticallyDownloadsUpdates = newValue
+                }
+                .onAppear {
+                    guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
+                    let updater = appDelegate.updaterController.updater
+                    autoUpdate = updater.automaticallyDownloadsUpdates
+                    lastCheckDate = updater.lastUpdateCheckDate
+                }
+
+            Text(lastCheckedText)
+                .font(.custom("Avenir-Light", size: 11))
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+    }
+
+    private var lastCheckedText: String {
+        guard let date = lastCheckDate else { return String(localized: "Last checked: Never") }
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        return String(localized: "Last checked: \(formatter.string(from: date))")
     }
 }
 
@@ -186,6 +207,7 @@ private struct DebugLoggingSection: View {
         Toggle(String(localized: "Enable Debug Logging"), isOn: $debugLogging)
             .font(.custom("Avenir-Book", size: 13))
             .toggleStyle(.checkbox)
+            .fixedSize()
             .accessibilityIdentifier("DebugLogging")
 
         if debugLogging {

@@ -113,14 +113,6 @@ class ParentPanelController: NSWindowController {
         // Setup KVO observers for user default changes
         setupObservers()
 
-        // Set the background color of the bottom buttons view to something different to indicate we're not in a release candidate
-#if DEBUG
-        stackView.arrangedSubviews.last?.layer?.backgroundColor = NSColor(deviceRed: 255.0 / 255.0,
-                                                                          green: 150.0 / 255.0,
-                                                                          blue: 122.0 / 255.0,
-                                                                          alpha: 0.5).cgColor
-        stackView.arrangedSubviews.last?.toolTip = "Debug Mode"
-#endif
 
         NotificationCenter.default.publisher(for: NSNotification.Name.NSSystemTimeZoneDidChange)
             .receive(on: RunLoop.main)
