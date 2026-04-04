@@ -386,15 +386,6 @@ class TimezoneAdditionHandler: NSObject {
         }
     }
 
-    private func metadata(for selection: TimezoneMetadata) -> (NSTimeZone, TimezoneMetadata) {
-        if selection.formattedName == "Anywhere on Earth" {
-            return (NSTimeZone(name: "GMT-1200") ?? NSTimeZone.default as NSTimeZone, selection)
-        } else if selection.formattedName == "UTC" {
-            return (NSTimeZone(name: "GMT") ?? NSTimeZone.default as NSTimeZone, selection)
-        } else {
-            return (selection.timezone, selection)
-        }
-    }
 }
 
 // MARK: - Close Panel, Filter & Selection
@@ -449,5 +440,14 @@ extension TimezoneAdditionHandler {
         let indexSet = IndexSet(integer: IndexSet.Element(host.timezoneTableView.numberOfRows - 1))
         host.timezoneTableView.selectRowIndexes(indexSet, byExtendingSelection: false)
     }
-}
 
+    private func metadata(for selection: TimezoneMetadata) -> (NSTimeZone, TimezoneMetadata) {
+        if selection.formattedName == "Anywhere on Earth" {
+            return (NSTimeZone(name: "GMT-1200") ?? NSTimeZone.default as NSTimeZone, selection)
+        } else if selection.formattedName == "UTC" {
+            return (NSTimeZone(name: "GMT") ?? NSTimeZone.default as NSTimeZone, selection)
+        } else {
+            return (selection.timezone, selection)
+        }
+    }
+}

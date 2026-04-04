@@ -260,7 +260,11 @@ extension TimezoneDataOperations {
                 return "\(todaysDate(with: sliderValue))\(timeDifference())"
             }
 
-            Logger.production("Unable to get date: Timezone=\(dataObject.timezone()), CurrentLocale=\(Locale.autoupdatingCurrent.identifier), SliderValue=\(sliderValue), TodaysDate=\(Date())")
+            let tz = dataObject.timezone()
+            let locale = Locale.autoupdatingCurrent.identifier
+            Logger.production(
+                "Unable to get date: Timezone=\(tz), CurrentLocale=\(locale), SliderValue=\(sliderValue), TodaysDate=\(Date())"
+            )
 
             return "Error"
 
@@ -295,7 +299,11 @@ extension TimezoneDataOperations {
         let dateFormatter = DateFormatterManager.localizedFormatter(with: "d MMM yyyy HH:mm:ss", for: dataObject.timezone())
 
         guard let timezoneDate = localFormatter.date(from: dateFormatter.string(from: newDate)) else {
-            Logger.production("Date conversion failure - New Date is nil: NewDate=\(newDate), Timezone=\(dataObject.timezone()), Locale=\(dateFormatter.locale.identifier)")
+            let tz = dataObject.timezone()
+            let localeId = dateFormatter.locale.identifier
+            Logger.production(
+                "Date conversion failure - New Date is nil: NewDate=\(newDate), Timezone=\(tz), Locale=\(localeId)"
+            )
             return UserDefaultKeys.emptyString
         }
 

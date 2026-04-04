@@ -21,10 +21,9 @@ enum DateFormatterManager {
     }
 
     static func dateFormatterWithFormat(with style: DateFormatter.Style,
-                                       format: String,
-                                       timezoneIdentifier: String,
-                                       locale:
-                                       Locale = Locale(identifier: "en_US")) -> DateFormatter {
+                                        format: String,
+                                        timezoneIdentifier: String,
+                                        locale: Locale = Locale(identifier: "en_US")) -> DateFormatter {
         if specializedFormatter.dateStyle != style {
             specializedFormatter.dateStyle = style
         }

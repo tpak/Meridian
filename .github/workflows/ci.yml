@@ -21,7 +21,7 @@ jobs:
     env:
       TZ: America/Chicago
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
@@ -30,7 +30,7 @@ jobs:
         run: xcodebuild -version
 
       - name: Cache DerivedData
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/Library/Developer/Xcode/DerivedData
           key: deriveddata-${{ runner.os }}-${{ hashFiles('Meridian/Meridian.xcodeproj/project.pbxproj', 'Meridian/CoreLoggerKit/Package.swift', 'Meridian/CoreModelKit/Package.swift') }}
@@ -61,13 +61,13 @@ jobs:
     env:
       TZ: America/Chicago
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
       - name: Cache DerivedData
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/Library/Developer/Xcode/DerivedData
           key: deriveddata-${{ runner.os }}-${{ hashFiles('Meridian/Meridian.xcodeproj/project.pbxproj', 'Meridian/CoreLoggerKit/Package.swift', 'Meridian/CoreModelKit/Package.swift') }}
@@ -92,6 +92,8 @@ jobs:
             | xcpretty
 
       - name: Test Results Summary
+        # NOTE: xcresulttool is unmaintained (still Node 16). No drop-in replacement exists.
+        # Remove this step if it stops working after GitHub drops Node 20 (Sept 2026).
         if: always()
         continue-on-error: true
         uses: kishikawakatsumi/xcresulttool@v1
@@ -102,7 +104,7 @@ jobs:
 
       - name: Upload Test Results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: unit-test-results
           path: TestResults/
