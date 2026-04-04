@@ -151,9 +151,11 @@ extension ParentPanelController {
         let futureSliderDayRange = futureSliderDayPreference.intValue
         let totalCount = (PanelConstants.modernSliderPointsInADay * futureSliderDayRange * 2) + 1
         let centerPoint = Int(ceil(Double(totalCount / 2)))
+        let baseDate = closestQuarterTimeRepresentation ?? Date()
         if index >= (centerPoint + 1) {
             let remainder = (index % (centerPoint + 1))
-            let nextDate = Calendar.current.date(byAdding: .minute, value: remainder * PanelConstants.minutesPerSliderPoint, to: closestQuarterTimeRepresentation ?? Date())!
+            let minuteOffset = remainder * PanelConstants.minutesPerSliderPoint
+            let nextDate = Calendar.current.date(byAdding: .minute, value: minuteOffset, to: baseDate)!
             modernSliderLabel.stringValue = timezoneFormattedStringRepresentation(nextDate)
             if resetModernSliderButton.isHidden {
                 animateButton(false)
@@ -162,7 +164,8 @@ extension ParentPanelController {
             return nextDate.minutes(from: Date()) + 1
         } else if index < centerPoint {
             let remainder = centerPoint - index + 1
-            let previousDate = Calendar.current.date(byAdding: .minute, value: -1 * remainder * PanelConstants.minutesPerSliderPoint, to: closestQuarterTimeRepresentation ?? Date())!
+            let minuteOffset = -1 * remainder * PanelConstants.minutesPerSliderPoint
+            let previousDate = Calendar.current.date(byAdding: .minute, value: minuteOffset, to: baseDate)!
             modernSliderLabel.stringValue = timezoneFormattedStringRepresentation(previousDate)
             if resetModernSliderButton.isHidden {
                 animateButton(false)

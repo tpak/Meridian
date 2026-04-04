@@ -9,6 +9,8 @@ excluded:
   - Meridian/MeridianUnitTests
   - Meridian/MeridianUITests
   - Meridian/CoreLoggerKit/.build
+  - .claude
+  - build
 
 analyzer_rules:
   - explicit_self
