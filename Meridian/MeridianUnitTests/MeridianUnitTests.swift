@@ -138,7 +138,7 @@ class MeridianUnitTests: XCTestCase {
 
         let newTimezones = mockStore.timezones()
 
-        XCTAssertTrue(newTimezones.count == oldCount - 1, "Timezone count should decrease by 1 after deletion")
+        XCTAssertEqual(newTimezones.count, oldCount - 1, "Timezone count should decrease by 1 after deletion")
     }
 
     func testTimeDifference() {
@@ -186,7 +186,7 @@ class MeridianUnitTests: XCTestCase {
         timezoneObject.longitude = nil
         let timezoneOperations = TimezoneDataOperations(with: timezoneObject, store: mockStore)
 
-        XCTAssertTrue(timezoneOperations.formattedSunriseTime(with: 0) == "")
+        XCTAssertEqual(timezoneOperations.formattedSunriseTime(with: 0), "")
         XCTAssertNil(timezoneObject.sunriseTime)
         XCTAssertNil(timezoneObject.sunsetTime)
     }
@@ -203,38 +203,38 @@ class MeridianUnitTests: XCTestCase {
         mockStore.preferences[UserDefaultKeys.selectedTimeZoneFormatKey] = NSNumber(value: 0) // Set to 12 hour format
 
         dataObject.setShouldOverrideGlobalTimeFormat(0) // Respect Global Preference
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "h:mm a")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "h:mm a")
 
         dataObject.setShouldOverrideGlobalTimeFormat(1) // 12-Hour Format
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "h:mm a")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "h:mm a")
 
         dataObject.setShouldOverrideGlobalTimeFormat(2) // 24-Hour format
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "HH:mm")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "HH:mm")
 
         // Skip 3 since it's a placeholder
         dataObject.setShouldOverrideGlobalTimeFormat(4) // 12-Hour with seconds
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "h:mm:ss a")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "h:mm:ss a")
 
         dataObject.setShouldOverrideGlobalTimeFormat(5) // 24-Hour format with seconds
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "HH:mm:ss")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "HH:mm:ss")
 
         // Skip 6 since it's a placeholder
         dataObject.setShouldOverrideGlobalTimeFormat(7) // 12-hour with preceding zero and no seconds
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "hh:mm a")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "hh:mm a")
 
         dataObject.setShouldOverrideGlobalTimeFormat(8) // 12-hour with preceding zero and seconds
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "hh:mm:ss a")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "hh:mm:ss a")
 
         // Skip 9 since it's a placeholder
         dataObject.setShouldOverrideGlobalTimeFormat(10) // 12-hour without am/pm and seconds
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "hh:mm")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "hh:mm")
 
         dataObject.setShouldOverrideGlobalTimeFormat(11) // 12-hour with preceding zero and seconds
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "hh:mm:ss")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "hh:mm:ss")
 
         // Wrong input
         dataObject.setShouldOverrideGlobalTimeFormat(0) // 12-hour with preceding zero and seconds
-        XCTAssertTrue(dataObject.timezoneFormat(88) == "h:mm a")
+        XCTAssertEqual(dataObject.timezoneFormat(88), "h:mm a")
     }
 
     func testTimezoneFormatWithDefaultSetAs24HourFormat() {
@@ -242,38 +242,38 @@ class MeridianUnitTests: XCTestCase {
         mockStore.preferences[UserDefaultKeys.selectedTimeZoneFormatKey] = NSNumber(value: 1) // Set to 24-Hour Format
 
         dataObject.setShouldOverrideGlobalTimeFormat(0)
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "HH:mm",
-                      "Unexpected format returned: \(dataObject.timezoneFormat(mockStore.timezoneFormat()))")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "HH:mm",
+                       "Unexpected format returned: \(dataObject.timezoneFormat(mockStore.timezoneFormat()))")
 
         dataObject.setShouldOverrideGlobalTimeFormat(1) // 12-Hour Format
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "h:mm a")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "h:mm a")
 
         dataObject.setShouldOverrideGlobalTimeFormat(2) // 24-Hour format
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "HH:mm")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "HH:mm")
 
         // Skip 3 since it's a placeholder
         dataObject.setShouldOverrideGlobalTimeFormat(4) // 12-Hour with seconds
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "h:mm:ss a")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "h:mm:ss a")
 
         dataObject.setShouldOverrideGlobalTimeFormat(5) // 24-Hour format with seconds
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "HH:mm:ss")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "HH:mm:ss")
 
         // Skip 6 since it's a placeholder
         dataObject.setShouldOverrideGlobalTimeFormat(7) // 12-hour with preceding zero and no seconds
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "hh:mm a")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "hh:mm a")
 
         dataObject.setShouldOverrideGlobalTimeFormat(8) // 12-hour with preceding zero and seconds
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "hh:mm:ss a")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "hh:mm:ss a")
 
         // Skip 9 since it's a placeholder
         dataObject.setShouldOverrideGlobalTimeFormat(10) // 12-hour without am/pm and seconds
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "hh:mm")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "hh:mm")
 
         dataObject.setShouldOverrideGlobalTimeFormat(11) // 12-hour with preceding zero and seconds
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "hh:mm:ss")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "hh:mm:ss")
 
         dataObject.setShouldOverrideGlobalTimeFormat(12) // 12-hour with preceding zero and seconds
-        XCTAssertTrue(dataObject.timezoneFormat(mockStore.timezoneFormat()) == "epoch")
+        XCTAssertEqual(dataObject.timezoneFormat(mockStore.timezoneFormat()), "epoch")
     }
 
     func testSecondsDisplayForOverridenTimezone() {
@@ -318,26 +318,26 @@ class MeridianUnitTests: XCTestCase {
 
     func testFormattedLabel() {
         let dataObject = TimezoneData(with: mumbai)
-        XCTAssertTrue(dataObject.formattedTimezoneLabel() == "Ghar", "Incorrect custom label returned by model \(dataObject.formattedTimezoneLabel())")
+        XCTAssertEqual(dataObject.formattedTimezoneLabel(), "Ghar", "Incorrect custom label returned by model \(dataObject.formattedTimezoneLabel())")
 
         dataObject.setLabel("")
-        XCTAssertTrue(dataObject.formattedTimezoneLabel() == "Mumbai", "Incorrect custom label returned by model \(dataObject.formattedTimezoneLabel())")
+        XCTAssertEqual(dataObject.formattedTimezoneLabel(), "Mumbai", "Incorrect custom label returned by model \(dataObject.formattedTimezoneLabel())")
 
         dataObject.formattedAddress = nil
-        XCTAssertTrue(dataObject.formattedTimezoneLabel() == "Asia", "Incorrect custom label returned by model \(dataObject.formattedTimezoneLabel())")
+        XCTAssertEqual(dataObject.formattedTimezoneLabel(), "Asia", "Incorrect custom label returned by model \(dataObject.formattedTimezoneLabel())")
 
         dataObject.setLabel("Jogeshwari")
-        XCTAssertTrue(dataObject.formattedTimezoneLabel() == "Jogeshwari", "Incorrect custom label returned by model \(dataObject.formattedTimezoneLabel())")
+        XCTAssertEqual(dataObject.formattedTimezoneLabel(), "Jogeshwari", "Incorrect custom label returned by model \(dataObject.formattedTimezoneLabel())")
 
         // Unlikely scenario
         dataObject.setLabel("")
         dataObject.timezoneID = "GMT"
-        XCTAssertTrue(dataObject.formattedTimezoneLabel() == "GMT", "Incorrect custom label returned by model \(dataObject.formattedTimezoneLabel())")
+        XCTAssertEqual(dataObject.formattedTimezoneLabel(), "GMT", "Incorrect custom label returned by model \(dataObject.formattedTimezoneLabel())")
 
         // Another unlikely scenario
         dataObject.setLabel("")
         dataObject.timezoneID = nil
-        XCTAssertTrue(dataObject.formattedTimezoneLabel() == "Error", "Incorrect custom label returned by model \(dataObject.formattedTimezoneLabel())")
+        XCTAssertEqual(dataObject.formattedTimezoneLabel(), "Error", "Incorrect custom label returned by model \(dataObject.formattedTimezoneLabel())")
     }
 
     func testEquality() {
@@ -348,7 +348,7 @@ class MeridianUnitTests: XCTestCase {
         XCTAssertFalse(dataObject1.isEqual(dataObject2))
 
         let dataObject3 = TimezoneData(with: mumbai)
-        XCTAssertTrue(dataObject1 == dataObject3)
+        XCTAssertEqual(dataObject1, dataObject3)
         XCTAssertTrue(dataObject1.isEqual(dataObject3))
 
         XCTAssertFalse(dataObject1.isEqual(nil))

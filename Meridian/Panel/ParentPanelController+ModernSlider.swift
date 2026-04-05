@@ -70,7 +70,7 @@ extension ParentPanelController {
         navigateModernSliderToSpecificIndex(-1)
     }
 
-    private func animateButton(_ hidden: Bool) {
+    private func animateResetButton(hidden: Bool) {
         NSAnimationContext.runAnimationGroup({ context in
             context.duration = 0.5
             context.timingFunction = CAMediaTimingFunction(name: hidden ? CAMediaTimingFunctionName.easeOut : CAMediaTimingFunctionName.easeIn)
@@ -81,12 +81,12 @@ extension ParentPanelController {
         })
     }
 
-    private func showAccessoryButtonsIfNeccesary(_ hide: Bool) {
+    private func setAccessoryButtons(hidden: Bool) {
         NSAnimationContext.runAnimationGroup({ context in
             context.duration = 0.5
-            context.timingFunction = CAMediaTimingFunction(name: hide ? CAMediaTimingFunctionName.easeOut : CAMediaTimingFunctionName.easeIn)
-            goForwardButton.animator().alphaValue = hide ? 0.0 : 1.0
-            goBackwardsButton.animator().alphaValue = hide ? 0.0 : 1.0
+            context.timingFunction = CAMediaTimingFunction(name: hidden ? CAMediaTimingFunctionName.easeOut : CAMediaTimingFunctionName.easeIn)
+            goForwardButton.animator().alphaValue = hidden ? 0.0 : 1.0
+            goBackwardsButton.animator().alphaValue = hidden ? 0.0 : 1.0
         }, completionHandler: nil)
     }
 
@@ -101,8 +101,8 @@ extension ParentPanelController {
                 modernSlider.animator().scrollToItems(at: indexPaths, scrollPosition: .centeredHorizontally)
             }, completionHandler: { [weak self] in
                 guard let strongSelf = self else { return }
-                strongSelf.animateButton(true)
-                strongSelf.showAccessoryButtonsIfNeccesary(true)
+                strongSelf.animateResetButton(hidden: true)
+                strongSelf.setAccessoryButtons(hidden: true)
             })
         }
     }
@@ -128,7 +128,7 @@ extension ParentPanelController {
         let newPoint = NSPoint(x: changedOrigin.x + contentView.frame.width / 2, y: changedOrigin.y)
         let indexPath = modernSlider.indexPathForItem(at: newPoint)
         if let correctIndexPath = indexPath?.item, currentCenterIndexPath != correctIndexPath {
-            showAccessoryButtonsIfNeccesary(false)
+            setAccessoryButtons(hidden: false)
             currentCenterIndexPath = correctIndexPath
             let minutesToAdd = setDefaultDateLabel(correctIndexPath)
             setTimezoneDatasourceSlider(sliderValue: minutesToAdd)
@@ -158,7 +158,7 @@ extension ParentPanelController {
             let nextDate = Calendar.current.date(byAdding: .minute, value: minuteOffset, to: baseDate)!
             modernSliderLabel.stringValue = timezoneFormattedStringRepresentation(nextDate)
             if resetModernSliderButton.isHidden {
-                animateButton(false)
+                animateResetButton(hidden: false)
             }
 
             return nextDate.minutes(from: Date()) + 1
@@ -168,13 +168,13 @@ extension ParentPanelController {
             let previousDate = Calendar.current.date(byAdding: .minute, value: minuteOffset, to: baseDate)!
             modernSliderLabel.stringValue = timezoneFormattedStringRepresentation(previousDate)
             if resetModernSliderButton.isHidden {
-                animateButton(false)
+                animateResetButton(hidden: false)
             }
             return previousDate.minutes(from: Date())
         } else {
             modernSliderLabel.stringValue = "Time Scroller"
             if !resetModernSliderButton.isHidden {
-                animateButton(true)
+                animateResetButton(hidden: true)
             }
             return 0
         }
