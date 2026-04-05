@@ -197,8 +197,8 @@ class TimezoneCellView: NSTableCellView {
     }
 
     override func rightMouseDown(with event: NSEvent) {
+        // Pass right-clicks up the responder chain (e.g. to PanelController for Pin to Desktop).
+        // The old notes popover was removed in the strip commit; showExtraOptions would crash.
         super.rightMouseDown(with: event)
-        showExtraOptions(extraOptions)
-        Logger.debug("Right Click Open Options")
     }
 }

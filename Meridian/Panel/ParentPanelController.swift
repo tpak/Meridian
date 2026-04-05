@@ -346,6 +346,8 @@ class ParentPanelController: NSWindowController {
 
     @discardableResult
     func showNotesPopover(forRow row: Int, relativeTo _: NSRect, andButton target: NSButton!) -> Bool {
+        guard let target = target else { return false }
+
         let defaults = dataStore.timezones()
 
         guard let popover = additionalOptionsPopover else {
