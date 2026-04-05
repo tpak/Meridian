@@ -257,6 +257,10 @@ class TimezoneDataOperationsTests: XCTestCase {
         if let transition = transition {
             XCTAssertTrue(transition.hasPrefix("Heads up:"), "DST message should start with 'Heads up:' but got: \(transition)")
             XCTAssertTrue(transition.contains("DST transition"), "DST message should contain 'DST transition'")
+            // Also verify it contains a month name or year (not just a generic format check)
+            let containsTimeInfo = transition.contains("AM") || transition.contains("PM") ||
+                transition.contains(":") || transition.contains("2025") || transition.contains("2026")
+            XCTAssertTrue(containsTimeInfo, "DST transition message should contain time information but got: \(transition)")
         }
     }
 

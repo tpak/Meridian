@@ -14,6 +14,13 @@ struct ModelConstants {
     static let note = "note"
 }
 
+public enum RelativeDayDisplay: Int {
+    case relativeDay = 0
+    case dayName = 1
+    case dateFormat = 2
+    case hidden = 3
+}
+
 public enum DateFormat {
     public static let twelveHour = "h:mm a"
     public static let twelveHourWithSeconds = "h:mm:ss a"
@@ -137,6 +144,24 @@ public class TimezoneData: NSObject, NSCoding, NSSecureCoding {
         isSystemTimezone = aDecoder.decodeBool(forKey: "isSystemTimezone")
         let override = aDecoder.decodeInteger(forKey: "overrideFormat")
         overrideFormat = TimezoneOverride(rawValue: override) ?? .globalFormat
+    }
+
+    public static func make(timezoneID: String,
+                            name: String,
+                            customLabel: String,
+                            latitude: Double,
+                            longitude: Double,
+                            placeIdentifier: String,
+                            nextUpdate: String = "") -> TimezoneData {
+        let data = TimezoneData()
+        data.timezoneID = timezoneID
+        data.formattedAddress = name
+        data.customLabel = customLabel
+        data.latitude = latitude
+        data.longitude = longitude
+        data.placeID = placeIdentifier
+        data.selectionType = .city
+        return data
     }
 
     public class func customObject(from encodedData: Data?) -> TimezoneData? {
@@ -281,7 +306,7 @@ public class TimezoneData: NSObject, NSCoding, NSSecureCoding {
     }
 
     public func isDaylightSavings() -> Bool {
-        guard let timezone = TimeZone(abbreviation: timezone()) else {
+        guard let timezone = TimeZone(identifier: timezone()) else {
             return false
         }
 

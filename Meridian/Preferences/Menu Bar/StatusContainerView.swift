@@ -72,18 +72,10 @@ class StatusContainerView: NSView {
         layer?.backgroundColor = NSColor.clear.cgColor
     }
 
-    init(with timezones: [Data],
+    init(with timezones: [TimezoneData],
          store: DataStore,
          bufferContainerWidth: Int) {
         self.store = store
-
-        func addSubviews() {
-            timezones.forEach {
-                if let timezoneObject = TimezoneData.customObject(from: $0) {
-                    addTimezone(timezoneObject)
-                }
-            }
-        }
 
         let timeBasedAttributes = [
             NSAttributedString.Key.font: compactModeTimeFont,
@@ -91,24 +83,19 @@ class StatusContainerView: NSView {
             NSAttributedString.Key.paragraphStyle: defaultParagraphStyle
         ]
 
-        func containerWidth(for timezones: [Data]) -> CGFloat {
-            let compressedWidth = timezones.reduce(0.0) { result, timezone -> CGFloat in
-
-                if let timezoneObject = TimezoneData.customObject(from: timezone) {
-                    let precalculatedWidth = Double(compactWidth(for: timezoneObject, with: store))
-                    let operationObject = TimezoneDataOperations(with: timezoneObject, store: store)
-                    let calculatedSubtitleSize = compactModeTimeFont.size(for: operationObject.compactMenuSubtitle(),
-                                                                          width: precalculatedWidth,
-                                                                          attributes: timeBasedAttributes)
-                    let calculatedTitleSize = compactModeTimeFont.size(for: operationObject.compactMenuTitle(),
-                                                                       width: precalculatedWidth,
-                                                                       attributes: timeBasedAttributes)
-                    let showSeconds = timezoneObject.shouldShowSeconds(store.timezoneFormat())
-                    let secondsBuffer: CGFloat = showSeconds ? 7 : 0
-                    return result + max(calculatedTitleSize.width, calculatedSubtitleSize.width) + bufferWidth + secondsBuffer
-                }
-
-                return result + CGFloat(bufferContainerWidth)
+        func containerWidth(for timezones: [TimezoneData]) -> CGFloat {
+            let compressedWidth = timezones.reduce(0.0) { result, timezoneObject -> CGFloat in
+                let precalculatedWidth = Double(compactWidth(for: timezoneObject, with: store))
+                let operationObject = TimezoneDataOperations(with: timezoneObject, store: store)
+                let calculatedSubtitleSize = compactModeTimeFont.size(for: operationObject.compactMenuSubtitle(),
+                                                                      width: precalculatedWidth,
+                                                                      attributes: timeBasedAttributes)
+                let calculatedTitleSize = compactModeTimeFont.size(for: operationObject.compactMenuTitle(),
+                                                                   width: precalculatedWidth,
+                                                                   attributes: timeBasedAttributes)
+                let showSeconds = timezoneObject.shouldShowSeconds(store.timezoneFormat())
+                let secondsBuffer: CGFloat = showSeconds ? 7 : 0
+                return result + max(calculatedTitleSize.width, calculatedSubtitleSize.width) + bufferWidth + secondsBuffer
             }
 
             let calculatedWidth = min(compressedWidth,
@@ -120,7 +107,7 @@ class StatusContainerView: NSView {
         let frame = NSRect(x: 0, y: 0, width: statusItemWidth, height: 30)
         super.init(frame: frame)
 
-        addSubviews()
+        timezones.forEach { addTimezone($0) }
     }
 
     @available(*, unavailable)

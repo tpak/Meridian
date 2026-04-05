@@ -36,15 +36,15 @@ class SearchDataSourceTests: XCTestCase {
         setupSubject(searchText: "")
         // Test capitalized string
         subject.searchTimezones("MUMBAI")
-        XCTAssert(subject.timezoneFilteredArray.isEmpty == false)
+        XCTAssertFalse(subject.timezoneFilteredArray.isEmpty)
 
         // Test sentence-cased string
         subject.searchTimezones("Delhi")
-        XCTAssert(subject.timezoneFilteredArray.isEmpty == false)
+        XCTAssertFalse(subject.timezoneFilteredArray.isEmpty)
 
         // Test lower-cased string
         subject.searchTimezones("california")
-        XCTAssert(subject.timezoneFilteredArray.isEmpty == false)
+        XCTAssertFalse(subject.timezoneFilteredArray.isEmpty)
     }
 
     func testCalculateChangesets() {
@@ -64,29 +64,29 @@ class SearchDataSourceTests: XCTestCase {
         let result1 = subject.retrieveResult(0)
         let unwrap = try XCTUnwrap(result1)
         if let metadata = unwrap as? CoreModelKit.TimezoneData {
-            XCTAssert(metadata.timezoneID == "PST")
+            XCTAssertEqual(metadata.timezoneID, "PST")
         }
 
         // 1 will translate to a timezone search result
         let result2 = subject.retrieveResult(1)
         let unwrap2 = try XCTUnwrap(result2)
         if let metadata = unwrap2 as? TimezoneMetadata {
-            XCTAssert(metadata.timezone.name == "America/Santa_Isabel")
+            XCTAssertEqual(metadata.timezone.name, "America/Santa_Isabel")
         }
 
         // Test placeForRow
         let rowType = subject.placeForRow(0)
-        XCTAssert(rowType == .city)
+        XCTAssertEqual(rowType, .city)
 
         let rowType1 = subject.placeForRow(1)
-        XCTAssert(rowType1 == .timezone)
+        XCTAssertEqual(rowType1, .timezone)
 
         // Test count
         XCTAssertEqual(subject.resultsCount(), 5)
 
         // Test retrieveFilteredResultFromGoogleAPI
         let firstResult = try XCTUnwrap(subject.retrieveFilteredResultFromGoogleAPI(0))
-        XCTAssert(firstResult.timezoneID == "PST")
+        XCTAssertEqual(firstResult.timezoneID, "PST")
         // filteredArray should only have a count of 1
         XCTAssertNil(subject.retrieveFilteredResultFromGoogleAPI(1))
     }
@@ -98,7 +98,7 @@ class SearchDataSourceTests: XCTestCase {
 
         let resultsCount = subject.numberOfRows(in: mockTableView)
         XCTAssertEqual(resultsCount, 5)
-        XCTAssert(subject.tableView(mockTableView, heightOfRow: 0) == 30)
+        XCTAssertEqual(subject.tableView(mockTableView, heightOfRow: 0), 30)
     }
 
     func testRetrieveSelectedTimezone() {
@@ -126,7 +126,7 @@ class SearchDataSourceTests: XCTestCase {
         XCTAssertFalse(subject.calculateChangesets())
 
         let result = subject.retrieveSelectedTimezone(1)
-        XCTAssert(result.timezone.abbreviation == "GMT")
+        XCTAssertEqual(result.timezone.abbreviation, "GMT")
     }
 
     func testRetrieveSelectedTimezoneWithEmptySearchFieldWithoutSearchResults() {

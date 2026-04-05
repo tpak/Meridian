@@ -25,7 +25,7 @@ class StandardMenubarHandlerTests: XCTestCase {
         saveTimezoneToStore(dataObject, store: store)
 
         let menubarTimezones = store.menubarTimezones()
-        XCTAssertTrue(menubarTimezones?.count == 1, "Count is \(String(describing: menubarTimezones?.count))")
+        XCTAssertEqual(menubarTimezones.count, 1, "Count is \(menubarTimezones.count)")
     }
 
     func testUnfavouritedTimezone_returnEmptyMenubarTimezoneCount() {
@@ -37,7 +37,7 @@ class StandardMenubarHandlerTests: XCTestCase {
         saveTimezoneToStore(dataObject, store: store)
 
         let menubarTimezones = store.menubarTimezones()
-        XCTAssertTrue(menubarTimezones?.count == 0)
+        XCTAssertEqual(menubarTimezones.count, 0)
     }
 
     func testUnfavouritedTimezone_returnNilMenubarString() {

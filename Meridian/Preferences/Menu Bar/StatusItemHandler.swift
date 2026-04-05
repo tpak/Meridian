@@ -103,7 +103,7 @@ class StatusItemHandler: NSObject {
         // Let's figure out the initial menubar state
         var menubarState = MenubarState.icon
 
-        let shouldTextBeDisplayed = store.menubarTimezones()?.isEmpty ?? true
+        let shouldTextBeDisplayed = store.menubarTimezones().isEmpty
 
         if !shouldTextBeDisplayed {
             if store.shouldDisplay(.menubarCompactMode) {
@@ -165,7 +165,7 @@ class StatusItemHandler: NSObject {
         statusItem.button?.subviews = []
         statusContainerView = nil
 
-        let menubarTimezones = store.menubarTimezones() ?? []
+        let menubarTimezones = store.menubarTimezoneObjects()
         if menubarTimezones.isEmpty {
             currentState = .icon
             return
@@ -242,16 +242,8 @@ class StatusItemHandler: NSObject {
     }
 
     private func shouldDisplaySecondsInMenubar() -> Bool {
-        let syncedTimezones = store.menubarTimezones() ?? []
-
-        let timezonesSupportingSeconds = syncedTimezones.filter { data in
-            if let timezoneObj = TimezoneData.customObject(from: data) {
-                return timezoneObj.shouldShowSeconds(store.timezoneFormat())
-            }
-            return false
-        }
-
-        return timezonesSupportingSeconds.isEmpty == false
+        let syncedTimezones = store.menubarTimezoneObjects()
+        return syncedTimezones.contains { $0.shouldShowSeconds(store.timezoneFormat()) }
     }
 
     private func calculateFireDate() -> Date? {
@@ -265,7 +257,7 @@ class StatusItemHandler: NSObject {
         var components = calendar.dateComponents(units, from: Date())
 
         // We want to update every second only when there's a timezone present!
-        if shouldDisplaySeconds, let seconds = components.second, let favourites = menubarFavourites, !favourites.isEmpty {
+        if shouldDisplaySeconds, let seconds = components.second, !menubarFavourites.isEmpty {
             components.second = seconds + 1
         } else if let minutes = components.minute {
             components.minute = minutes + 1
@@ -314,7 +306,7 @@ class StatusItemHandler: NSObject {
     }
 
     func invalidateTimer(showIcon show: Bool, isSyncing sync: Bool) {
-        let menubarFavourites = store.menubarTimezones() ?? []
+        let menubarFavourites = store.menubarTimezones()
 
         if menubarFavourites.isEmpty {
             Logger.debug("Invalidating menubar timer")

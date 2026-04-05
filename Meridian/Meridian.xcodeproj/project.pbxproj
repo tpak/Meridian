@@ -17,6 +17,8 @@
 		357391872507277500D30819 /* TimeMarkerViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357391852507277500D30819 /* TimeMarkerViewItem.swift */; };
 		357391882507277500D30819 /* HourMarkerViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 357391862507277500D30819 /* HourMarkerViewItem.xib */; };
 		3579765E2680208C009DDA6E /* ParentPanelController+ModernSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3579765D2680208C009DDA6E /* ParentPanelController+ModernSlider.swift */; };
+		3579765F2680208C009DDA6E /* ParentPanelController+Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3579765C2680208C009DDA6E /* ParentPanelController+Layout.swift */; };
+		357976602680208C009DDA6E /* ParentPanelController+Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3579765B2680208C009DDA6E /* ParentPanelController+Actions.swift */; };
 		3595FAD0227F88BC0044A12A /* UserDefaults + KVOExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3595FACF227F88BC0044A12A /* UserDefaults + KVOExtensions.swift */; };
 		35B2FEDD259A2291005DA84D /* CoreLoggerKit in Frameworks */ = {isa = PBXBuildFile; productRef = 35B2FEDC259A2291005DA84D /* CoreLoggerKit */; };
 		35B2FEF1259A2DB1005DA84D /* CoreModelKit in Frameworks */ = {isa = PBXBuildFile; productRef = 35B2FEF0259A2DB1005DA84D /* CoreModelKit */; };
@@ -142,6 +144,8 @@
 		357391852507277500D30819 /* TimeMarkerViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeMarkerViewItem.swift; sourceTree = "<group>"; };
 		357391862507277500D30819 /* HourMarkerViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HourMarkerViewItem.xib; sourceTree = "<group>"; };
 		3579765D2680208C009DDA6E /* ParentPanelController+ModernSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ParentPanelController+ModernSlider.swift"; sourceTree = "<group>"; };
+		3579765C2680208C009DDA6E /* ParentPanelController+Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ParentPanelController+Layout.swift"; sourceTree = "<group>"; };
+		3579765B2680208C009DDA6E /* ParentPanelController+Actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ParentPanelController+Actions.swift"; sourceTree = "<group>"; };
 		3595FACF227F88BC0044A12A /* UserDefaults + KVOExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults + KVOExtensions.swift"; sourceTree = "<group>"; };
 		35B2FED4259A2244005DA84D /* CoreLoggerKit */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CoreLoggerKit; sourceTree = "<group>"; };
 		35B2FEE4259A2C25005DA84D /* CoreModelKit */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CoreModelKit; sourceTree = "<group>"; };
@@ -360,6 +364,8 @@
 				35C36F282259D6FA002FA5C6 /* PanelController.swift */,
 				35C36F272259D6FA002FA5C6 /* ParentPanelController.swift */,
 				3579765D2680208C009DDA6E /* ParentPanelController+ModernSlider.swift */,
+				3579765C2680208C009DDA6E /* ParentPanelController+Layout.swift */,
+				3579765B2680208C009DDA6E /* ParentPanelController+Actions.swift */,
 				527EBAA6C18049AE931DDE49 /* PanelContextMenu.swift */,
 			);
 			path = Panel;
@@ -871,6 +877,8 @@
 				35C36F482259D892002FA5C6 /* NetworkManager.swift in Sources */,
 				A1B2C3D4E5F60002SEARCH02 /* TimezoneSearchService.swift in Sources */,
 				3579765E2680208C009DDA6E /* ParentPanelController+ModernSlider.swift in Sources */,
+				3579765F2680208C009DDA6E /* ParentPanelController+Layout.swift in Sources */,
+				357976602680208C009DDA6E /* ParentPanelController+Actions.swift in Sources */,
 				C4A3D93099C54195A921944E /* PanelContextMenu.swift in Sources */,
 				AA000011MODERN00000001 /* ModernSliderViews.swift in Sources */,
 				AA000013STARTU00000001 /* StartupManager.swift in Sources */,

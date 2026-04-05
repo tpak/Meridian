@@ -233,3 +233,13 @@ func saveTimezoneToStore(_ timezone: TimezoneData, store: DataStore, at index: I
     index == -1 ? defaults.append(encodedObject) : defaults.insert(encodedObject, at: index)
     store.setTimezones(defaults)
 }
+
+// MARK: - Singleton Cleanup Helper
+
+/// Removes timezones from DataStore.shared() where the predicate returns true for the TimezoneData.
+/// Used in tearDown methods to clean up test-specific timezone entries.
+/// - Parameter shouldRemove: A closure that returns true for TimezoneData entries to remove
+func cleanupSingletonTimezones(where shouldRemove: (TimezoneData?) -> Bool) {
+    let cleaned = DataStore.shared().timezones().filter { !shouldRemove(TimezoneData.customObject(from: $0)) }
+    DataStore.shared().setTimezones(cleaned)
+}

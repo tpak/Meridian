@@ -236,37 +236,59 @@ class PanelController: ParentPanelController {
             return
         }
 
-        var statusBackgroundWindow = appDelegate.statusItemForPanel().statusItem.button?.window
-        var statusView = appDelegate.statusItemForPanel().statusItem.button
-
-        // This below is a better way than actually checking if the menubar compact mode is set.
-        if statusBackgroundWindow == nil || statusView == nil {
-            statusBackgroundWindow = appDelegate.statusItemForPanel().statusItem.button?.window
-            statusView = appDelegate.statusItemForPanel().statusItem.button
+        let statusItem = appDelegate.statusItemForPanel().statusItem
+        guard let statusWindow = statusItem.button?.window,
+              let statusButton = statusItem.button else {
+            return
         }
 
-        if let statusWindow = statusBackgroundWindow,
-           let statusButton = statusView {
-            var statusItemFrame = statusWindow.convertToScreen(statusButton.frame)
-            var statusItemScreen = NSScreen.main
-            var testPoint = statusItemFrame.origin
-            testPoint.y -= 100
+        var statusItemFrame = statusWindow.convertToScreen(statusButton.frame)
+        var testPoint = statusItemFrame.origin
+        testPoint.y -= 100
 
-            for screen in NSScreen.screens where screen.frame.contains(testPoint) {
-                statusItemScreen = screen
-                break
-            }
+        let statusItemScreen = NSScreen.screens.first(where: { $0.frame.contains(testPoint) }) ?? NSScreen.main
+        guard let resolvedScreen = statusItemScreen else { return }
 
-            guard let resolvedScreen = statusItemScreen else { return }
+        let screenMaxX = resolvedScreen.frame.maxX
+        let minY = min(statusItemFrame.origin.y, resolvedScreen.frame.maxY)
+        statusItemFrame.origin.y = minY
 
-            let screenMaxX = resolvedScreen.frame.maxX
-            let minY = statusItemFrame.origin.y < resolvedScreen.frame.maxY ?
-            statusItemFrame.origin.y :
-            resolvedScreen.frame.maxY
-            statusItemFrame.origin.y = minY
+        setFrameTheNewWay(statusItemFrame, screenMaxX)
+        PerfLogger.endMarker("Set Panel Frame")
+    }
 
-            setFrameTheNewWay(statusItemFrame, screenMaxX)
-            PerfLogger.endMarker("Set Panel Frame")
+    /// Groups all panel-open display preferences for structured logging, replacing 8 separate NSNumber guard bindings.
+    private struct LogDisplayPreferences {
+        let theme: NSNumber
+        let displayFutureSlider: NSNumber
+        let showAppInForeground: NSNumber
+        let relativeDateKey: NSNumber
+        let fontSize: NSNumber
+        let sunriseTime: NSNumber
+        let showDayInMenu: NSNumber
+        let showDateInMenu: NSNumber
+        let showPlaceInMenu: NSNumber
+
+        init?(from store: DataStoring) {
+            guard let theme = store.retrieve(key: UserDefaultKeys.themeKey) as? NSNumber,
+                  let displayFutureSlider = store.retrieve(key: UserDefaultKeys.displayFutureSliderKey) as? NSNumber,
+                  let showAppInForeground = store.retrieve(key: UserDefaultKeys.showAppInForeground) as? NSNumber,
+                  let relativeDateKey = store.retrieve(key: UserDefaultKeys.relativeDateKey) as? NSNumber,
+                  let fontSize = store.retrieve(key: UserDefaultKeys.userFontSizePreference) as? NSNumber,
+                  let sunriseTime = store.retrieve(key: UserDefaultKeys.sunriseSunsetTime) as? NSNumber,
+                  let showDayInMenu = store.retrieve(key: UserDefaultKeys.showDayInMenu) as? NSNumber,
+                  let showDateInMenu = store.retrieve(key: UserDefaultKeys.showDateInMenu) as? NSNumber,
+                  let showPlaceInMenu = store.retrieve(key: UserDefaultKeys.showPlaceInMenu) as? NSNumber
+            else { return nil }
+            self.theme = theme
+            self.displayFutureSlider = displayFutureSlider
+            self.showAppInForeground = showAppInForeground
+            self.relativeDateKey = relativeDateKey
+            self.fontSize = fontSize
+            self.sunriseTime = sunriseTime
+            self.showDayInMenu = showDayInMenu
+            self.showDateInMenu = showDateInMenu
+            self.showPlaceInMenu = showPlaceInMenu
         }
     }
 
@@ -275,38 +297,29 @@ class PanelController: ParentPanelController {
 
         let preferences = dataStore.timezones()
 
-        guard let theme = dataStore.retrieve(key: UserDefaultKeys.themeKey) as? NSNumber,
-              let displayFutureSliderKey = dataStore.retrieve(key: UserDefaultKeys.displayFutureSliderKey) as? NSNumber,
-              let showAppInForeground = dataStore.retrieve(key: UserDefaultKeys.showAppInForeground) as? NSNumber,
-              let relativeDateKey = dataStore.retrieve(key: UserDefaultKeys.relativeDateKey) as? NSNumber,
-              let fontSize = dataStore.retrieve(key: UserDefaultKeys.userFontSizePreference) as? NSNumber,
-              let sunriseTime = dataStore.retrieve(key: UserDefaultKeys.sunriseSunsetTime) as? NSNumber,
-              let showDayInMenu = dataStore.retrieve(key: UserDefaultKeys.showDayInMenu) as? NSNumber,
-              let showDateInMenu = dataStore.retrieve(key: UserDefaultKeys.showDateInMenu) as? NSNumber,
-              let showPlaceInMenu = dataStore.retrieve(key: UserDefaultKeys.showPlaceInMenu) as? NSNumber,
+        guard let prefs = LogDisplayPreferences(from: dataStore),
               let country = Locale.autoupdatingCurrent.region?.identifier
         else {
             return
         }
 
         var relativeDate = "Relative"
-
-        if relativeDateKey.isEqual(to: NSNumber(value: 1)) {
+        if prefs.relativeDateKey.isEqual(to: NSNumber(value: 1)) {
             relativeDate = "Actual Day"
-        } else if relativeDateKey.isEqual(to: NSNumber(value: 2)) {
+        } else if prefs.relativeDateKey.isEqual(to: NSNumber(value: 2)) {
             relativeDate = "Date"
         }
 
         let panelEvent: [String: Any] = [
-            "Theme": theme.isEqual(to: NSNumber(value: 0)) ? "Default" : "Black",
-            "Display Future Slider": displayFutureSliderKey.isEqual(to: NSNumber(value: 0)) ? "Yes" : "No",
-            "Meridian mode": showAppInForeground.isEqual(to: NSNumber(value: 0)) ? "Menubar" : "Floating",
+            "Theme": prefs.theme.isEqual(to: NSNumber(value: 0)) ? "Default" : "Black",
+            "Display Future Slider": prefs.displayFutureSlider.isEqual(to: NSNumber(value: 0)) ? "Yes" : "No",
+            "Meridian mode": prefs.showAppInForeground.isEqual(to: NSNumber(value: 0)) ? "Menubar" : "Floating",
             "Relative Date": relativeDate,
-            "Font Size": fontSize,
-            "Sunrise Sunset": sunriseTime.isEqual(to: NSNumber(value: 0)) ? "Yes" : "No",
-            "Show Day in Menu": showDayInMenu.isEqual(to: NSNumber(value: 0)) ? "Yes" : "No",
-            "Show Date in Menu": showDateInMenu.isEqual(to: NSNumber(value: 0)) ? "Yes" : "No",
-            "Show Place in Menu": showPlaceInMenu.isEqual(to: NSNumber(value: 0)) ? "Yes" : "No",
+            "Font Size": prefs.fontSize,
+            "Sunrise Sunset": prefs.sunriseTime.isEqual(to: NSNumber(value: 0)) ? "Yes" : "No",
+            "Show Day in Menu": prefs.showDayInMenu.isEqual(to: NSNumber(value: 0)) ? "Yes" : "No",
+            "Show Date in Menu": prefs.showDateInMenu.isEqual(to: NSNumber(value: 0)) ? "Yes" : "No",
+            "Show Place in Menu": prefs.showPlaceInMenu.isEqual(to: NSNumber(value: 0)) ? "Yes" : "No",
             "Country": country,
             "Number of Timezones": preferences.count
         ]
@@ -346,7 +359,7 @@ class PanelController: ParentPanelController {
     }
 
     private func stopMenubarTimerIfNeccesary() {
-        let count = dataStore.menubarTimezones()?.count ?? 0
+        let count = dataStore.menubarTimezones().count
 
         if count >= 1 {
             if let delegate = NSApplication.shared.delegate as? AppDelegate {
@@ -367,7 +380,7 @@ class PanelController: ParentPanelController {
 
     func minimize() {
         let delegate = NSApplication.shared.delegate as? AppDelegate
-        let count = DataStore.shared().menubarTimezones()?.count ?? 0
+        let count = DataStore.shared().menubarTimezones().count
         if count >= 1 {
             if let handler = delegate?.statusItemForPanel(), let timer = handler.menubarTimer, !timer.isValid {
                 delegate?.setupMenubarTimer()

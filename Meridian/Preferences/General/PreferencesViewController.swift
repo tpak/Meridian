@@ -234,7 +234,7 @@ extension PreferencesViewController: NSTableViewDataSource, NSTableViewDelegate 
             appDelegate.setupMenubarTimer()
         }
 
-        if let menubarTimezones = dataStore.menubarTimezones(), menubarTimezones.count > 1 {
+        if dataStore.menubarTimezones().count > 1 {
             showAlertIfMoreThanOneTimezoneHasBeenAddedToTheMenubar()
         }
     }
@@ -243,8 +243,7 @@ extension PreferencesViewController: NSTableViewDataSource, NSTableViewDelegate 
         Logger.debug("favouriteRemoved: label=\(dataObject.customLabel ?? "Error")")
 
         if let appDelegate = NSApplication.shared.delegate as? AppDelegate,
-           let menubarFavourites = dataStore.menubarTimezones(),
-           menubarFavourites.isEmpty {
+           dataStore.menubarTimezones().isEmpty {
             appDelegate.invalidateMenubarTimer(true)
         }
 

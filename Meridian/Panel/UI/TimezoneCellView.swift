@@ -107,14 +107,13 @@ class TimezoneCellView: NSTableCellView {
         let sunriseVisible = !sunriseSetTime.isHidden
 
         for constraint in constraints where constraint.identifier == ConstraintID.timeTopSpace {
-            switch (hasRelativeDate, sunriseVisible) {
-            case (true, true) where relativeDate.isHidden:
+            if hasRelativeDate, sunriseVisible, relativeDate.isHidden {
                 if constraint.constant == -5.0 { constraint.constant -= 10.0 }
-            case (true, _):
+            } else if hasRelativeDate {
                 if constraint.constant != -5.0 { constraint.constant = -3.0 }
-            case (false, true):
+            } else if sunriseVisible {
                 if constraint.constant == -5.0 { constraint.constant -= 15.0 }
-            case (false, false):
+            } else {
                 if constraint.constant != -5.0 { constraint.constant = -5.0 }
             }
         }
@@ -132,6 +131,8 @@ class TimezoneCellView: NSTableCellView {
     }
 
     private func setupTextSize() {
+        // TimezoneCellView is instantiated by NSTableView from a XIB and does not participate in the
+        // DataStoring dependency-injection chain, so we fall back to the DataStore singleton here.
         guard let userFontSize = DataStore.shared().retrieve(key: UserDefaultKeys.userFontSizePreference) as? NSNumber else {
             Logger.debug("User Font Size is in unexpected format")
             return
@@ -144,6 +145,8 @@ class TimezoneCellView: NSTableCellView {
             return
         }
 
+        // Multiplier 1: label font grows 1pt per font-size step (subtle scaling for the place name).
+        // Multiplier 2: time font grows 2pt per step (more prominent scaling for the clock readout).
         let newFontSize = CGFloat(TimezoneCellView.minimumFontSizeForLabel + (userFontSize.intValue * 1))
         let newTimeFontSize = CGFloat(TimezoneCellView.minimumFontSizeForTime + (userFontSize.intValue * 2))
 

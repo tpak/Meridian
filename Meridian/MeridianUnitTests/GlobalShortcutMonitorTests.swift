@@ -3,6 +3,9 @@
 import XCTest
 @testable import Meridian
 
+/// These tests use GlobalShortcutMonitor.shared directly because GlobalShortcutMonitor
+/// is a singleton wrapping a system-global resource (Carbon event tap). Injection is not
+/// practical without a full refactor. setUp/tearDown clean up UserDefaults after each test.
 class GlobalShortcutMonitorTests: XCTestCase {
     let testUserDefaultsKey = "globalPing"
 

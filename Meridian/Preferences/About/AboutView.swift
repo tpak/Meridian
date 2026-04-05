@@ -216,7 +216,11 @@ private struct DebugLoggingSection: View {
 
         if debugLogging {
             Button(String(localized: "Export Log")) {
-                let url = FileManager.default.temporaryDirectory.appendingPathComponent("meridian-log.txt")
+                // UUID in filename prevents collisions across multiple exports and
+                // reduces predictability. The file is intentionally left for Finder
+                // to manage after reveal — the user decides what to do with it.
+                let url = FileManager.default.temporaryDirectory
+                    .appendingPathComponent("meridian-log-\(UUID().uuidString).txt")
                 do {
                     try Logger.exportLog(to: url)
                     NSWorkspace.shared.selectFile(url.path, inFileViewerRootedAtPath: "")
