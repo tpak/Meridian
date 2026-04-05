@@ -3,6 +3,12 @@
 import Cocoa
 import CoreLoggerKit
 
+private enum AppDefaultValues {
+    static let defaultUserFontSize: Int = 4
+    static let defaultFutureSliderRange: Int = 6
+    static let defaultTruncateTextLength: Int = 30
+}
+
 class AppDefaults {
     class func initialize(with store: DataStore, defaults: UserDefaults) {
         initializeDefaults(with: store, defaults: defaults)
@@ -27,10 +33,10 @@ class AppDefaults {
                 UserDefaultKeys.showPlaceInMenu: 0,
                 UserDefaultKeys.startAtLogin: 0,
                 UserDefaultKeys.sunriseSunsetTime: 1,
-                UserDefaultKeys.userFontSizePreference: 4,
+                UserDefaultKeys.userFontSizePreference: AppDefaultValues.defaultUserFontSize,
                 UserDefaultKeys.showAppInForeground: 0,
-                UserDefaultKeys.futureSliderRange: 6,
-                UserDefaultKeys.truncateTextLength: 30,
+                UserDefaultKeys.futureSliderRange: AppDefaultValues.defaultFutureSliderRange,
+                UserDefaultKeys.truncateTextLength: AppDefaultValues.defaultTruncateTextLength,
                 UserDefaultKeys.appDisplayOptions: 0,
                 UserDefaultKeys.menubarCompactMode: 1]
     }

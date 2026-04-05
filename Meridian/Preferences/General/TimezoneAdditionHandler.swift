@@ -21,12 +21,24 @@ protocol TimezoneAdditionHost: AnyObject {
     func refreshMainTable()
 }
 
+private enum SpecialTimezoneNames {
+    static let anywhereOnEarth = "Anywhere on Earth"
+    static let utc = "UTC"
+}
+
+private let maxTimezoneCount = 100
+private let maxSearchLength = 50
+private let searchDebounceInterval: TimeInterval = 0.5
+private let searchScrollThreshold = 6
+
 @MainActor
 class TimezoneAdditionHandler: NSObject {
     private weak var host: TimezoneAdditionHost?
     private let dataStore: DataStoring
 
     private var searchTask: Task<Void, Never>?
+    private var getTimezoneTask: Task<Void, Never>?
+    private var installCleanupTask: Task<Void, Never>?
 
     private var isActivityInProgress = false {
         didSet {
@@ -163,7 +175,8 @@ class TimezoneAdditionHandler: NSObject {
         host.placeholderLabel.placeholderString = "Retrieving timezone data"
         host.availableTimezoneTableView.isHidden = true
 
-        Task { @MainActor in
+        getTimezoneTask?.cancel()
+        getTimezoneTask = Task { @MainActor in
             do {
                 let location = CLLocation(latitude: latitude, longitude: longitude)
                 let geocoder = CLGeocoder()
@@ -183,7 +196,8 @@ class TimezoneAdditionHandler: NSObject {
                 }
                 updateViewState()
             } catch {
-                if error.localizedDescription == "The Internet connection appears to be offline." {
+                let nsError = error as NSError
+                if nsError.code == NSURLErrorNotConnectedToInternet || nsError.code == NSURLErrorNetworkConnectionLost {
                     host.placeholderLabel.placeholderString = PreferencesConstants.noInternetConnectivityError
                 } else {
                     host.placeholderLabel.placeholderString = PreferencesConstants.tryAgainMessage
@@ -260,7 +274,7 @@ class TimezoneAdditionHandler: NSObject {
         }
 
         let selectedTimeZones = dataStore.timezones()
-        if selectedTimeZones.count >= 100 {
+        if selectedTimeZones.count >= maxTimezoneCount {
             host.timezonePanel.contentView?.makeToast(PreferencesConstants.maxTimezonesErrorMessage)
             isActivityInProgress = false
             return
@@ -355,15 +369,32 @@ class TimezoneAdditionHandler: NSObject {
         // Geocode coordinates before saving so sunrise/sunset works immediately
         let timezoneID = metaInfo.0.name
         let store = self.dataStore
-        Task { @MainActor in
+        installCleanupTask?.cancel()
+        installCleanupTask = Task { @MainActor in
             let components = timezoneID.split(separator: "/")
             if let cityComponent = components.last {
                 let cityName = cityComponent.replacingOccurrences(of: "_", with: " ")
-                if let placemark = try? await NetworkManager.geocodeAddress(cityName),
-                   let location = placemark.location {
-                    data.latitude = location.coordinate.latitude
-                    data.longitude = location.coordinate.longitude
+                guard let placemark = try? await NetworkManager.geocodeAddress(cityName),
+                      let location = placemark.location else {
+                    Logger.debug("Coordinate backfill skipped for \(cityName)")
+                    let operationObject = TimezoneDataOperations(with: data, store: store)
+                    operationObject.saveObject()
+                    host.searchResultsDataSource.cleanupFilterArray()
+                    host.searchResultsDataSource.timezoneFilteredArray = []
+                    host.placeholderLabel.placeholderString = UserDefaultKeys.emptyString
+                    host.searchField.stringValue = UserDefaultKeys.emptyString
+                    self.reloadSearchResults()
+                    host.refreshTimezoneTableView(true)
+                    host.refreshMainTable()
+                    host.timezonePanel.close()
+                    host.searchField.placeholderString = NSLocalizedString("Search Field Placeholder",
+                                                                           comment: "Search Field Placeholder")
+                    host.availableTimezoneTableView.isHidden = false
+                    self.isActivityInProgress = false
+                    return
                 }
+                data.latitude = location.coordinate.latitude
+                data.longitude = location.coordinate.longitude
             }
 
             let operationObject = TimezoneDataOperations(with: data, store: store)
@@ -413,7 +444,7 @@ extension TimezoneAdditionHandler {
         guard let host = host else { return }
         host.searchResultsDataSource.cleanupFilterArray()
 
-        if host.searchField.stringValue.count > 50 {
+        if host.searchField.stringValue.count > maxSearchLength {
             isActivityInProgress = false
             reloadSearchResults()
             host.timezonePanel.contentView?.makeToast(PreferencesConstants.maxCharactersAllowed)
@@ -423,7 +454,7 @@ extension TimezoneAdditionHandler {
         if host.searchField.stringValue.isEmpty == false {
             searchTask?.cancel()
             NSObject.cancelPreviousPerformRequests(withTarget: self)
-            perform(#selector(search), with: nil, afterDelay: 0.5)
+            perform(#selector(search), with: nil, afterDelay: searchDebounceInterval)
         } else {
             resetSearchView()
         }
@@ -433,7 +464,7 @@ extension TimezoneAdditionHandler {
 
     func selectNewlyInsertedTimezone() {
         guard let host = host else { return }
-        if host.timezoneTableView.numberOfRows > 6 {
+        if host.timezoneTableView.numberOfRows > searchScrollThreshold {
             host.timezoneTableView.scrollRowToVisible(host.timezoneTableView.numberOfRows - 1)
         }
 
@@ -442,9 +473,9 @@ extension TimezoneAdditionHandler {
     }
 
     private func metadata(for selection: TimezoneMetadata) -> (NSTimeZone, TimezoneMetadata) {
-        if selection.formattedName == "Anywhere on Earth" {
+        if selection.formattedName == SpecialTimezoneNames.anywhereOnEarth {
             return (NSTimeZone(name: "GMT-1200") ?? NSTimeZone.default as NSTimeZone, selection)
-        } else if selection.formattedName == "UTC" {
+        } else if selection.formattedName == SpecialTimezoneNames.utc {
             return (NSTimeZone(name: "GMT") ?? NSTimeZone.default as NSTimeZone, selection)
         } else {
             return (selection.timezone, selection)

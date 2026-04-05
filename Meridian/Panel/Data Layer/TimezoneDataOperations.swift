@@ -8,13 +8,30 @@ import CoreModelKit
 class TimezoneDataOperations {
     private enum Constants {
         static let dstDaysLookahead = 8
+        static let secondsPerHour = 3600
     }
 
     private let dataObject: TimezoneData
     private let store: DataStoring
     private lazy var calendar = Calendar.autoupdatingCurrent
     private static var gregorianCalendar = Calendar(identifier: .gregorian)
-    private static let currentLocale = Locale.current.identifier
+
+    // MARK: - Static caches
+
+    private static var sunriseCache: [String: (Date?, Date?)] = [:]
+    private static var dstCache: [String: Date?] = [:]
+
+    private static var preferredLanguageCode: String {
+        return Locale.preferredLanguages.first.map {
+            Locale(identifier: $0).language.languageCode?.identifier ?? ""
+        } ?? ""
+    }
+
+    private static let sunriseTimeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US")
+        return f
+    }()
 
     init(with timezone: TimezoneData, store: DataStoring) {
         dataObject = timezone
@@ -45,7 +62,18 @@ extension TimezoneDataOperations {
 
     func nextDaylightSavingsTransitionIfAvailable(with sliderValue: Int) -> String? {
         let currentTimezone = TimeZone(identifier: dataObject.timezone())
-        guard let nextDaylightSavingsTransition = currentTimezone?.nextDaylightSavingTimeTransition else {
+        let today = Calendar.current.startOfDay(for: Date())
+        let cacheKey = "\(dataObject.timezone())_\(today)"
+
+        let nextDaylightSavingsTransition: Date?
+        if TimezoneDataOperations.dstCache.keys.contains(cacheKey) {
+            nextDaylightSavingsTransition = TimezoneDataOperations.dstCache[cacheKey] ?? nil
+        } else {
+            nextDaylightSavingsTransition = currentTimezone?.nextDaylightSavingTimeTransition
+            TimezoneDataOperations.dstCache[cacheKey] = nextDaylightSavingsTransition
+        }
+
+        guard let nextTransition = nextDaylightSavingsTransition else {
             return nil
         }
 
@@ -54,7 +82,7 @@ extension TimezoneDataOperations {
                                                                      to: Date()) ?? Date()
 
         let calendar = Calendar.autoupdatingCurrent
-        let numberOfDays = nextDaylightSavingsTransition.days(from: newDate, calendar: calendar)
+        let numberOfDays = nextTransition.days(from: newDate, calendar: calendar)
 
         // We'd like to show upcoming DST changes within the 7 day range.
         // Using 8 as a fail-safe as timezones behind CDT can sometimes be wrongly attributed
@@ -63,7 +91,7 @@ extension TimezoneDataOperations {
         }
 
         if numberOfDays == 0 {
-            let hoursLeft = nextDaylightSavingsTransition.hours(from: newDate)
+            let hoursLeft = nextTransition.hours(from: newDate)
             let suffix = hoursLeft == 1 ? "hour" : "hours"
             return "Heads up: DST transition will occur in \(hoursLeft) \(suffix)."
         }
@@ -140,18 +168,10 @@ extension TimezoneDataOperations {
         let shouldDateBeShown = dataStore.shouldShowDateInMenubar()
 
         if shouldCityBeShown {
-            if let address = dataObject.formattedAddress, address.isEmpty == false {
-                if let label = dataObject.customLabel, !label.isEmpty {
-                    menuTitle.append(label)
-                } else {
-                    menuTitle.append(address)
-                }
+            if let address = dataObject.formattedAddress, !address.isEmpty {
+                menuTitle.append(dataObject.customLabel.flatMap { $0.isEmpty ? nil : $0 } ?? address)
             } else {
-                if let label = dataObject.customLabel, !label.isEmpty {
-                    menuTitle.append(label)
-                } else {
-                    menuTitle.append(dataObject.timezone())
-                }
+                menuTitle.append(dataObject.customLabel.flatMap { $0.isEmpty ? nil : $0 } ?? dataObject.timezone())
             }
         }
 
@@ -227,50 +247,49 @@ extension TimezoneDataOperations {
 
         let convertedDate = timezoneDate(with: sliderValue, currentCalendar)
 
-        if displayType == .panel {
-            // Yesterday, tomorrow, etc
-            if relativeDayPreference.intValue == 0 {
-                let localFormatter = DateFormatterManager.localizedSimpleFormatter("EEEE")
-                guard let local = localFormatter.date(from: localeDate(with: "EEEE")) else {
-                    return "\(weekdayText(from: convertedDate))\(timeDifference())"
-                }
+        guard displayType == .panel else {
+            return "\(shortWeekdayText(convertedDate))"
+        }
 
-                // Gets local week day number and timezone's week day number for comparison
-                let weekDay = currentCalendar.component(.weekday, from: local)
-                let timezoneWeekday = currentCalendar.component(.weekday, from: convertedDate)
-
-                if weekDay == timezoneWeekday + 1 {
-                    return "Yesterday\(timeDifference())"
-                } else if weekDay == timezoneWeekday {
-                    return "Today\(timeDifference())"
-                } else if weekDay + 1 == timezoneWeekday || weekDay - 6 == timezoneWeekday {
-                    return "Tomorrow\(timeDifference())"
-                } else {
-                    return "\(weekdayText(from: convertedDate))\(timeDifference())"
-                }
-            }
-
-            // Day name: Thursday, Friday etc
-            if relativeDayPreference.intValue == 1 {
+        // Yesterday, tomorrow, etc
+        if relativeDayPreference.intValue == 0 {
+            let localFormatter = DateFormatterManager.localizedSimpleFormatter("EEEE")
+            guard let local = localFormatter.date(from: localeDate(with: "EEEE")) else {
                 return "\(weekdayText(from: convertedDate))\(timeDifference())"
             }
 
-            // Date in mmm/dd
-            if relativeDayPreference.intValue == 2 {
-                return "\(todaysDate(with: sliderValue))\(timeDifference())"
+            // Gets local week day number and timezone's week day number for comparison
+            let weekDay = currentCalendar.component(.weekday, from: local)
+            let timezoneWeekday = currentCalendar.component(.weekday, from: convertedDate)
+
+            if weekDay == timezoneWeekday + 1 {
+                return "Yesterday\(timeDifference())"
+            } else if weekDay == timezoneWeekday {
+                return "Today\(timeDifference())"
+            } else if weekDay + 1 == timezoneWeekday || weekDay - 6 == timezoneWeekday {
+                return "Tomorrow\(timeDifference())"
+            } else {
+                return "\(weekdayText(from: convertedDate))\(timeDifference())"
             }
-
-            let tz = dataObject.timezone()
-            let locale = Locale.autoupdatingCurrent.identifier
-            Logger.production(
-                "Unable to get date: Timezone=\(tz), CurrentLocale=\(locale), SliderValue=\(sliderValue), TodaysDate=\(Date())"
-            )
-
-            return "Error"
-
-        } else {
-            return "\(shortWeekdayText(convertedDate))"
         }
+
+        // Day name: Thursday, Friday etc
+        if relativeDayPreference.intValue == 1 {
+            return "\(weekdayText(from: convertedDate))\(timeDifference())"
+        }
+
+        // Date in mmm/dd
+        if relativeDayPreference.intValue == 2 {
+            return "\(todaysDate(with: sliderValue))\(timeDifference())"
+        }
+
+        let tz = dataObject.timezone()
+        let locale = Locale.autoupdatingCurrent.identifier
+        Logger.production(
+            "Unable to get date: Timezone=\(tz), CurrentLocale=\(locale), SliderValue=\(sliderValue), TodaysDate=\(Date())"
+        )
+
+        return "Error"
     }
 
     // Returns shortened weekday given a date
@@ -328,8 +347,8 @@ extension TimezoneDataOperations {
         var result = prefix
         result.append(agoText.replacingOccurrences(of: "ago", with: UserDefaultKeys.emptyString))
 
-        if !TimezoneDataOperations.currentLocale.contains("en") {
-            if TimezoneDataOperations.currentLocale.contains("de") {
+        if TimezoneDataOperations.preferredLanguageCode != "en" {
+            if TimezoneDataOperations.preferredLanguageCode == "de" {
                 result = result.replacingOccurrences(of: "Vor ", with: UserDefaultKeys.emptyString)
                 result.append(deSuffix)
             }
@@ -344,16 +363,25 @@ extension TimezoneDataOperations {
     }
 
     private func initializeSunriseSunset(with sliderValue: Int) {
-        let currentDate = calendar.date(byAdding: .minute,
-                                          value: sliderValue,
-                                          to: Date())
-
         guard let lat = dataObject.latitude,
               let long = dataObject.longitude
         else {
             Logger.production("Sunrise/sunset coordinates unexpectedly nil")
             return
         }
+
+        let today = Calendar.current.startOfDay(for: Date())
+        let cacheKey = "\(dataObject.timezoneID ?? "")_\(today)"
+
+        if let cached = TimezoneDataOperations.sunriseCache[cacheKey] {
+            dataObject.sunriseTime = cached.0
+            dataObject.sunsetTime = cached.1
+            return
+        }
+
+        let currentDate = calendar.date(byAdding: .minute,
+                                          value: sliderValue,
+                                          to: Date())
 
         let coordinates = CLLocationCoordinate2D(latitude: lat, longitude: long)
 
@@ -365,8 +393,10 @@ extension TimezoneDataOperations {
             dataObject.sunriseTime = sunrise
             dataObject.sunsetTime = sunset
             dataObject.isSunriseOrSunset = solar.isNighttime
+            TimezoneDataOperations.sunriseCache[cacheKey] = (sunrise, sunset)
         } else {
             Logger.production("Sunrise/Sunset Error: Unable to fetch sunrise/sunset for \(dataObject.formattedTimezoneLabel())")
+            TimezoneDataOperations.sunriseCache[cacheKey] = (nil, nil)
         }
     }
 
@@ -392,8 +422,7 @@ extension TimezoneDataOperations {
         if let sunrise = dataObject.sunriseTime, let sunset = dataObject.sunsetTime {
             let correct = dataObject.isSunriseOrSunset ? sunrise : sunset
 
-            let dateFormatter = DateFormatter()
-            dateFormatter.locale = Locale(identifier: "en_US")
+            let dateFormatter = TimezoneDataOperations.sunriseTimeFormatter
             dateFormatter.timeZone = TimeZone(identifier: dataObject.timezone())
             dateFormatter.dateFormat = dataObject.timezoneFormat(store.timezoneFormat())
             return dateFormatter.string(from: correct)

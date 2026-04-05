@@ -3,6 +3,20 @@
 import Cocoa
 import CoreLoggerKit
 
+private enum PanelLayout {
+    static let dragHandleTopAnchor: CGFloat = 6
+    static let dragHandleHeight: CGFloat = 16
+    static let pinButtonTrailingMargin: CGFloat = 8
+    static let pinButtonSize: CGFloat = 22
+    static let versionLabelTrailingMargin: CGFloat = 34 // 22pt button + 4pt gap + 8pt margin
+    static let frameYPointOffset: CGFloat = 2
+    static let minimumSpaceBetweenWindowAndScreenEdge: CGFloat = 10
+}
+
+private enum PanelAnimation {
+    static let minimizeDuration: TimeInterval = 0.1
+}
+
 class PanelController: ParentPanelController {
     @objc dynamic var hasActivePanel: Bool = false
     private var isShowingContextMenu = false
@@ -82,10 +96,10 @@ class PanelController: ParentPanelController {
         drag.isHidden = true
         contentView.addSubview(drag)
         NSLayoutConstraint.activate([
-            drag.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 6),
+            drag.topAnchor.constraint(equalTo: contentView.topAnchor, constant: PanelLayout.dragHandleTopAnchor),
             drag.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             drag.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            drag.heightAnchor.constraint(equalToConstant: 16),
+            drag.heightAnchor.constraint(equalToConstant: PanelLayout.dragHandleHeight),
         ])
         dragHandleView = drag
 
@@ -100,13 +114,13 @@ class PanelController: ParentPanelController {
         footer.addSubview(pin)
         NSLayoutConstraint.activate([
             pin.centerYAnchor.constraint(equalTo: footer.centerYAnchor),
-            pin.trailingAnchor.constraint(equalTo: footer.trailingAnchor, constant: -8),
-            pin.widthAnchor.constraint(equalToConstant: 22),
-            pin.heightAnchor.constraint(equalToConstant: 22),
+            pin.trailingAnchor.constraint(equalTo: footer.trailingAnchor, constant: -PanelLayout.pinButtonTrailingMargin),
+            pin.widthAnchor.constraint(equalToConstant: PanelLayout.pinButtonSize),
+            pin.heightAnchor.constraint(equalToConstant: PanelLayout.pinButtonSize),
         ])
         // Shrink version label trailing margin to make room for the pin button.
         for c in footer.constraints where c.secondItem === versionStatusLabel && c.secondAttribute == .trailing {
-            c.constant = 34 // 22pt button + 4pt gap + 8pt margin
+            c.constant = PanelLayout.versionLabelTrailingMargin
             break
         }
         pinButton = pin
@@ -140,11 +154,10 @@ class PanelController: ParentPanelController {
         // First, center window under status item.
         let width = (window?.frame)!.width
         var xPoint = CGFloat(roundf(Float(rect.midX - width / 2)))
-        let yPoint = CGFloat(rect.minY - 2)
-        let kMinimumSpaceBetweenWindowAndScreenEdge: CGFloat = 10
+        let yPoint = CGFloat(rect.minY - PanelLayout.frameYPointOffset)
 
-        if xPoint + width + kMinimumSpaceBetweenWindowAndScreenEdge > maxX {
-            xPoint = maxX - width - kMinimumSpaceBetweenWindowAndScreenEdge
+        if xPoint + width + PanelLayout.minimumSpaceBetweenWindowAndScreenEdge > maxX {
+            xPoint = maxX - width - PanelLayout.minimumSpaceBetweenWindowAndScreenEdge
         }
 
         window?.setFrameTopLeftPoint(NSPoint(x: xPoint, y: yPoint))
@@ -373,7 +386,7 @@ class PanelController: ParentPanelController {
 
         let windowToHide = window
         NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.1
+            context.duration = PanelAnimation.minimizeDuration
             windowToHide?.animator().alphaValue = 0
         }, completionHandler: {
             windowToHide?.orderOut(nil)

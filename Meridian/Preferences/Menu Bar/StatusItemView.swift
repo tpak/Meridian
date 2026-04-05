@@ -3,14 +3,14 @@
 import Cocoa
 import CoreModelKit
 
-var defaultTimeParagraphStyle: NSMutableParagraphStyle {
+let defaultTimeParagraphStyle: NSMutableParagraphStyle = {
     let paragraphStyle = NSMutableParagraphStyle()
     paragraphStyle.alignment = .center
     paragraphStyle.lineBreakMode = .byTruncatingTail
     return paragraphStyle
-}
+}()
 
-var defaultParagraphStyle: NSMutableParagraphStyle {
+let defaultParagraphStyle: NSMutableParagraphStyle = {
     let paragraphStyle = NSMutableParagraphStyle()
     paragraphStyle.alignment = .center
     paragraphStyle.lineBreakMode = .byTruncatingTail
@@ -19,11 +19,9 @@ var defaultParagraphStyle: NSMutableParagraphStyle {
     let lineHeight = userPreferredLanguage.contains("en") ? 0.92 : 1
     paragraphStyle.lineHeightMultiple = CGFloat(lineHeight)
     return paragraphStyle
-}
+}()
 
-var compactModeTimeFont: NSFont {
-    return NSFont.monospacedDigitSystemFont(ofSize: 10, weight: .regular)
-}
+let compactModeTimeFont: NSFont = NSFont.monospacedDigitSystemFont(ofSize: 10, weight: .regular)
 
 extension NSView {
     var hasDarkAppearance: Bool {

@@ -11,12 +11,15 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusBarHandler: StatusItemHandler!
     let updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
     private var memoryPressureSource: DispatchSourceMemoryPressure?
+    private var backfillTask: Task<Void, Never>?
 
     public func applicationDidFinishLaunching(_: Notification) {
         AppDefaults.initialize(with: DataStore.shared(), defaults: UserDefaults.standard)
         logLaunch()
-        checkForPreviousUncleanExit()
-        writeSentinelFile()
+        Task.detached(priority: .utility) {
+            self.checkForPreviousUncleanExit()
+            self.writeSentinelFile()
+        }
         enableAutoUpdateByDefault()
         backfillMissingCoordinates()
         continueUsually()
@@ -25,6 +28,7 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
 
     public func applicationWillTerminate(_: Notification) {
         Logger.production("App terminating cleanly")
+        backfillTask?.cancel()
         removeSentinelFile()
     }
 
@@ -97,19 +101,20 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
 
         guard !indicesToBackfill.isEmpty else { return }
 
-        Task { @MainActor in
+        backfillTask = Task { @MainActor in
             for (index, timezone) in indicesToBackfill {
                 let components = (timezone.timezoneID ?? "").split(separator: "/")
                 guard let cityComponent = components.last else { continue }
                 let cityName = cityComponent.replacingOccurrences(of: "_", with: " ")
-                if let placemark = try? await NetworkManager.geocodeAddress(cityName),
-                   let location = placemark.location {
-                    timezone.latitude = location.coordinate.latitude
-                    timezone.longitude = location.coordinate.longitude
-                    if let encoded = NSKeyedArchiver.secureArchive(with: timezone) {
-                        timezones[index] = encoded
-                    }
+                guard let placemark = try? await NetworkManager.geocodeAddress(cityName),
+                      let location = placemark.location else {
+                    Logger.debug("Coordinate backfill skipped for \(cityName)")
+                    continue
                 }
+                timezone.latitude = location.coordinate.latitude
+                timezone.longitude = location.coordinate.longitude
+                guard let encoded = NSKeyedArchiver.secureArchive(with: timezone) else { continue }
+                timezones[index] = encoded
             }
             store.setTimezones(timezones)
         }

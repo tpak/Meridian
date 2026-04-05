@@ -6,31 +6,13 @@ import XCTest
 @testable import Meridian
 
 class StandardMenubarHandlerTests: XCTestCase {
-    private let mumbai = ["customLabel": "Ghar",
-                          "formattedAddress": "Mumbai",
-                          "place_id": "ChIJwe1EZjDG5zsRaYxkjY_tpF0",
-                          "timezoneID": "Asia/Calcutta",
-                          "nextUpdate": "",
-                          "latitude": "19.0759837",
-                          "longitude": "72.8776559"]
+    private var mumbai: [String: Any] { TestTimezones.mumbai }
 
     private func makeMockStore(with menubarMode: Int = 1) -> DataStore {
         let defaults = UserDefaults(suiteName: "com.tpak.Meridian.StandardMenubarHandlerTests")!
         defaults.set(menubarMode, forKey: UserDefaultKeys.menubarCompactMode)
         XCTAssertNotEqual(defaults, UserDefaults.standard)
         return DataStore(with: defaults)
-    }
-
-    private func saveObject(object: TimezoneData,
-                            in store: DataStore,
-                            at index: Int = -1)
-    {
-        var defaults = store.timezones()
-        guard let encodedObject = NSKeyedArchiver.secureArchive(with: object as Any) else {
-            return
-        }
-        index == -1 ? defaults.append(encodedObject) : defaults.insert(encodedObject, at: index)
-        store.setTimezones(defaults)
     }
 
     func testValidStandardMenubarHandler_returnMenubarTitle() {
@@ -40,7 +22,7 @@ class StandardMenubarHandlerTests: XCTestCase {
         // Save a menubar selected timezone
         let dataObject = TimezoneData(with: mumbai)
         dataObject.isFavourite = 1
-        saveObject(object: dataObject, in: store)
+        saveTimezoneToStore(dataObject, store: store)
 
         let menubarTimezones = store.menubarTimezones()
         XCTAssertTrue(menubarTimezones?.count == 1, "Count is \(String(describing: menubarTimezones?.count))")
@@ -52,7 +34,7 @@ class StandardMenubarHandlerTests: XCTestCase {
 
         let dataObject = TimezoneData(with: mumbai)
         dataObject.isFavourite = 0
-        saveObject(object: dataObject, in: store)
+        saveTimezoneToStore(dataObject, store: store)
 
         let menubarTimezones = store.menubarTimezones()
         XCTAssertTrue(menubarTimezones?.count == 0)
@@ -63,13 +45,13 @@ class StandardMenubarHandlerTests: XCTestCase {
         store.setTimezones(nil)
         let menubarHandler = MenubarTitleProvider(with: store)
         let emptyMenubarString = menubarHandler.titleForMenubar()
-        XCTAssertNil(emptyMenubarString)
+        XCTAssertTrue(emptyMenubarString.isEmpty)
 
         let dataObject = TimezoneData(with: mumbai)
         dataObject.isFavourite = 0
-        saveObject(object: dataObject, in: store)
+        saveTimezoneToStore(dataObject, store: store)
 
-        let menubarString = menubarHandler.titleForMenubar() ?? ""
+        let menubarString = menubarHandler.titleForMenubar()
         XCTAssertTrue(menubarString.count == 0)
     }
 
@@ -77,26 +59,26 @@ class StandardMenubarHandlerTests: XCTestCase {
         let store = makeMockStore()
         store.setTimezones(nil)
         let menubarHandler = MenubarTitleProvider(with: store)
-        XCTAssertNil(menubarHandler.titleForMenubar())
+        XCTAssertTrue(menubarHandler.titleForMenubar().isEmpty)
     }
 
     func testWithStandardMenubarMode() {
         let store = makeMockStore(with: 0)
         let dataObject = TimezoneData(with: mumbai)
         dataObject.isFavourite = 1
-        saveObject(object: dataObject, in: store)
+        saveTimezoneToStore(dataObject, store: store)
 
         let menubarHandler = MenubarTitleProvider(with: store)
-        XCTAssertNil(menubarHandler.titleForMenubar())
+        XCTAssertTrue(menubarHandler.titleForMenubar().isEmpty)
     }
 
     func testProviderPassingAllConditions() {
         let store = makeMockStore()
         let dataObject = TimezoneData(with: mumbai)
         dataObject.isFavourite = 1
-        saveObject(object: dataObject, in: store)
+        saveTimezoneToStore(dataObject, store: store)
 
         let menubarHandler = MenubarTitleProvider(with: store)
-        XCTAssertNotNil(menubarHandler.titleForMenubar())
+        XCTAssertFalse(menubarHandler.titleForMenubar().isEmpty)
     }
 }

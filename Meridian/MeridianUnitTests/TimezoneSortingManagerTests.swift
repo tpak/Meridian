@@ -13,51 +13,11 @@ class TimezoneSortingManagerTests: XCTestCase {
         manager = TimezoneSortingManager()
 
         // Create test timezone data
-        let sanFrancisco: [String: Any] = [
-            "customLabel": "SF Office",
-            "formattedAddress": "San Francisco",
-            "place_id": "test-sf",
-            "timezoneID": "America/Los_Angeles",
-            "nextUpdate": "",
-            "latitude": "37.7749295",
-            "longitude": "-122.4194155"
-        ]
-
-        let newYork: [String: Any] = [
-            "customLabel": "NY Office",
-            "formattedAddress": "New York",
-            "place_id": "test-ny",
-            "timezoneID": "America/New_York",
-            "nextUpdate": "",
-            "latitude": "40.7127753",
-            "longitude": "-74.0059728"
-        ]
-
-        let london: [String: Any] = [
-            "customLabel": "London Office",
-            "formattedAddress": "London",
-            "place_id": "test-london",
-            "timezoneID": "Europe/London",
-            "nextUpdate": "",
-            "latitude": "51.5073509",
-            "longitude": "-0.1277583"
-        ]
-
-        let tokyo: [String: Any] = [
-            "customLabel": "Tokyo Office",
-            "formattedAddress": "Tokyo",
-            "place_id": "test-tokyo",
-            "timezoneID": "Asia/Tokyo",
-            "nextUpdate": "",
-            "latitude": "35.6761919",
-            "longitude": "139.6503106"
-        ]
-
         testTimezones = [
-            NSKeyedArchiver.secureArchive(with: TimezoneData(with: sanFrancisco))!,
-            NSKeyedArchiver.secureArchive(with: TimezoneData(with: newYork))!,
-            NSKeyedArchiver.secureArchive(with: TimezoneData(with: london))!,
-            NSKeyedArchiver.secureArchive(with: TimezoneData(with: tokyo))!
+            NSKeyedArchiver.secureArchive(with: TimezoneData(with: TestTimezones.sanFrancisco))!,
+            NSKeyedArchiver.secureArchive(with: TimezoneData(with: TestTimezones.newYorkOffice))!,
+            NSKeyedArchiver.secureArchive(with: TimezoneData(with: TestTimezones.londonOffice))!,
+            NSKeyedArchiver.secureArchive(with: TimezoneData(with: TestTimezones.tokyoOffice))!
         ]
     }
 
