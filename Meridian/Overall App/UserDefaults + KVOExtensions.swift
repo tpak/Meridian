@@ -14,4 +14,9 @@ extension UserDefaults {
     @objc dynamic var sliderDayRange: Int {
         return integer(forKey: UserDefaultKeys.futureSliderRange)
     }
+
+    // Property name must match the UserDefaults key string for KVO notifications to fire.
+    @objc dynamic var displayAppAsForegroundApp: Int {
+        return integer(forKey: UserDefaultKeys.showAppInForeground)
+    }
 }

@@ -204,7 +204,6 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @IBAction open func togglePanel(_ sender: NSButton) {
-        Logger.debug("Toggle Panel called with sender state \(sender.state.rawValue)")
         panelController.showWindow(nil)
         panelController.setActivePanel(newValue: sender.state == .on)
         NSApp.activate(ignoringOtherApps: true)

@@ -605,6 +605,30 @@
                                                         <binding destination="Gpv-Gr-MxZ" name="selectedIndex" keyPath="values.com.abhishek.appDisplayOptions" id="4Ix-iO-C4I"/>
                                                     </connections>
                                                 </segmentedControl>
+                                                <segmentedControl verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="floatTop-ctrl-001">
+                                                    <rect key="frame" x="242" y="106" width="128" height="24"/>
+                                                    <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="selectOne" id="floatTop-cell-001">
+                                                        <font key="font" size="12" name="Avenir-Light"/>
+                                                        <segments>
+                                                            <segment label="Yes"/>
+                                                            <segment label="No" selected="YES" tag="1"/>
+                                                        </segments>
+                                                    </segmentedCell>
+                                                    <connections>
+                                                        <action selector="floatOnTopChanged:" target="1aL-zR-8L4" id="floatTop-act-001"/>
+                                                    </connections>
+                                                </segmentedControl>
+                                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" preferredMaxLayoutWidth="120" translatesAutoresizingMaskIntoConstraints="NO" id="floatTop-lbl-001">
+                                                    <rect key="frame" x="67" y="109" width="154" height="18"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="150" id="floatTop-lbl-w01"/>
+                                                    </constraints>
+                                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Float on Top" id="floatTop-lbl-cel1">
+                                                        <font key="font" size="13" name="Avenir-Light"/>
+                                                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                </textField>
                                                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" preferredMaxLayoutWidth="120" translatesAutoresizingMaskIntoConstraints="NO" id="GaR-Qm-7u4">
                                                     <rect key="frame" x="17" y="109" width="204" height="18"/>
                                                     <constraints>
@@ -722,7 +746,11 @@
                                                 <constraint firstItem="Q3M-Kz-XV3" firstAttribute="centerX" secondItem="mF4-bp-EID" secondAttribute="centerX" id="yKZ-7i-UKv"/>
                                                 <constraint firstItem="HNj-dh-8gr" firstAttribute="trailing" secondItem="Utg-yF-Rso" secondAttribute="trailing" id="yPE-hM-Mbb"/>
                                                 <constraint firstItem="DjV-qq-hr9" firstAttribute="leading" secondItem="Mai-SZ-AEi" secondAttribute="leading" id="ykI-Ig-kwf"/>
-                                                <constraint firstItem="GaR-Qm-7u4" firstAttribute="top" secondItem="HNj-dh-8gr" secondAttribute="bottom" constant="14" id="z8z-AY-l8y"/>
+                                                <constraint firstItem="floatTop-lbl-001" firstAttribute="top" secondItem="HNj-dh-8gr" secondAttribute="bottom" constant="14" id="floatTop-con-top"/>
+                                                <constraint firstItem="GaR-Qm-7u4" firstAttribute="top" secondItem="floatTop-lbl-001" secondAttribute="bottom" constant="14" id="floatTop-con-bot"/>
+                                                <constraint firstItem="floatTop-ctrl-001" firstAttribute="centerY" secondItem="floatTop-lbl-001" secondAttribute="centerY" id="floatTop-con-cy"/>
+                                                <constraint firstItem="floatTop-ctrl-001" firstAttribute="leading" secondItem="DjV-qq-hr9" secondAttribute="leading" id="floatTop-con-lead"/>
+                                                <constraint firstItem="floatTop-lbl-001" firstAttribute="trailing" secondItem="HNj-dh-8gr" secondAttribute="trailing" id="floatTop-con-trail"/>
                                             </constraints>
                                         </view>
                                     </tabViewItem>
@@ -739,6 +767,8 @@
                     <connections>
                         <outlet property="appDisplayControl" destination="DjV-qq-hr9" id="Q4N-i2-oWr"/>
                         <outlet property="appDisplayLabel" destination="HNj-dh-8gr" id="A6U-gp-sje"/>
+                        <outlet property="floatOnTopControl" destination="floatTop-ctrl-001" id="floatTop-out-ctrl"/>
+                        <outlet property="floatOnTopLabel" destination="floatTop-lbl-001" id="floatTop-out-lbl"/>
                         <outlet property="appearanceTab" destination="SGu-yd-JQh" id="CJn-3E-Ujd"/>
                         <outlet property="dayDisplayOptionsLabel" destination="gFE-hZ-J92" id="tVv-pC-MSW"/>
                         <outlet property="futureSliderRangeLabel" destination="GaR-Qm-7u4" id="0aB-BK-7fN"/>

@@ -16,6 +16,8 @@ class AppearanceViewController: ParentViewController {
     @IBOutlet var includePlaceNameControl: NSSegmentedControl!
     @IBOutlet var appearanceTab: NSTabView!
     @IBOutlet var appDisplayControl: NSSegmentedControl!
+    @IBOutlet var floatOnTopControl: NSSegmentedControl!
+    @IBOutlet var floatOnTopLabel: NSTextField!
 
     private static let sliderDayValues = [1, 2, 3, 4, 5, 6, 7, 14, 30, 90]
 
@@ -114,6 +116,10 @@ class AppearanceViewController: ParentViewController {
         let appDisplayOptions = dataStore.shouldDisplay(.appDisplayOptions)
         appDisplayControl.setSelected(true, forSegment: appDisplayOptions ? 0 : 1)
 
+        // True means float on top enabled
+        let floatOnTop = dataStore.shouldDisplay(.showAppInForeground)
+        floatOnTopControl.setSelected(true, forSegment: floatOnTop ? 0 : 1)
+
     }
 
     @IBOutlet var timeFormatLabel: NSTextField!
@@ -148,12 +154,14 @@ class AppearanceViewController: ParentViewController {
         menubarModeLabel.stringValue = "Menubar Mode".localized()
         previewLabel.stringValue = "Preview".localized()
         miscelleaneousLabel.stringValue = "Miscellaneous".localized()
+        floatOnTopLabel.stringValue = "Float on Top".localized()
+        appDisplayLabel.stringValue = "Show Meridian in".localized()
 
         [timeFormatLabel, panelTheme,
          dayDisplayOptionsLabel, showSliderLabel,
          showSunriseLabel, largerTextLabel, futureSliderRangeLabel,
          includeDayLabel, includeDateLabel, includePlaceLabel, appDisplayLabel, menubarModeLabel,
-         previewLabel, miscelleaneousLabel].forEach {
+         previewLabel, miscelleaneousLabel, floatOnTopLabel].forEach {
             $0?.textColor = NSColor.labelColor
         }
 
@@ -248,6 +256,12 @@ class AppearanceViewController: ParentViewController {
             Logger.debug("Dock Mode: Selection=Menubar and Dock")
             NSApp.setActivationPolicy(.regular)
         }
+    }
+
+    @IBAction func floatOnTopChanged(_ sender: NSSegmentedControl) {
+        let value = sender.selectedSegment == 0 ? 1 : 0
+        UserDefaults.standard.set(value, forKey: UserDefaultKeys.showAppInForeground)
+        Logger.debug("Float on Top: \(value == 1 ? "Enabled" : "Disabled")")
     }
 
     private func refresh(panel: Bool) {

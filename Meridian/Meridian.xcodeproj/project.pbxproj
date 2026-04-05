@@ -51,6 +51,7 @@
 		35C36F5D2259DD96002FA5C6 /* TimezoneDataOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F5B2259DD96002FA5C6 /* TimezoneDataOperations.swift */; };
 		35C36F6F2259E185002FA5C6 /* CustomSliderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F6C2259E185002FA5C6 /* CustomSliderCell.swift */; };
 		35C36F702259E185002FA5C6 /* BackgroundPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F6D2259E185002FA5C6 /* BackgroundPanelView.swift */; };
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* PanelDragHandleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F3 /* PanelDragHandleView.swift */; };
 		35C36F712259E185002FA5C6 /* NoTimezoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F6E2259E185002FA5C6 /* NoTimezoneView.swift */; };
 		35C36F772259E1D0002FA5C6 /* AppKit + Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F742259E1CF002FA5C6 /* AppKit + Additions.swift */; };
 		35C36F782259E1D0002FA5C6 /* Foundation + Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F752259E1CF002FA5C6 /* Foundation + Additions.swift */; };
@@ -174,6 +175,7 @@
 		35C36F5B2259DD96002FA5C6 /* TimezoneDataOperations.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimezoneDataOperations.swift; sourceTree = "<group>"; };
 		35C36F6C2259E185002FA5C6 /* CustomSliderCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSliderCell.swift; sourceTree = "<group>"; };
 		35C36F6D2259E185002FA5C6 /* BackgroundPanelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundPanelView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6A7B8C9D0E1F3 /* PanelDragHandleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanelDragHandleView.swift; sourceTree = "<group>"; };
 		35C36F6E2259E185002FA5C6 /* NoTimezoneView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoTimezoneView.swift; sourceTree = "<group>"; };
 		35C36F742259E1CF002FA5C6 /* AppKit + Additions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AppKit + Additions.swift"; sourceTree = "<group>"; };
 		35C36F752259E1CF002FA5C6 /* Foundation + Additions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Foundation + Additions.swift"; sourceTree = "<group>"; };
@@ -400,6 +402,7 @@
 			isa = PBXGroup;
 			children = (
 				35C36F6D2259E185002FA5C6 /* BackgroundPanelView.swift */,
+				A1B2C3D4E5F6A7B8C9D0E1F3 /* PanelDragHandleView.swift */,
 				35C36F6C2259E185002FA5C6 /* CustomSliderCell.swift */,
 				35C36F6E2259E185002FA5C6 /* NoTimezoneView.swift */,
 				35C36F562259DD8A002FA5C6 /* CustomPanel.swift */,
@@ -826,6 +829,7 @@
 				35C36F422259D892002FA5C6 /* Timer.swift in Sources */,
 				35C36F772259E1D0002FA5C6 /* AppKit + Additions.swift in Sources */,
 				35C36F702259E185002FA5C6 /* BackgroundPanelView.swift in Sources */,
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* PanelDragHandleView.swift in Sources */,
 				9AB6F1582259CFFC00A44663 /* AboutViewController.swift in Sources */,
 				AA000001SWIFTUI00000001 /* AboutView.swift in Sources */,
 				35C36F2122596253002FA5C6 /* AppearanceViewController.swift in Sources */,

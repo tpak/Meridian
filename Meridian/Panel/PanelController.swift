@@ -5,6 +5,9 @@ import CoreLoggerKit
 
 class PanelController: ParentPanelController {
     @objc dynamic var hasActivePanel: Bool = false
+    private var isShowingContextMenu = false
+    private var pinButton: NSButton?
+    private var dragHandleView: PanelDragHandleView?
 
     @IBOutlet var backgroundView: BackgroundPanelView!
 
@@ -20,22 +23,116 @@ class PanelController: ParentPanelController {
 
         if let panel = window {
             panel.acceptsMouseMovedEvents = true
-            panel.level = .popUpMenu
             panel.isOpaque = false
             panel.backgroundColor = NSColor.clear
         }
+
+        applyWindowMode()
 
         mainTableView.registerForDraggedTypes([.dragSession])
 
         super.updatePanelColor()
 
         super.updateDefaultPreferences()
+
+        setupFloatingModeObserver()
+        setupFloatModeUI()
     }
 
     private func enablePerformanceLoggingIfNeccessary() {
         if !ProcessInfo.processInfo.environment.keys.contains("ENABLE_PERF_LOGGING") {
             PerfLogger.disable()
         }
+    }
+
+    private var isFloatingMode: Bool {
+        return dataStore.shouldDisplay(.showAppInForeground)
+    }
+
+    private func applyWindowMode() {
+        guard let panel = window else { return }
+        if isFloatingMode {
+            panel.isMovableByWindowBackground = true
+            panel.level = .floating
+            panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+            panel.hidesOnDeactivate = false
+            // Restore saved position, or center on screen if first time
+            let restored = panel.setFrameUsingName("MeridianFloatingPanel")
+            panel.setFrameAutosaveName("MeridianFloatingPanel")
+            if !restored {
+                panel.center()
+            }
+        } else {
+            panel.isMovableByWindowBackground = false
+            panel.level = .popUpMenu
+            panel.collectionBehavior = []
+            panel.hidesOnDeactivate = false
+            panel.setFrameAutosaveName("")
+        }
+        updateFloatModeUI()
+    }
+
+    private func setupFloatModeUI() {
+        guard let contentView = window?.contentView,
+              let footer = settingsButton?.superview else { return }
+
+        // Drag handle: thin strip at top of panel for repositioning in float mode.
+        let drag = PanelDragHandleView()
+        drag.translatesAutoresizingMaskIntoConstraints = false
+        drag.isHidden = true
+        contentView.addSubview(drag)
+        NSLayoutConstraint.activate([
+            drag.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 6),
+            drag.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            drag.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            drag.heightAnchor.constraint(equalToConstant: 16),
+        ])
+        dragHandleView = drag
+
+        // Pin button: quick float toggle next to the version label in the footer.
+        let pin = NSButton()
+        pin.translatesAutoresizingMaskIntoConstraints = false
+        pin.bezelStyle = .recessed
+        pin.isBordered = false
+        pin.imagePosition = .imageOnly
+        pin.target = self
+        pin.action = #selector(toggleFloatingMode)
+        footer.addSubview(pin)
+        NSLayoutConstraint.activate([
+            pin.centerYAnchor.constraint(equalTo: footer.centerYAnchor),
+            pin.trailingAnchor.constraint(equalTo: footer.trailingAnchor, constant: -8),
+            pin.widthAnchor.constraint(equalToConstant: 22),
+            pin.heightAnchor.constraint(equalToConstant: 22),
+        ])
+        // Shrink version label trailing margin to make room for the pin button.
+        for c in footer.constraints where c.secondItem === versionStatusLabel && c.secondAttribute == .trailing {
+            c.constant = 34 // 22pt button + 4pt gap + 8pt margin
+            break
+        }
+        pinButton = pin
+        updateFloatModeUI()
+    }
+
+    private func updateFloatModeUI() {
+        let floating = isFloatingMode
+        dragHandleView?.isHidden = !floating
+        let symbol = floating ? "pin.fill" : "pin"
+        pinButton?.image = NSImage(systemSymbolName: symbol, accessibilityDescription: floating ? "Unpin from Desktop" : "Pin to Desktop")
+        pinButton?.contentTintColor = floating ? .controlAccentColor : .secondaryLabelColor
+        pinButton?.toolTip = floating ? "Unpin from Desktop" : "Pin to Desktop"
+    }
+
+    private func setupFloatingModeObserver() {
+        UserDefaults.standard.publisher(for: \.displayAppAsForegroundApp)
+            .receive(on: RunLoop.main)
+            .dropFirst()
+            .sink { [weak self] _ in
+                self?.applyWindowMode()  // also calls updateFloatModeUI
+                if self?.isFloatingMode == true, self?.window?.isVisible == false {
+                    self?.setActivePanel(newValue: true)
+                }
+            }
+            .store(in: &cancellables)
     }
 
     func setFrameTheNewWay(_ rect: NSRect, _ maxX: CGFloat) {
@@ -59,6 +156,17 @@ class PanelController: ParentPanelController {
 
         guard isWindowLoaded == true else {
             return
+        }
+
+        // Cancel any in-flight fade-out animation and restore full opacity immediately.
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0
+            window?.animator().alphaValue = 1
+        }
+
+        // Keep button state in sync regardless of how the panel was opened (click vs programmatic).
+        if let btn = (NSApplication.shared.delegate as? AppDelegate)?.statusItemForPanel().statusItem.button {
+            btn.state = .on
         }
 
         super.dismissRowActions()
@@ -90,7 +198,9 @@ class PanelController: ParentPanelController {
 
         setTimezoneDatasourceSlider(sliderValue: 0)
 
-        setPanelFrame()
+        if !isFloatingMode {
+            setPanelFrame()
+        }
 
         startWindowTimer()
 
@@ -254,14 +364,20 @@ class PanelController: ParentPanelController {
         parentTimer?.pause()
 
         updatePopoverDisplayState()
-
-        NSAnimationContext.beginGrouping()
-        NSAnimationContext.current.duration = 0.1
-        window?.animator().alphaValue = 0
         additionalOptionsPopover?.close()
-        NSAnimationContext.endGrouping()
 
-        window?.orderOut(nil)
+        // Keep button state in sync regardless of how the panel was closed (click vs programmatic).
+        if let btn = (NSApplication.shared.delegate as? AppDelegate)?.statusItemForPanel().statusItem.button {
+            btn.state = .off
+        }
+
+        let windowToHide = window
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.1
+            windowToHide?.animator().alphaValue = 0
+        }, completionHandler: {
+            windowToHide?.orderOut(nil)
+        })
 
         datasource = nil
         parentTimer?.pause()
@@ -291,30 +407,19 @@ class PanelController: ParentPanelController {
     }
 
     override func showNotesPopover(forRow row: Int, relativeTo positioningRect: NSRect, andButton target: NSButton!) -> Bool {
-        if additionalOptionsPopover == nil {
-            additionalOptionsPopover = NSPopover()
-        }
+        guard let target = target else { return false }
 
-        guard let popover = additionalOptionsPopover else {
-            return false
-        }
-
-        target.image = NSImage(systemSymbolName: "ellipsis.circle.fill", accessibilityDescription: "Options")
-
-        if popover.isShown, row == previousPopoverRow {
+        // The NotesPopover XIB/controller was removed in the strip commit.
+        // Update the button icon for the ellipsis toggle but don't try to show a popover.
+        if let popover = additionalOptionsPopover, popover.isShown, row == previousPopoverRow {
             popover.close()
             target.image = NSImage(systemSymbolName: "ellipsis.circle", accessibilityDescription: "Options")
             previousPopoverRow = -1
             return false
         }
 
+        target.image = NSImage(systemSymbolName: "ellipsis.circle.fill", accessibilityDescription: "Options")
         previousPopoverRow = row
-
-        super.showNotesPopover(forRow: row, relativeTo: positioningRect, andButton: target)
-
-        popover.show(relativeTo: positioningRect,
-                     of: target,
-                     preferredEdge: .minX)
 
         if let timer = parentTimer, timer.state == .paused {
             timer.start()
@@ -348,15 +453,44 @@ class PanelController: ParentPanelController {
         // If the parent view is hidden, then that doesn't automatically mean that all the childViews are also hidden
         // Hence, check if the parent view is totally hidden or not..
     }
+
+    @objc func toggleFloatingMode() {
+        let newValue = isFloatingMode ? 0 : 1
+        UserDefaults.standard.set(newValue, forKey: UserDefaultKeys.showAppInForeground)
+        applyWindowMode()
+    }
+
+    override func rightMouseDown(with event: NSEvent) {
+        guard let contentView = window?.contentView else { return }
+        isShowingContextMenu = true
+        let menu = NSMenu(title: "Panel Options")
+        let title = isFloatingMode ? "Unpin from Desktop" : "Pin to Desktop"
+        let item = NSMenuItem(title: title, action: #selector(toggleFloatingMode), keyEquivalent: "")
+        item.target = self
+        menu.addItem(item)
+        NSMenu.popUpContextMenu(menu, with: event, for: contentView)
+        isShowingContextMenu = false
+    }
 }
 
 extension PanelController: NSWindowDelegate {
+    func windowShouldClose(_: NSWindow) -> Bool {
+        if isFloatingMode {
+            setActivePanel(newValue: false)
+            return false
+        }
+        return true
+    }
+
     func windowWillClose(_: Notification) {
         parentTimer = nil
         setActivePanel(newValue: false)
     }
 
     func windowDidResignKey(_: Notification) {
+        if isFloatingMode || isShowingContextMenu {
+            return
+        }
         parentTimer = nil
 
         if let isVisible = window?.isVisible, isVisible == true {
