@@ -34,7 +34,7 @@ brew tap tpak/tpak
 brew install --cask meridian
 ```
 
-Updates are delivered automatically via Sparkle and also via `brew upgrade meridian`.
+Updates are delivered automatically via Sparkle (in-app). Because the cask sets `auto_updates true`, `brew upgrade` intentionally skips Meridian — Sparkle handles it.
 
 ### Direct download
 
