@@ -181,7 +181,7 @@ git add "$PBXPROJ"
 if git diff --cached --quiet; then
     echo "── Version already set to $VERSION, skipping commit."
 else
-    git commit -m "Bump version to $VERSION"
+    git commit -m "Bump version to $VERSION [skip ci]"
     git push origin main
     echo "── Version bumped and pushed."
 fi
