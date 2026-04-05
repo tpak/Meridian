@@ -17,51 +17,12 @@ class MeridianUnitTests: XCTestCase {
         super.tearDown()
     }
 
-    private let california = ["customLabel": "Test",
-                              "formattedAddress": "San Francisco",
-                              "place_id": "TestIdentifier",
-                              "timezoneID": "America/Los_Angeles",
-                              "nextUpdate": "",
-                              "latitude": "37.7749295",
-                              "longitude": "-122.4194155"]
-
-    private let mumbai = ["customLabel": "Ghar",
-                          "formattedAddress": "Mumbai",
-                          "place_id": "ChIJwe1EZjDG5zsRaYxkjY_tpF0",
-                          "timezoneID": "Asia/Calcutta",
-                          "nextUpdate": "",
-                          "latitude": "19.0759837",
-                          "longitude": "72.8776559"]
-
-    private let auckland = ["customLabel": "Auckland",
-                            "formattedAddress": "New Zealand",
-                            "place_id": "ChIJh5Z3Fw4gLG0RM0dqdeIY1rE",
-                            "timezoneID": "Pacific/Auckland",
-                            "nextUpdate": "",
-                            "latitude": "-40.900557",
-                            "longitude": "174.885971"]
-
-    private let florida = ["customLabel": "Gainesville",
-                           "formattedAddress": "Florida",
-                           "place_id": "ChIJvypWkWV2wYgR0E7HW9MTLvc",
-                           "timezoneID": "America/New_York",
-                           "nextUpdate": "",
-                           "latitude": "27.664827",
-                           "longitude": "-81.5157535"]
-
-    private let onlyTimezone: [String: Any] = ["timezoneID": "Africa/Algiers",
-                                               "formattedAddress": "Africa/Algiers",
-                                               "place_id": "",
-                                               "customLabel": "",
-                                               "latitude": "",
-                                               "longitude": ""]
-
-    private let omaha: [String: Any] = ["timezoneID": "America/Chicago",
-                                        "formattedAddress": "Omaha",
-                                        "place_id": "ChIJ7fwMtciNk4cRBLY3rk9NQkY",
-                                        "customLabel": "",
-                                        "latitude": "41.2565369",
-                                        "longitude": "-95.9345034"]
+    private var california: [String: Any] { TestTimezones.california }
+    private var mumbai: [String: Any] { TestTimezones.mumbai }
+    private var auckland: [String: Any] { TestTimezones.auckland }
+    private var florida: [String: Any] { TestTimezones.florida }
+    private var onlyTimezone: [String: Any] { TestTimezones.onlyTimezone }
+    private var omaha: [String: Any] { TestTimezones.omaha }
 
     private var operations: TimezoneDataOperations {
         return TimezoneDataOperations(with: TimezoneData(with: mumbai), store: DataStore.shared())

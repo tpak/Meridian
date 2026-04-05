@@ -4,6 +4,22 @@ import Cocoa
 import CoreLoggerKit
 import CoreModelKit
 
+private enum TimeFormatMenuSeparatorIndices {
+    static let withSecondsIndex: Int = 2
+    static let twelveHourWithPrecedingZeroIndex: Int = 5
+    static let twelveHourWithoutAMPMIndex: Int = 8
+}
+
+private enum PreviewTableViewLayout {
+    static let defaultRowHeight: Int = 60
+    static let largerFontRowHeight: Int = 65
+    static let noteHeightAdjustment: Int = 25
+}
+
+private enum AppearanceTabIndex {
+    static let initial: Int = 0
+}
+
 class AppearanceViewController: ParentViewController {
     @IBOutlet var timeFormat: NSPopUpButton!
     @IBOutlet var theme: NSPopUpButton!
@@ -53,7 +69,7 @@ class AppearanceViewController: ParentViewController {
                                                 "latitude": "37.7749295",
                                                 "longitude": "-122.4194155"])]
 
-        appearanceTab.selectTabViewItem(at: 0)
+        appearanceTab.selectTabViewItem(at: AppearanceTabIndex.initial)
 
         previewPanelTableView.dataSource = self
         previewPanelTableView.delegate = self
@@ -79,9 +95,9 @@ class AppearanceViewController: ParentViewController {
                                     "Epoch Time"]
         timeFormat.removeAllItems()
         timeFormat.addItems(withTitles: supportedTimeFormats)
-        timeFormat.item(at: 2)?.isEnabled = false
-        timeFormat.item(at: 5)?.isEnabled = false
-        timeFormat.item(at: 8)?.isEnabled = false
+        timeFormat.item(at: TimeFormatMenuSeparatorIndices.withSecondsIndex)?.isEnabled = false
+        timeFormat.item(at: TimeFormatMenuSeparatorIndices.twelveHourWithPrecedingZeroIndex)?.isEnabled = false
+        timeFormat.item(at: TimeFormatMenuSeparatorIndices.twelveHourWithoutAMPMIndex)?.isEnabled = false
         timeFormat.autoenablesItems = false
         timeFormat.selectItem(at: dataStore.timezoneFormat().intValue)
         timeFormat.setAccessibilityIdentifier("TimeFormatPopover")
@@ -378,9 +394,9 @@ extension AppearanceViewController: NSTableViewDataSource, NSTableViewDelegate {
         if let userFontSize = dataStore.retrieve(key: UserDefaultKeys.userFontSizePreference) as? NSNumber, previewTimezones.count > row {
             let model = previewTimezones[row]
 
-            let rowHeight: Int = userFontSize == 4 ? 60 : 65
+            let rowHeight: Int = userFontSize == 4 ? PreviewTableViewLayout.defaultRowHeight : PreviewTableViewLayout.largerFontRowHeight
             if let note = model.note, !note.isEmpty {
-                return CGFloat(rowHeight + userFontSize.intValue + 25)
+                return CGFloat(rowHeight + userFontSize.intValue + PreviewTableViewLayout.noteHeightAdjustment)
             }
 
             return CGFloat(rowHeight + (userFontSize.intValue * 2))

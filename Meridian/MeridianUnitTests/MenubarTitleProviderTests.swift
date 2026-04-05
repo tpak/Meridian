@@ -8,21 +8,8 @@ import XCTest
 class MenubarTitleProviderTests: XCTestCase {
     private var mockStore: MockDataStore!
 
-    private let mumbai: [String: Any] = ["customLabel": "Ghar",
-                                         "formattedAddress": "Mumbai",
-                                         "place_id": "ChIJwe1EZjDG5zsRaYxkjY_tpF0",
-                                         "timezoneID": "Asia/Calcutta",
-                                         "nextUpdate": "",
-                                         "latitude": 19.0759837,
-                                         "longitude": 72.8776559]
-
-    private let newYork: [String: Any] = ["customLabel": "NYC",
-                                          "formattedAddress": "New York",
-                                          "place_id": "TestNY",
-                                          "timezoneID": "America/New_York",
-                                          "nextUpdate": "",
-                                          "latitude": 40.7128,
-                                          "longitude": -74.0060]
+    private var mumbai: [String: Any] { TestTimezones.mumbaiAlternate }
+    private var newYork: [String: Any] { TestTimezones.newYork }
 
     override func setUp() {
         super.setUp()

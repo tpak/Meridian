@@ -14,8 +14,6 @@ struct PanelConstants {
 class ParentPanelController: NSWindowController {
     var cancellables = Set<AnyCancellable>()
 
-    var dateFormatter = DateFormatter()
-
     var futureSliderValue: Int = 0
 
     var parentTimer: Repeater?
@@ -27,6 +25,13 @@ class ParentPanelController: NSWindowController {
     var datasource: TimezoneDataSource?
 
     var dataStore: DataStoring = DataStore.shared()
+
+    private lazy var versionLabelDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateStyle = .short
+        f.timeStyle = .short
+        return f
+    }()
 
     private lazy var oneWindow: OneWindowController? = {
         let preferencesStoryboard = NSStoryboard(name: "Preferences", bundle: nil)
@@ -158,10 +163,7 @@ class ParentPanelController: NSWindowController {
         let lastCheckDate = UserDefaults.standard.object(forKey: "SULastCheckTime") as? Date
         let checkString: String
         if let date = lastCheckDate {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .short
-            formatter.timeStyle = .short
-            checkString = formatter.string(from: date)
+            checkString = versionLabelDateFormatter.string(from: date)
         } else {
             checkString = "Never"
         }

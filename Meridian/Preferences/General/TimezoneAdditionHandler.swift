@@ -21,6 +21,16 @@ protocol TimezoneAdditionHost: AnyObject {
     func refreshMainTable()
 }
 
+private enum SpecialTimezoneNames {
+    static let anywhereOnEarth = "Anywhere on Earth"
+    static let utc = "UTC"
+}
+
+private let maxTimezoneCount = 100
+private let maxSearchLength = 50
+private let searchDebounceInterval: TimeInterval = 0.5
+private let searchScrollThreshold = 6
+
 @MainActor
 class TimezoneAdditionHandler: NSObject {
     private weak var host: TimezoneAdditionHost?
@@ -183,7 +193,8 @@ class TimezoneAdditionHandler: NSObject {
                 }
                 updateViewState()
             } catch {
-                if error.localizedDescription == "The Internet connection appears to be offline." {
+                let nsError = error as NSError
+                if nsError.code == NSURLErrorNotConnectedToInternet || nsError.code == NSURLErrorNetworkConnectionLost {
                     host.placeholderLabel.placeholderString = PreferencesConstants.noInternetConnectivityError
                 } else {
                     host.placeholderLabel.placeholderString = PreferencesConstants.tryAgainMessage
@@ -260,7 +271,7 @@ class TimezoneAdditionHandler: NSObject {
         }
 
         let selectedTimeZones = dataStore.timezones()
-        if selectedTimeZones.count >= 100 {
+        if selectedTimeZones.count >= maxTimezoneCount {
             host.timezonePanel.contentView?.makeToast(PreferencesConstants.maxTimezonesErrorMessage)
             isActivityInProgress = false
             return
@@ -413,7 +424,7 @@ extension TimezoneAdditionHandler {
         guard let host = host else { return }
         host.searchResultsDataSource.cleanupFilterArray()
 
-        if host.searchField.stringValue.count > 50 {
+        if host.searchField.stringValue.count > maxSearchLength {
             isActivityInProgress = false
             reloadSearchResults()
             host.timezonePanel.contentView?.makeToast(PreferencesConstants.maxCharactersAllowed)
@@ -423,7 +434,7 @@ extension TimezoneAdditionHandler {
         if host.searchField.stringValue.isEmpty == false {
             searchTask?.cancel()
             NSObject.cancelPreviousPerformRequests(withTarget: self)
-            perform(#selector(search), with: nil, afterDelay: 0.5)
+            perform(#selector(search), with: nil, afterDelay: searchDebounceInterval)
         } else {
             resetSearchView()
         }
@@ -433,7 +444,7 @@ extension TimezoneAdditionHandler {
 
     func selectNewlyInsertedTimezone() {
         guard let host = host else { return }
-        if host.timezoneTableView.numberOfRows > 6 {
+        if host.timezoneTableView.numberOfRows > searchScrollThreshold {
             host.timezoneTableView.scrollRowToVisible(host.timezoneTableView.numberOfRows - 1)
         }
 
@@ -442,9 +453,9 @@ extension TimezoneAdditionHandler {
     }
 
     private func metadata(for selection: TimezoneMetadata) -> (NSTimeZone, TimezoneMetadata) {
-        if selection.formattedName == "Anywhere on Earth" {
+        if selection.formattedName == SpecialTimezoneNames.anywhereOnEarth {
             return (NSTimeZone(name: "GMT-1200") ?? NSTimeZone.default as NSTimeZone, selection)
-        } else if selection.formattedName == "UTC" {
+        } else if selection.formattedName == SpecialTimezoneNames.utc {
             return (NSTimeZone(name: "GMT") ?? NSTimeZone.default as NSTimeZone, selection)
         } else {
             return (selection.timezone, selection)

@@ -8,13 +8,30 @@ import CoreModelKit
 class TimezoneDataOperations {
     private enum Constants {
         static let dstDaysLookahead = 8
+        static let secondsPerHour = 3600
     }
 
     private let dataObject: TimezoneData
     private let store: DataStoring
     private lazy var calendar = Calendar.autoupdatingCurrent
     private static var gregorianCalendar = Calendar(identifier: .gregorian)
-    private static let currentLocale = Locale.current.identifier
+
+    // MARK: - Static caches
+
+    private static var sunriseCache: [String: (Date?, Date?)] = [:]
+    private static var dstCache: [String: Date?] = [:]
+
+    private static var preferredLanguageCode: String {
+        return Locale.preferredLanguages.first.map {
+            Locale(identifier: $0).language.languageCode?.identifier ?? ""
+        } ?? ""
+    }
+
+    private static let sunriseTimeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US")
+        return f
+    }()
 
     init(with timezone: TimezoneData, store: DataStoring) {
         dataObject = timezone
@@ -45,7 +62,18 @@ extension TimezoneDataOperations {
 
     func nextDaylightSavingsTransitionIfAvailable(with sliderValue: Int) -> String? {
         let currentTimezone = TimeZone(identifier: dataObject.timezone())
-        guard let nextDaylightSavingsTransition = currentTimezone?.nextDaylightSavingTimeTransition else {
+        let today = Calendar.current.startOfDay(for: Date())
+        let cacheKey = "\(dataObject.timezone())_\(today)"
+
+        let nextDaylightSavingsTransition: Date?
+        if TimezoneDataOperations.dstCache.keys.contains(cacheKey) {
+            nextDaylightSavingsTransition = TimezoneDataOperations.dstCache[cacheKey] ?? nil
+        } else {
+            nextDaylightSavingsTransition = currentTimezone?.nextDaylightSavingTimeTransition
+            TimezoneDataOperations.dstCache[cacheKey] = nextDaylightSavingsTransition
+        }
+
+        guard let nextTransition = nextDaylightSavingsTransition else {
             return nil
         }
 
@@ -54,7 +82,7 @@ extension TimezoneDataOperations {
                                                                      to: Date()) ?? Date()
 
         let calendar = Calendar.autoupdatingCurrent
-        let numberOfDays = nextDaylightSavingsTransition.days(from: newDate, calendar: calendar)
+        let numberOfDays = nextTransition.days(from: newDate, calendar: calendar)
 
         // We'd like to show upcoming DST changes within the 7 day range.
         // Using 8 as a fail-safe as timezones behind CDT can sometimes be wrongly attributed
@@ -63,7 +91,7 @@ extension TimezoneDataOperations {
         }
 
         if numberOfDays == 0 {
-            let hoursLeft = nextDaylightSavingsTransition.hours(from: newDate)
+            let hoursLeft = nextTransition.hours(from: newDate)
             let suffix = hoursLeft == 1 ? "hour" : "hours"
             return "Heads up: DST transition will occur in \(hoursLeft) \(suffix)."
         }
@@ -328,8 +356,8 @@ extension TimezoneDataOperations {
         var result = prefix
         result.append(agoText.replacingOccurrences(of: "ago", with: UserDefaultKeys.emptyString))
 
-        if !TimezoneDataOperations.currentLocale.contains("en") {
-            if TimezoneDataOperations.currentLocale.contains("de") {
+        if TimezoneDataOperations.preferredLanguageCode != "en" {
+            if TimezoneDataOperations.preferredLanguageCode == "de" {
                 result = result.replacingOccurrences(of: "Vor ", with: UserDefaultKeys.emptyString)
                 result.append(deSuffix)
             }
@@ -344,16 +372,25 @@ extension TimezoneDataOperations {
     }
 
     private func initializeSunriseSunset(with sliderValue: Int) {
-        let currentDate = calendar.date(byAdding: .minute,
-                                          value: sliderValue,
-                                          to: Date())
-
         guard let lat = dataObject.latitude,
               let long = dataObject.longitude
         else {
             Logger.production("Sunrise/sunset coordinates unexpectedly nil")
             return
         }
+
+        let today = Calendar.current.startOfDay(for: Date())
+        let cacheKey = "\(dataObject.timezoneID ?? "")_\(today)"
+
+        if let cached = TimezoneDataOperations.sunriseCache[cacheKey] {
+            dataObject.sunriseTime = cached.0
+            dataObject.sunsetTime = cached.1
+            return
+        }
+
+        let currentDate = calendar.date(byAdding: .minute,
+                                          value: sliderValue,
+                                          to: Date())
 
         let coordinates = CLLocationCoordinate2D(latitude: lat, longitude: long)
 
@@ -365,8 +402,10 @@ extension TimezoneDataOperations {
             dataObject.sunriseTime = sunrise
             dataObject.sunsetTime = sunset
             dataObject.isSunriseOrSunset = solar.isNighttime
+            TimezoneDataOperations.sunriseCache[cacheKey] = (sunrise, sunset)
         } else {
             Logger.production("Sunrise/Sunset Error: Unable to fetch sunrise/sunset for \(dataObject.formattedTimezoneLabel())")
+            TimezoneDataOperations.sunriseCache[cacheKey] = (nil, nil)
         }
     }
 
@@ -392,8 +431,7 @@ extension TimezoneDataOperations {
         if let sunrise = dataObject.sunriseTime, let sunset = dataObject.sunsetTime {
             let correct = dataObject.isSunriseOrSunset ? sunrise : sunset
 
-            let dateFormatter = DateFormatter()
-            dateFormatter.locale = Locale(identifier: "en_US")
+            let dateFormatter = TimezoneDataOperations.sunriseTimeFormatter
             dateFormatter.timeZone = TimeZone(identifier: dataObject.timezone())
             dateFormatter.dateFormat = dataObject.timezoneFormat(store.timezoneFormat())
             return dateFormatter.string(from: correct)

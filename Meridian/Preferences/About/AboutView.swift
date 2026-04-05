@@ -123,6 +123,13 @@ struct AboutView: View {
     }
 }
 
+private let lastCheckedFormatter: DateFormatter = {
+    let f = DateFormatter()
+    f.dateStyle = .short
+    f.timeStyle = .short
+    return f
+}()
+
 private struct AutoUpdateToggle: View {
     @State private var autoUpdate: Bool
     @State private var lastCheckDate: Date?
@@ -162,10 +169,7 @@ private struct AutoUpdateToggle: View {
 
     private var lastCheckedText: String {
         guard let date = lastCheckDate else { return String(localized: "Last checked: Never") }
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.timeStyle = .short
-        return String(localized: "Last checked: \(formatter.string(from: date))")
+        return String(localized: "Last checked: \(lastCheckedFormatter.string(from: date))")
     }
 }
 

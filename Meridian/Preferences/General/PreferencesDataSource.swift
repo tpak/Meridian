@@ -163,11 +163,15 @@ extension PreferencesDataSource: NSTableViewDataSource {
 
     private func setNewLabel(_ label: String, for dataObject: TimezoneData, at row: Int) {
         let formattedValue = label.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let maxLabelLength = 50
+        let truncated = formattedValue.count > maxLabelLength
+            ? String(formattedValue.prefix(maxLabelLength))
+            : formattedValue
 
         if selectedTimezones.count > row {
-            Logger.debug("Custom Label Changed: OldLabel=\(dataObject.customLabel ?? "Error"), NewLabel=\(formattedValue)")
+            Logger.debug("Custom Label Changed: OldLabel=\(dataObject.customLabel ?? "Error"), NewLabel=\(truncated)")
 
-            dataObject.setLabel(formattedValue)
+            dataObject.setLabel(truncated)
 
             insert(timezone: dataObject, at: row)
 

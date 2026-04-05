@@ -8,37 +8,10 @@ import XCTest
 class TimezoneDataOperationsTests: XCTestCase {
     private var mockStore: MockDataStore!
 
-    private let newYork: [String: Any] = ["customLabel": "NYC",
-                                          "formattedAddress": "New York",
-                                          "place_id": "TestNY",
-                                          "timezoneID": "America/New_York",
-                                          "nextUpdate": "",
-                                          "latitude": 40.7128,
-                                          "longitude": -74.0060]
-
-    private let tokyo: [String: Any] = ["customLabel": "Tokyo",
-                                        "formattedAddress": "Tokyo",
-                                        "place_id": "TestTokyo",
-                                        "timezoneID": "Asia/Tokyo",
-                                        "nextUpdate": "",
-                                        "latitude": 35.6762,
-                                        "longitude": 139.6503]
-
-    private let london: [String: Any] = ["customLabel": "London",
-                                         "formattedAddress": "London",
-                                         "place_id": "TestLondon",
-                                         "timezoneID": "Europe/London",
-                                         "nextUpdate": "",
-                                         "latitude": 51.5074,
-                                         "longitude": -0.1278]
-
-    private let noCoords: [String: Any] = ["customLabel": "",
-                                           "formattedAddress": "Africa/Algiers",
-                                           "place_id": "",
-                                           "timezoneID": "Africa/Algiers",
-                                           "nextUpdate": "",
-                                           "latitude": "",
-                                           "longitude": ""]
+    private var newYork: [String: Any] { TestTimezones.newYork }
+    private var tokyo: [String: Any] { TestTimezones.tokyo }
+    private var london: [String: Any] { TestTimezones.london }
+    private var noCoords: [String: Any] { TestTimezones.noCoords }
 
     override func setUp() {
         super.setUp()

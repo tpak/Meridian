@@ -101,8 +101,16 @@ public class TimezoneData: NSObject, NSCoding, NSSecureCoding {
     public init(with dictionary: [String: Any]) {
         customLabel = dictionary[ModelConstants.customLabel] as? String
         timezoneID = (dictionary[ModelConstants.timezoneID] as? String) ?? "Error"
-        latitude = dictionary[ModelConstants.latitude] as? Double ?? -0.0
-        longitude = dictionary[ModelConstants.longitude] as? Double ?? -0.0
+        var latitude = dictionary[ModelConstants.latitude] as? Double ?? -0.0
+        var longitude = dictionary[ModelConstants.longitude] as? Double ?? -0.0
+        if !((-90.0)...(90.0)).contains(latitude) {
+            latitude = -0.0
+        }
+        if !((-180.0)...(180.0)).contains(longitude) {
+            longitude = -0.0
+        }
+        self.latitude = latitude
+        self.longitude = longitude
         placeID = (dictionary[ModelConstants.placeIdentifier] as? String) ?? "Error"
         formattedAddress = (dictionary[ModelConstants.timezoneName] as? String) ?? "Error"
         isFavourite = 0

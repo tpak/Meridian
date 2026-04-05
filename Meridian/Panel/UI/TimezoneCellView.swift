@@ -13,6 +13,13 @@ class TimezoneCellView: NSTableCellView {
     @IBOutlet var sunriseImage: NSImageView!
     @IBOutlet var currentLocationIndicator: NSImageView!
 
+    private enum ConstraintID {
+        static let width = "width"
+        static let customNameTopSpace = "custom-name-top-space"
+        static let timeTopSpace = "time-top-space"
+        static let height = "height"
+    }
+
     private static let minimumFontSizeForTime: Int = 10
     private static let minimumFontSizeForLabel: Int = 8
 
@@ -67,7 +74,7 @@ class TimezoneCellView: NSTableCellView {
         updateRelativeDateVisibility(hasContent: hasRelativeDate, width: relativeWidth)
         updateTimeTopSpace(hasRelativeDate: hasRelativeDate)
 
-        for constraint in sunriseSetTime.constraints where constraint.identifier == "width" {
+        for constraint in sunriseSetTime.constraints where constraint.identifier == ConstraintID.width {
             constraint.constant = sunriseWidth + 3
         }
 
@@ -79,17 +86,17 @@ class TimezoneCellView: NSTableCellView {
             if relativeDate.isHidden {
                 relativeDate.isHidden.toggle()
             }
-            for constraint in relativeDate.constraints where constraint.identifier == "width" {
+            for constraint in relativeDate.constraints where constraint.identifier == ConstraintID.width {
                 constraint.constant = width + 8
             }
-            for constraint in constraints where constraint.identifier == "custom-name-top-space" {
+            for constraint in constraints where constraint.identifier == ConstraintID.customNameTopSpace {
                 if constraint.constant != 12 {
                     constraint.constant = 12
                 }
             }
         } else {
             relativeDate.isHidden = true
-            for constraint in constraints where constraint.identifier == "custom-name-top-space" {
+            for constraint in constraints where constraint.identifier == ConstraintID.customNameTopSpace {
                 if constraint.constant == 12 {
                     constraint.constant += 15
                 }
@@ -100,7 +107,7 @@ class TimezoneCellView: NSTableCellView {
     private func updateTimeTopSpace(hasRelativeDate: Bool) {
         let sunriseVisible = !sunriseSetTime.isHidden
 
-        for constraint in constraints where constraint.identifier == "time-top-space" {
+        for constraint in constraints where constraint.identifier == ConstraintID.timeTopSpace {
             if hasRelativeDate {
                 if sunriseVisible, relativeDate.isHidden {
                     if constraint.constant == -5.0 { constraint.constant -= 10.0 }
@@ -153,12 +160,10 @@ class TimezoneCellView: NSTableCellView {
         time.font = customTimeFont
 
         let timeString = time.stringValue as NSString
-
-        let timeHeight = timeString.size(withAttributes: [NSAttributedString.Key.font: customTimeFont]).height
-        let timeWidth = timeString.size(withAttributes: [NSAttributedString.Key.font: customTimeFont]).width
+        let timeSize = timeString.size(withAttributes: [NSAttributedString.Key.font: customTimeFont])
 
         for constraint in time.constraints {
-            constraint.constant = constraint.identifier == "height" ? timeHeight : timeWidth
+            constraint.constant = constraint.identifier == ConstraintID.height ? timeSize.height : timeSize.width
         }
     }
 

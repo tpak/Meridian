@@ -3,6 +3,9 @@
 import Cocoa
 import CoreModelKit
 
+// Column identifier for the formatted address column, matching PreferencesDataSourceConstants.timezoneNameIdentifier
+private let formattedAddressColumnID = "formattedAddress"
+
 /// Unified sorting logic for timezone lists. Replaces 4 duplicate sort
 /// implementations in PreferencesViewController.
 class TimezoneSortingManager {
@@ -59,7 +62,7 @@ class TimezoneSortingManager {
                 return false
             }
 
-            if identifier == "formattedAddress" {
+            if identifier == formattedAddressColumnID {
                 let addr1 = object1.formattedAddress ?? ""
                 let addr2 = object2.formattedAddress ?? ""
                 return ascending ? addr1 > addr2 : addr1 < addr2

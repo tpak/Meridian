@@ -54,6 +54,7 @@ protocol StatusItemViewConforming {
 class StatusContainerView: NSView {
     private var previousX: Int = 0
     private let store: DataStore
+    private var cachedBestWidth: [String: Int] = [:]
     private lazy var paragraphStyle: NSMutableParagraphStyle = {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
@@ -140,6 +141,11 @@ class StatusContainerView: NSView {
     }
 
     private func bestWidth(for timezone: TimezoneData) -> Int {
+        let cacheKey = timezone.timezone()
+        if let cached = cachedBestWidth[cacheKey] {
+            return cached
+        }
+
         let textColor = NSColor.white
 
         let timeBasedAttributes = [
@@ -157,7 +163,14 @@ class StatusContainerView: NSView {
                                                      width: Double(compactWidth(for: timezone, with: store)),
                                                      attributes: timeBasedAttributes)
 
-        return Int(max(bestSize.width, bestTitleSize.width) + bufferWidth)
+        let result = Int(max(bestSize.width, bestTitleSize.width) + bufferWidth)
+        cachedBestWidth[cacheKey] = result
+        return result
+    }
+
+    override func setNeedsDisplay(_ invalidRect: NSRect) {
+        cachedBestWidth.removeAll()
+        super.setNeedsDisplay(invalidRect)
     }
 
     func updateTime() {

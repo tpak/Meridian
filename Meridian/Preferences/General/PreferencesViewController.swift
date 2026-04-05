@@ -440,7 +440,7 @@ extension PreferencesViewController: PreferenceSelectionUpdates {
     }
 
     func preferenceSelectionDataSourceTable(didClick tableColumn: NSTableColumn) {
-        if tableColumn.identifier.rawValue == "favouriteTimezone" {
+        if tableColumn.identifier.rawValue == PreferencesDataSourceConstants.favoriteTimezoneIdentifier {
             return
         }
 

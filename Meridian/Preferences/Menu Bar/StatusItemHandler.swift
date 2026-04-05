@@ -18,10 +18,21 @@ private enum BufferWidthConstants {
     static let dateBuffer = 20
 }
 
+private enum MenubarTimerConstants {
+    static let debounceMilliseconds: Int = 250
+    static let toleranceWithSeconds: TimeInterval = 0.5
+    static let toleranceWithoutSeconds: TimeInterval = 20
+}
+
+private enum MenubarFontConstants {
+    static let fontSize: CGFloat = 13.0
+    static let baselineOffset: CGFloat = 0.1
+}
+
 class StatusItemHandler: NSObject {
     private static let menubarTextAttributes: [NSAttributedString.Key: Any] = [
-        .font: NSFont.monospacedDigitSystemFont(ofSize: 13.0, weight: .regular),
-        .baselineOffset: 0.1
+        .font: NSFont.monospacedDigitSystemFont(ofSize: MenubarFontConstants.fontSize, weight: .regular),
+        .baselineOffset: MenubarFontConstants.baselineOffset
     ]
 
     private lazy var clockIcon: NSImage? = NSImage(systemSymbolName: "clock.fill", accessibilityDescription: "Meridian")
@@ -129,7 +140,7 @@ class StatusItemHandler: NSObject {
             .store(in: &cancellables)
 
         NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
-            .debounce(for: .milliseconds(250), scheduler: RunLoop.main)
+            .debounce(for: .milliseconds(MenubarTimerConstants.debounceMilliseconds), scheduler: RunLoop.main)
             .sink { [weak self] _ in self?.setupStatusItem() }
             .store(in: &cancellables)
 
@@ -220,7 +231,7 @@ class StatusItemHandler: NSObject {
         })
 
         // Tolerance, even a small amount, has a positive imapct on the power usage. As a rule, we set it to 10% of the interval
-        menubarTimer?.tolerance = shouldDisplaySeconds ? 0.5 : 20
+        menubarTimer?.tolerance = shouldDisplaySeconds ? MenubarTimerConstants.toleranceWithSeconds : MenubarTimerConstants.toleranceWithoutSeconds
 
         guard let runLoopTimer = menubarTimer else {
             Logger.debug("Timer is unexpectedly nil")
