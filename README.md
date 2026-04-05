@@ -21,9 +21,9 @@ A macOS menu bar world clock. Track time across zones for your team, friends, an
 - **Time scrubbing** — slide to see what time it will be elsewhere
 - **Sunrise/sunset** — know when the sun rises and sets in each zone
 - **Pin to desktop** — float the panel above all windows and drag it anywhere
-- **Keyboard shortcuts** — ⌘Q, ⌘W, ⌘,, ⌘C in the panel, plus a configurable global hotkey
+- **Keyboard shortcuts** — ⌘W, ⌘,, ⌘C in the panel; set a global hotkey in Preferences → General (none by default)
 - **Start at login** — launches automatically with your Mac
-- **Ad-free & open source**
+- **Ad-free, open source, and no tracking** — no analytics, no telemetry; location lookups go through Apple's geocoding service only when you add a timezone
 
 ## Install
 
@@ -67,13 +67,14 @@ make test         # Run all unit tests
 make lint         # Run SwiftLint
 ```
 
-### Bump Version
+### Release
 
-Version is set via `MARKETING_VERSION` in the Xcode project (3 build configurations). To bump:
+```bash
+git checkout main && git pull
+make release VERSION=X.Y.Z
+```
 
-1. Search for `MARKETING_VERSION` in `Meridian/Meridian.xcodeproj/project.pbxproj`
-2. Update all 3 occurrences to the new version
-3. Commit, tag, and create a [GitHub Release](https://github.com/tpak/Meridian/releases)
+This handles everything: version bump, notarized build, GitHub release, Sparkle appcast update, and Homebrew cask update. See `scripts/release.sh` for details.
 
 ### Project Structure
 
@@ -83,10 +84,10 @@ User-facing names — product, bundle, scheme — are all "Meridian".
 Meridian/
 ├── Meridian.xcodeproj      # Xcode project (scheme: Meridian)
 ├── App/                    # Localization, Info.plist, entitlements
-│   ├── Overall App/        # AppDelegate, DataStore, extensions
-│   ├── Panel/              # Menu bar panel UI + data layer
-│   ├── Preferences/        # Settings (General, Appearance, About)
-│   └── Dependencies/       # Vendored: DateTools, Solar
+├── Overall App/            # AppDelegate, DataStore, extensions
+├── Panel/                  # Menu bar panel UI + data layer
+├── Preferences/            # Settings (General, Appearance, About)
+├── Dependencies/           # Vendored: DateTools, Solar
 ├── CoreLoggerKit/          # SPM package — OSLog wrapper
 ├── CoreModelKit/           # SPM package — TimezoneData model
 ├── MeridianUnitTests/      # Unit tests
