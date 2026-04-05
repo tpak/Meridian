@@ -3,6 +3,20 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>2.17.2</title>
+            <pubDate>Sun, 05 Apr 2026 09:31:57 +0000</pubDate>
+            <sparkle:version>2.17.2</sparkle:version>
+            <sparkle:shortVersionString>2.17.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Fix boolean blindness and improve test assertion messages</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.17.2/Meridian.app.zip" length="3203865" type="application/octet-stream" sparkle:edSignature="H40H9BU/VDDm8UNpgvS81olVkRox0CSqoFH7jDWlE/cOhboB2mTEB5DN0KC+CksIQ37/AJIScuwbkwxeTBQrCw=="/>
+        </item>
+        <item>
             <title>2.17.1</title>
             <pubDate>Sun, 05 Apr 2026 08:39:08 +0000</pubDate>
             <sparkle:version>2.17.1</sparkle:version>
