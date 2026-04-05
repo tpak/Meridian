@@ -106,10 +106,9 @@ class AppearanceViewController: ParentViewController {
     override func viewWillAppear() {
         super.viewWillAppear()
 
-        if let menubarFavourites = dataStore.menubarTimezones() {
-            visualEffectView.isHidden = menubarFavourites.isEmpty ? false : true
-            informationLabel.isHidden = menubarFavourites.isEmpty ? false : true
-        }
+        let menubarFavourites = dataStore.menubarTimezones()
+        visualEffectView.isHidden = menubarFavourites.isEmpty ? false : true
+        informationLabel.isHidden = menubarFavourites.isEmpty ? false : true
 
         if let storedValue = dataStore.retrieve(key: UserDefaultKeys.futureSliderRange) as? NSNumber {
             let dayValue = storedValue.intValue

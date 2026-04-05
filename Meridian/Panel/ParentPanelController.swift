@@ -11,6 +11,11 @@ struct PanelConstants {
     static let minutesPerSliderPoint = 15
 }
 
+private enum FutureSliderDisplayState: Int {
+    case visible = 0
+    case hidden = 1
+}
+
 class ParentPanelController: NSWindowController {
     var cancellables = Set<AnyCancellable>()
 
@@ -33,7 +38,7 @@ class ParentPanelController: NSWindowController {
         return f
     }()
 
-    private lazy var oneWindow: OneWindowController? = {
+    lazy var oneWindow: OneWindowController? = {
         let preferencesStoryboard = NSStoryboard(name: "Preferences", bundle: nil)
         return preferencesStoryboard.instantiateInitialController() as? OneWindowController
     }()
@@ -74,11 +79,8 @@ class ParentPanelController: NSWindowController {
             .receive(on: RunLoop.main)
             .sink { [weak self] changedValue in
                 guard let self = self, let containerView = self.modernContainerView else { return }
-                if changedValue == 0 {
-                    containerView.isHidden = false
-                } else {
-                    containerView.isHidden = true
-                }
+                let state = FutureSliderDisplayState(rawValue: changedValue)
+                containerView.isHidden = (state == .hidden)
             }
             .store(in: &cancellables)
 
@@ -118,7 +120,6 @@ class ParentPanelController: NSWindowController {
         // Setup KVO observers for user default changes
         setupObservers()
 
-
         NotificationCenter.default.publisher(for: NSNotification.Name.NSSystemTimeZoneDidChange)
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in self?.systemTimezoneDidChange() }
@@ -128,12 +129,8 @@ class ParentPanelController: NSWindowController {
         if let containerView = modernContainerView {
             if dataStore.timezones().isEmpty || dataStore.shouldDisplay(.futureSlider) == false {
                 containerView.isHidden = true
-            } else if let value = dataStore.retrieve(key: UserDefaultKeys.displayFutureSliderKey) as? NSNumber {
-                if value.intValue == 1 {
-                    containerView.isHidden = true
-                } else if value.intValue == 0 {
-                    containerView.isHidden = false
-                }
+            } else {
+                configureSliderVisibility(containerView: containerView)
             }
         }
 
@@ -143,6 +140,14 @@ class ParentPanelController: NSWindowController {
         if roundedDateView != nil {
             setupRoundedDateView()
         }
+    }
+
+    private func configureSliderVisibility(containerView: ModernSliderContainerView) {
+        guard let futureSliderValue = dataStore.retrieve(key: UserDefaultKeys.displayFutureSliderKey) as? NSNumber else {
+            containerView.isHidden = true
+            return
+        }
+        containerView.isHidden = (futureSliderValue.intValue == FutureSliderDisplayState.hidden.rawValue)
     }
 
     private func setupRoundedDateView() {
@@ -173,7 +178,7 @@ class ParentPanelController: NSWindowController {
     }
 
     private func updateHomeObject(with customLabel: String, coordinates: CLLocationCoordinate2D?) {
-        let objects = dataStore.timezones().compactMap { TimezoneData.customObject(from: $0) }
+        let objects = dataStore.timezoneObjects()
 
         for object in objects where object.isSystemTimezone {
             object.setLabel(customLabel)
@@ -202,111 +207,8 @@ class ParentPanelController: NSWindowController {
         additionalOptionsPopover = NSPopover()
     }
 
-    func screenHeight() -> CGFloat {
-        guard let main = NSScreen.main else { return 100 }
-
-        let mouseLocation = NSEvent.mouseLocation
-
-        var current = main.frame.height
-
-        let activeScreens = NSScreen.screens.filter { current -> Bool in
-            NSMouseInRect(mouseLocation, current.frame, false)
-        }
-
-        if let main = activeScreens.first {
-            current = main.frame.height
-        }
-
-        return current
-    }
-
     func invalidateMenubarTimer() {
         parentTimer = nil
-    }
-
-    private func getAdjustedRowHeight(for object: TimezoneData?, _ currentHeight: CGFloat) -> CGFloat {
-        let userFontSize: NSNumber = dataStore.retrieve(key: UserDefaultKeys.userFontSizePreference) as? NSNumber ?? 4
-        let shouldShowSunrise = dataStore.shouldDisplay(.sunrise)
-
-        var newHeight = currentHeight
-
-        if newHeight <= 68.0 {
-            newHeight = 60.0
-        }
-
-        if newHeight >= 68.0 {
-            newHeight = userFontSize == 4 ? 68.0 : 68.0
-            if let note = object?.note, note.isEmpty == false {
-                newHeight += 20
-            } else if let obj = object,
-                      TimezoneDataOperations(with: obj, store: dataStore).nextDaylightSavingsTransitionIfAvailable(with: futureSliderValue) != nil {
-                newHeight += 20
-            }
-        }
-
-        if newHeight >= 88.0 {
-            // Set it to 90 expicity in case the row height is calculated be higher.
-            newHeight = 88.0
-
-            let ops = object.flatMap { TimezoneDataOperations(with: $0, store: dataStore) }
-            if let note = object?.note, note.isEmpty,
-               ops?.nextDaylightSavingsTransitionIfAvailable(with: futureSliderValue) == nil {
-                newHeight -= 20.0
-            }
-        }
-
-        if shouldShowSunrise, object?.selectionType == .city {
-            newHeight += 8.0
-        }
-
-        if object?.isSystemTimezone == true {
-            newHeight += 5
-        }
-
-        newHeight += mainTableView.intercellSpacing.height
-
-        return newHeight
-    }
-
-    func setScrollViewConstraint() {
-        var totalHeight: CGFloat = 0.0
-        let preferences = defaultPreferences
-
-        for cellIndex in 0 ..< preferences.count {
-            let currentObject = TimezoneData.customObject(from: preferences[cellIndex])
-            let rowRect = mainTableView.rect(ofRow: cellIndex)
-            totalHeight += getAdjustedRowHeight(for: currentObject, rowRect.size.height)
-        }
-
-        // This is for the Add Cell View case
-        if preferences.isEmpty {
-            scrollViewHeight.constant = 100.0
-            return
-        }
-
-        if let userFontSize = dataStore.retrieve(key: UserDefaultKeys.userFontSizePreference) as? NSNumber {
-            if userFontSize == 4 {
-                scrollViewHeight.constant = totalHeight + CGFloat(userFontSize.intValue * 2)
-            } else {
-                scrollViewHeight.constant = totalHeight + CGFloat(userFontSize.intValue * 2) * 3.0
-            }
-        }
-
-        if scrollViewHeight.constant > (screenHeight() - 100) {
-            scrollViewHeight.constant = (screenHeight() - 100)
-        }
-
-        guard dataStore.shouldDisplay(.futureSlider) else { return }
-        let isModernSliderDisplayed = dataStore.retrieve(key: UserDefaultKeys.displayFutureSliderKey) as? NSNumber ?? 0
-        if isModernSliderDisplayed == 0 {
-            if scrollViewHeight.constant >= (screenHeight() - 200) {
-                scrollViewHeight.constant = (screenHeight() - 300)
-            }
-        } else {
-            if scrollViewHeight.constant >= (screenHeight() - 200) {
-                scrollViewHeight.constant = (screenHeight() - 200)
-            }
-        }
     }
 
     private lazy var menubarTitleHandler = MenubarTitleProvider(with: dataStore)
@@ -368,8 +270,7 @@ extension ParentPanelController {
 
         updatePanelColor()
 
-        let defaults = dataStore.timezones()
-        let convertedTimezones = defaults.compactMap { TimezoneData.customObject(from: $0) }
+        let convertedTimezones = dataStore.timezoneObjects()
 
         datasource = TimezoneDataSource(items: convertedTimezones, store: dataStore)
         mainTableView.dataSource = datasource
@@ -432,11 +333,11 @@ extension ParentPanelController {
     }
 
     @objc func updateTime() {
-        if (dataStore.menubarTimezones()?.count ?? 0) >= 1 {
+        if dataStore.menubarTimezones().count >= 1 {
             updateMenubarDisplay()
         }
 
-        let preferences = dataStore.timezones()
+        let timezones = dataStore.timezoneObjects()
 
         if modernSlider != nil, modernSlider.isHidden == false, modernContainerView.currentlyInFocus == false {
             if currentCenterIndexPath != -1, currentCenterIndexPath != modernSlider.numberOfItems(inSection: 0) / 2 {
@@ -446,12 +347,11 @@ extension ParentPanelController {
         }
 
         let hoverRow = mainTableView.hoverRow
-        stride(from: 0, to: preferences.count, by: 1).forEach { index in
-            let current = preferences[index]
+        stride(from: 0, to: timezones.count, by: 1).forEach { index in
+            let model = timezones[index]
 
             guard index < mainTableView.numberOfRows,
-                  let cellView = mainTableView.view(atColumn: 0, row: index, makeIfNecessary: false) as? TimezoneCellView,
-                  let model = TimezoneData.customObject(from: current) else { return }
+                  let cellView = mainTableView.view(atColumn: 0, row: index, makeIfNecessary: false) as? TimezoneCellView else { return }
 
             updateCell(cellView, with: model, at: index, hoverRow: hoverRow)
         }
@@ -488,57 +388,6 @@ extension ParentPanelController {
 
     @objc func updateTableContent() {
         mainTableView.reloadData()
-    }
-}
-
-// MARK: - Actions
-
-extension ParentPanelController {
-    @objc func openPreferencesWindow() {
-        oneWindow?.openGeneralPane()
-    }
-
-    func minutes(from date: Date, other: Date) -> Int {
-        return Calendar.current.dateComponents([.minute], from: date, to: other).minute ?? 0
-    }
-
-    @objc dynamic func terminateMeridian() {
-        NSApplication.shared.terminate(nil)
-    }
-
-    @objc func copyFirstTimezoneToClipboard() {
-        guard mainTableView.numberOfRows > 0,
-              let cellView = mainTableView.view(atColumn: 0, row: 0, makeIfNecessary: false) as? TimezoneCellView else {
-            return
-        }
-
-        let clipboardCopy = "\(cellView.customName.stringValue) - \(cellView.time.stringValue)"
-        let pasteboard = NSPasteboard.general
-        pasteboard.declareTypes([.string], owner: nil)
-        pasteboard.setString(clipboardCopy, forType: .string)
-        window?.contentView?.makeToast("Copied to Clipboard".localized())
-    }
-
-    @objc func reportIssue() {
-        guard let url = URL(string: AboutUsConstants.GitHubIssuesURL) else { return }
-        NSWorkspace.shared.open(url)
-
-        if let countryCode = Locale.autoupdatingCurrent.region?.identifier {
-            let custom: [String: Any] = ["Country": countryCode]
-            Logger.debug("Report Issue Opened: \(custom)")
-        }
-    }
-
-    @objc func rate() {
-        guard let sourceURL = URL(string: AboutUsConstants.AppStoreLink) else { return }
-
-        NSWorkspace.shared.open(sourceURL)
-    }
-
-    @objc func openFAQs() {
-        guard let sourceURL = URL(string: AboutUsConstants.FAQsLink) else { return }
-
-        NSWorkspace.shared.open(sourceURL)
     }
 }
 

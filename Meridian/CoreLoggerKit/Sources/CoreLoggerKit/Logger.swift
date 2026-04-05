@@ -16,7 +16,7 @@ public enum Logger {
     /// Opt-in verbose logging for debugging. Visible in Console.app when enabled.
     public static func debug(_ message: String) {
         guard debugLoggingEnabled else { return }
-        os_log(.default, log: debugLog, "%{public}@", message)
+        os_log(.default, log: debugLog, "%{private}@", message)
     }
 
     public static var debugLoggingEnabled: Bool {

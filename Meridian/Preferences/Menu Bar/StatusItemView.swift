@@ -53,28 +53,34 @@ class StatusItemView: NSView {
         return paragraphStyle
     }()
 
-    private var timeAttributes: [NSAttributedString.Key: AnyObject] {
-        let textColor = hasDarkAppearance ? NSColor.white : NSColor.black
+    // Cached per appearance mode; invalidated in viewDidChangeEffectiveAppearance.
+    private var cachedTimeAttributes: [NSAttributedString.Key: AnyObject]?
+    private var cachedTextFontAttributes: [NSAttributedString.Key: Any]?
 
-        let attributes = [
+    private var timeAttributes: [NSAttributedString.Key: AnyObject] {
+        if let cached = cachedTimeAttributes { return cached }
+        let textColor = hasDarkAppearance ? NSColor.white : NSColor.black
+        let attributes: [NSAttributedString.Key: AnyObject] = [
             NSAttributedString.Key.font: compactModeTimeFont,
             NSAttributedString.Key.foregroundColor: textColor,
             NSAttributedString.Key.backgroundColor: NSColor.clear,
             NSAttributedString.Key.paragraphStyle: paragraphStyle
         ]
+        cachedTimeAttributes = attributes
         return attributes
     }
 
     private var textFontAttributes: [NSAttributedString.Key: Any] {
+        if let cached = cachedTextFontAttributes { return cached }
         let textColor = hasDarkAppearance ? NSColor.white : NSColor.black
-
-        let textFontAttributes = [
+        let attributes: [NSAttributedString.Key: Any] = [
             NSAttributedString.Key.font: NSFont.boldSystemFont(ofSize: 10),
             NSAttributedString.Key.foregroundColor: textColor,
             NSAttributedString.Key.backgroundColor: NSColor.clear,
             NSAttributedString.Key.paragraphStyle: paragraphStyle
         ]
-        return textFontAttributes
+        cachedTextFontAttributes = attributes
+        return attributes
     }
 
     // MARK: Public
@@ -116,6 +122,9 @@ class StatusItemView: NSView {
 
     override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
+        // Invalidate appearance-dependent attribute caches so they are rebuilt for the new appearance.
+        cachedTimeAttributes = nil
+        cachedTextFontAttributes = nil
         statusItemViewSetNeedsDisplay()
     }
 

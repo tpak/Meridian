@@ -238,10 +238,6 @@ extension TimezoneDataOperations {
             return UserDefaultKeys.emptyString
         }
 
-        if relativeDayPreference.intValue == 3 {
-            return UserDefaultKeys.emptyString
-        }
-
         var currentCalendar = Calendar(identifier: .gregorian)
         currentCalendar.locale = Locale.autoupdatingCurrent
 
@@ -251,8 +247,11 @@ extension TimezoneDataOperations {
             return "\(shortWeekdayText(convertedDate))"
         }
 
-        // Yesterday, tomorrow, etc
-        if relativeDayPreference.intValue == 0 {
+        switch RelativeDayDisplay(rawValue: relativeDayPreference.intValue) ?? .relativeDay {
+        case .hidden:
+            return UserDefaultKeys.emptyString
+
+        case .relativeDay:
             let localFormatter = DateFormatterManager.localizedSimpleFormatter("EEEE")
             guard let local = localFormatter.date(from: localeDate(with: "EEEE")) else {
                 return "\(weekdayText(from: convertedDate))\(timeDifference())"
@@ -271,25 +270,13 @@ extension TimezoneDataOperations {
             } else {
                 return "\(weekdayText(from: convertedDate))\(timeDifference())"
             }
-        }
 
-        // Day name: Thursday, Friday etc
-        if relativeDayPreference.intValue == 1 {
+        case .dayName:
             return "\(weekdayText(from: convertedDate))\(timeDifference())"
-        }
 
-        // Date in mmm/dd
-        if relativeDayPreference.intValue == 2 {
+        case .dateFormat:
             return "\(todaysDate(with: sliderValue))\(timeDifference())"
         }
-
-        let tz = dataObject.timezone()
-        let locale = Locale.autoupdatingCurrent.identifier
-        Logger.production(
-            "Unable to get date: Timezone=\(tz), CurrentLocale=\(locale), SliderValue=\(sliderValue), TodaysDate=\(Date())"
-        )
-
-        return "Error"
     }
 
     // Returns shortened weekday given a date

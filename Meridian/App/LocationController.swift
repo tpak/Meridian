@@ -71,12 +71,13 @@ extension LocationController: CLLocationManagerDelegate {
     func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard !locations.isEmpty, let coordinates = locations.first?.coordinate else { return }
 
-        let reverseGeoCoder = CLGeocoder()
-
-        reverseGeoCoder.reverseGeocodeLocation(locations[0]) { [weak self] placemarks, _ in
-            guard let self, let customLabel = placemarks?.first?.locality else { return }
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            let geocoder = CLGeocoder()
+            defer { self.locationManager.stopUpdatingLocation() }
+            guard let placemarks = try? await geocoder.reverseGeocodeLocation(locations[0]),
+                  let customLabel = placemarks.first?.locality else { return }
             self.updateHomeObject(with: customLabel, coordinates: coordinates)
-            self.locationManager.stopUpdatingLocation()
         }
     }
 

@@ -12,11 +12,12 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
     let updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
     private var memoryPressureSource: DispatchSourceMemoryPressure?
     private var backfillTask: Task<Void, Never>?
+    private var sentinelTask: Task<Void, Never>?
 
     public func applicationDidFinishLaunching(_: Notification) {
         AppDefaults.initialize(with: DataStore.shared(), defaults: UserDefaults.standard)
         logLaunch()
-        Task.detached(priority: .utility) {
+        sentinelTask = Task.detached(priority: .utility) {
             self.checkForPreviousUncleanExit()
             self.writeSentinelFile()
         }
@@ -28,6 +29,7 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
 
     public func applicationWillTerminate(_: Notification) {
         Logger.production("App terminating cleanly")
+        sentinelTask?.cancel()
         backfillTask?.cancel()
         removeSentinelFile()
     }

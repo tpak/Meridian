@@ -18,11 +18,22 @@ class MockDataStore: DataStoring {
         storedTimezones = timezones ?? []
     }
 
-    func menubarTimezones() -> [Data]? {
+    func menubarTimezones() -> [Data] {
         return storedTimezones.filter {
             let timezone = TimezoneData.customObject(from: $0)
             return timezone?.isFavourite == 1
         }
+    }
+
+    func timezoneObjects() -> [TimezoneData] {
+        return storedTimezones.compactMap { TimezoneData.customObject(from: $0) }
+    }
+
+    func menubarTimezoneObjects() -> [TimezoneData] {
+        return storedTimezones.filter {
+            let tz = TimezoneData.customObject(from: $0)
+            return tz?.isFavourite == 1
+        }.compactMap { TimezoneData.customObject(from: $0) }
     }
 
     func shouldDisplay(_ type: ViewType) -> Bool {

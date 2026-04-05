@@ -12,18 +12,14 @@ class MenubarTitleProvider {
     }
 
     func titleForMenubar() -> String {
-        guard let menubarTitles = store.menubarTimezones() else {
-            return ""
-        }
-
         // If the menubar is in compact mode, we don't need any of the below calculations; exit early
         if store.shouldDisplay(.menubarCompactMode) {
             return ""
         }
 
-        if menubarTitles.isEmpty == false {
-            let titles = menubarTitles.compactMap { data -> String? in
-                guard let timezone = TimezoneData.customObject(from: data) else { return nil }
+        let menubarTimezones = store.menubarTimezoneObjects()
+        if menubarTimezones.isEmpty == false {
+            let titles = menubarTimezones.map { timezone -> String in
                 let operationsObject = TimezoneDataOperations(with: timezone, store: store)
                 return operationsObject.menuTitle().trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
             }

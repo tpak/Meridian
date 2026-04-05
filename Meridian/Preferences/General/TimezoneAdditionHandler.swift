@@ -62,9 +62,9 @@ class TimezoneAdditionHandler: NSObject {
 
     @objc func search() {
         guard let host = host else { return }
-        let searchString = host.searchField.stringValue
-
-        if searchString.isEmpty {
+        guard let searchString = host.searchField?.stringValue,
+              !searchString.isEmpty,
+              searchString.count <= maxSearchLength else {
             searchTask?.cancel()
             resetSearchView()
             return
@@ -99,16 +99,14 @@ class TimezoneAdditionHandler: NSObject {
                 let name = placemark.formattedAddress
                 let timezoneID = placemark.timeZone?.identifier ?? ""
 
-                let totalPackage: [String: Any] = [
-                    "latitude": location.coordinate.latitude,
-                    "longitude": location.coordinate.longitude,
-                    UserDefaultKeys.timezoneName: name,
-                    UserDefaultKeys.customLabel: name,
-                    UserDefaultKeys.timezoneID: timezoneID,
-                    UserDefaultKeys.placeIdentifier: placemark.isoCountryCode ?? ""
-                ]
-
-                let timezoneData = TimezoneData(with: totalPackage)
+                let timezoneData = TimezoneData.make(
+                    timezoneID: timezoneID,
+                    name: name,
+                    customLabel: name,
+                    latitude: location.coordinate.latitude,
+                    longitude: location.coordinate.longitude,
+                    placeIdentifier: placemark.isoCountryCode ?? ""
+                )
                 host.searchResultsDataSource.setFilteredArrayValue([timezoneData])
 
                 findLocalSearchResultsForTimezones()
@@ -116,7 +114,7 @@ class TimezoneAdditionHandler: NSObject {
             } catch {
                 findLocalSearchResultsForTimezones()
                 if host.searchResultsDataSource.timezoneFilteredArray.isEmpty {
-                    presentError(error.localizedDescription)
+                    presentError(error)
                     return
                 }
                 prepareUIForPresentingResults()
@@ -129,9 +127,16 @@ class TimezoneAdditionHandler: NSObject {
         TimezoneSearchService.searchLocalTimezones(host.searchField.stringValue, in: host.searchResultsDataSource)
     }
 
-    private func presentError(_ errorMessage: String) {
+    private func isOfflineError(_ error: Error) -> Bool {
+        let nsError = error as NSError
+        return nsError.code == NSURLErrorNotConnectedToInternet ||
+               nsError.code == NSURLErrorNetworkConnectionLost ||
+               nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorTimedOut
+    }
+
+    private func presentError(_ error: Error) {
         guard let host = host else { return }
-        if errorMessage == PreferencesConstants.offlineErrorMessage {
+        if isOfflineError(error) {
             host.placeholderLabel.placeholderString = PreferencesConstants.noInternetConnectivityError
         } else {
             host.placeholderLabel.placeholderString = PreferencesConstants.tryAgainMessage
@@ -221,17 +226,15 @@ class TimezoneAdditionHandler: NSObject {
             filteredAddress = address.filteredName()
         }
 
-        let newTimeZone = [
-            UserDefaultKeys.timezoneID: timezone.identifier,
-            UserDefaultKeys.timezoneName: filteredAddress,
-            UserDefaultKeys.placeIdentifier: dataObject.placeID ?? "",
-            "latitude": dataObject.latitude ?? 0.0,
-            "longitude": dataObject.longitude ?? 0.0,
-            "nextUpdate": UserDefaultKeys.emptyString,
-            UserDefaultKeys.customLabel: filteredAddress
-        ] as [String: Any]
-
-        let timezoneObject = TimezoneData(with: newTimeZone)
+        let timezoneObject = TimezoneData.make(
+            timezoneID: timezone.identifier,
+            name: filteredAddress,
+            customLabel: filteredAddress,
+            latitude: dataObject.latitude ?? 0.0,
+            longitude: dataObject.longitude ?? 0.0,
+            placeIdentifier: dataObject.placeID ?? "",
+            nextUpdate: UserDefaultKeys.emptyString
+        )
 
         let operationsObject = TimezoneDataOperations(with: timezoneObject, store: dataStore)
         operationsObject.saveObject()
@@ -326,17 +329,15 @@ class TimezoneAdditionHandler: NSObject {
             if let timezoneID = dataObject.timezoneID, !timezoneID.isEmpty {
                 let filteredAddress = (dataObject.formattedAddress ?? "Error").filteredName()
 
-                let newTimeZone = [
-                    UserDefaultKeys.timezoneID: timezoneID,
-                    UserDefaultKeys.timezoneName: filteredAddress,
-                    UserDefaultKeys.placeIdentifier: dataObject.placeID ?? "",
-                    "latitude": dataObject.latitude ?? 0.0,
-                    "longitude": dataObject.longitude ?? 0.0,
-                    "nextUpdate": UserDefaultKeys.emptyString,
-                    UserDefaultKeys.customLabel: filteredAddress
-                ] as [String: Any]
-
-                let timezoneObject = TimezoneData(with: newTimeZone)
+                let timezoneObject = TimezoneData.make(
+                    timezoneID: timezoneID,
+                    name: filteredAddress,
+                    customLabel: filteredAddress,
+                    latitude: dataObject.latitude ?? 0.0,
+                    longitude: dataObject.longitude ?? 0.0,
+                    placeIdentifier: dataObject.placeID ?? "",
+                    nextUpdate: UserDefaultKeys.emptyString
+                )
                 let operationsObject = TimezoneDataOperations(with: timezoneObject, store: dataStore)
                 operationsObject.saveObject()
 
@@ -351,6 +352,22 @@ class TimezoneAdditionHandler: NSObject {
                 getTimezone(for: latitude, and: longitude)
             }
         }
+    }
+
+    private func performPostInstallCleanup() {
+        guard let host = host else { return }
+        host.searchResultsDataSource.cleanupFilterArray()
+        host.searchResultsDataSource.timezoneFilteredArray = []
+        host.placeholderLabel.placeholderString = UserDefaultKeys.emptyString
+        host.searchField.stringValue = UserDefaultKeys.emptyString
+        reloadSearchResults()
+        host.refreshTimezoneTableView(true)
+        host.refreshMainTable()
+        host.timezonePanel.close()
+        host.searchField.placeholderString = NSLocalizedString("Search Field Placeholder",
+                                                               comment: "Search Field Placeholder")
+        host.availableTimezoneTableView.isHidden = false
+        isActivityInProgress = false
     }
 
     private func cleanupAfterInstallingTimezone() {
@@ -379,18 +396,7 @@ class TimezoneAdditionHandler: NSObject {
                     Logger.debug("Coordinate backfill skipped for \(cityName)")
                     let operationObject = TimezoneDataOperations(with: data, store: store)
                     operationObject.saveObject()
-                    host.searchResultsDataSource.cleanupFilterArray()
-                    host.searchResultsDataSource.timezoneFilteredArray = []
-                    host.placeholderLabel.placeholderString = UserDefaultKeys.emptyString
-                    host.searchField.stringValue = UserDefaultKeys.emptyString
-                    self.reloadSearchResults()
-                    host.refreshTimezoneTableView(true)
-                    host.refreshMainTable()
-                    host.timezonePanel.close()
-                    host.searchField.placeholderString = NSLocalizedString("Search Field Placeholder",
-                                                                           comment: "Search Field Placeholder")
-                    host.availableTimezoneTableView.isHidden = false
-                    self.isActivityInProgress = false
+                    self.performPostInstallCleanup()
                     return
                 }
                 data.latitude = location.coordinate.latitude
@@ -399,21 +405,7 @@ class TimezoneAdditionHandler: NSObject {
 
             let operationObject = TimezoneDataOperations(with: data, store: store)
             operationObject.saveObject()
-
-            host.searchResultsDataSource.cleanupFilterArray()
-            host.searchResultsDataSource.timezoneFilteredArray = []
-            host.placeholderLabel.placeholderString = UserDefaultKeys.emptyString
-            host.searchField.stringValue = UserDefaultKeys.emptyString
-
-            self.reloadSearchResults()
-            host.refreshTimezoneTableView(true)
-            host.refreshMainTable()
-
-            host.timezonePanel.close()
-            host.searchField.placeholderString = NSLocalizedString("Search Field Placeholder",
-                                                                   comment: "Search Field Placeholder")
-            host.availableTimezoneTableView.isHidden = false
-            self.isActivityInProgress = false
+            self.performPostInstallCleanup()
         }
     }
 

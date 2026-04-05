@@ -19,7 +19,9 @@ enum ViewType {
 protocol DataStoring: AnyObject {
     func timezones() -> [Data]
     func setTimezones(_ timezones: [Data]?)
-    func menubarTimezones() -> [Data]?
+    func menubarTimezones() -> [Data]
+    func timezoneObjects() -> [TimezoneData]
+    func menubarTimezoneObjects() -> [TimezoneData]
     func shouldDisplay(_ type: ViewType) -> Bool
     func retrieve(key: String) -> Any?
     func addTimezone(_ timezone: TimezoneData)
@@ -35,6 +37,8 @@ class DataStore: NSObject, DataStoring {
     private var userDefaults: UserDefaults!
     private var cachedTimezones: [Data]
     private var cachedMenubarTimezones: [Data]
+    private var cachedTimezoneObjects: [TimezoneData]
+    private var cachedMenubarTimezoneObjects: [TimezoneData]
     private static let timeFormatsWithSuffix: Set<NSNumber> = Set([NSNumber(value: 0),
                                                                    NSNumber(value: 3),
                                                                    NSNumber(value: 4),
@@ -51,6 +55,8 @@ class DataStore: NSObject, DataStoring {
             let customTimezone = TimezoneData.customObject(from: $0)
             return customTimezone?.isFavourite == 1
         }
+        cachedTimezoneObjects = cachedTimezones.compactMap { TimezoneData.customObject(from: $0) }
+        cachedMenubarTimezoneObjects = cachedMenubarTimezones.compactMap { TimezoneData.customObject(from: $0) }
         userDefaults = defaults
         super.init()
     }
@@ -66,11 +72,20 @@ class DataStore: NSObject, DataStoring {
             let customTimezone = TimezoneData.customObject(from: $0)
             return customTimezone?.isFavourite == 1
         }
+        cachedTimezoneObjects = cachedTimezones.compactMap { TimezoneData.customObject(from: $0) }
+        cachedMenubarTimezoneObjects = cachedMenubarTimezones.compactMap { TimezoneData.customObject(from: $0) }
     }
 
-    // Implementation always returns non-nil; callers may safely use ?? []
-    func menubarTimezones() -> [Data]? {
+    func menubarTimezones() -> [Data] {
         return cachedMenubarTimezones
+    }
+
+    func timezoneObjects() -> [TimezoneData] {
+        return cachedTimezoneObjects
+    }
+
+    func menubarTimezoneObjects() -> [TimezoneData] {
+        return cachedMenubarTimezoneObjects
     }
 
     // MARK: Date (May 8th) in Compact Menubar
@@ -124,7 +139,8 @@ class DataStore: NSObject, DataStoring {
     func shouldDisplay(_ type: ViewType) -> Bool {
         switch type {
         case .futureSlider:
-            return (retrieve(key: UserDefaultKeys.displayFutureSliderKey) as? NSNumber).map { $0 != 1 } ?? false
+            let hidden = 1
+            return (retrieve(key: UserDefaultKeys.displayFutureSliderKey) as? NSNumber).map { $0.intValue != hidden } ?? false
         case .twelveHour:
             return shouldDisplayHelper(UserDefaultKeys.selectedTimeZoneFormatKey)
         case .sunrise:

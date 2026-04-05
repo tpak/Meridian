@@ -5,6 +5,10 @@ import XCTest
 
 @testable import Meridian
 
+/// Integration tests for AppDelegate that require the live NSApplication.shared singleton.
+/// These tests verify observable behavior of the running app (menubar display modes,
+/// status item state transitions) and cannot be fully isolated from the app lifecycle.
+/// DataStore cleanup is performed in tearDown to prevent test pollution.
 class AppDelegateTests: XCTestCase {
     override func setUp() {
         super.setUp()
@@ -18,11 +22,9 @@ class AppDelegateTests: XCTestCase {
     override func tearDown() {
         // Remove test-specific timezone entries that could pollute UserDefaults
         // when tests run in parallel across multiple workers.
-        let cleaned = DataStore.shared().timezones().filter {
-            let tz = TimezoneData.customObject(from: $0)
-            return tz?.formattedAddress != "MenubarTimezone"
+        cleanupSingletonTimezones { tz in
+            return tz?.formattedAddress == "MenubarTimezone"
         }
-        DataStore.shared().setTimezones(cleaned)
         super.tearDown()
     }
 
@@ -94,6 +96,7 @@ class AppDelegateTests: XCTestCase {
 
     func testCompactModeMenubarSetup() throws {
         let subject = NSApplication.shared.delegate as? AppDelegate
+        // Integration test: requires DataStore.shared() to drive the live status item handler.
         let olderTimezones = DataStore.shared().timezones()
         let olderCompactMode = UserDefaults.standard.integer(forKey: UserDefaultKeys.menubarCompactMode)
         defer {
@@ -118,6 +121,7 @@ class AppDelegateTests: XCTestCase {
     }
 
     func testStandardModeMenubarSetup() throws {
+        // Integration test: requires DataStore.shared() to drive the live status item handler.
         let olderTimezones = DataStore.shared().timezones()
         let olderCompactMode = UserDefaults.standard.integer(forKey: UserDefaultKeys.menubarCompactMode)
         defer {

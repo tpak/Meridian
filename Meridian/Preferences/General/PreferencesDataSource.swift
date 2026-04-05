@@ -66,6 +66,8 @@ extension PreferencesDataSource: NSTableViewDelegate {
             return false
         }
 
+        // NSIndexSet class whitelist strictly limits deserialization risk even though
+        // data originates from the local pasteboard (accessible to same-user processes).
         guard let rowIndexes = try? NSKeyedUnarchiver.unarchivedObject(ofClass: NSIndexSet.self, from: data) else {
             Logger.debug("Row was unexpectedly nil")
             return false
