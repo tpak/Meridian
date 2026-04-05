@@ -20,13 +20,25 @@ A macOS menu bar world clock. Track time across zones for your team, friends, an
 - **3 display modes** — icon only, standard text, or compact view
 - **Time scrubbing** — slide to see what time it will be elsewhere
 - **Sunrise/sunset** — know when the sun rises and sets in each zone
+- **Pin to desktop** — float the panel above all windows and drag it anywhere
 - **Keyboard shortcuts** — ⌘Q, ⌘W, ⌘,, ⌘C in the panel, plus a configurable global hotkey
 - **Start at login** — launches automatically with your Mac
 - **Ad-free & open source**
 
 ## Install
 
-Download the latest release from [GitHub Releases](https://github.com/tpak/Meridian/releases).
+### Homebrew (recommended)
+
+```bash
+brew tap tpak/tpak
+brew install --cask meridian
+```
+
+Updates are delivered automatically via Sparkle and also via `brew upgrade meridian`.
+
+### Direct download
+
+Download the latest `.zip` from [GitHub Releases](https://github.com/tpak/Meridian/releases), unzip, and drag Meridian to your Applications folder.
 
 Requires macOS 13 (Ventura) or later.
 
