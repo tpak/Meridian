@@ -11,14 +11,14 @@ class MenubarTitleProvider {
         store = dataStore
     }
 
-    func titleForMenubar() -> String? {
+    func titleForMenubar() -> String {
         guard let menubarTitles = store.menubarTimezones() else {
-            return nil
+            return ""
         }
 
         // If the menubar is in compact mode, we don't need any of the below calculations; exit early
         if store.shouldDisplay(.menubarCompactMode) {
-            return nil
+            return ""
         }
 
         if menubarTitles.isEmpty == false {
@@ -31,6 +31,6 @@ class MenubarTitleProvider {
             return titles.joined(separator: " ")
         }
 
-        return nil
+        return ""
     }
 }

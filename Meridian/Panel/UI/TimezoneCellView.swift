@@ -82,25 +82,24 @@ class TimezoneCellView: NSTableCellView {
     }
 
     private func updateRelativeDateVisibility(hasContent: Bool, width: CGFloat) {
-        if hasContent {
-            if relativeDate.isHidden {
-                relativeDate.isHidden.toggle()
-            }
-            for constraint in relativeDate.constraints where constraint.identifier == ConstraintID.width {
-                constraint.constant = width + 8
-            }
-            for constraint in constraints where constraint.identifier == ConstraintID.customNameTopSpace {
-                if constraint.constant != 12 {
-                    constraint.constant = 12
-                }
-            }
-        } else {
+        guard hasContent else {
             relativeDate.isHidden = true
-            for constraint in constraints where constraint.identifier == ConstraintID.customNameTopSpace {
-                if constraint.constant == 12 {
-                    constraint.constant += 15
-                }
+            if let c = constraints.first(where: { $0.identifier == ConstraintID.customNameTopSpace }),
+               c.constant == 12 {
+                c.constant += 15
             }
+            return
+        }
+
+        if relativeDate.isHidden {
+            relativeDate.isHidden.toggle()
+        }
+        if let c = relativeDate.constraints.first(where: { $0.identifier == ConstraintID.width }) {
+            c.constant = width + 8
+        }
+        if let c = constraints.first(where: { $0.identifier == ConstraintID.customNameTopSpace }),
+           c.constant != 12 {
+            c.constant = 12
         }
     }
 
@@ -108,18 +107,15 @@ class TimezoneCellView: NSTableCellView {
         let sunriseVisible = !sunriseSetTime.isHidden
 
         for constraint in constraints where constraint.identifier == ConstraintID.timeTopSpace {
-            if hasRelativeDate {
-                if sunriseVisible, relativeDate.isHidden {
-                    if constraint.constant == -5.0 { constraint.constant -= 10.0 }
-                } else if constraint.constant != -5.0 {
-                    constraint.constant = -3.0
-                }
-            } else {
-                if sunriseVisible {
-                    if constraint.constant == -5.0 { constraint.constant -= 15.0 }
-                } else if constraint.constant != -5.0 {
-                    constraint.constant = -5.0
-                }
+            switch (hasRelativeDate, sunriseVisible) {
+            case (true, true) where relativeDate.isHidden:
+                if constraint.constant == -5.0 { constraint.constant -= 10.0 }
+            case (true, _):
+                if constraint.constant != -5.0 { constraint.constant = -3.0 }
+            case (false, true):
+                if constraint.constant == -5.0 { constraint.constant -= 15.0 }
+            case (false, false):
+                if constraint.constant != -5.0 { constraint.constant = -5.0 }
             }
         }
     }

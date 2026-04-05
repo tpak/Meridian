@@ -37,6 +37,8 @@ class TimezoneAdditionHandler: NSObject {
     private let dataStore: DataStoring
 
     private var searchTask: Task<Void, Never>?
+    private var getTimezoneTask: Task<Void, Never>?
+    private var installCleanupTask: Task<Void, Never>?
 
     private var isActivityInProgress = false {
         didSet {
@@ -173,7 +175,8 @@ class TimezoneAdditionHandler: NSObject {
         host.placeholderLabel.placeholderString = "Retrieving timezone data"
         host.availableTimezoneTableView.isHidden = true
 
-        Task { @MainActor in
+        getTimezoneTask?.cancel()
+        getTimezoneTask = Task { @MainActor in
             do {
                 let location = CLLocation(latitude: latitude, longitude: longitude)
                 let geocoder = CLGeocoder()
@@ -366,15 +369,32 @@ class TimezoneAdditionHandler: NSObject {
         // Geocode coordinates before saving so sunrise/sunset works immediately
         let timezoneID = metaInfo.0.name
         let store = self.dataStore
-        Task { @MainActor in
+        installCleanupTask?.cancel()
+        installCleanupTask = Task { @MainActor in
             let components = timezoneID.split(separator: "/")
             if let cityComponent = components.last {
                 let cityName = cityComponent.replacingOccurrences(of: "_", with: " ")
-                if let placemark = try? await NetworkManager.geocodeAddress(cityName),
-                   let location = placemark.location {
-                    data.latitude = location.coordinate.latitude
-                    data.longitude = location.coordinate.longitude
+                guard let placemark = try? await NetworkManager.geocodeAddress(cityName),
+                      let location = placemark.location else {
+                    Logger.debug("Coordinate backfill skipped for \(cityName)")
+                    let operationObject = TimezoneDataOperations(with: data, store: store)
+                    operationObject.saveObject()
+                    host.searchResultsDataSource.cleanupFilterArray()
+                    host.searchResultsDataSource.timezoneFilteredArray = []
+                    host.placeholderLabel.placeholderString = UserDefaultKeys.emptyString
+                    host.searchField.stringValue = UserDefaultKeys.emptyString
+                    self.reloadSearchResults()
+                    host.refreshTimezoneTableView(true)
+                    host.refreshMainTable()
+                    host.timezonePanel.close()
+                    host.searchField.placeholderString = NSLocalizedString("Search Field Placeholder",
+                                                                           comment: "Search Field Placeholder")
+                    host.availableTimezoneTableView.isHidden = false
+                    self.isActivityInProgress = false
+                    return
                 }
+                data.latitude = location.coordinate.latitude
+                data.longitude = location.coordinate.longitude
             }
 
             let operationObject = TimezoneDataOperations(with: data, store: store)

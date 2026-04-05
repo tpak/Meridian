@@ -127,34 +127,27 @@ extension TimezoneDataSource: NSTableViewDataSource, NSTableViewDelegate {
     }
 
     func tableView(_ tableView: NSTableView, rowActionsForRow row: Int, edge: NSTableView.RowActionEdge) -> [NSTableViewRowAction] {
-        guard !timezones.isEmpty else {
-            return []
-        }
+        guard !timezones.isEmpty else { return [] }
+        guard edge == .trailing else { return [] }
 
-        if edge == .trailing {
-            let swipeToDelete = NSTableViewRowAction(style: .destructive,
-                                                     title: "Delete",
-                                                     handler: { _, row in
+        let swipeToDelete = NSTableViewRowAction(style: .destructive,
+                                                 title: "Delete",
+                                                 handler: { _, row in
+            guard !self.timezones[row].isSystemTimezone else {
+                self.showAlertForDeletingAHomeRow(row, tableView)
+                return
+            }
 
-                if self.timezones[row].isSystemTimezone {
-                    self.showAlertForDeletingAHomeRow(row, tableView)
-                    return
-                }
+            let indexSet = IndexSet(integer: row)
+            tableView.removeRows(at: indexSet, withAnimation: NSTableView.AnimationOptions())
 
-                let indexSet = IndexSet(integer: row)
+            guard let panelController = PanelController.panel() else { return }
+            panelController.deleteTimezone(at: row)
+        })
 
-                tableView.removeRows(at: indexSet, withAnimation: NSTableView.AnimationOptions())
+        swipeToDelete.image = NSImage(systemSymbolName: "trash.fill", accessibilityDescription: "Delete")
 
-                guard let panelController = PanelController.panel() else { return }
-                panelController.deleteTimezone(at: row)
-            })
-
-            swipeToDelete.image = NSImage(systemSymbolName: "trash.fill", accessibilityDescription: "Delete")
-
-            return [swipeToDelete]
-        }
-
-        return []
+        return [swipeToDelete]
     }
 
     private func showAlertForDeletingAHomeRow(_ row: Int, _ tableView: NSTableView) {
@@ -168,15 +161,15 @@ extension TimezoneDataSource: NSTableViewDataSource, NSTableViewDelegate {
         alert.addButton(withTitle: "No".localized())
 
         let response = alert.runModal()
-        if response.rawValue == 1000 {
-            OperationQueue.main.addOperation {
-                let indexSet = IndexSet(integer: row)
+        guard response == NSApplication.ModalResponse.alertFirstButtonReturn else { return }
 
-                tableView.removeRows(at: indexSet, withAnimation: NSTableView.AnimationOptions.slideUp)
+        OperationQueue.main.addOperation {
+            let indexSet = IndexSet(integer: row)
 
-                guard let panelController = PanelController.panel() else { return }
-                panelController.deleteTimezone(at: row)
-            }
+            tableView.removeRows(at: indexSet, withAnimation: NSTableView.AnimationOptions.slideUp)
+
+            guard let panelController = PanelController.panel() else { return }
+            panelController.deleteTimezone(at: row)
         }
     }
 }

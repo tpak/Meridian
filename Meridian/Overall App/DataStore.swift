@@ -68,6 +68,7 @@ class DataStore: NSObject, DataStoring {
         }
     }
 
+    // Implementation always returns non-nil; callers may safely use ?? []
     func menubarTimezones() -> [Data]? {
         return cachedMenubarTimezones
     }
@@ -129,7 +130,7 @@ class DataStore: NSObject, DataStoring {
         case .sunrise:
             return shouldDisplayHelper(UserDefaultKeys.sunriseSunsetTime)
         case .showAppInForeground:
-            return (retrieve(key: UserDefaultKeys.showAppInForeground) as? NSNumber)?.isEqual(to: NSNumber(value: 1)) ?? false
+            return userDefaults.integer(forKey: UserDefaultKeys.showAppInForeground) == 1
         case .dateInMenubar:
             return shouldDisplayNonObjectHelper(UserDefaultKeys.showDateInMenu)
         case .placeInMenubar:

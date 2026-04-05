@@ -291,7 +291,8 @@ class StatusItemHandler: NSObject {
         if currentState == .compactText {
             updateCompactMenubar()
             updateMenubar()
-        } else if currentState == .standardText, let title = menubarTitleHandler.titleForMenubar() {
+        } else if currentState == .standardText {
+            let title = menubarTitleHandler.titleForMenubar()
             statusItem.button?.image = nil
             statusItem.button?.attributedTitle = NSAttributedString(string: title, attributes: StatusItemHandler.menubarTextAttributes)
             updateMenubar()
@@ -356,9 +357,7 @@ class StatusItemHandler: NSObject {
     private func setupForStandardText() {
         var menubarText = UserDefaultKeys.emptyString
 
-        if let menubarTitle = menubarTitleHandler.titleForMenubar() {
-            menubarText = menubarTitle
-        }
+        menubarText = menubarTitleHandler.titleForMenubar()
 
         guard !menubarText.isEmpty else {
             setMenubarIcon()

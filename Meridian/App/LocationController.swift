@@ -54,37 +54,16 @@ class LocationController: NSObject {
     }
 
     private func updateHomeObject(with customLabel: String, coordinates: CLLocationCoordinate2D?) {
-        let timezones = store.timezones()
-
-        var timezoneObjects: [TimezoneData] = []
-
-        for timezone in timezones {
-            if let model = TimezoneData.customObject(from: timezone) {
-                timezoneObjects.append(model)
+        let updated: [Data] = store.timezones().compactMap { data in
+            guard let model = TimezoneData.customObject(from: data) else { return data }
+            if model.isSystemTimezone {
+                model.setLabel(customLabel)
+                model.latitude = coordinates?.latitude
+                model.longitude = coordinates?.longitude
             }
+            return NSKeyedArchiver.secureArchive(with: model) ?? data
         }
-
-        for timezoneObject in timezoneObjects where timezoneObject.isSystemTimezone == true {
-            timezoneObject.setLabel(customLabel)
-            if let latlong = coordinates {
-                timezoneObject.longitude = latlong.longitude
-                timezoneObject.latitude = latlong.latitude
-            } else {
-                timezoneObject.longitude = nil
-                timezoneObject.latitude = nil
-            }
-        }
-
-        var datas: [Data] = []
-
-        for updatedObject in timezoneObjects {
-            guard let dataObject = NSKeyedArchiver.secureArchive(with: updatedObject) else {
-                continue
-            }
-            datas.append(dataObject)
-        }
-
-        store.setTimezones(datas)
+        store.setTimezones(updated)
     }
 }
 

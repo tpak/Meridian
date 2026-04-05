@@ -284,19 +284,18 @@ extension PreferencesViewController: NSTableViewDataSource, NSTableViewDelegate 
         alert.addButton(withTitle: "Cancel".localized())
 
         let response = alert.runModal()
+        guard response == .alertFirstButtonReturn else { return }
 
-        if response.rawValue == 1000 {
-            OperationQueue.main.addOperation {
-                UserDefaults.standard.set(0, forKey: UserDefaultKeys.menubarCompactMode)
+        OperationQueue.main.addOperation {
+            UserDefaults.standard.set(0, forKey: UserDefaultKeys.menubarCompactMode)
 
-                if alert.suppressionButton?.state == NSControl.StateValue.on {
-                    UserDefaults.standard.set(true, forKey: UserDefaultKeys.longStatusBarWarningMessage)
-                }
-
-                self.updateStatusBarAppearance()
-
-                Logger.debug("Switched to Compact Mode: Context=>1 Menubar Timezone in Preferences")
+            if alert.suppressionButton?.state == .on {
+                UserDefaults.standard.set(true, forKey: UserDefaultKeys.longStatusBarWarningMessage)
             }
+
+            self.updateStatusBarAppearance()
+
+            Logger.debug("Switched to Compact Mode: Context=>1 Menubar Timezone in Preferences")
         }
     }
 }

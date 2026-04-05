@@ -125,19 +125,14 @@ class ParentPanelController: NSWindowController {
             .store(in: &cancellables)
 
         // UI adjustments based on user preferences
-        if dataStore.timezones().isEmpty || dataStore.shouldDisplay(.futureSlider) == false {
-
-            if modernContainerView != nil {
-                modernContainerView.isHidden = true
-            }
-        } else if let value = dataStore.retrieve(key: UserDefaultKeys.displayFutureSliderKey) as? NSNumber {
-            if value.intValue == 1 {
-                if modernContainerView != nil {
-                    modernContainerView.isHidden = true
-                }
-            } else if value.intValue == 0 {
-                if modernContainerView != nil {
-                    modernContainerView.isHidden = false
+        if let containerView = modernContainerView {
+            if dataStore.timezones().isEmpty || dataStore.shouldDisplay(.futureSlider) == false {
+                containerView.isHidden = true
+            } else if let value = dataStore.retrieve(key: UserDefaultKeys.displayFutureSliderKey) as? NSNumber {
+                if value.intValue == 1 {
+                    containerView.isHidden = true
+                } else if value.intValue == 0 {
+                    containerView.isHidden = false
                 }
             }
         }
@@ -178,34 +173,18 @@ class ParentPanelController: NSWindowController {
     }
 
     private func updateHomeObject(with customLabel: String, coordinates: CLLocationCoordinate2D?) {
-        let timezones = dataStore.timezones()
+        let objects = dataStore.timezones().compactMap { TimezoneData.customObject(from: $0) }
 
-        var timezoneObjects: [TimezoneData] = []
-
-        for timezone in timezones {
-            if let model = TimezoneData.customObject(from: timezone) {
-                timezoneObjects.append(model)
-            }
-        }
-
-        for timezoneObject in timezoneObjects where timezoneObject.isSystemTimezone == true {
-            timezoneObject.setLabel(customLabel)
-            timezoneObject.formattedAddress = customLabel
+        for object in objects where object.isSystemTimezone {
+            object.setLabel(customLabel)
+            object.formattedAddress = customLabel
             if let latlong = coordinates {
-                timezoneObject.longitude = latlong.longitude
-                timezoneObject.latitude = latlong.latitude
+                object.longitude = latlong.longitude
+                object.latitude = latlong.latitude
             }
         }
 
-        var datas: [Data] = []
-
-        for updatedObject in timezoneObjects {
-            guard let dataObject = NSKeyedArchiver.secureArchive(with: updatedObject) else {
-                continue
-            }
-            datas.append(dataObject)
-        }
-
+        let datas = objects.compactMap { NSKeyedArchiver.secureArchive(with: $0) }
         dataStore.setTimezones(datas)
 
         if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
@@ -317,16 +296,15 @@ class ParentPanelController: NSWindowController {
             scrollViewHeight.constant = (screenHeight() - 100)
         }
 
-        if dataStore.shouldDisplay(.futureSlider) {
-            let isModernSliderDisplayed = dataStore.retrieve(key: UserDefaultKeys.displayFutureSliderKey) as? NSNumber ?? 0
-            if isModernSliderDisplayed == 0 {
-                if scrollViewHeight.constant >= (screenHeight() - 200) {
-                    scrollViewHeight.constant = (screenHeight() - 300)
-                }
-            } else {
-                if scrollViewHeight.constant >= (screenHeight() - 200) {
-                    scrollViewHeight.constant = (screenHeight() - 200)
-                }
+        guard dataStore.shouldDisplay(.futureSlider) else { return }
+        let isModernSliderDisplayed = dataStore.retrieve(key: UserDefaultKeys.displayFutureSliderKey) as? NSNumber ?? 0
+        if isModernSliderDisplayed == 0 {
+            if scrollViewHeight.constant >= (screenHeight() - 200) {
+                scrollViewHeight.constant = (screenHeight() - 300)
+            }
+        } else {
+            if scrollViewHeight.constant >= (screenHeight() - 200) {
+                scrollViewHeight.constant = (screenHeight() - 200)
             }
         }
     }
@@ -391,9 +369,7 @@ extension ParentPanelController {
         updatePanelColor()
 
         let defaults = dataStore.timezones()
-        let convertedTimezones = defaults.map { data -> TimezoneData in
-            TimezoneData.customObject(from: data)!
-        }
+        let convertedTimezones = defaults.compactMap { TimezoneData.customObject(from: $0) }
 
         datasource = TimezoneDataSource(items: convertedTimezones, store: dataStore)
         mainTableView.dataSource = datasource
@@ -447,7 +423,7 @@ extension ParentPanelController {
         if dataStore.shouldDisplay(.menubarCompactMode) {
             status.updateCompactMenubar()
         } else {
-            let title = menubarTitleHandler.titleForMenubar() ?? ""
+            let title = menubarTitleHandler.titleForMenubar()
             status.statusItem.button?.attributedTitle = NSAttributedString(
                 string: title,
                 attributes: ParentPanelController.attributes
@@ -470,40 +446,44 @@ extension ParentPanelController {
         }
 
         let hoverRow = mainTableView.hoverRow
-        stride(from: 0, to: preferences.count, by: 1).forEach {
-            let current = preferences[$0]
+        stride(from: 0, to: preferences.count, by: 1).forEach { index in
+            let current = preferences[index]
 
-            if $0 < mainTableView.numberOfRows,
-               let cellView = mainTableView.view(atColumn: 0, row: $0, makeIfNecessary: false) as? TimezoneCellView,
-               let model = TimezoneData.customObject(from: current) {
-                if modernContainerView != nil, modernSlider.isHidden == false, modernContainerView.currentlyInFocus {
-                    return
-                }
+            guard index < mainTableView.numberOfRows,
+                  let cellView = mainTableView.view(atColumn: 0, row: index, makeIfNecessary: false) as? TimezoneCellView,
+                  let model = TimezoneData.customObject(from: current) else { return }
 
-                let dataOperation = TimezoneDataOperations(with: model, store: dataStore)
-                cellView.time.stringValue = dataOperation.time(with: futureSliderValue)
-                cellView.sunriseSetTime.stringValue = dataOperation.formattedSunriseTime(with: futureSliderValue)
-                cellView.sunriseSetTime.lineBreakMode = .byClipping
-
-                if $0 != hoverRow {
-                    cellView.relativeDate.stringValue = dataOperation.date(with: futureSliderValue, displayType: .panel)
-                }
-
-                cellView.currentLocationIndicator.isHidden = !model.isSystemTimezone
-                cellView.sunriseImage.image = model.isSunriseOrSunset
-                    ? NSImage(systemSymbolName: "sunrise.fill", accessibilityDescription: "Sunrise")
-                    : NSImage(systemSymbolName: "sunset.fill", accessibilityDescription: "Sunset")
-                cellView.sunriseImage.contentTintColor = model.isSunriseOrSunset ? NSColor.systemYellow : NSColor.systemOrange
-                if let note = model.note, !note.isEmpty {
-                    cellView.noteLabel.stringValue = note
-                } else if let value = dataOperation.nextDaylightSavingsTransitionIfAvailable(with: futureSliderValue) {
-                    cellView.noteLabel.stringValue = value
-                } else {
-                    cellView.noteLabel.stringValue = UserDefaultKeys.emptyString
-                }
-                cellView.layout(with: model)
-            }
+            updateCell(cellView, with: model, at: index, hoverRow: hoverRow)
         }
+    }
+
+    private func updateCell(_ cellView: TimezoneCellView, with model: TimezoneData, at index: Int, hoverRow: Int) {
+        if modernContainerView != nil, modernSlider.isHidden == false, modernContainerView.currentlyInFocus {
+            return
+        }
+
+        let dataOperation = TimezoneDataOperations(with: model, store: dataStore)
+        cellView.time.stringValue = dataOperation.time(with: futureSliderValue)
+        cellView.sunriseSetTime.stringValue = dataOperation.formattedSunriseTime(with: futureSliderValue)
+        cellView.sunriseSetTime.lineBreakMode = .byClipping
+
+        if index != hoverRow {
+            cellView.relativeDate.stringValue = dataOperation.date(with: futureSliderValue, displayType: .panel)
+        }
+
+        cellView.currentLocationIndicator.isHidden = !model.isSystemTimezone
+        cellView.sunriseImage.image = model.isSunriseOrSunset
+            ? NSImage(systemSymbolName: "sunrise.fill", accessibilityDescription: "Sunrise")
+            : NSImage(systemSymbolName: "sunset.fill", accessibilityDescription: "Sunset")
+        cellView.sunriseImage.contentTintColor = model.isSunriseOrSunset ? NSColor.systemYellow : NSColor.systemOrange
+        if let note = model.note, !note.isEmpty {
+            cellView.noteLabel.stringValue = note
+        } else if let value = dataOperation.nextDaylightSavingsTransitionIfAvailable(with: futureSliderValue) {
+            cellView.noteLabel.stringValue = value
+        } else {
+            cellView.noteLabel.stringValue = UserDefaultKeys.emptyString
+        }
+        cellView.layout(with: model)
     }
 
     @objc func updateTableContent() {

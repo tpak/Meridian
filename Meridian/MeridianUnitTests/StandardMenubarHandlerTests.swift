@@ -45,13 +45,13 @@ class StandardMenubarHandlerTests: XCTestCase {
         store.setTimezones(nil)
         let menubarHandler = MenubarTitleProvider(with: store)
         let emptyMenubarString = menubarHandler.titleForMenubar()
-        XCTAssertNil(emptyMenubarString)
+        XCTAssertTrue(emptyMenubarString.isEmpty)
 
         let dataObject = TimezoneData(with: mumbai)
         dataObject.isFavourite = 0
         saveTimezoneToStore(dataObject, store: store)
 
-        let menubarString = menubarHandler.titleForMenubar() ?? ""
+        let menubarString = menubarHandler.titleForMenubar()
         XCTAssertTrue(menubarString.count == 0)
     }
 
@@ -59,7 +59,7 @@ class StandardMenubarHandlerTests: XCTestCase {
         let store = makeMockStore()
         store.setTimezones(nil)
         let menubarHandler = MenubarTitleProvider(with: store)
-        XCTAssertNil(menubarHandler.titleForMenubar())
+        XCTAssertTrue(menubarHandler.titleForMenubar().isEmpty)
     }
 
     func testWithStandardMenubarMode() {
@@ -69,7 +69,7 @@ class StandardMenubarHandlerTests: XCTestCase {
         saveTimezoneToStore(dataObject, store: store)
 
         let menubarHandler = MenubarTitleProvider(with: store)
-        XCTAssertNil(menubarHandler.titleForMenubar())
+        XCTAssertTrue(menubarHandler.titleForMenubar().isEmpty)
     }
 
     func testProviderPassingAllConditions() {
@@ -79,6 +79,6 @@ class StandardMenubarHandlerTests: XCTestCase {
         saveTimezoneToStore(dataObject, store: store)
 
         let menubarHandler = MenubarTitleProvider(with: store)
-        XCTAssertNotNil(menubarHandler.titleForMenubar())
+        XCTAssertFalse(menubarHandler.titleForMenubar().isEmpty)
     }
 }

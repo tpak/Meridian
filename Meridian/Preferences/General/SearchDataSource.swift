@@ -102,27 +102,22 @@ class SearchDataSource: NSObject {
         timezoneArray.append(utcTimezone)
 
         for identifier in TimeZone.knownTimeZoneIdentifiers {
-            if let timezoneObject = TimeZone(identifier: identifier) {
-                // Force-cast explicity since we get the identifier from `knownTimeZoneIdentifiers`
-                let abbreviation = timezoneObject.abbreviation()!
-                let identifier = timezoneObject.identifier
-                var tags: Set<String> = [abbreviation.lowercased(), identifier.lowercased()]
-                var extraTags: [String] = []
-                if let tagsPresent = timezoneMetadataDictionary[abbreviation] {
-                    extraTags = tagsPresent
-                }
+            guard let timezoneObject = TimeZone(identifier: identifier) else { continue }
 
-                extraTags.forEach { tag in
-                    tags.insert(tag)
-                }
+            // Force-cast explicitly since we get the identifier from `knownTimeZoneIdentifiers`
+            let abbreviation = timezoneObject.abbreviation()!
+            let tzIdentifier = timezoneObject.identifier
+            var tags: Set<String> = [abbreviation.lowercased(), tzIdentifier.lowercased()]
 
-                let timezoneIdentifier = NSTimeZone(name: identifier)!
-                let timezoneMetadata = TimezoneMetadata(timezone: timezoneIdentifier,
-                                                        tags: tags,
-                                                        formattedName: identifier,
-                                                        abbreviation: abbreviation)
-                timezoneArray.append(timezoneMetadata)
-            }
+            let extraTags = timezoneMetadataDictionary[abbreviation] ?? []
+            extraTags.forEach { tags.insert($0) }
+
+            let timezoneIdentifier = NSTimeZone(name: tzIdentifier)!
+            let timezoneMetadata = TimezoneMetadata(timezone: timezoneIdentifier,
+                                                    tags: tags,
+                                                    formattedName: tzIdentifier,
+                                                    abbreviation: abbreviation)
+            timezoneArray.append(timezoneMetadata)
         }
     }
 

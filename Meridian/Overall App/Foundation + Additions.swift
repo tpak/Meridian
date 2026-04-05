@@ -1,6 +1,7 @@
 // Copyright © 2015 Abhishek Banthia
 
 import Cocoa
+import CoreLoggerKit
 
 extension NSNotification.Name {
     static let customLabelChanged = NSNotification.Name("CLCustomLabelChangedNotification")
@@ -27,6 +28,11 @@ extension NSView {
 
 extension NSKeyedArchiver {
     static func secureArchive(with object: Any) -> Data? {
-        return try? NSKeyedArchiver.archivedData(withRootObject: object, requiringSecureCoding: true)
+        do {
+            return try NSKeyedArchiver.archivedData(withRootObject: object, requiringSecureCoding: true)
+        } catch {
+            Logger.production("secureArchive failed for \(type(of: object)): \(error)")
+            return nil
+        }
     }
 }

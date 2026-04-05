@@ -2,6 +2,7 @@
 
 import Cocoa
 import Carbon.HIToolbox
+import CoreLoggerKit
 
 final class GlobalShortcutMonitor {
     static let shared = GlobalShortcutMonitor()
@@ -67,9 +68,12 @@ final class GlobalShortcutMonitor {
     var currentShortcut: KeyCombo? {
         get {
             // First try to read from new format
-            if let data = UserDefaults.standard.data(forKey: userDefaultsKey),
-               let keyCombo = try? JSONDecoder().decode(KeyCombo.self, from: data) {
-                return keyCombo
+            if let data = UserDefaults.standard.data(forKey: userDefaultsKey) {
+                if let keyCombo = try? JSONDecoder().decode(KeyCombo.self, from: data) {
+                    return keyCombo
+                } else {
+                    Logger.debug("GlobalShortcutMonitor: failed to decode stored shortcut, ignoring")
+                }
             }
 
             // Try legacy format migration
@@ -79,8 +83,11 @@ final class GlobalShortcutMonitor {
                 let keyCombo = KeyCombo(keyCode: keyCode.uint16Value, modifierFlags: modifierFlags.uintValue)
 
                 // Migrate to new format
-                if let data = try? JSONEncoder().encode(keyCombo) {
+                do {
+                    let data = try JSONEncoder().encode(keyCombo)
                     UserDefaults.standard.set(data, forKey: userDefaultsKey)
+                } catch {
+                    Logger.production("GlobalShortcutMonitor: failed to encode shortcut during migration: \(error)")
                 }
 
                 return keyCombo
@@ -92,8 +99,11 @@ final class GlobalShortcutMonitor {
             unregister()
 
             if let keyCombo = newValue {
-                if let data = try? JSONEncoder().encode(keyCombo) {
+                do {
+                    let data = try JSONEncoder().encode(keyCombo)
                     UserDefaults.standard.set(data, forKey: userDefaultsKey)
+                } catch {
+                    Logger.production("GlobalShortcutMonitor: failed to encode shortcut: \(error)")
                 }
             } else {
                 UserDefaults.standard.removeObject(forKey: userDefaultsKey)

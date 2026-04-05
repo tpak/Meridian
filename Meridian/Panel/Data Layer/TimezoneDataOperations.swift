@@ -168,18 +168,10 @@ extension TimezoneDataOperations {
         let shouldDateBeShown = dataStore.shouldShowDateInMenubar()
 
         if shouldCityBeShown {
-            if let address = dataObject.formattedAddress, address.isEmpty == false {
-                if let label = dataObject.customLabel, !label.isEmpty {
-                    menuTitle.append(label)
-                } else {
-                    menuTitle.append(address)
-                }
+            if let address = dataObject.formattedAddress, !address.isEmpty {
+                menuTitle.append(dataObject.customLabel.flatMap { $0.isEmpty ? nil : $0 } ?? address)
             } else {
-                if let label = dataObject.customLabel, !label.isEmpty {
-                    menuTitle.append(label)
-                } else {
-                    menuTitle.append(dataObject.timezone())
-                }
+                menuTitle.append(dataObject.customLabel.flatMap { $0.isEmpty ? nil : $0 } ?? dataObject.timezone())
             }
         }
 
@@ -255,50 +247,49 @@ extension TimezoneDataOperations {
 
         let convertedDate = timezoneDate(with: sliderValue, currentCalendar)
 
-        if displayType == .panel {
-            // Yesterday, tomorrow, etc
-            if relativeDayPreference.intValue == 0 {
-                let localFormatter = DateFormatterManager.localizedSimpleFormatter("EEEE")
-                guard let local = localFormatter.date(from: localeDate(with: "EEEE")) else {
-                    return "\(weekdayText(from: convertedDate))\(timeDifference())"
-                }
+        guard displayType == .panel else {
+            return "\(shortWeekdayText(convertedDate))"
+        }
 
-                // Gets local week day number and timezone's week day number for comparison
-                let weekDay = currentCalendar.component(.weekday, from: local)
-                let timezoneWeekday = currentCalendar.component(.weekday, from: convertedDate)
-
-                if weekDay == timezoneWeekday + 1 {
-                    return "Yesterday\(timeDifference())"
-                } else if weekDay == timezoneWeekday {
-                    return "Today\(timeDifference())"
-                } else if weekDay + 1 == timezoneWeekday || weekDay - 6 == timezoneWeekday {
-                    return "Tomorrow\(timeDifference())"
-                } else {
-                    return "\(weekdayText(from: convertedDate))\(timeDifference())"
-                }
-            }
-
-            // Day name: Thursday, Friday etc
-            if relativeDayPreference.intValue == 1 {
+        // Yesterday, tomorrow, etc
+        if relativeDayPreference.intValue == 0 {
+            let localFormatter = DateFormatterManager.localizedSimpleFormatter("EEEE")
+            guard let local = localFormatter.date(from: localeDate(with: "EEEE")) else {
                 return "\(weekdayText(from: convertedDate))\(timeDifference())"
             }
 
-            // Date in mmm/dd
-            if relativeDayPreference.intValue == 2 {
-                return "\(todaysDate(with: sliderValue))\(timeDifference())"
+            // Gets local week day number and timezone's week day number for comparison
+            let weekDay = currentCalendar.component(.weekday, from: local)
+            let timezoneWeekday = currentCalendar.component(.weekday, from: convertedDate)
+
+            if weekDay == timezoneWeekday + 1 {
+                return "Yesterday\(timeDifference())"
+            } else if weekDay == timezoneWeekday {
+                return "Today\(timeDifference())"
+            } else if weekDay + 1 == timezoneWeekday || weekDay - 6 == timezoneWeekday {
+                return "Tomorrow\(timeDifference())"
+            } else {
+                return "\(weekdayText(from: convertedDate))\(timeDifference())"
             }
-
-            let tz = dataObject.timezone()
-            let locale = Locale.autoupdatingCurrent.identifier
-            Logger.production(
-                "Unable to get date: Timezone=\(tz), CurrentLocale=\(locale), SliderValue=\(sliderValue), TodaysDate=\(Date())"
-            )
-
-            return "Error"
-
-        } else {
-            return "\(shortWeekdayText(convertedDate))"
         }
+
+        // Day name: Thursday, Friday etc
+        if relativeDayPreference.intValue == 1 {
+            return "\(weekdayText(from: convertedDate))\(timeDifference())"
+        }
+
+        // Date in mmm/dd
+        if relativeDayPreference.intValue == 2 {
+            return "\(todaysDate(with: sliderValue))\(timeDifference())"
+        }
+
+        let tz = dataObject.timezone()
+        let locale = Locale.autoupdatingCurrent.identifier
+        Logger.production(
+            "Unable to get date: Timezone=\(tz), CurrentLocale=\(locale), SliderValue=\(sliderValue), TodaysDate=\(Date())"
+        )
+
+        return "Error"
     }
 
     // Returns shortened weekday given a date

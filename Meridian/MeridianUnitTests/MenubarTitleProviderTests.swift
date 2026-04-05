@@ -27,21 +27,21 @@ class MenubarTitleProviderTests: XCTestCase {
 
     // MARK: - No Favorites Tests
 
-    func testNoFavoritesReturnsNil() {
+    func testNoFavoritesReturnsEmpty() {
         mockStore.storedTimezones = []
         let provider = MenubarTitleProvider(with: mockStore)
-        XCTAssertNil(provider.titleForMenubar(), "No favorites should return nil")
+        XCTAssertTrue(provider.titleForMenubar().isEmpty, "No favorites should return empty title")
     }
 
-    func testUnfavouritedTimezoneReturnsNil() {
+    func testUnfavouritedTimezoneReturnsEmpty() {
         let dataObject = TimezoneData(with: mumbai)
         dataObject.isFavourite = 0
         mockStore.addTimezone(dataObject)
 
         let provider = MenubarTitleProvider(with: mockStore)
         let title = provider.titleForMenubar()
-        // menubarTimezones filters by isFavourite == 1, so empty list => nil
-        XCTAssertNil(title, "Unfavourited timezone should result in nil title")
+        // menubarTimezones filters by isFavourite == 1, so empty list => empty title
+        XCTAssertTrue(title.isEmpty, "Unfavourited timezone should result in empty title")
     }
 
     // MARK: - Single Timezone Tests
@@ -53,8 +53,7 @@ class MenubarTitleProviderTests: XCTestCase {
 
         let provider = MenubarTitleProvider(with: mockStore)
         let title = provider.titleForMenubar()
-        XCTAssertNotNil(title, "Single favourite should produce a title")
-        XCTAssertFalse(title!.isEmpty, "Title should not be empty")
+        XCTAssertFalse(title.isEmpty, "Single favourite should produce a non-empty title")
     }
 
     func testSingleTimezoneWith12HourFormat() {
@@ -65,10 +64,9 @@ class MenubarTitleProviderTests: XCTestCase {
 
         let provider = MenubarTitleProvider(with: mockStore)
         let title = provider.titleForMenubar()
-        XCTAssertNotNil(title)
         // Title should contain AM or PM for 12-hour format
-        let hasAMPM = title!.contains("AM") || title!.contains("PM")
-        XCTAssertTrue(hasAMPM, "12-hour format title should contain AM/PM but got: \(title!)")
+        let hasAMPM = title.contains("AM") || title.contains("PM")
+        XCTAssertTrue(hasAMPM, "12-hour format title should contain AM/PM but got: \(title)")
     }
 
     func testSingleTimezoneWith24HourFormat() {
@@ -79,10 +77,9 @@ class MenubarTitleProviderTests: XCTestCase {
 
         let provider = MenubarTitleProvider(with: mockStore)
         let title = provider.titleForMenubar()
-        XCTAssertNotNil(title)
         // Title should NOT contain AM or PM for 24-hour format
-        let hasAMPM = title!.contains("AM") || title!.contains("PM")
-        XCTAssertFalse(hasAMPM, "24-hour format title should not contain AM/PM but got: \(title!)")
+        let hasAMPM = title.contains("AM") || title.contains("PM")
+        XCTAssertFalse(hasAMPM, "24-hour format title should not contain AM/PM but got: \(title)")
     }
 
     // MARK: - Multiple Timezones Tests
@@ -98,8 +95,7 @@ class MenubarTitleProviderTests: XCTestCase {
 
         let provider = MenubarTitleProvider(with: mockStore)
         let title = provider.titleForMenubar()
-        XCTAssertNotNil(title, "Multiple favourites should produce a title")
-        XCTAssertFalse(title!.isEmpty, "Title with multiple timezones should not be empty")
+        XCTAssertFalse(title.isEmpty, "Multiple favourites should produce a non-empty title")
     }
 
     func testMultipleTimezonesContainsBothTimes() {
@@ -113,11 +109,10 @@ class MenubarTitleProviderTests: XCTestCase {
 
         let provider = MenubarTitleProvider(with: mockStore)
         let title = provider.titleForMenubar()
-        XCTAssertNotNil(title)
 
         // With two timezones, the title should contain a space (separator between the two titles)
         // The titles are joined with a space
-        XCTAssertTrue(title!.count > 4, "Combined title should have reasonable length but got: \(title!)")
+        XCTAssertTrue(title.count > 4, "Combined title should have reasonable length but got: \(title)")
     }
 
     // MARK: - Compact Mode Tests
@@ -131,6 +126,6 @@ class MenubarTitleProviderTests: XCTestCase {
 
         let provider = MenubarTitleProvider(with: mockStore)
         let title = provider.titleForMenubar()
-        XCTAssertNil(title, "Compact mode should return nil from titleForMenubar")
+        XCTAssertTrue(title.isEmpty, "Compact mode should return empty title")
     }
 }

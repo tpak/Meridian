@@ -77,11 +77,19 @@ class AppDelegateTests: XCTestCase {
         let subject = NSApplication.shared.delegate as? AppDelegate
         subject?.invalidateMenubarTimer(true)
         let statusItemHandler = subject?.statusItemForPanel()
-        XCTAssertEqual(statusItemHandler?.statusItem.button?.subviews, [])
-        XCTAssertEqual(statusItemHandler?.statusItem.button?.title, UserDefaultKeys.emptyString)
-        XCTAssertNotNil(statusItemHandler?.statusItem.button?.image)
-        XCTAssertEqual(statusItemHandler?.statusItem.button?.imagePosition, .imageOnly)
-        XCTAssertEqual(statusItemHandler?.statusItem.button?.toolTip, "Meridian")
+
+        // Verify that invalidateMenubarTimer transitions the menubar to icon-only mode.
+        // We assert the button's observable state: an icon is set, text is cleared, and it's
+        // positioned as imageOnly. The implementation detail assertions (subviews, toolTip) are
+        // kept because they are side effects of the state transition and help verify the
+        // internal state machine completed correctly.
+
+        // Icon should be displayed and text cleared
+        XCTAssertNotNil(statusItemHandler?.statusItem.button?.image, "Icon should be displayed in icon mode")
+        XCTAssertEqual(statusItemHandler?.statusItem.button?.title, UserDefaultKeys.emptyString, "Title should be empty in icon mode")
+        XCTAssertEqual(statusItemHandler?.statusItem.button?.imagePosition, .imageOnly, "Image should be positioned as imageOnly")
+        XCTAssertEqual(statusItemHandler?.statusItem.button?.subviews, [], "Subviews should be cleared for icon mode")
+        XCTAssertEqual(statusItemHandler?.statusItem.button?.toolTip, "Meridian", "Tooltip should be set to app name")
     }
 
     func testCompactModeMenubarSetup() throws {
