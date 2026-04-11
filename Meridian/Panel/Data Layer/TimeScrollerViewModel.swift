@@ -2,20 +2,20 @@
 
 import Foundation
 
-public struct TimeScrollerViewModel {
+struct TimeScrollerViewModel {
     private let dataStore: DataStoring
 
-    public init(dataStore: DataStoring) {
+    init(dataStore: DataStoring) {
         self.dataStore = dataStore
     }
 
-    public func totalSliderPoints() -> Int {
+    func totalSliderPoints() -> Int {
         let futureSliderDayPreference = dataStore.retrieve(key: UserDefaultKeys.futureSliderRange) as? NSNumber ?? 6
         let futureSliderDayRange = futureSliderDayPreference.intValue
         return (PanelConstants.modernSliderPointsInADay * futureSliderDayRange * 2) + 1
     }
 
-    public func calculateMinutesToAdd(for index: Int, baseDate: Date) -> (Int, String) {
+    func calculateMinutesToAdd(for index: Int, baseDate: Date) -> (Int, String) {
         let totalCount = totalSliderPoints()
         let centerPoint = Int(ceil(Double(totalCount / 2)))
 
@@ -36,7 +36,7 @@ public struct TimeScrollerViewModel {
         }
     }
 
-    public func findClosestQuarterTimeApproximation() -> Date {
+    func findClosestQuarterTimeApproximation() -> Date {
         let defaultParameters = minuteFromCalendar()
         let hourQuarterDate = Calendar.current.nextDate(after: defaultParameters.0,
                                                         matching: DateComponents(minute: defaultParameters.1),
