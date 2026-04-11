@@ -184,30 +184,23 @@ class NetworkManagerAsyncTests: XCTestCase {
     // MARK: - NetworkManager Async Method Tests
 
     func testNetworkManagerAsyncDataFromURL() async throws {
-        // Test that NetworkManager's async methods work properly
-        // Note: This requires network access, so we're testing the pattern
-        let testURL = URL(string: "https://httpbin.org/json")!
+        let testURL = URL(string: "https://example.com/json")!
+        let expectedData = "{\"success\": true}".data(using: .utf8)!
 
-        do {
-            // Use the real NetworkManager with actual URLSession
-            let data = try await NetworkManager.data(from: testURL)
-            XCTAssertFalse(data.isEmpty, "Data should not be empty")
-        } catch {
-            // Network might not be available in test environment
-            // This is acceptable for unit tests
-        }
+        MockURLProtocol.register(pathContaining: "json", statusCode: 200, data: expectedData)
+
+        let data = try await NetworkManager.data(from: testURL, session: mockSession)
+        XCTAssertEqual(data, expectedData)
     }
 
     func testNetworkManagerAsyncDataFromString() async throws {
-        let testURLString = "https://httpbin.org/json"
+        let testURLString = "https://example.com/json"
+        let expectedData = "{\"success\": true}".data(using: .utf8)!
 
-        do {
-            let data = try await NetworkManager.data(from: testURLString)
-            XCTAssertFalse(data.isEmpty, "Data should not be empty")
-        } catch {
-            // Network might not be available in test environment
-            // This is acceptable for unit tests
-        }
+        MockURLProtocol.register(pathContaining: "json", statusCode: 200, data: expectedData)
+
+        let data = try await NetworkManager.data(from: testURLString, session: mockSession)
+        XCTAssertEqual(data, expectedData)
     }
 
     func testNetworkManagerAsyncWithInvalidURL() async {

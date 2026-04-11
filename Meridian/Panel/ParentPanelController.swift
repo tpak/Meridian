@@ -31,6 +31,10 @@ class ParentPanelController: NSWindowController {
 
     var dataStore: DataStoring = DataStore.shared()
 
+    lazy var timeScrollerViewModel: TimeScrollerViewModel = {
+        return TimeScrollerViewModel(dataStore: dataStore)
+    }()
+
     private lazy var versionLabelDateFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateStyle = .short

@@ -6,9 +6,7 @@ import Foundation
 
 extension ParentPanelController: NSCollectionViewDataSource {
     func collectionView(_: NSCollectionView, numberOfItemsInSection _: Int) -> Int {
-        let futureSliderDayPreference = dataStore.retrieve(key: UserDefaultKeys.futureSliderRange) as? NSNumber ?? 6
-        let futureSliderDayRange = futureSliderDayPreference.intValue
-        return (PanelConstants.modernSliderPointsInADay * futureSliderDayRange * 2) + 1
+        return timeScrollerViewModel.totalSliderPoints()
     }
 
     func collectionView(_ collectionView: NSCollectionView, itemForRepresentedObjectAt indexPath: IndexPath) -> NSCollectionViewItem {
@@ -51,9 +49,9 @@ extension ParentPanelController {
                                                    object: modernSlider.superview)
 
             // Set the modern slider label!
-            closestQuarterTimeRepresentation = findClosestQuarterTimeApproximation()
+            closestQuarterTimeRepresentation = timeScrollerViewModel.findClosestQuarterTimeApproximation()
             if let unwrappedClosetQuarterTime = closestQuarterTimeRepresentation {
-                modernSliderLabel.stringValue = timezoneFormattedStringRepresentation(unwrappedClosetQuarterTime)
+                modernSliderLabel.stringValue = timeScrollerViewModel.timezoneFormattedStringRepresentation(unwrappedClosetQuarterTime)
             }
 
             // Make sure modern slider is centered horizontally!
@@ -91,7 +89,7 @@ extension ParentPanelController {
     }
 
     @IBAction func resetModernSlider(_: NSButton) {
-        closestQuarterTimeRepresentation = findClosestQuarterTimeApproximation()
+        closestQuarterTimeRepresentation = timeScrollerViewModel.findClosestQuarterTimeApproximation()
         modernSliderLabel.stringValue = "Time Scroller"
         if modernSlider != nil {
             let indexPaths: Set<IndexPath> = Set([IndexPath(item: modernSlider.numberOfItems(inSection: 0) / 2, section: 0)])
@@ -136,71 +134,20 @@ extension ParentPanelController {
         }
     }
 
-    public func findClosestQuarterTimeApproximation() -> Date {
-        let defaultParameters = minuteFromCalendar()
-        let hourQuarterDate = Calendar.current.nextDate(after: defaultParameters.0,
-                                                        matching: DateComponents(minute: defaultParameters.1),
-                                                        matchingPolicy: .strict,
-                                                        repeatedTimePolicy: .first,
-                                                        direction: .forward)!
-        return hourQuarterDate
-    }
-
     public func setDefaultDateLabel(_ index: Int) -> Int {
-        let futureSliderDayPreference = dataStore.retrieve(key: UserDefaultKeys.futureSliderRange) as? NSNumber ?? 6
-        let futureSliderDayRange = futureSliderDayPreference.intValue
-        let totalCount = (PanelConstants.modernSliderPointsInADay * futureSliderDayRange * 2) + 1
-        let centerPoint = Int(ceil(Double(totalCount / 2)))
         let baseDate = closestQuarterTimeRepresentation ?? Date()
-        if index >= (centerPoint + 1) {
-            let remainder = (index % (centerPoint + 1))
-            let minuteOffset = remainder * PanelConstants.minutesPerSliderPoint
-            let nextDate = Calendar.current.date(byAdding: .minute, value: minuteOffset, to: baseDate)!
-            modernSliderLabel.stringValue = timezoneFormattedStringRepresentation(nextDate)
+        let result = timeScrollerViewModel.calculateMinutesToAdd(for: index, baseDate: baseDate)
+        modernSliderLabel.stringValue = result.1
+        if result.0 != 0 {
             if resetModernSliderButton.isHidden {
                 animateResetButton(hidden: false)
             }
-
-            return nextDate.minutes(from: Date()) + 1
-        } else if index < centerPoint {
-            let remainder = centerPoint - index + 1
-            let minuteOffset = -1 * remainder * PanelConstants.minutesPerSliderPoint
-            let previousDate = Calendar.current.date(byAdding: .minute, value: minuteOffset, to: baseDate)!
-            modernSliderLabel.stringValue = timezoneFormattedStringRepresentation(previousDate)
-            if resetModernSliderButton.isHidden {
-                animateResetButton(hidden: false)
-            }
-            return previousDate.minutes(from: Date())
         } else {
-            modernSliderLabel.stringValue = "Time Scroller"
             if !resetModernSliderButton.isHidden {
                 animateResetButton(hidden: true)
             }
-            return 0
         }
+        return result.0
     }
 
-    private func minuteFromCalendar() -> (Date, Int) {
-        let currentDate = Date()
-        var minute = Calendar.current.component(.minute, from: currentDate)
-        if minute < 15 {
-            minute = 15
-        } else if minute < 30 {
-            minute = 30
-        } else if minute < 45 {
-            minute = 45
-        } else {
-            minute = 0
-        }
-
-        return (currentDate, minute)
-    }
-
-    private func timezoneFormattedStringRepresentation(_ date: Date) -> String {
-        let dateFormatter = DateFormatterManager.dateFormatterWithFormat(with: .none,
-                                                                         format: "MMM d HH:mm",
-                                                                         timezoneIdentifier: TimeZone.current.identifier,
-                                                                         locale: Locale.autoupdatingCurrent)
-        return dateFormatter.string(from: date)
-    }
 }

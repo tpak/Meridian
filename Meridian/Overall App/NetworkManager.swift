@@ -34,7 +34,7 @@ extension NetworkManager {
     /// - Parameter url: The URL to fetch from
     /// - Returns: The response data
     /// - Throws: NSError if the request fails or returns a non-200 status code
-    static func data(from url: URL) async throws -> Data {
+    static func data(from url: URL, session: URLSession = .shared) async throws -> Data {
         // Check if we're running a network UI test
         if ProcessInfo.processInfo.arguments.contains("mockTimezoneDown") {
             throw internalServerError
@@ -44,7 +44,7 @@ extension NetworkManager {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw internalServerError
@@ -61,14 +61,14 @@ extension NetworkManager {
     /// - Parameter path: The URL path string to fetch from
     /// - Returns: The response data
     /// - Throws: NSError if URL construction fails or the request fails
-    static func data(from path: String) async throws -> Data {
+    static func data(from path: String, session: URLSession = .shared) async throws -> Data {
         guard let encodedPath = path.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
               let url = URL(string: encodedPath)
         else {
             throw unableToGenerateURL
         }
 
-        return try await data(from: url)
+        return try await data(from: url, session: session)
     }
 
     // MARK: - Geocoding
