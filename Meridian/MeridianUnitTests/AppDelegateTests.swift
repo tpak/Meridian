@@ -138,7 +138,7 @@ class AppDelegateTests: XCTestCase {
         if olderTimezones.isEmpty {
             XCTAssertNotNil(statusItemHandler?.statusItem.button?.image)
         } else {
-            XCTAssertTrue(statusItemHandler?.statusItem.button?.title != nil)
+            XCTAssertNotNil(statusItemHandler?.statusItem.button?.title)
         }
 
         let timezone1 = TimezoneData()

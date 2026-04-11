@@ -52,7 +52,7 @@ class StandardMenubarHandlerTests: XCTestCase {
         saveTimezoneToStore(dataObject, store: store)
 
         let menubarString = menubarHandler.titleForMenubar()
-        XCTAssertTrue(menubarString.count == 0)
+        XCTAssertEqual(menubarString.count, 0)
     }
 
     func testWithEmptyMenubarTimezones() {
