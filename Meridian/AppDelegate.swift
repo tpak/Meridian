@@ -126,10 +126,28 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func enableAutoUpdateByDefault() {
         let hasSetAutoUpdate = "HasSetAutoUpdateDefault"
-        guard !UserDefaults.standard.bool(forKey: hasSetAutoUpdate) else { return }
-        UserDefaults.standard.set(true, forKey: hasSetAutoUpdate)
-        updaterController.updater.automaticallyChecksForUpdates = true
-        updaterController.updater.automaticallyDownloadsUpdates = true
+        if !UserDefaults.standard.bool(forKey: hasSetAutoUpdate) {
+            UserDefaults.standard.set(true, forKey: hasSetAutoUpdate)
+            updaterController.updater.automaticallyChecksForUpdates = true
+            updaterController.updater.automaticallyDownloadsUpdates = true
+        }
+
+        // Migration: users who went through the pre-2.12.0 broken period may have
+        // automaticallyDownloadsUpdates = true but automaticallyChecksForUpdates = false.
+        // Sparkle requires both to be true for scheduled background checks to run,
+        // so sync them once.
+        let hasFixedAutoUpdateSync = "HasFixedAutoUpdateSync"
+        if !UserDefaults.standard.bool(forKey: hasFixedAutoUpdateSync) {
+            UserDefaults.standard.set(true, forKey: hasFixedAutoUpdateSync)
+            if updaterController.updater.automaticallyDownloadsUpdates {
+                updaterController.updater.automaticallyChecksForUpdates = true
+            }
+        }
+
+        let checks = updaterController.updater.automaticallyChecksForUpdates
+        let downloads = updaterController.updater.automaticallyDownloadsUpdates
+        let interval = updaterController.updater.updateCheckInterval
+        Logger.production("Sparkle autoupdate: checks=\(checks) downloads=\(downloads) interval=\(Int(interval))s")
     }
 
     // MARK: - Dock Menu
