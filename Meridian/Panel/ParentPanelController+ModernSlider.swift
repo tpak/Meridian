@@ -154,22 +154,6 @@ extension ParentPanelController {
         return result.0
     }
 
-    private func minuteFromCalendar() -> (Date, Int) {
-        let currentDate = Date()
-        var minute = Calendar.current.component(.minute, from: currentDate)
-        if minute < 15 {
-            minute = 15
-        } else if minute < 30 {
-            minute = 30
-        } else if minute < 45 {
-            minute = 45
-        } else {
-            minute = 0
-        }
-
-        return (currentDate, minute)
-    }
-
     private func timezoneFormattedStringRepresentation(_ date: Date) -> String {
         let dateFormatter = DateFormatterManager.dateFormatterWithFormat(with: .none,
                                                                          format: "MMM d HH:mm",

@@ -51,6 +51,7 @@
 		35C36F592259DD8A002FA5C6 /* TimezoneCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F552259DD8A002FA5C6 /* TimezoneCellView.swift */; };
 		35C36F5A2259DD8A002FA5C6 /* CustomPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F562259DD8A002FA5C6 /* CustomPanel.swift */; };
 		35C36F5D2259DD96002FA5C6 /* TimezoneDataOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F5B2259DD96002FA5C6 /* TimezoneDataOperations.swift */; };
+		E1F2A3B400TMSCRLRVM0001 /* TimeScrollerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B400TMSCRLRVM0002 /* TimeScrollerViewModel.swift */; };
 		35C36F6F2259E185002FA5C6 /* CustomSliderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F6C2259E185002FA5C6 /* CustomSliderCell.swift */; };
 		35C36F702259E185002FA5C6 /* BackgroundPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F6D2259E185002FA5C6 /* BackgroundPanelView.swift */; };
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* PanelDragHandleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F3 /* PanelDragHandleView.swift */; };
@@ -63,6 +64,7 @@
 		35E65125268EDD2E00E3E1E3 /* Toasty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35E65124268EDD2E00E3E1E3 /* Toasty.swift */; };
 		3DEE1440C33BTZSORTINGTST /* TimezoneSortingManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DEE1440C33BTZSORTINGTST2 /* TimezoneSortingManagerTests.swift */; };
 		4726354D81E1NWMGRASYNCTS /* NetworkManagerAsyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */; };
+		E1F2A3B400TMSCRLRVMTST1 /* TimeScrollerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B400TMSCRLRVMTST2 /* TimeScrollerViewModelTests.swift */; };
 		818B546B7B8B47D88692CD80 /* GlobalShortcutMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC776853CC4796AD9A1DC6 /* GlobalShortcutMonitor.swift */; };
 		919639F9D2F3GLOBALSHRTCUT /* GlobalShortcutMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */; };
 		9A0385BB269E3434003B5E72 /* StandardMenubarHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0385BA269E3434003B5E72 /* StandardMenubarHandlerTests.swift */; };
@@ -178,6 +180,7 @@
 		35C36F552259DD8A002FA5C6 /* TimezoneCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimezoneCellView.swift; sourceTree = "<group>"; };
 		35C36F562259DD8A002FA5C6 /* CustomPanel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomPanel.swift; sourceTree = "<group>"; };
 		35C36F5B2259DD96002FA5C6 /* TimezoneDataOperations.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimezoneDataOperations.swift; sourceTree = "<group>"; };
+		E1F2A3B400TMSCRLRVM0002 /* TimeScrollerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeScrollerViewModel.swift; sourceTree = "<group>"; };
 		35C36F6C2259E185002FA5C6 /* CustomSliderCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSliderCell.swift; sourceTree = "<group>"; };
 		35C36F6D2259E185002FA5C6 /* BackgroundPanelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundPanelView.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6A7B8C9D0E1F3 /* PanelDragHandleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanelDragHandleView.swift; sourceTree = "<group>"; };
@@ -190,6 +193,7 @@
 		35E65124268EDD2E00E3E1E3 /* Toasty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toasty.swift; sourceTree = "<group>"; };
 		3DEE1440C33BTZSORTINGTST2 /* TimezoneSortingManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneSortingManagerTests.swift; sourceTree = "<group>"; };
 		4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManagerAsyncTests.swift; sourceTree = "<group>"; };
+		E1F2A3B400TMSCRLRVMTST2 /* TimeScrollerViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeScrollerViewModelTests.swift; sourceTree = "<group>"; };
 		527EBAA6C18049AE931DDE49 /* PanelContextMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelContextMenu.swift; sourceTree = "<group>"; };
 		919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalShortcutMonitorTests.swift; sourceTree = "<group>"; };
 		9A0385BA269E3434003B5E72 /* StandardMenubarHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardMenubarHandlerTests.swift; sourceTree = "<group>"; };
@@ -402,6 +406,7 @@
 			isa = PBXGroup;
 			children = (
 				35C36F5B2259DD96002FA5C6 /* TimezoneDataOperations.swift */,
+				E1F2A3B400TMSCRLRVM0002 /* TimeScrollerViewModel.swift */,
 			);
 			path = "Data Layer";
 			sourceTree = "<group>";
@@ -537,6 +542,7 @@
 				3DEE1440C33BTZSORTINGTST2 /* TimezoneSortingManagerTests.swift */,
 				919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */,
 				4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */,
+				E1F2A3B400TMSCRLRVMTST2 /* TimeScrollerViewModelTests.swift */,
 				AA00000400000001PREFSTB2 /* PreferencesStoryboardTests.swift */,
 				CC11AA0100TZDATAOPSTEST2 /* TimezoneDataOperationsTests.swift */,
 				CC11AA0200MNBRTITLTEST2 /* MenubarTitleProviderTests.swift */,
@@ -798,6 +804,7 @@
 				3DEE1440C33BTZSORTINGTST /* TimezoneSortingManagerTests.swift in Sources */,
 				919639F9D2F3GLOBALSHRTCUT /* GlobalShortcutMonitorTests.swift in Sources */,
 				4726354D81E1NWMGRASYNCTS /* NetworkManagerAsyncTests.swift in Sources */,
+				E1F2A3B400TMSCRLRVMTST1 /* TimeScrollerViewModelTests.swift in Sources */,
 				AA00000400000002PREFSTB1 /* PreferencesStoryboardTests.swift in Sources */,
 				CC11AA0100TZDATAOPSTEST1 /* TimezoneDataOperationsTests.swift in Sources */,
 				CC11AA0200MNBRTITLTEST1 /* MenubarTitleProviderTests.swift in Sources */,
@@ -834,6 +841,7 @@
 				35C36F16225961DA002FA5C6 /* Date+Inits.swift in Sources */,
 				35C36F4F2259D981002FA5C6 /* AppDefaults.swift in Sources */,
 				35C36F5D2259DD96002FA5C6 /* TimezoneDataOperations.swift in Sources */,
+				E1F2A3B400TMSCRLRVM0001 /* TimeScrollerViewModel.swift in Sources */,
 				3508CC942599FFEC000E3530 /* MenubarTitleProvider.swift in Sources */,
 				35C36F792259E1D0002FA5C6 /* String + Additions.swift in Sources */,
 				35C36F422259D892002FA5C6 /* Timer.swift in Sources */,
