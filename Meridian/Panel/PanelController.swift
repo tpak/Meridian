@@ -197,7 +197,7 @@ class PanelController: ParentPanelController {
         }
 
         // Reset future slider value to zero
-        closestQuarterTimeRepresentation = findClosestQuarterTimeApproximation()
+        closestQuarterTimeRepresentation = timeScrollerViewModel.findClosestQuarterTimeApproximation()
         modernSliderLabel.stringValue = "Time Scroller"
         resetModernSliderButton.isHidden = true
 

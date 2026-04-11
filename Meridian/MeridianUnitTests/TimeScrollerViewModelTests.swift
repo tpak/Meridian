@@ -47,19 +47,12 @@ class TimeScrollerViewModelTests: XCTestCase {
         let totalPoints = viewModel.totalSliderPoints()
         let centerIndex = totalPoints / 2
         let forwardIndex = centerIndex + 1
-        
-        let baseDate = Date()
-        let result = viewModel.calculateMinutesToAdd(for: forwardIndex, baseDate: baseDate)
-        
-        // forwardIndex is centerIndex + 1, so remainder is 0? 
-        // Let's check logic: remainder = (index % (centerPoint + 1))
-        // centerPoint = ceil(totalPoints / 2)
-        // for totalPoints = 193, centerPoint = 97.
-        // if index = 98 (centerPoint + 1), remainder = 98 % 98 = 0.
-        // minuteOffset = 0 * 15 = 0.
-        // nextDate = baseDate.
-        // result.0 = nextDate.minutes(from: Date()) + 1 = 1.
-        
+
+        // Use the same date for baseDate and now so minutes(from:) is deterministic.
+        // forwardIndex == centerPoint + 1, so remainder = 0, minuteOffset = 0,
+        // nextDate == baseDate, and nextDate.minutes(from: now) + 1 == 1.
+        let fixedDate = Date()
+        let result = viewModel.calculateMinutesToAdd(for: forwardIndex, baseDate: fixedDate, now: fixedDate)
         XCTAssertEqual(result.0, 1)
     }
 

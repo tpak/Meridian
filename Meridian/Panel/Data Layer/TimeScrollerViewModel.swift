@@ -15,7 +15,7 @@ struct TimeScrollerViewModel {
         return (PanelConstants.modernSliderPointsInADay * futureSliderDayRange * 2) + 1
     }
 
-    func calculateMinutesToAdd(for index: Int, baseDate: Date) -> (Int, String) {
+    func calculateMinutesToAdd(for index: Int, baseDate: Date, now: Date = Date()) -> (Int, String) {
         let totalCount = totalSliderPoints()
         let centerPoint = Int(ceil(Double(totalCount / 2)))
 
@@ -24,13 +24,13 @@ struct TimeScrollerViewModel {
             let minuteOffset = remainder * PanelConstants.minutesPerSliderPoint
             let nextDate = Calendar.current.date(byAdding: .minute, value: minuteOffset, to: baseDate)!
             let label = timezoneFormattedStringRepresentation(nextDate)
-            return (nextDate.minutes(from: Date()) + 1, label)
+            return (nextDate.minutes(from: now) + 1, label)
         } else if index < centerPoint {
             let remainder = centerPoint - index + 1
             let minuteOffset = -1 * remainder * PanelConstants.minutesPerSliderPoint
             let previousDate = Calendar.current.date(byAdding: .minute, value: minuteOffset, to: baseDate)!
             let label = timezoneFormattedStringRepresentation(previousDate)
-            return (previousDate.minutes(from: Date()), label)
+            return (previousDate.minutes(from: now), label)
         } else {
             return (0, "Time Scroller")
         }
@@ -62,7 +62,7 @@ struct TimeScrollerViewModel {
         return (currentDate, minute)
     }
 
-    private func timezoneFormattedStringRepresentation(_ date: Date) -> String {
+    func timezoneFormattedStringRepresentation(_ date: Date) -> String {
         let dateFormatter = DateFormatterManager.dateFormatterWithFormat(with: .none,
                                                                          format: "MMM d HH:mm",
                                                                          timezoneIdentifier: TimeZone.current.identifier,

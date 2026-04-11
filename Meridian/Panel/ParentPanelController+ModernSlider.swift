@@ -51,7 +51,7 @@ extension ParentPanelController {
             // Set the modern slider label!
             closestQuarterTimeRepresentation = timeScrollerViewModel.findClosestQuarterTimeApproximation()
             if let unwrappedClosetQuarterTime = closestQuarterTimeRepresentation {
-                modernSliderLabel.stringValue = timezoneFormattedStringRepresentation(unwrappedClosetQuarterTime)
+                modernSliderLabel.stringValue = timeScrollerViewModel.timezoneFormattedStringRepresentation(unwrappedClosetQuarterTime)
             }
 
             // Make sure modern slider is centered horizontally!
@@ -134,10 +134,6 @@ extension ParentPanelController {
         }
     }
 
-    public func findClosestQuarterTimeApproximation() -> Date {
-        return timeScrollerViewModel.findClosestQuarterTimeApproximation()
-    }
-
     public func setDefaultDateLabel(_ index: Int) -> Int {
         let baseDate = closestQuarterTimeRepresentation ?? Date()
         let result = timeScrollerViewModel.calculateMinutesToAdd(for: index, baseDate: baseDate)
@@ -154,11 +150,4 @@ extension ParentPanelController {
         return result.0
     }
 
-    private func timezoneFormattedStringRepresentation(_ date: Date) -> String {
-        let dateFormatter = DateFormatterManager.dateFormatterWithFormat(with: .none,
-                                                                         format: "MMM d HH:mm",
-                                                                         timezoneIdentifier: TimeZone.current.identifier,
-                                                                         locale: Locale.autoupdatingCurrent)
-        return dateFormatter.string(from: date)
-    }
 }
