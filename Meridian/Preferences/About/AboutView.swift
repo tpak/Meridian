@@ -159,6 +159,10 @@ private struct AutoUpdateToggle: View {
                     autoUpdate = updater.automaticallyDownloadsUpdates
                     lastCheckDate = updater.lastUpdateCheckDate
                 }
+                .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
+                    guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
+                    lastCheckDate = appDelegate.updaterController.updater.lastUpdateCheckDate
+                }
 
             Text(lastCheckedText)
                 .font(.custom("Avenir-Light", size: 11))
