@@ -11,8 +11,7 @@
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
             <description><![CDATA[
                 <ul>
-                    <li>Meridian is `LSUIElement=true`; users rarely quit it, so Sparkle's silent-install-on-quit never fires. A machine here was still running 2.17.3 four days after 2.17.4 was downloaded, with `Autoupdate` parked waiting for a quit that never came.</li>
-                    <li>Conform `AppDelegate` to `SPUUpdaterDelegate` and implement `willInstallUpdateOnQuit` to return `true` and immediately invoke the install handler. Sparkle installs and relaunches transparently.</li>
+                    <li>Fix auto-updates not installing for users who keep Meridian running</li>
                 </ul>
             ]]></description>
             <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.17.5/Meridian.app.zip" length="3210790" type="application/octet-stream" sparkle:edSignature="9svyCQaIgaDv5whRSi3LQ4UWVSqPmzD2kW0Sr8rtdx2dOr2V/SQB/5pZNQc6ZcjRgPRTAg8xQTF9ecOZGX1EDQ=="/>
