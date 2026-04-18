@@ -9,9 +9,6 @@ struct BackgroundPanelConstants {
 }
 
 class BackgroundPanelView: NSView {
-    private var arrowX: CGFloat = -1
-    private var trackingArea: NSTrackingArea?
-
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
 

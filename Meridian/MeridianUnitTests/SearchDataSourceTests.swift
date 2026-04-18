@@ -11,7 +11,7 @@ class SearchDataSourceTests: XCTestCase {
     private func setupSubject(searchText: String = "") {
         let mockSearchField = NSSearchField()
         mockSearchField.stringValue = searchText
-        subject = SearchDataSource(with: mockSearchField, location: .preferences)
+        subject = SearchDataSource(with: mockSearchField)
     }
 
     private func setupMockData() {
