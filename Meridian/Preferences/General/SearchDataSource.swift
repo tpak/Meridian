@@ -9,7 +9,6 @@ enum RowType {
 }
 
 enum SearchLocation {
-    case onboarding
     case preferences
 }
 

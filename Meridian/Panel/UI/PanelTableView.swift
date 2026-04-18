@@ -112,15 +112,4 @@ class PanelTableView: NSTableView {
         let mousePoint = convert(mousePointInWindow, from: nil)
         evaluateForHighlight(at: mousePoint)
     }
-
-    private func setEnableHover(_ enable: Bool) {
-        if enable != enableHover {
-            if enableHover == false {
-                setHoverRow(-1)
-            }
-
-            enableHover = enable
-            evaluateForHighlight()
-        }
-    }
 }
