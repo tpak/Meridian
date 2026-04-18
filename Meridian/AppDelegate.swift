@@ -9,7 +9,9 @@ import Sparkle
 open class AppDelegate: NSObject, NSApplicationDelegate {
     internal lazy var panelController = PanelController(windowNibName: .panel)
     private var statusBarHandler: StatusItemHandler!
-    let updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+    lazy var updaterController: SPUStandardUpdaterController = {
+        SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: self, userDriverDelegate: nil)
+    }()
     private var memoryPressureSource: DispatchSourceMemoryPressure?
     private var backfillTask: Task<Void, Never>?
     private var sentinelTask: Task<Void, Never>?
@@ -244,5 +246,21 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
 
     open func invalidateMenubarTimer(_ showIcon: Bool) {
         statusBarHandler.invalidateTimer(showIcon: showIcon, isSyncing: true)
+    }
+}
+
+// MARK: - Sparkle Auto-Install for Menubar Apps
+
+// Meridian runs with LSUIElement=true, so users rarely quit it. Sparkle's
+// default "silent install on quit" behavior leaves downloaded updates parked
+// indefinitely. Taking control here and invoking the immediate install handler
+// finishes the update by relaunching the process transparently.
+extension AppDelegate: SPUUpdaterDelegate {
+    public func updater(_: SPUUpdater,
+                        willInstallUpdateOnQuit item: SUAppcastItem,
+                        immediateInstallationBlock immediateInstallHandler: @escaping () -> Void) -> Bool {
+        Logger.production("Sparkle: update \(item.versionString) ready; installing and relaunching now")
+        immediateInstallHandler()
+        return true
     }
 }
