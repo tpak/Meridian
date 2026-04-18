@@ -263,4 +263,30 @@ extension AppDelegate: SPUUpdaterDelegate {
         immediateInstallHandler()
         return true
     }
+
+    public func updater(_: SPUUpdater,
+                        mayPerform updateCheck: SPUUpdateCheck) throws {
+        Logger.production("Sparkle: checking for updates (\(describe(updateCheck)))")
+    }
+
+    public func updater(_: SPUUpdater, didFindValidUpdate item: SUAppcastItem) {
+        Logger.production("Sparkle: found update \(item.versionString)")
+    }
+
+    public func updaterDidNotFindUpdate(_: SPUUpdater) {
+        Logger.production("Sparkle: no update available")
+    }
+
+    public func updater(_: SPUUpdater, didAbortWithError error: Error) {
+        Logger.production("Sparkle: update check aborted — \(error.localizedDescription)")
+    }
+
+    private func describe(_ check: SPUUpdateCheck) -> String {
+        switch check {
+        case .updates: return "user-initiated"
+        case .updatesInBackground: return "scheduled"
+        case .updateInformation: return "informational"
+        @unknown default: return "unknown"
+        }
+    }
 }

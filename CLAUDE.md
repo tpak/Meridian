@@ -78,6 +78,16 @@ The release script (`scripts/release.sh`) handles everything:
 
 **Release notes style**: Keep notes short and user-facing. One line per change describing what was fixed or added — not why or how. No internal details (class names, property names, root cause analysis). Write for customers, not developers. Reference closing GitHub issues inline with the relevant change (e.g. "Add keyboard shortcuts (#50)"). Good: "Fix sunrise/sunset not displaying for some timezones". Bad: "Sunrise/sunset was only displayed when selectionType == .city; now checks for coordinates instead".
 
+**Post-release cleanup** (do this after every release):
+```bash
+git fetch --prune origin                              # prune stale remote refs
+git branch --merged main | grep -v '^\*\|  main$'     # list local branches fully merged into main
+# For each merged branch:
+git branch -d <branch>                                # delete local
+git push origin --delete <branch>                     # delete remote (if remote still has it)
+```
+Only delete branches whose PR shows MERGED in `gh pr list --state all`. Never force-delete (`-D`) unless the branch is confirmed merged — use `-d` so git refuses if commits would be lost.
+
 **Prerequisites** (one-time setup, see `developer-id.md`):
 - Developer ID Application certificate in keychain
 - Notarization credentials stored: `xcrun notarytool store-credentials "meridian-notary"`
