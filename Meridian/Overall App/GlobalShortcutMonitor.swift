@@ -1,7 +1,6 @@
 // Copyright © 2015 Abhishek Banthia
 
 import Cocoa
-import Carbon.HIToolbox
 import CoreLoggerKit
 
 final class GlobalShortcutMonitor {

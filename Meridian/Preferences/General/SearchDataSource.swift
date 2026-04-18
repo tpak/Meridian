@@ -8,10 +8,6 @@ enum RowType {
     case timezone
 }
 
-enum SearchLocation {
-    case preferences
-}
-
 struct TimezoneMetadata {
     let timezone: NSTimeZone
     let tags: Set<String>
@@ -22,7 +18,6 @@ struct TimezoneMetadata {
 class SearchDataSource: NSObject {
     private var searchField: NSSearchField!
     private var finalArray: [RowType] = []
-    private var location: SearchLocation = .preferences
     private var dataTask: URLSessionDataTask? = .none
     private var timezoneMetadataDictionary: [String: [String]] =
         ["GMT+5:30": ["india", "indian", "kolkata", "calcutta", "mumbai", "delhi", "hyderabad", "noida"],
@@ -36,10 +31,9 @@ class SearchDataSource: NSObject {
     private var timezoneArray: [TimezoneMetadata] = [] // All timezones
     var timezoneFilteredArray: [TimezoneMetadata] = [] // Filtered timezones list based on search input
 
-    init(with searchField: NSSearchField, location: SearchLocation = .preferences) {
+    init(with searchField: NSSearchField) {
         super.init()
         self.searchField = searchField
-        self.location = location
         setupTimezoneDatasource()
         calculateChangesets()
     }
@@ -129,7 +123,7 @@ class SearchDataSource: NSObject {
             }
         }
 
-        if searchField.stringValue.isEmpty, location == .preferences {
+        if searchField.stringValue.isEmpty {
             addTimezonesIfNeeded(timezoneArray)
         } else {
             filteredArray.forEach { _ in
