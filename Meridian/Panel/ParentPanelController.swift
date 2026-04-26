@@ -104,6 +104,11 @@ class ParentPanelController: NSWindowController {
                 self?.modernSlider?.reloadData()
             }
             .store(in: &cancellables)
+
+        NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.updateVersionStatusLabel() }
+            .store(in: &cancellables)
     }
 
     override func awakeFromNib() {
@@ -117,6 +122,9 @@ class ParentPanelController: NSWindowController {
 
         // Setup settings button
         settingsButton.image = NSImage(systemSymbolName: "gearshape", accessibilityDescription: "Settings")
+
+        // Setup copy-all button next to settings button
+        setupCopyAllButton()
 
         // Setup version + last checked label
         updateVersionStatusLabel()
@@ -159,6 +167,37 @@ class ParentPanelController: NSWindowController {
         roundedDateView.layer?.cornerRadius = 12.0
         roundedDateView.layer?.masksToBounds = false
         roundedDateView.layer?.backgroundColor = NSColor.controlBackgroundColor.cgColor
+    }
+
+    private func setupCopyAllButton() {
+        guard let footer = settingsButton?.superview else { return }
+
+        // Detach the version label's leading from the settings button so we can insert the copy button between them.
+        let oldLeading = footer.constraints.first {
+            $0.firstItem === versionStatusLabel && $0.firstAttribute == .leading &&
+            $0.secondItem === settingsButton && $0.secondAttribute == .trailing
+        }
+        oldLeading?.isActive = false
+
+        let btn = NSButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.bezelStyle = .recessed
+        btn.isBordered = false
+        btn.imagePosition = .imageOnly
+        btn.image = NSImage(systemSymbolName: "doc.on.doc", accessibilityDescription: "Copy All Timezones")
+        btn.contentTintColor = .secondaryLabelColor
+        btn.toolTip = "Copy all timezones to clipboard"
+        btn.target = self
+        btn.action = #selector(copyAllTimezonesToClipboard)
+        footer.addSubview(btn)
+
+        NSLayoutConstraint.activate([
+            btn.centerYAnchor.constraint(equalTo: footer.centerYAnchor),
+            btn.leadingAnchor.constraint(equalTo: settingsButton.trailingAnchor, constant: 4),
+            btn.widthAnchor.constraint(equalToConstant: 22),
+            btn.heightAnchor.constraint(equalToConstant: 22),
+            versionStatusLabel.leadingAnchor.constraint(equalTo: btn.trailingAnchor, constant: 4)
+        ])
     }
 
     func updateVersionStatusLabel() {

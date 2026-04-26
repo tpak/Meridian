@@ -94,6 +94,7 @@ class PanelController: ParentPanelController {
         let drag = PanelDragHandleView()
         drag.translatesAutoresizingMaskIntoConstraints = false
         drag.isHidden = true
+        drag.toolTip = "Drag to move the panel"
         contentView.addSubview(drag)
         NSLayoutConstraint.activate([
             drag.topAnchor.constraint(equalTo: contentView.topAnchor, constant: PanelLayout.dragHandleTopAnchor),
