@@ -40,6 +40,7 @@
 		35C36F2C2259D6FA002FA5C6 /* PanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F282259D6FA002FA5C6 /* PanelController.swift */; };
 		35C36F372259D7C3002FA5C6 /* AddTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F322259D7C3002FA5C6 /* AddTableViewCell.swift */; };
 		35C36F422259D892002FA5C6 /* Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F3A2259D892002FA5C6 /* Timer.swift */; };
+		5ADE02988FD148209EA2A70A /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23D856F171624B8EBC360698 /* SettingsManager.swift */; };
 		35C36F452259D892002FA5C6 /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F3D2259D892002FA5C6 /* Strings.swift */; };
 		35C36F462259D892002FA5C6 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F3E2259D892002FA5C6 /* DataStore.swift */; };
 		35C36F482259D892002FA5C6 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F402259D892002FA5C6 /* NetworkManager.swift */; };
@@ -169,6 +170,7 @@
 		35C36F282259D6FA002FA5C6 /* PanelController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanelController.swift; sourceTree = "<group>"; };
 		35C36F322259D7C3002FA5C6 /* AddTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddTableViewCell.swift; sourceTree = "<group>"; };
 		35C36F3A2259D892002FA5C6 /* Timer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timer.swift; sourceTree = "<group>"; };
+		23D856F171624B8EBC360698 /* SettingsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		35C36F3D2259D892002FA5C6 /* Strings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		35C36F3E2259D892002FA5C6 /* DataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
 		35C36F402259D892002FA5C6 /* NetworkManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
@@ -385,6 +387,7 @@
 				35C36F4D2259D981002FA5C6 /* AppDefaults.swift */,
 				35C36F4C2259D981002FA5C6 /* DateFormatterManager.swift */,
 				35C36F3E2259D892002FA5C6 /* DataStore.swift */,
+				23D856F171624B8EBC360698 /* SettingsManager.swift */,
 				9FEC776853CC4796AD9A1DC6 /* GlobalShortcutMonitor.swift */,
 				35C36F402259D892002FA5C6 /* NetworkManager.swift */,
 				35C36F3D2259D892002FA5C6 /* Strings.swift */,
@@ -835,6 +838,7 @@
 				35C36F14225961DA002FA5C6 /* Integer+DateTools.swift in Sources */,
 				35C36F15225961DA002FA5C6 /* TimeChunk.swift in Sources */,
 				35C36F19225961DA002FA5C6 /* Enums.swift in Sources */,
+				5ADE02988FD148209EA2A70A /* SettingsManager.swift in Sources */,
 				35C36F452259D892002FA5C6 /* Strings.swift in Sources */,
 				357391872507277500D30819 /* TimeMarkerViewItem.swift in Sources */,
 				35C36F782259E1D0002FA5C6 /* Foundation + Additions.swift in Sources */,
