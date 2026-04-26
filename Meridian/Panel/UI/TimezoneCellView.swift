@@ -287,7 +287,36 @@ extension TimezoneCellView: NSTextFieldDelegate {
             cancelTimeEntry()
             return true
         }
-        return false
+        // Swallow arrow keys at the doCommandBy layer so NSText doesn't propagate
+        // them up to NSTableView (which would change the selected row, ending the
+        // edit session). Manually translate them into in-field caret motion.
+        switch commandSelector {
+        case #selector(NSResponder.moveLeft(_:)):
+            textView.moveLeft(nil)
+            return true
+        case #selector(NSResponder.moveRight(_:)):
+            textView.moveRight(nil)
+            return true
+        case #selector(NSResponder.moveUp(_:)),
+             #selector(NSResponder.moveDown(_:)):
+            // Single-line field — up/down are no-ops, but we still consume them
+            // so the table view doesn't change selection out from under us.
+            return true
+        default:
+            return false
+        }
+    }
+
+    func control(_ control: NSControl, textShouldEndEditing fieldEditor: NSText) -> Bool {
+        // If the user is just navigating with arrow keys, refuse to end editing.
+        // controlTextDidEndEditing wouldn't fire if we return false here.
+        if let event = NSApp.currentEvent, event.type == .keyDown {
+            let arrowKeyCodes: Set<UInt16> = [123, 124, 125, 126]  // left, right, down, up
+            if arrowKeyCodes.contains(event.keyCode) {
+                return false
+            }
+        }
+        return true
     }
 
     func controlTextDidEndEditing(_ obj: Notification) {
