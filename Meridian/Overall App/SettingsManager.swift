@@ -6,7 +6,7 @@ import UniformTypeIdentifiers
 struct SettingsManager {
     private static let exportDirectory = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent(".meridian")
-    private static let defaultExportFilename = "meridian-settings.json"
+    private static let defaultExportFilename = "meridian_settings.json"
 
     // Keys exported and imported (excludes startAtLogin — system-level, applied separately)
     private static let preferenceKeys: [String] = [

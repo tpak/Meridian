@@ -67,6 +67,8 @@ struct AboutView: View {
             Divider()
                 .padding(.horizontal, 20)
 
+            SettingsBackupSection()
+
             DebugLoggingSection()
 
             HStack(spacing: 8) {
@@ -205,6 +207,24 @@ private struct UpdateCheckControls: View {
             appDelegate.updaterController.checkForUpdates(nil)
         }
         .font(.custom("Avenir-Light", size: 12))
+    }
+}
+
+private struct SettingsBackupSection: View {
+    var body: some View {
+        HStack(spacing: 12) {
+            Button(String(localized: "Export Settings…")) {
+                SettingsManager.exportSettings()
+            }
+            .font(.custom("Avenir-Light", size: 12))
+            .accessibilityIdentifier("ExportSettings")
+
+            Button(String(localized: "Import Settings…")) {
+                SettingsManager.importSettings()
+            }
+            .font(.custom("Avenir-Light", size: 12))
+            .accessibilityIdentifier("ImportSettings")
+        }
     }
 }
 
