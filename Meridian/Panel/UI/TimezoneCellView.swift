@@ -28,6 +28,8 @@ class TimezoneCellView: NSTableCellView {
 
     var rowNumber: NSInteger = -1
     var isPopoverDisplayed: Bool = false
+    var timezoneIdentifier: String = ""
+    private(set) var isEditingTime: Bool = false
 
     override func awakeFromNib() {
         if ProcessInfo.processInfo.arguments.contains(UserDefaultKeys.testingLaunchArgument) {
@@ -188,6 +190,10 @@ class TimezoneCellView: NSTableCellView {
     }
 
     override func mouseDown(with event: NSEvent) {
+        if event.clickCount == 2 {
+            beginTimeEntry()
+            return
+        }
         if event.clickCount == 1 {
             // Text is copied in the following format: Chicago - 1625185925
             let clipboardCopy = "\(customName.stringValue) - \(time.stringValue)"
@@ -201,9 +207,91 @@ class TimezoneCellView: NSTableCellView {
         }
     }
 
+    private func beginTimeEntry() {
+        guard !timezoneIdentifier.isEmpty else { return }
+        isEditingTime = true
+        time.isEditable = true
+        time.isBezeled = true
+        time.bezelStyle = .roundedBezel
+        time.delegate = self
+        time.selectText(nil)
+    }
+
+    private func restoreTimeField() {
+        isEditingTime = false
+        time.delegate = nil
+        time.isEditable = false
+        time.isBezeled = false
+    }
+
+    private func commitTimeEntry() {
+        let inputText = time.stringValue
+        restoreTimeField()
+        guard let panelController = PanelController.panel() else { return }
+        let currentOffset = panelController.futureSliderValue
+        let now = Date()
+        let currentSliderDate = Calendar.current.date(byAdding: .minute, value: currentOffset, to: now) ?? now
+        guard let tz = TimeZone(identifier: timezoneIdentifier),
+              let targetDate = parseEnteredTime(inputText, in: tz, relativeTo: currentSliderDate) else {
+            panelController.mainTableView.reloadData()
+            return
+        }
+        let minutesOffset = Int(targetDate.timeIntervalSince(now) / 60.0)
+        panelController.jumpToSliderMinutes(minutesOffset)
+    }
+
+    private func cancelTimeEntry() {
+        restoreTimeField()
+        PanelController.panel()?.mainTableView.reloadData()
+    }
+
+    private func parseEnteredTime(_ input: String, in timezone: TimeZone, relativeTo baseDate: Date) -> Date? {
+        let trimmed = input.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return nil }
+
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = timezone
+        let baseComponents = cal.dateComponents([.year, .month, .day], from: baseDate)
+
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = timezone
+
+        for format in ["h:mm a", "h:mma", "H:mm", "h:mm", "ha", "h a", "H"] {
+            formatter.dateFormat = format
+            guard let parsed = formatter.date(from: trimmed) else { continue }
+            var comps = baseComponents
+            let timeComps = cal.dateComponents([.hour, .minute], from: parsed)
+            comps.hour = timeComps.hour
+            comps.minute = timeComps.minute
+            comps.second = 0
+            return cal.date(from: comps)
+        }
+        return nil
+    }
+
     override func rightMouseDown(with event: NSEvent) {
         // Pass right-clicks up the responder chain (e.g. to PanelController for Pin to Desktop).
         // The old notes popover was removed in the strip commit; showExtraOptions would crash.
         super.rightMouseDown(with: event)
+    }
+}
+
+extension TimezoneCellView: NSTextFieldDelegate {
+    func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+        if commandSelector == #selector(NSResponder.insertNewline(_:)) {
+            commitTimeEntry()
+            return true
+        }
+        if commandSelector == #selector(NSResponder.cancelOperation(_:)) {
+            cancelTimeEntry()
+            return true
+        }
+        return false
+    }
+
+    func controlTextDidEndEditing(_ obj: Notification) {
+        guard isEditingTime else { return }
+        cancelTimeEntry()
     }
 }
