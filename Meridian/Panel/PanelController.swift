@@ -207,8 +207,13 @@ class PanelController: ParentPanelController {
             modernSlider.scrollToItems(at: indexPaths, scrollPosition: .centeredHorizontally)
         }
 
-        goForwardButton.alphaValue = 0
-        goBackwardsButton.alphaValue = 0
+        // Forward/back are always visible — the 2.18.2 fade machinery zeroed
+        // them out here on every panel open and faded them back in on first
+        // scroll. With fade removed, keep them fully opaque.
+        goForwardButton.alphaValue = 1
+        goBackwardsButton.alphaValue = 1
+        goForwardButton.isHidden = false
+        goBackwardsButton.isHidden = false
 
         setTimezoneDatasourceSlider(sliderValue: 0)
 
