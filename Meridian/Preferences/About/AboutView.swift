@@ -50,9 +50,6 @@ struct AboutView: View {
                         metadata: ["Country": Locale.autoupdatingCurrent.region?.identifier ?? ""])
             }
 
-            Divider()
-                .padding(.horizontal, 20)
-
             Toggle(String(localized: "Start at Login"), isOn: $startAtLogin)
                 .font(.custom("Avenir-Book", size: 13))
                 .toggleStyle(.checkbox)
@@ -64,16 +61,13 @@ struct AboutView: View {
 
             AutoUpdateToggle()
 
-            Divider()
-                .padding(.horizontal, 20)
-
-            DebugLoggingSection()
-
             HStack(spacing: 8) {
                 Text(String(localized: "Check for Updates"))
                     .font(.custom("Avenir-Light", size: 13))
                 UpdateCheckControls()
             }
+
+            DebugLoggingSection()
         }
         .padding(20)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
