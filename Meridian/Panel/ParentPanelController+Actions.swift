@@ -31,6 +31,22 @@ extension ParentPanelController {
         window?.contentView?.makeToast("Copied to Clipboard".localized())
     }
 
+    @objc func copyAllTimezonesToClipboard() {
+        let timezones = dataStore.timezoneObjects()
+        guard !timezones.isEmpty else { return }
+
+        let parts = timezones.map { timezone -> String in
+            let ops = TimezoneDataOperations(with: timezone, store: dataStore)
+            let timeStr = ops.time(with: futureSliderValue)
+            let label = timezone.formattedTimezoneLabel()
+            return "\(timeStr) \(label)"
+        }
+        let pasteboard = NSPasteboard.general
+        pasteboard.declareTypes([.string], owner: nil)
+        pasteboard.setString(parts.joined(separator: " / "), forType: .string)
+        window?.contentView?.makeToast("Copied to Clipboard".localized())
+    }
+
     @objc func reportIssue() {
         guard let url = URL(string: AboutUsConstants.GitHubIssuesURL) else { return }
         NSWorkspace.shared.open(url)

@@ -124,6 +124,7 @@ class TimezoneCellView: NSTableCellView {
 
         extraOptions.image = NSImage(systemSymbolName: "ellipsis.circle", accessibilityDescription: "Options")
         extraOptions.alternateImage = NSImage(systemSymbolName: "ellipsis.circle.fill", accessibilityDescription: "Options")
+        extraOptions.toolTip = "Add a note to this timezone"
 
         currentLocationIndicator.image = NSImage(systemSymbolName: "location.fill", accessibilityDescription: "Current Location")
 

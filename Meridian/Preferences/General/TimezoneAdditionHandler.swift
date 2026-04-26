@@ -373,12 +373,15 @@ class TimezoneAdditionHandler: NSObject {
     private func cleanupAfterInstallingTimezone() {
         guard let host = host else { return }
         let data = TimezoneData()
-        data.setLabel(UserDefaultKeys.emptyString)
 
         let currentSelection = host.searchResultsDataSource.retrieveSelectedTimezone(host.availableTimezoneTableView.selectedRow)
 
         let metaInfo = metadata(for: currentSelection)
         data.timezoneID = metaInfo.0.name
+
+        let cityComponents = metaInfo.0.name.split(separator: "/")
+        let defaultLabel = cityComponents.last.map { String($0).replacingOccurrences(of: "_", with: " ") } ?? metaInfo.0.name
+        data.setLabel(defaultLabel)
         data.formattedAddress = metaInfo.1.formattedName
         data.selectionType = .timezone
         data.isSystemTimezone = metaInfo.0.name == NSTimeZone.system.identifier
