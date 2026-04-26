@@ -33,12 +33,21 @@ extension ParentPanelController {
                 btn?.imagePosition = .imageOnly
                 btn?.isBordered = false
                 btn?.bezelStyle = .recessed
+                // The 2.18.2 fix faded these in on first scroll. Without that
+                // call we must show them explicitly here, otherwise they stay
+                // at whatever transient alpha NSAnimationContext last left them.
+                btn?.isHidden = false
+                btn?.alphaValue = 1.0
             }
             goBackwardsButton.image = NSImage(systemSymbolName: "chevron.left", accessibilityDescription: "Go backwards")
             goForwardButton.image = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: "Go forward")
 
             goForwardButton.isContinuous = true
             goBackwardsButton.isContinuous = true
+
+            // Reset starts hidden — only meaningful when the slider is off-center.
+            resetModernSliderButton.isHidden = true
+            resetModernSliderButton.alphaValue = 1.0
 
             goBackwardsButton.toolTip = "Navigate 15 mins back"
             goForwardButton.toolTip = "Navigate 15 mins forward"
