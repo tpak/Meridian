@@ -29,6 +29,11 @@ extension ParentPanelController {
                 scrollView.scrollerStyle = NSScroller.Style.overlay
             }
 
+            for btn in [goBackwardsButton, goForwardButton] {
+                btn?.imagePosition = .imageOnly
+                btn?.isBordered = false
+                btn?.bezelStyle = .recessed
+            }
             goBackwardsButton.image = NSImage(systemSymbolName: "chevron.left", accessibilityDescription: "Go backwards")
             goForwardButton.image = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: "Go forward")
 
@@ -48,14 +53,23 @@ extension ParentPanelController {
                                                    name: NSView.boundsDidChangeNotification,
                                                    object: modernSlider.superview)
 
+            // Wire up snap-to-grid after a drag gesture ends.
+            if let clipView = modernSlider.superview as? DraggableClipView {
+                clipView.onDragEnded = { [weak self] in
+                    self?.snapSliderToCurrentItem()
+                }
+            }
+
             // Set the modern slider label!
             closestQuarterTimeRepresentation = timeScrollerViewModel.findClosestQuarterTimeApproximation()
             if let unwrappedClosetQuarterTime = closestQuarterTimeRepresentation {
                 modernSliderLabel.stringValue = timeScrollerViewModel.timezoneFormattedStringRepresentation(unwrappedClosetQuarterTime)
             }
 
-            // Make sure modern slider is centered horizontally!
-            let indexPaths: Set<IndexPath> = Set([IndexPath(item: modernSlider.numberOfItems(inSection: 0) / 2, section: 0)])
+            // Make sure modern slider is centered horizontally and seed currentCenterIndexPath.
+            let centerItem = modernSlider.numberOfItems(inSection: 0) / 2
+            currentCenterIndexPath = centerItem
+            let indexPaths: Set<IndexPath> = Set([IndexPath(item: centerItem, section: 0)])
             modernSlider.scrollToItems(at: indexPaths, scrollPosition: .centeredHorizontally)
         }
     }
@@ -68,24 +82,25 @@ extension ParentPanelController {
         navigateModernSliderToSpecificIndex(-1)
     }
 
-    private func animateResetButton(hidden: Bool) {
+    private func animateButton(_ button: NSButton, hidden: Bool) {
+        if !hidden {
+            button.alphaValue = 0
+            button.isHidden = false
+        }
         NSAnimationContext.runAnimationGroup({ context in
             context.duration = 0.5
-            context.timingFunction = CAMediaTimingFunction(name: hidden ? CAMediaTimingFunctionName.easeOut : CAMediaTimingFunctionName.easeIn)
-            resetModernSliderButton.animator().alphaValue = hidden ? 0.0 : 1.0
-        }, completionHandler: { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.resetModernSliderButton.animator().isHidden = hidden
-        })
+            context.timingFunction = CAMediaTimingFunction(name: hidden ? .easeOut : .easeIn)
+            button.animator().alphaValue = hidden ? 0.0 : 1.0
+        }, completionHandler: hidden ? { button.isHidden = true } : nil)
+    }
+
+    private func animateResetButton(hidden: Bool) {
+        animateButton(resetModernSliderButton, hidden: hidden)
     }
 
     private func setAccessoryButtons(hidden: Bool) {
-        NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.5
-            context.timingFunction = CAMediaTimingFunction(name: hidden ? CAMediaTimingFunctionName.easeOut : CAMediaTimingFunctionName.easeIn)
-            goForwardButton.animator().alphaValue = hidden ? 0.0 : 1.0
-            goBackwardsButton.animator().alphaValue = hidden ? 0.0 : 1.0
-        }, completionHandler: nil)
+        animateButton(goForwardButton, hidden: hidden)
+        animateButton(goBackwardsButton, hidden: hidden)
     }
 
     @IBAction func resetModernSlider(_: NSButton) {
@@ -105,16 +120,19 @@ extension ParentPanelController {
         }
     }
 
+    private func snapSliderToCurrentItem() {
+        guard currentCenterIndexPath >= 0 else { return }
+        modernSlider.scrollToItems(at: [IndexPath(item: currentCenterIndexPath, section: 0)],
+                                   scrollPosition: .centeredHorizontally)
+    }
+
     private func navigateModernSliderToSpecificIndex(_ index: Int) {
-        guard let contentView = modernSlider.superview as? NSClipView else {
-            return
-        }
-        let changedOrigin = contentView.documentVisibleRect.origin
-        let newPoint = NSPoint(x: changedOrigin.x + contentView.frame.width / 2, y: changedOrigin.y)
-        if let indexPath = modernSlider.indexPathForItem(at: newPoint) {
-            let previousIndexPath = IndexPath(item: indexPath.item + index, section: indexPath.section)
-            modernSlider.scrollToItems(at: Set([previousIndexPath]), scrollPosition: .centeredHorizontally)
-        }
+        guard modernSlider != nil else { return }
+        let total = modernSlider.numberOfItems(inSection: 0)
+        let base = currentCenterIndexPath >= 0 ? currentCenterIndexPath : total / 2
+        let target = max(0, min(base + index, total - 1))
+        modernSlider.scrollToItems(at: [IndexPath(item: target, section: 0)],
+                                   scrollPosition: .centeredHorizontally)
     }
 
     @objc func collectionViewDidScroll(_ notification: NSNotification) {

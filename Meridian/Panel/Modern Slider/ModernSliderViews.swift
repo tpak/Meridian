@@ -46,6 +46,9 @@ class DraggableClipView: NSClipView {
     private var clickPoint: NSPoint!
     private var trackingArea: NSTrackingArea?
 
+    // Called when the user lifts the mouse after dragging, so the controller can snap to the nearest item.
+    var onDragEnded: (() -> Void)?
+
     override func mouseDown(with event: NSEvent) {
         super.mouseDown(with: event)
         clickPoint = event.locationInWindow
@@ -55,18 +58,19 @@ class DraggableClipView: NSClipView {
             let newEvent = window?.nextEvent(matching: [.leftMouseDragged, .leftMouseUp, .leftMouseDown])
             switch newEvent?.type {
             case .leftMouseDragged:
-                let newPoint = newEvent?.locationInWindow
-                let xCoOrdinate = clickPoint.x - (newPoint?.x ?? 0)
-                let newOrigin = NSPoint(x: bounds.origin.x + xCoOrdinate,
-                                        y: 0)
+                guard let newPoint = newEvent?.locationInWindow else { break }
+                let xDelta = clickPoint.x - newPoint.x
+                let newOrigin = NSPoint(x: bounds.origin.x + xDelta, y: 0)
                 let constrainedRect = constrainBoundsRect(NSRect(origin: newOrigin, size: bounds.size))
                 scroll(to: constrainedRect.origin)
                 superview?.reflectScrolledClipView(self)
+                clickPoint = newPoint
             case .leftMouseDown:
                 clickPoint = event.locationInWindow
             case .leftMouseUp:
                 clickPoint = nil
                 gestureInProgress = false
+                onDragEnded?()
             default:
                 Logger.debug("Default mouse event occurred for \(event.type)")
             }
