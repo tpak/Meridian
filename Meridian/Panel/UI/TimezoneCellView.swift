@@ -31,6 +31,12 @@ class TimezoneCellView: NSTableCellView {
     var timezoneIdentifier: String = ""
     private(set) var isEditingTime: Bool = false
 
+    // Local key event monitor active only while editing the time field.
+    // Catches arrow keys at the application level so they reach the field
+    // editor's caret motion instead of being consumed by NSTableView /
+    // NSCollectionView further up the responder chain.
+    private var arrowKeyMonitor: Any?
+
     override func awakeFromNib() {
         if ProcessInfo.processInfo.arguments.contains(UserDefaultKeys.testingLaunchArgument) {
             extraOptions.isHidden = false
@@ -215,6 +221,30 @@ class TimezoneCellView: NSTableCellView {
         time.bezelStyle = .roundedBezel
         time.delegate = self
         time.selectText(nil)
+        installArrowKeyMonitor()
+        Logger.production("Time edit begin for \(timezoneIdentifier)")
+    }
+
+    private func installArrowKeyMonitor() {
+        guard arrowKeyMonitor == nil else { return }
+        arrowKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self = self, self.isEditingTime else { return event }
+            let arrowKeyCodes: Set<UInt16> = [123, 124, 125, 126]  // left, right, down, up
+            guard arrowKeyCodes.contains(event.keyCode) else { return event }
+            // Route the arrow event explicitly to the field editor so the caret moves
+            // and we don't lose focus to NSTableView's row-navigation handler.
+            if let editor = self.time.currentEditor() {
+                editor.keyDown(with: event)
+            }
+            return nil  // consume — don't let it propagate to other responders
+        }
+    }
+
+    private func removeArrowKeyMonitor() {
+        if let monitor = arrowKeyMonitor {
+            NSEvent.removeMonitor(monitor)
+            arrowKeyMonitor = nil
+        }
     }
 
     private func restoreTimeField() {
@@ -222,6 +252,7 @@ class TimezoneCellView: NSTableCellView {
         time.delegate = nil
         time.isEditable = false
         time.isBezeled = false
+        removeArrowKeyMonitor()
     }
 
     private func commitTimeEntry() {
