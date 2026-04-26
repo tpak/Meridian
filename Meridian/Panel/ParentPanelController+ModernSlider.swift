@@ -135,6 +135,25 @@ extension ParentPanelController {
                                    scrollPosition: .centeredHorizontally)
     }
 
+    func jumpToSliderMinutes(_ minutes: Int) {
+        guard modernSlider != nil else {
+            setTimezoneDatasourceSlider(sliderValue: minutes)
+            mainTableView.reloadData()
+            return
+        }
+        let total = modernSlider.numberOfItems(inSection: 0)
+        let center = total / 2
+        let itemsFromCenter = minutes / PanelConstants.minutesPerSliderPoint
+        let target = max(0, min(center + itemsFromCenter, total - 1))
+        currentCenterIndexPath = target
+        let minutesToAdd = setDefaultDateLabel(target)
+        setTimezoneDatasourceSlider(sliderValue: minutesToAdd)
+        mainTableView.reloadData()
+        modernSlider.scrollToItems(at: [IndexPath(item: target, section: 0)], scrollPosition: .centeredHorizontally)
+        setAccessoryButtons(hidden: minutesToAdd == 0)
+        animateResetButton(hidden: minutesToAdd == 0)
+    }
+
     @objc func collectionViewDidScroll(_ notification: NSNotification) {
         guard let contentView = notification.object as? NSClipView else {
             return

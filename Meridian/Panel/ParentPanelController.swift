@@ -406,7 +406,9 @@ extension ParentPanelController {
         }
 
         let dataOperation = TimezoneDataOperations(with: model, store: dataStore)
-        cellView.time.stringValue = dataOperation.time(with: futureSliderValue)
+        if !cellView.isEditingTime {
+            cellView.time.stringValue = dataOperation.time(with: futureSliderValue)
+        }
         cellView.sunriseSetTime.stringValue = dataOperation.formattedSunriseTime(with: futureSliderValue)
         cellView.sunriseSetTime.lineBreakMode = .byClipping
 
