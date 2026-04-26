@@ -3,65 +3,6 @@
     <channel>
         <title>Meridian</title>
         <item>
-            <title>2.18.4</title>
-            <pubDate>Sun, 26 Apr 2026 14:07:27 +0000</pubDate>
-            <sparkle:version>2.18.4</sparkle:version>
-            <sparkle:shortVersionString>2.18.4</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <description><![CDATA[
-                <ul>
-                    <li>Add export/import settings</li>
-                </ul>
-            ]]></description>
-            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.18.4/Meridian.app.zip" length="3230579" type="application/octet-stream" sparkle:edSignature="DTEAzajOIFzU50P2fmvWtWPmEX/zPLItFCA8Fysv73ebgY2cSeUXzwGC20KjwQaPHikpNGODpCIhdJwYLXRPBA=="/>
-        </item>
-        <item>
-            <title>2.18.3</title>
-            <pubDate>Sun, 26 Apr 2026 13:57:10 +0000</pubDate>
-            <sparkle:version>2.18.3</sparkle:version>
-            <sparkle:shortVersionString>2.18.3</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <description><![CDATA[
-                <ul>
-                    <li>Add direct time entry: double-click a time to set it</li>
-                </ul>
-            ]]></description>
-            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.18.3/Meridian.app.zip" length="3221008" type="application/octet-stream" sparkle:edSignature="AfgHkroJezKLRu5wbnBYNavf8Hso/Fk4pQQMOhMjrXnTepHmDb5NJHt1f+hru25nZ6zR94RmFHwwwC2dAt2oCQ=="/>
-        </item>
-        <item>
-            <title>2.18.2</title>
-            <pubDate>Sun, 26 Apr 2026 10:39:19 +0000</pubDate>
-            <sparkle:version>2.18.2</sparkle:version>
-            <sparkle:shortVersionString>2.18.2</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <description><![CDATA[
-                <ul>
-                    <li>Fix time slider dragging — now tracks the mouse 1:1 instead of accelerating; slider snaps to nearest 15-minute mark on release; fix forward/back buttons silently dropping clicks; fix ghost invisible buttons after reset</li>
-                </ul>
-            ]]></description>
-            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.18.2/Meridian.app.zip" length="3214978" type="application/octet-stream" sparkle:edSignature="07ot16DGsgg/5SMWeHHNpou5Ggs2+RSDyiNCoF4CEO3Iy+xJZVpx3JwAaaBstVSATWbbn6+fWAbHSMhnJ2KQCg=="/>
-        </item>
-        <item>
-            <title>2.18.1</title>
-            <pubDate>Sun, 26 Apr 2026 10:26:04 +0000</pubDate>
-            <sparkle:version>2.18.1</sparkle:version>
-            <sparkle:shortVersionString>2.18.1</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <description><![CDATA[
-                <ul>
-                    <li>**#81**: Panel footer now refreshes the Sparkle last-check timestamp live via `UserDefaults.didChangeNotification` instead of only on panel open, keeping it in sync with the About screen</li>
-                    <li>**#82**: When adding a raw timezone (e.g. America/Denver), the label now auto-defaults to the city component ("Denver") instead of empty string; works for multi-level IDs and UTC</li>
-                    <li>**#84**: Added tooltip "Add a note to this timezone" to the ellipsis options button on each row; added "Drag to move the panel" to the float-mode drag handle so the UI is self-explanatory</li>
-                    <li>**#86**: Added a Copy All button (doc.on.doc icon) to the panel footer — copies all timezone times at the current slider position as "6:15 PM Denver / 8:15 PM Chicago / ..." to the clipboard</li>
-                </ul>
-            ]]></description>
-            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.18.1/Meridian.app.zip" length="3213524" type="application/octet-stream" sparkle:edSignature="DhUgjOwZKo0yST7mngiJOBViXVOLAu+U4w7uHZ/za5xbLXdQhwEntpLhY1EV69UMgd3Ol88t4pXuJDcD64j5DA=="/>
-        </item>
-        <item>
             <title>2.18.0</title>
             <pubDate>Sun, 19 Apr 2026 14:23:11 +0000</pubDate>
             <sparkle:version>2.18.0</sparkle:version>
