@@ -16,14 +16,21 @@ A macOS menu bar world clock. Track time across zones for your team, friends, an
 ## Features
 
 - **Menu bar native** — lives in your macOS menu bar, one click away
-- **Multiple time zones** — add as many locations as you need
-- **3 display modes** — icon only, standard text, or compact view
-- **Time scrubbing** — slide to see what time it will be elsewhere
-- **Sunrise/sunset** — know when the sun rises and sets in each zone
+- **Multiple time zones** — search by city, state, country, or timezone name
+- **3 display modes** — icon only, standard text, or compact multi-zone view
+- **Time scrubber** — slide forward or backward up to 6 days; `<` / `>` buttons step 15 minutes at a time
+- **Direct time entry** — double-click any time to type a specific time and jump the scrubber there
+- **Sunrise/sunset** — see when the sun rises and sets in each location
+- **Favorites** — star a timezone to show it in the compact menubar display
+- **Custom labels** — rename any timezone; defaults to the city name
+- **Single-click to copy** — click any row to copy "City — Time" to the clipboard
+- **Copy all** — hold the panel open while the scrubber is active to copy all times at once
+- **Export/import settings** — back up all timezones and preferences to a JSON file or clipboard; restore on another Mac
 - **Pin to desktop** — float the panel above all windows and drag it anywhere
-- **Keyboard shortcuts** — ⌘W, ⌘,, ⌘C in the panel; set a global hotkey in Preferences → General (none by default)
+- **Global hotkey** — set a keyboard shortcut to open the panel from anywhere
 - **Start at login** — launches automatically with your Mac
-- **Ad-free, open source, and no tracking** — no analytics, no telemetry; location lookups go through Apple's geocoding service only when you add a timezone
+- **Auto-update** — Sparkle delivers updates silently in the background
+- **Ad-free, open source, no tracking** — location lookups go through Apple's geocoding service only when you add a timezone
 
 ## Install
 
@@ -41,6 +48,80 @@ Updates are delivered automatically via Sparkle (in-app). Because the cask sets 
 Download the latest `.zip` from [GitHub Releases](https://github.com/tpak/Meridian/releases), unzip, and drag Meridian to your Applications folder.
 
 Requires macOS 13 (Ventura) or later.
+
+## Using Meridian
+
+### Panel basics
+
+Click the Meridian icon in your menu bar to open the panel. Press **⌘W** or click anywhere outside to close it.
+
+Each row shows:
+- **Location name** — the city or your custom label
+- **Time** — current local time in that timezone (or scrubbed time when the slider is active)
+- **Relative date** — "Today", "Tomorrow", "+1 day", etc., when the day differs from yours
+- **Sunrise/sunset** — shown when coordinates are available and enabled in Appearance settings
+
+### Adding timezones
+
+1. Open **Settings** (⌘,) → **General** tab
+2. Type a city, state, country, or timezone identifier in the search field
+3. Select a result and click **Add**
+
+The label defaults to the city name. To rename it, double-click the label in the list.
+
+### Time scrubber
+
+Drag the tick-mark slider at the bottom of the panel to move forward or backward in time — all clocks update together. The slider range is ±6 days by default (adjustable in Appearance settings).
+
+- **`<` / `>`** — step 15 minutes backward or forward
+- **↺** — reset to the current time
+
+### Direct time entry
+
+Double-click any time display in the panel. The field becomes editable — type a time in any of these formats:
+
+| Input | Meaning |
+|-------|---------|
+| `7:30 PM` | 7:30 in the afternoon |
+| `19:30` | 24-hour format |
+| `7pm` | shorthand |
+| `7` | on the hour |
+
+Press **Enter** to jump the scrubber so that timezone shows the time you typed. All other clocks update accordingly. Press **Escape** or click away to cancel.
+
+### Copying times
+
+- **Single-click** any row — copies "City — Time" to the clipboard (works whether the panel is at current time or scrubbed time)
+- **⌘C** in the panel — copies all visible times as a formatted list
+
+### Favorites and the menubar
+
+In **Settings → General**, click the star (★) next to a timezone to mark it as a favorite. Favorites appear in the compact menubar display alongside the Meridian icon. Un-star to remove.
+
+### Pinning to the desktop
+
+Right-click the Meridian icon in the menu bar and choose **Pin to Desktop**. The panel detaches from the menu bar, floats above all windows, and can be dragged anywhere on screen. Right-click the panel and choose **Unpin** to return it to the menu bar.
+
+### Exporting and importing settings
+
+Back up all your timezones and preferences as a JSON file — useful for restoring on a new Mac or syncing via dotfiles.
+
+- **File → Export Settings…** (⌘⇧E) — saves to `~/.meridian/` by default; choose any location
+- **File → Copy Settings to Clipboard** — copies the JSON directly to the clipboard
+- **File → Import Settings…** — imports a previously exported file
+
+The export includes all timezones and appearance preferences. `startAtLogin` is excluded and must be set manually after import.
+
+### Keyboard shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| ⌘, | Open Settings |
+| ⌘W | Close panel |
+| ⌘C | Copy all times |
+| ⌘⇧E | Export settings |
+
+A **global hotkey** to open the panel from any app can be set in **Settings → General** (none by default).
 
 ## Development
 
