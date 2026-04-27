@@ -175,6 +175,42 @@ Only after the user explicitly signs off on the latest beta:
 
 The released binary is what Sparkle ships to all users; the beta UAT path makes sure that binary's behavior was confirmed by the user first.
 
+## Sparkle Beta Channel
+
+Meridian has a single Sparkle feed (`appcast.xml`) with two channels: the **default** channel (every user) and the **`beta`** channel (opt-in). Users opt in via the *"Receive beta releases"* checkbox in the About tab. The opt-in is persisted under `UserDefaultKeys.betaUpdatesEnabled` and surfaced to Sparkle through `SPUUpdaterDelegate.allowedChannels(for:)` in `AppDelegate`.
+
+Sparkle's rule: an updater **always** sees default-channel items and additionally sees items in any allowed channel. So a beta opt-in user automatically rolls forward into the GA release once it lands on the default channel — no extra plumbing required.
+
+### Cutting a beta release
+
+```bash
+git checkout main && git pull
+make release VERSION=2.20.0-beta1     # or beta2, beta3, …
+```
+
+The release script auto-detects the `-betaN` suffix and:
+- Tags the GitHub release as **prerelease** (`gh release create --prerelease`)
+- Adds `<sparkle:channel>beta</sparkle:channel>` to the new `appcast.xml` item
+- **Skips** the Homebrew cask update (cask tracks stable only)
+
+Stable users will not see the beta. Users who toggled *Receive beta releases* on will be offered it on their next Sparkle check (or immediately if they just flipped the toggle on — the toggle triggers `checkForUpdateInformation()`).
+
+### Cutting the GA after beta UAT
+
+```bash
+make release VERSION=2.20.0
+```
+
+Same as any other stable release. Beta-channel users see the GA item (no channel tag = default channel = always allowed) and version-compare ranks `2.20.0 > 2.20.0-beta3`, so they upgrade off the beta automatically.
+
+### Beta channel vs. local UAT betas
+
+These are different mechanisms with different audiences:
+- **Local UAT betas** (above) — built with `xcodebuild` overrides, installed to `~/Applications/Meridian-beta.app` on the developer's own machine. No distribution, no Sparkle. For pre-PR sanity checks.
+- **Sparkle beta channel** (this section) — full release pipeline, signed/notarized, distributed via Sparkle to opt-in users. For broader pre-GA testing.
+
+Use a local UAT beta to gain confidence in a feature, then cut a Sparkle beta to widen the test pool, then cut GA.
+
 ## Coming Back After Months Away
 
 If you haven't touched this project in a while, here's how to get back up to speed and ship an update.
