@@ -93,6 +93,88 @@ Only delete branches whose PR shows MERGED in `gh pr list --state all`. Never fo
 - Notarization credentials stored: `xcrun notarytool store-credentials "meridian-notary"`
 - Sparkle EdDSA key (generated on first use by `sign_update`)
 
+## Local Beta Builds for UAT
+
+Before cutting a real release, build a clearly-labelled beta and run it side-by-side with the production app on the user's machine. Iterate `beta1` → `beta2` → ... on the same feature branch until the user signs off, then merge the PR and run `make release`.
+
+### Why this exists
+Production releases go through Sparkle to every user immediately. The user wants to UAT changes locally before that happens. This workflow keeps `/Applications/Meridian.app` (production) untouched while a `~/Applications/Meridian-beta.app` runs the in-progress build.
+
+### How to build a beta
+
+From the feature branch (do **not** merge to main yet):
+
+```bash
+# 1. Quit any running Meridian (production or previous beta)
+osascript -e 'tell application "Meridian" to quit'
+sleep 2
+
+# 2. Build with version overrides — DO NOT edit project.pbxproj.
+#    Bump the betaN suffix and CURRENT_PROJECT_VERSION on each iteration.
+xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug build \
+  CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY= \
+  MARKETING_VERSION=2.19.1-beta1 CURRENT_PROJECT_VERSION=2191001
+
+# 3. Verify the version stamped into the built bundle
+/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" \
+  "$HOME/Library/Developer/Xcode/DerivedData/Meridian-*/Build/Products/Debug/Meridian.app/Contents/Info.plist"
+
+# 4. Install to ~/Applications (separate from /Applications/Meridian.app)
+rm -rf ~/Applications/Meridian-beta.app
+cp -R "$HOME/Library/Developer/Xcode/DerivedData/Meridian-*/Build/Products/Debug/Meridian.app" \
+  ~/Applications/Meridian-beta.app
+xattr -cr ~/Applications/Meridian-beta.app   # strip quarantine
+open ~/Applications/Meridian-beta.app
+
+# 5. Confirm it's running
+pgrep -lf "Meridian-beta.app/Contents/MacOS/Meridian"
+```
+
+### Conventions
+- **Naming**: `MARKETING_VERSION=X.Y.Z-betaN` (e.g. `2.19.1-beta1`, `2.19.1-beta2`). The user-visible version string in the panel footer reads `vX.Y.Z-betaN` — that's the unambiguous "this is the test build" signal.
+- **Build number**: `CURRENT_PROJECT_VERSION=XYZNNN` (e.g. `2191001` for `2.19.1-beta1`). Doesn't render in the UI; just keeps Sparkle's internal comparison consistent.
+- **Bundle ID stays `com.tpak.Meridian`**: the beta shares UserDefaults with prod, so the user's real timezones and prefs come along for realistic UAT.
+- **Don't sign or notarize**: `CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO`. The beta is for the user's own machine; Gatekeeper is satisfied by `xattr -cr`.
+- **Don't bump `project.pbxproj`**: the override is build-time only. The pbxproj retains the most recent released version. This prevents accidentally committing a beta version number to `main`.
+- **Sparkle won't auto-update the beta**: the production appcast tops out at the latest stable release; `2.19.1-beta1 > 2.19.1` lexically, so Sparkle sees nothing newer.
+
+### Iteration cycle
+
+When the user reports a problem with `betaN`:
+
+```bash
+# Make changes on the feature branch, commit, push (so the PR stays current)
+git add ... && git commit -m "..." && git push
+
+# Bump the beta number and rebuild + reinstall
+osascript -e 'tell application "Meridian" to quit' ; sleep 2
+xcodebuild ... MARKETING_VERSION=2.19.1-beta2 CURRENT_PROJECT_VERSION=2191002
+rm -rf ~/Applications/Meridian-beta.app
+cp -R "$HOME/Library/Developer/Xcode/DerivedData/Meridian-*/Build/Products/Debug/Meridian.app" \
+  ~/Applications/Meridian-beta.app
+xattr -cr ~/Applications/Meridian-beta.app
+open ~/Applications/Meridian-beta.app
+```
+
+### Switching back to production
+
+```bash
+osascript -e 'tell application "Meridian" to quit'
+open /Applications/Meridian.app                  # already-installed prod
+# OR
+brew reinstall meridian                          # clean reinstall of latest stable
+```
+
+### When to graduate to a real release
+
+Only after the user explicitly signs off on the latest beta:
+1. Verify CI is green on the PR
+2. `gh pr merge <N> --merge`
+3. `git checkout main && git pull`
+4. `bash scripts/release.sh -n "..." X.Y.Z` (or `make release VERSION=X.Y.Z` for single-line notes)
+
+The released binary is what Sparkle ships to all users; the beta UAT path makes sure that binary's behavior was confirmed by the user first.
+
 ## Coming Back After Months Away
 
 If you haven't touched this project in a while, here's how to get back up to speed and ship an update.
@@ -263,7 +345,7 @@ Before implementing any feature or fix, follow this workflow:
 
 ## Large Refactors — Parallel Agents
 
-For large refactors, use parallel agents to divide the work by concern. Coordinate results and present a unified summary with any conflicts between agents' changes.
+For large refactors, use parallel agents to divide the work by concern. Coordinate results and present a unified summary with any conflicts between agents' changes. Use the most sensible model for those agents to keep costs under control.
 
 **Agent 1 — UI/Storyboard**: Reorganize storyboard layout. Verify all IBOutlet connections are intact by grepping for `@IBOutlet` and matching against storyboard identifiers.
 
