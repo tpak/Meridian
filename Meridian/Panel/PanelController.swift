@@ -395,9 +395,6 @@ class PanelController: ParentPanelController {
 
         parentTimer?.pause()
 
-        updatePopoverDisplayState()
-        additionalOptionsPopover?.close()
-
         // Keep button state in sync regardless of how the panel was closed (click vs programmatic).
         if let btn = (NSApplication.shared.delegate as? AppDelegate)?.statusItemForPanel().statusItem.button {
             btn.state = .off
@@ -436,28 +433,6 @@ class PanelController: ParentPanelController {
         }
 
         return panel.first
-    }
-
-    override func showNotesPopover(forRow row: Int, relativeTo positioningRect: NSRect, andButton target: NSButton!) -> Bool {
-        guard let target = target else { return false }
-
-        // The NotesPopover XIB/controller was removed in the strip commit.
-        // Update the button icon for the ellipsis toggle but don't try to show a popover.
-        if let popover = additionalOptionsPopover, popover.isShown, row == previousPopoverRow {
-            popover.close()
-            target.image = NSImage(systemSymbolName: "ellipsis.circle", accessibilityDescription: "Options")
-            previousPopoverRow = -1
-            return false
-        }
-
-        target.image = NSImage(systemSymbolName: "ellipsis.circle.fill", accessibilityDescription: "Options")
-        previousPopoverRow = row
-
-        if let timer = parentTimer, timer.state == .paused {
-            timer.start()
-        }
-
-        return true
     }
 
     func setupMenubarTimer() {

@@ -68,19 +68,15 @@ extension TimezoneDataSource: NSTableViewDataSource, NSTableViewDelegate {
         cellView.timezoneIdentifier = currentModel.timezone()
         cellView.customName.stringValue = currentModel.formattedTimezoneLabel()
         cellView.time.stringValue = operation.time(with: sliderValue)
-        cellView.noteLabel.toolTip = currentModel.note ?? UserDefaultKeys.emptyString
         cellView.currentLocationIndicator.isHidden = !currentModel.isSystemTimezone
         cellView.time.setAccessibilityIdentifier("ActualTime")
         cellView.relativeDate.setAccessibilityIdentifier("RelativeDate")
-        if let note = currentModel.note, !note.isEmpty {
-            cellView.noteLabel.stringValue = note
-            cellView.noteLabel.isHidden = false
-        } else if let value = operation.nextDaylightSavingsTransitionIfAvailable(with: sliderValue) {
-            cellView.noteLabel.stringValue = value
-            cellView.noteLabel.isHidden = false
+        if let value = operation.nextDaylightSavingsTransitionIfAvailable(with: sliderValue) {
+            cellView.dstLabel.stringValue = value
+            cellView.dstLabel.isHidden = false
         } else {
-            cellView.noteLabel.stringValue = UserDefaultKeys.emptyString
-            cellView.noteLabel.isHidden = true
+            cellView.dstLabel.stringValue = UserDefaultKeys.emptyString
+            cellView.dstLabel.isHidden = true
         }
         cellView.layout(with: currentModel)
         cellView.setAccessibilityIdentifier(currentModel.formattedTimezoneLabel())
@@ -110,9 +106,7 @@ extension TimezoneDataSource: NSTableViewDataSource, NSTableViewDelegate {
                 rowHeight += 8
             }
 
-            if let note = model.note, !note.isEmpty {
-                rowHeight += userFontSize.intValue + 15
-            } else if TimezoneDataOperations(with: model, store: dataStore).nextDaylightSavingsTransitionIfAvailable(with: sliderValue) != nil {
+            if TimezoneDataOperations(with: model, store: dataStore).nextDaylightSavingsTransitionIfAvailable(with: sliderValue) != nil {
                 rowHeight += userFontSize.intValue + 15
             }
 
@@ -177,17 +171,13 @@ extension TimezoneDataSource: NSTableViewDataSource, NSTableViewDelegate {
 
 extension TimezoneDataSource: PanelTableViewDelegate {
     func tableView(_ table: NSTableView, didHoverOver row: NSInteger) {
+        guard row != -1 else { return }
         for rowIndex in 0 ..< table.numberOfRows {
-            if let rowCellView = table.view(atColumn: 0, row: rowIndex, makeIfNecessary: false) as? TimezoneCellView {
-                if row == -1 {
-                    rowCellView.extraOptions.alphaValue = 0.5
-                    continue
-                }
-
-                rowCellView.extraOptions.alphaValue = (rowIndex == row) ? 1 : 0.5
-                if rowIndex == row, let hoverString = hoverStringForSelectedRow(row: row), sliderValue == 0 {
-                    rowCellView.relativeDate.stringValue = hoverString
-                }
+            if let rowCellView = table.view(atColumn: 0, row: rowIndex, makeIfNecessary: false) as? TimezoneCellView,
+               rowIndex == row,
+               let hoverString = hoverStringForSelectedRow(row: row),
+               sliderValue == 0 {
+                rowCellView.relativeDate.stringValue = hoverString
             }
         }
     }

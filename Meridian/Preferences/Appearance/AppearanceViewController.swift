@@ -13,7 +13,6 @@ private enum TimeFormatMenuSeparatorIndices {
 private enum PreviewTableViewLayout {
     static let defaultRowHeight: Int = 60
     static let largerFontRowHeight: Int = 65
-    static let noteHeightAdjustment: Int = 25
 }
 
 private enum AppearanceTabIndex {
@@ -65,7 +64,6 @@ class AppearanceViewController: ParentViewController {
                                                 "place_id": "TestIdentifier",
                                                 "timezoneID": "America/Los_Angeles",
                                                 "nextUpdate": "",
-                                                "note": "Your individual note about this location goes here!",
                                                 "latitude": "37.7749295",
                                                 "longitude": "-122.4194155"])]
 
@@ -374,11 +372,7 @@ extension AppearanceViewController: NSTableViewDataSource, NSTableViewDelegate {
         cellView.rowNumber = row
         cellView.customName.stringValue = currentModel.formattedTimezoneLabel()
         cellView.time.stringValue = operation.time(with: 0)
-        if let note = currentModel.note, !note.isEmpty {
-            cellView.noteLabel.stringValue = note
-        } else {
-            cellView.noteLabel.stringValue = UserDefaultKeys.emptyString
-        }
+        cellView.dstLabel.stringValue = UserDefaultKeys.emptyString
         cellView.currentLocationIndicator.isHidden = !currentModel.isSystemTimezone
         cellView.time.setAccessibilityIdentifier("ActualTime")
         cellView.layout(with: currentModel)
@@ -391,13 +385,7 @@ extension AppearanceViewController: NSTableViewDataSource, NSTableViewDelegate {
 
     func tableView(_: NSTableView, heightOfRow row: Int) -> CGFloat {
         if let userFontSize = dataStore.retrieve(key: UserDefaultKeys.userFontSizePreference) as? NSNumber, previewTimezones.count > row {
-            let model = previewTimezones[row]
-
             let rowHeight: Int = userFontSize == 4 ? PreviewTableViewLayout.defaultRowHeight : PreviewTableViewLayout.largerFontRowHeight
-            if let note = model.note, !note.isEmpty {
-                return CGFloat(rowHeight + userFontSize.intValue + PreviewTableViewLayout.noteHeightAdjustment)
-            }
-
             return CGFloat(rowHeight + (userFontSize.intValue * 2))
         }
 

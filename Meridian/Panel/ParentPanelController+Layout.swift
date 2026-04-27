@@ -49,10 +49,8 @@ extension ParentPanelController {
 
         if newHeight >= PanelLayoutConstants.standardRowHeight {
             newHeight = fontSize == 4 ? PanelLayoutConstants.standardRowHeight : PanelLayoutConstants.standardRowHeight
-            if let note = object?.note, note.isEmpty == false {
-                newHeight += PanelLayoutConstants.noteHeightAdjustment
-            } else if let obj = object,
-                      TimezoneDataOperations(with: obj, store: dataStore).nextDaylightSavingsTransitionIfAvailable(with: futureSliderValue) != nil {
+            if let obj = object,
+               TimezoneDataOperations(with: obj, store: dataStore).nextDaylightSavingsTransitionIfAvailable(with: futureSliderValue) != nil {
                 newHeight += PanelLayoutConstants.noteHeightAdjustment
             }
         }
@@ -62,8 +60,7 @@ extension ParentPanelController {
             newHeight = PanelLayoutConstants.maximumRowHeight
 
             let ops = object.flatMap { TimezoneDataOperations(with: $0, store: dataStore) }
-            if let note = object?.note, note.isEmpty,
-               ops?.nextDaylightSavingsTransitionIfAvailable(with: futureSliderValue) == nil {
+            if ops?.nextDaylightSavingsTransitionIfAvailable(with: futureSliderValue) == nil {
                 newHeight -= PanelLayoutConstants.noteHeightAdjustment
             }
         }
