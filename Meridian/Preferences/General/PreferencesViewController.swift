@@ -82,6 +82,29 @@ class PreferencesViewController: ParentViewController {
         availableTimezoneTableView.delegate = searchResultsDataSource
 
         timezoneAdditionHandler = TimezoneAdditionHandler(host: self, dataStore: dataStore)
+
+        installCenteredFavouriteCheckbox()
+    }
+
+    // Replace the favourite column's dataCell with a CenteredCheckboxCell
+    // so the checkbox vertically centers in each row (the default NSButtonCell
+    // anchors its glyph to the top of the cell frame, leaving it visibly
+    // misaligned with the 30pt city/label text in adjacent columns).
+    // Done in code rather than via storyboard customClass because the latter
+    // does not appear to be honored for buttonCell instances.
+    private func installCenteredFavouriteCheckbox() {
+        let identifier = NSUserInterfaceItemIdentifier(rawValue: PreferencesDataSourceConstants.favoriteTimezoneIdentifier)
+        guard let column = timezoneTableView.tableColumn(withIdentifier: identifier),
+              let original = column.dataCell as? NSButtonCell else { return }
+        let centered = CenteredCheckboxCell()
+        centered.setButtonType(.switch)
+        centered.imagePosition = original.imagePosition
+        centered.bezelStyle = original.bezelStyle
+        centered.title = ""
+        centered.isBordered = original.isBordered
+        centered.target = original.target
+        centered.action = original.action
+        column.dataCell = centered
     }
 
     private func setupLocalizedText() {

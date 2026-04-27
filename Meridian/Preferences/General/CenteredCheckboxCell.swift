@@ -1,10 +1,10 @@
 import Cocoa
 
-// NSButtonCell with type=check rendered inside a tall NSTableView cell
-// draws the checkbox glyph at the top of the cell frame. Pass a vertically
-// centered sub-frame to super's draw so the checkbox aligns with the city
-// and label text in the adjacent columns. Hit-test rect is also centered
-// so clicking the visible checkbox actually toggles state.
+// NSButtonCell that vertically centers its checkbox glyph within the cell
+// frame. The default NSButtonCell anchors the glyph to the top of the cell,
+// which leaves it visibly misaligned in tall rows.
+//
+// Installed programmatically by PreferencesViewController.installCenteredFavouriteCheckbox.
 class CenteredCheckboxCell: NSButtonCell {
     private func centeredFrame(in cellFrame: NSRect) -> NSRect {
         let natural = cellSize
