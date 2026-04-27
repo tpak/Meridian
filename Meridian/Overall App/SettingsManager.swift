@@ -6,31 +6,51 @@ import UniformTypeIdentifiers
 struct SettingsManager {
     private static let exportDirectory = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent(".meridian")
-    private static let defaultExportFilename = "meridian-settings.json"
+    private static let defaultExportFilename = "meridian_settings.json"
 
-    // Keys exported and imported (excludes startAtLogin — system-level, applied separately)
+    // Every user-settable preference. Each appears in some Settings tab
+    // (General/Appearance/About) and survives export → import.
+    // (defaultMenubarMode / "com.tpak.meridian.shouldDefaultToCompactMode"
+    //  is intentionally omitted — it's a dead key with no readers.)
     private static let preferenceKeys: [String] = [
+        // Appearance tab — time/theme/format
         UserDefaultKeys.selectedTimeZoneFormatKey,
-        UserDefaultKeys.relativeDateKey,
         UserDefaultKeys.themeKey,
-        UserDefaultKeys.showDayInMenu,
-        UserDefaultKeys.showDateInMenu,
-        UserDefaultKeys.showPlaceInMenu,
+        UserDefaultKeys.relativeDateKey,
+        // Appearance tab — display toggles
         UserDefaultKeys.displayFutureSliderKey,
-        UserDefaultKeys.showAppInForeground,
         UserDefaultKeys.sunriseSunsetTime,
+        UserDefaultKeys.showAppInForeground,
         UserDefaultKeys.userFontSizePreference,
         UserDefaultKeys.truncateTextLength,
         UserDefaultKeys.futureSliderRange,
         UserDefaultKeys.appDisplayOptions,
+        // Appearance tab — menubar
+        UserDefaultKeys.showDayInMenu,
+        UserDefaultKeys.showDateInMenu,
+        UserDefaultKeys.showPlaceInMenu,
         UserDefaultKeys.menubarCompactMode,
-        UserDefaultKeys.defaultMenubarMode,
+        // About tab — debug logging
+        UserDefaultKeys.debugLoggingEnabled,
     ]
+
+    // startAtLogin is exported alongside the rest, but APPLIED via StartupManager
+    // (SMAppService.mainApp) during import so the system actually registers/unregisters
+    // the login item — writing UserDefaults alone wouldn't change behavior.
+    private static let startAtLoginKey = UserDefaultKeys.startAtLogin
 
     private enum ExportKey {
         static let version = "version"
         static let timezones = "timezones"
         static let preferences = "preferences"
+        static let startAtLogin = "startAtLogin"
+        static let sparkle = "sparkle"
+    }
+
+    private enum SparkleExportField {
+        static let automaticallyChecksForUpdates = "automaticallyChecksForUpdates"
+        static let automaticallyDownloadsUpdates = "automaticallyDownloadsUpdates"
+        static let updateCheckInterval = "updateCheckIntervalSeconds"
     }
 
     private enum ImportError: LocalizedError {
@@ -100,6 +120,9 @@ struct SettingsManager {
     private static func buildJSON() -> Data? {
         let timezoneBase64 = DataStore.shared().timezones().map { $0.base64EncodedString() }
 
+        // For UserDefaults-backed prefs, fall back to the registered default
+        // (see AppDefaults.defaultsDictionary) so we never silently drop a key
+        // the user has never explicitly touched.
         var prefs: [String: Any] = [:]
         for key in preferenceKeys {
             if let value = UserDefaults.standard.object(forKey: key) {
@@ -107,10 +130,27 @@ struct SettingsManager {
             }
         }
 
+        // startAtLogin is the actual SMAppService state, not what's in UserDefaults
+        // (UserDefaults can drift from the system state if the user toggled it elsewhere).
+        let startAtLoginEnabled = StartupManager.isLoginItemEnabled()
+
+        // Sparkle prefs are read from the live updater, NOT from UserDefaults.
+        // Sparkle uses lazy registration — if the user has never opened the
+        // schedule picker, SUScheduledCheckInterval is nil in UserDefaults
+        // even though the updater has a real running value (typically 86400).
+        var sparkle: [String: Any] = [:]
+        if let updater = (NSApp.delegate as? AppDelegate)?.updaterController.updater {
+            sparkle[SparkleExportField.automaticallyChecksForUpdates] = updater.automaticallyChecksForUpdates
+            sparkle[SparkleExportField.automaticallyDownloadsUpdates] = updater.automaticallyDownloadsUpdates
+            sparkle[SparkleExportField.updateCheckInterval] = updater.updateCheckInterval
+        }
+
         let payload: [String: Any] = [
             ExportKey.version: 1,
             ExportKey.timezones: timezoneBase64,
             ExportKey.preferences: prefs,
+            ExportKey.startAtLogin: startAtLoginEnabled,
+            ExportKey.sparkle: sparkle,
         ]
         return try? JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys])
     }
@@ -135,7 +175,7 @@ struct SettingsManager {
             }
         }
 
-        // Apply preferences
+        // Apply UserDefaults preferences (Appearance + About debug logging)
         if let prefs = json[ExportKey.preferences] as? [String: Any] {
             for key in preferenceKeys {
                 if let value = prefs[key] {
@@ -144,18 +184,40 @@ struct SettingsManager {
             }
         }
 
+        // Apply startAtLogin via StartupManager — UserDefaults alone won't register/unregister
+        // the SMAppService login item, so toggle it explicitly.
+        if let startAtLogin = json[ExportKey.startAtLogin] as? Bool {
+            UserDefaults.standard.set(startAtLogin, forKey: startAtLoginKey)
+            StartupManager().toggleLogin(startAtLogin)
+        }
+
         // Apply timezones
         DataStore.shared().setTimezones(timezoneBlobs)
 
-        // Refresh UI
+        // Refresh UI + apply Sparkle prefs to the live updater
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .customLabelChanged, object: nil)
             if let panel = PanelController.panel() {
                 panel.updateDefaultPreferences()
                 panel.updateTableContent()
             }
-            if let statusItem = (NSApp.delegate as? AppDelegate)?.statusItemForPanel() {
-                statusItem.refresh()
+            if let appDelegate = NSApp.delegate as? AppDelegate {
+                appDelegate.statusItemForPanel().refresh()
+                // Apply Sparkle prefs from the import payload directly to the live
+                // updater so the new schedule takes effect immediately. Setting these
+                // on the updater also writes them to UserDefaults under Sparkle's keys.
+                if let sparkle = json[ExportKey.sparkle] as? [String: Any] {
+                    let updater = appDelegate.updaterController.updater
+                    if let v = sparkle[SparkleExportField.automaticallyChecksForUpdates] as? Bool {
+                        updater.automaticallyChecksForUpdates = v
+                    }
+                    if let v = sparkle[SparkleExportField.automaticallyDownloadsUpdates] as? Bool {
+                        updater.automaticallyDownloadsUpdates = v
+                    }
+                    if let v = sparkle[SparkleExportField.updateCheckInterval] as? TimeInterval {
+                        updater.updateCheckInterval = v
+                    }
+                }
             }
             NSApp.keyWindow?.contentView?.makeToast("Settings imported")
         }

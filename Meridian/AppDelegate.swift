@@ -236,18 +236,6 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
     }
 
-    @IBAction func exportSettings(_: Any?) {
-        SettingsManager.exportSettings()
-    }
-
-    @IBAction func copySettingsToClipboard(_: Any?) {
-        SettingsManager.copySettingsToClipboard()
-    }
-
-    @IBAction func importSettings(_: Any?) {
-        SettingsManager.importSettings()
-    }
-
     func statusItemForPanel() -> StatusItemHandler {
         return statusBarHandler
     }

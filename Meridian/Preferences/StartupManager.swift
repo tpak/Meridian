@@ -15,4 +15,8 @@ struct StartupManager {
             Logger.production("Failed to toggle login item: \(error)")
         }
     }
+
+    static func isLoginItemEnabled() -> Bool {
+        return SMAppService.mainApp.status == .enabled
+    }
 }
