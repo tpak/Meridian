@@ -11,14 +11,14 @@
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
             <description><![CDATA[
                 <ul>
-                    <li>- Add direct time entry: double-click any time and type a new value to update all timezones (#85)</li>
-                    <li>- Add settings export and import: backup or restore preferences and timezones from the About tab (#83)</li>
-                    <li>- Add Copy All button to copy every timezone's time to the clipboard at once (#86)</li>
-                    <li>- Improve slider feel: 1:1 tracking, 15-minute snap, always-visible navigation buttons (#85)</li>
-                    <li>- Auto-default timezone labels to the city name when added by identifier (#82)</li>
-                    <li>- Add tooltips to the row options button and the float-mode drag handle (#84)</li>
-                    <li>- Redesign About tab: auto-update controls grouped together, cleaner layout (#81)</li>
-                    <li>- Cleaner panel footer</li>
+                    <li>Add direct time entry: double-click any time and type a new value to update all timezones (#85)</li>
+                    <li>Add settings export and import: backup or restore preferences and timezones from the About tab (#83)</li>
+                    <li>Add Copy All button to copy every timezone's time to the clipboard at once (#86)</li>
+                    <li>Improve slider feel: 1:1 tracking, 15-minute snap, always-visible navigation buttons (#85)</li>
+                    <li>Auto-default timezone labels to the city name when added by identifier (#82)</li>
+                    <li>Add tooltips to the row options button and the float-mode drag handle (#84)</li>
+                    <li>Redesign About tab: auto-update controls grouped together, cleaner layout (#81)</li>
+                    <li>Cleaner panel footer</li>
                 </ul>
             ]]></description>
             <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.19.0/Meridian.app.zip" length="3231452" type="application/octet-stream" sparkle:edSignature="Gu5gVYtW9xQA7+asoan3nJefkYvGFKnCeHvvD5TGxprI5uuvCUUgCQ0UaNQWUu//wSM47PfyUV3AkXfgvF+hDw=="/>
