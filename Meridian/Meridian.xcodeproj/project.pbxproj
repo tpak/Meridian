@@ -105,6 +105,7 @@
 		AA1B2C3D0002000000000001 /* TimezoneSortingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D0001000000000001 /* TimezoneSortingManager.swift */; };
 		B1C2D3E40002000000TZADD1 /* TimezoneAdditionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E40001000000TZADD2 /* TimezoneAdditionHandler.swift */; };
 		C1C2D3E40002000000CHKBX1 /* CenteredCheckboxCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C2D3E40001000000CHKBX2 /* CenteredCheckboxCell.swift */; };
+		C2C2D3E40002000000VCTFC1 /* VerticallyCenteredTextFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C2D3E40001000000VCTFC2 /* VerticallyCenteredTextFieldCell.swift */; };
 		B730E37E4596MOCKDATASTORE /* MockDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B730E37E4596MOCKDATASTO2 /* MockDataStore.swift */; };
 		FF11AA0100TESTFIXTURES01 /* TestFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF11AA0100TESTFIXTURES02 /* TestFixtures.swift */; };
 		BB00000100LOCCTRL00TEST1 /* LocationControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100LOCCTRL00TEST2 /* LocationControllerTests.swift */; };
@@ -242,6 +243,7 @@
 		AA1B2C3D0001000000000001 /* TimezoneSortingManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimezoneSortingManager.swift; sourceTree = "<group>"; };
 		B1C2D3E40001000000TZADD2 /* TimezoneAdditionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneAdditionHandler.swift; sourceTree = "<group>"; };
 		C1C2D3E40001000000CHKBX2 /* CenteredCheckboxCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CenteredCheckboxCell.swift; sourceTree = "<group>"; };
+		C2C2D3E40001000000VCTFC2 /* VerticallyCenteredTextFieldCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticallyCenteredTextFieldCell.swift; sourceTree = "<group>"; };
 		B730E37E4596MOCKDATASTO2 /* MockDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDataStore.swift; sourceTree = "<group>"; };
 		FF11AA0100TESTFIXTURES02 /* TestFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFixtures.swift; sourceTree = "<group>"; };
 		BB00000100LOCCTRL00TEST2 /* LocationControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationControllerTests.swift; sourceTree = "<group>"; };
@@ -496,6 +498,7 @@
 				AA1B2C3D0001000000000001 /* TimezoneSortingManager.swift */,
 				B1C2D3E40001000000TZADD2 /* TimezoneAdditionHandler.swift */,
 				C1C2D3E40001000000CHKBX2 /* CenteredCheckboxCell.swift */,
+				C2C2D3E40001000000VCTFC2 /* VerticallyCenteredTextFieldCell.swift */,
 			);
 			path = General;
 			sourceTree = "<group>";
@@ -883,6 +886,7 @@
 				AA1B2C3D0002000000000001 /* TimezoneSortingManager.swift in Sources */,
 				B1C2D3E40002000000TZADD1 /* TimezoneAdditionHandler.swift in Sources */,
 				C1C2D3E40002000000CHKBX1 /* CenteredCheckboxCell.swift in Sources */,
+				C2C2D3E40002000000VCTFC1 /* VerticallyCenteredTextFieldCell.swift in Sources */,
 				35C36F2022596253002FA5C6 /* OneWindowController.swift in Sources */,
 				35C36F0E225961DA002FA5C6 /* Date+Bundle.swift in Sources */,
 				9AB6F1642259D1B900A44663 /* ParentViewController.swift in Sources */,
