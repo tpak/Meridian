@@ -33,12 +33,21 @@ extension ParentPanelController {
                 btn?.imagePosition = .imageOnly
                 btn?.isBordered = false
                 btn?.bezelStyle = .recessed
+                // The 2.18.2 fix faded these in on first scroll. Without that
+                // call we must show them explicitly here, otherwise they stay
+                // at whatever transient alpha NSAnimationContext last left them.
+                btn?.isHidden = false
+                btn?.alphaValue = 1.0
             }
             goBackwardsButton.image = NSImage(systemSymbolName: "chevron.left", accessibilityDescription: "Go backwards")
             goForwardButton.image = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: "Go forward")
 
             goForwardButton.isContinuous = true
             goBackwardsButton.isContinuous = true
+
+            // Reset starts hidden — only meaningful when the slider is off-center.
+            resetModernSliderButton.isHidden = true
+            resetModernSliderButton.alphaValue = 1.0
 
             goBackwardsButton.toolTip = "Navigate 15 mins back"
             goForwardButton.toolTip = "Navigate 15 mins forward"
@@ -82,25 +91,9 @@ extension ParentPanelController {
         navigateModernSliderToSpecificIndex(-1)
     }
 
-    private func animateButton(_ button: NSButton, hidden: Bool) {
-        if !hidden {
-            button.alphaValue = 0
-            button.isHidden = false
-        }
-        NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.5
-            context.timingFunction = CAMediaTimingFunction(name: hidden ? .easeOut : .easeIn)
-            button.animator().alphaValue = hidden ? 0.0 : 1.0
-        }, completionHandler: hidden ? { button.isHidden = true } : nil)
-    }
-
-    private func animateResetButton(hidden: Bool) {
-        animateButton(resetModernSliderButton, hidden: hidden)
-    }
-
-    private func setAccessoryButtons(hidden: Bool) {
-        animateButton(goForwardButton, hidden: hidden)
-        animateButton(goBackwardsButton, hidden: hidden)
+    private func setResetButtonHidden(_ hidden: Bool) {
+        resetModernSliderButton.alphaValue = 1.0
+        resetModernSliderButton.isHidden = hidden
     }
 
     @IBAction func resetModernSlider(_: NSButton) {
@@ -113,9 +106,7 @@ extension ParentPanelController {
                 context.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeIn)
                 modernSlider.animator().scrollToItems(at: indexPaths, scrollPosition: .centeredHorizontally)
             }, completionHandler: { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.animateResetButton(hidden: true)
-                strongSelf.setAccessoryButtons(hidden: true)
+                self?.setResetButtonHidden(true)
             })
         }
     }
@@ -150,8 +141,7 @@ extension ParentPanelController {
         setTimezoneDatasourceSlider(sliderValue: minutesToAdd)
         mainTableView.reloadData()
         modernSlider.scrollToItems(at: [IndexPath(item: target, section: 0)], scrollPosition: .centeredHorizontally)
-        setAccessoryButtons(hidden: minutesToAdd == 0)
-        animateResetButton(hidden: minutesToAdd == 0)
+        setResetButtonHidden(minutesToAdd == 0)
     }
 
     @objc func collectionViewDidScroll(_ notification: NSNotification) {
@@ -163,7 +153,6 @@ extension ParentPanelController {
         let newPoint = NSPoint(x: changedOrigin.x + contentView.frame.width / 2, y: changedOrigin.y)
         let indexPath = modernSlider.indexPathForItem(at: newPoint)
         if let correctIndexPath = indexPath?.item, currentCenterIndexPath != correctIndexPath {
-            setAccessoryButtons(hidden: false)
             currentCenterIndexPath = correctIndexPath
             let minutesToAdd = setDefaultDateLabel(correctIndexPath)
             setTimezoneDatasourceSlider(sliderValue: minutesToAdd)
@@ -175,15 +164,7 @@ extension ParentPanelController {
         let baseDate = closestQuarterTimeRepresentation ?? Date()
         let result = timeScrollerViewModel.calculateMinutesToAdd(for: index, baseDate: baseDate)
         modernSliderLabel.stringValue = result.1
-        if result.0 != 0 {
-            if resetModernSliderButton.isHidden {
-                animateResetButton(hidden: false)
-            }
-        } else {
-            if !resetModernSliderButton.isHidden {
-                animateResetButton(hidden: true)
-            }
-        }
+        setResetButtonHidden(result.0 == 0)
         return result.0
     }
 
