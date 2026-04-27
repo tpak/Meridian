@@ -358,7 +358,7 @@ extension ParentPanelController {
             cellView.relativeDate.stringValue = dataOperation.date(with: futureSliderValue, displayType: .panel)
         }
 
-        cellView.currentLocationIndicator.isHidden = !model.isSystemTimezone
+        cellView.currentLocationIndicator.isHidden = !(model.isSystemTimezone || model.timezone() == TimeZone.autoupdatingCurrent.identifier)
         cellView.sunriseImage.image = model.isSunriseOrSunset
             ? NSImage(systemSymbolName: "sunrise.fill", accessibilityDescription: "Sunrise")
             : NSImage(systemSymbolName: "sunset.fill", accessibilityDescription: "Sunset")

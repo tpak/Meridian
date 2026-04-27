@@ -68,7 +68,7 @@ extension TimezoneDataSource: NSTableViewDataSource, NSTableViewDelegate {
         cellView.timezoneIdentifier = currentModel.timezone()
         cellView.customName.stringValue = currentModel.formattedTimezoneLabel()
         cellView.time.stringValue = operation.time(with: sliderValue)
-        cellView.currentLocationIndicator.isHidden = !currentModel.isSystemTimezone
+        cellView.currentLocationIndicator.isHidden = !isHomeTimezone(currentModel)
         cellView.time.setAccessibilityIdentifier("ActualTime")
         cellView.relativeDate.setAccessibilityIdentifier("RelativeDate")
         if let value = operation.nextDaylightSavingsTransitionIfAvailable(with: sliderValue) {
@@ -180,6 +180,16 @@ extension TimezoneDataSource: PanelTableViewDelegate {
                 rowCellView.relativeDate.stringValue = hoverString
             }
         }
+    }
+
+    // Show the location.fill home indicator if the row's timezone matches the
+    // user's current system timezone, regardless of whether the persisted
+    // isSystemTimezone flag is set. The flag can drift from the actual system
+    // state (e.g. user data imported from a different machine, or upgrade path
+    // that didn't migrate the flag), so we re-derive at display time.
+    private func isHomeTimezone(_ model: TimezoneData) -> Bool {
+        if model.isSystemTimezone { return true }
+        return model.timezone() == TimeZone.autoupdatingCurrent.identifier
     }
 
     private func hoverStringForSelectedRow(row: Int) -> String? {
