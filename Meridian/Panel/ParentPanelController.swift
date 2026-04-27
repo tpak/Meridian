@@ -35,13 +35,6 @@ class ParentPanelController: NSWindowController {
         return TimeScrollerViewModel(dataStore: dataStore)
     }()
 
-    private lazy var versionLabelDateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateStyle = .short
-        f.timeStyle = .short
-        return f
-    }()
-
     lazy var oneWindow: OneWindowController? = {
         let preferencesStoryboard = NSStoryboard(name: "Preferences", bundle: nil)
         return preferencesStoryboard.instantiateInitialController() as? OneWindowController
@@ -105,10 +98,6 @@ class ParentPanelController: NSWindowController {
             }
             .store(in: &cancellables)
 
-        NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
-            .receive(on: RunLoop.main)
-            .sink { [weak self] _ in self?.updateVersionStatusLabel() }
-            .store(in: &cancellables)
     }
 
     override func awakeFromNib() {
@@ -126,7 +115,7 @@ class ParentPanelController: NSWindowController {
         // Setup copy-all button next to settings button
         setupCopyAllButton()
 
-        // Setup version + last checked label
+        // Setup version label
         updateVersionStatusLabel()
 
         // Setup KVO observers for user default changes
@@ -203,14 +192,7 @@ class ParentPanelController: NSWindowController {
     func updateVersionStatusLabel() {
         guard versionStatusLabel != nil else { return }
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
-        let lastCheckDate = UserDefaults.standard.object(forKey: "SULastCheckTime") as? Date
-        let checkString: String
-        if let date = lastCheckDate {
-            checkString = versionLabelDateFormatter.string(from: date)
-        } else {
-            checkString = "Never"
-        }
-        versionStatusLabel.stringValue = "v\(version) • \(checkString)"
+        versionStatusLabel.stringValue = "v\(version)"
     }
 
     @objc func systemTimezoneDidChange() {
