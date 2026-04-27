@@ -8,8 +8,7 @@ class TimezoneCellView: NSTableCellView {
     @IBOutlet var relativeDate: NSTextField!
     @IBOutlet var time: NSTextField!
     @IBOutlet var sunriseSetTime: NSTextField!
-    @IBOutlet var noteLabel: NSTextField!
-    @IBOutlet var extraOptions: NSButton!
+    @IBOutlet var dstLabel: NSTextField!
     @IBOutlet var sunriseImage: NSImageView!
     @IBOutlet var currentLocationIndicator: NSImageView!
 
@@ -27,7 +26,6 @@ class TimezoneCellView: NSTableCellView {
     private var lastSunriseValue: String?
 
     var rowNumber: NSInteger = -1
-    var isPopoverDisplayed: Bool = false
     var timezoneIdentifier: String = ""
     private(set) var isEditingTime: Bool = false
 
@@ -39,7 +37,6 @@ class TimezoneCellView: NSTableCellView {
 
     override func awakeFromNib() {
         if ProcessInfo.processInfo.arguments.contains(UserDefaultKeys.testingLaunchArgument) {
-            extraOptions.isHidden = false
             return
         }
 
@@ -47,15 +44,14 @@ class TimezoneCellView: NSTableCellView {
 
         canDrawSubviewsIntoLayer = true
 
-        extraOptions.setAccessibility("extraOptionButton")
         customName.setAccessibility("CustomNameLabelForCell")
-        noteLabel.setAccessibility("NoteLabel")
+        dstLabel.setAccessibility("DSTLabel")
         currentLocationIndicator.toolTip = "This row will be updated automatically if Meridian detects a system-level timezone change!"
     }
 
     func setTextColor(color: NSColor) {
         [relativeDate, customName, time, sunriseSetTime].forEach { $0?.textColor = color }
-        noteLabel.textColor = .gray
+        dstLabel.textColor = .gray
     }
 
     func setupLayout() {
@@ -130,10 +126,6 @@ class TimezoneCellView: NSTableCellView {
     private func setupTheme() {
         setTextColor(color: NSColor.labelColor)
 
-        extraOptions.image = NSImage(systemSymbolName: "ellipsis.circle", accessibilityDescription: "Options")
-        extraOptions.alternateImage = NSImage(systemSymbolName: "ellipsis.circle.fill", accessibilityDescription: "Options")
-        extraOptions.toolTip = "Add a note to this timezone"
-
         currentLocationIndicator.image = NSImage(systemSymbolName: "location.fill", accessibilityDescription: "Current Location")
 
         setupTextSize()
@@ -173,26 +165,6 @@ class TimezoneCellView: NSTableCellView {
         for constraint in time.constraints {
             constraint.constant = constraint.identifier == ConstraintID.height ? timeSize.height : timeSize.width
         }
-    }
-
-    @IBAction func showExtraOptions(_ sender: NSButton) {
-        var searchView = superview
-
-        while searchView != nil, searchView is PanelTableView == false {
-            searchView = searchView?.superview
-        }
-
-        guard searchView is PanelTableView else {
-            // We might be coming from the preview tableview!
-            return
-        }
-
-        guard let panel = PanelController.panel() else { return }
-        isPopoverDisplayed = panel.showNotesPopover(forRow: rowNumber,
-                                                    relativeTo: bounds,
-                                                    andButton: sender)
-
-        Logger.debug("Open Extra Options")
     }
 
     override func mouseDown(with event: NSEvent) {
@@ -303,7 +275,6 @@ class TimezoneCellView: NSTableCellView {
 
     override func rightMouseDown(with event: NSEvent) {
         // Pass right-clicks up the responder chain (e.g. to PanelController for Pin to Desktop).
-        // The old notes popover was removed in the strip commit; showExtraOptions would crash.
         super.rightMouseDown(with: event)
     }
 }

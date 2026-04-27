@@ -142,20 +142,13 @@
                                                                             </constraints>
                                                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyDown" image="CurrentLocation" id="oBW-Gh-ZWI"/>
                                                                         </imageView>
-                                                                        <button alphaValue="0.5" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Y5g-Az-pAQ">
+                                                                        <customView translatesAutoresizingMaskIntoConstraints="NO" id="Y5g-Az-pAQ">
                                                                             <rect key="frame" x="0.0" y="0.0" width="30" height="35"/>
-                                                                            <buttonCell key="cell" type="bevel" bezelStyle="rounded" imagePosition="only" alignment="center" imageScaling="proportionallyDown" inset="2" id="cSd-0p-P5N">
-                                                                                <behavior key="behavior" lightByContents="YES"/>
-                                                                                <font key="font" metaFont="systemBold"/>
-                                                                            </buttonCell>
                                                                             <constraints>
                                                                                 <constraint firstAttribute="height" constant="35" id="KT8-zo-Jox"/>
                                                                                 <constraint firstAttribute="width" constant="30" id="YCy-Bh-1Ik"/>
                                                                             </constraints>
-                                                                            <connections>
-                                                                                <action selector="showExtraOptions:" target="qbN-ba-fho" id="IRR-6f-iwZ"/>
-                                                                            </connections>
-                                                                        </button>
+                                                                        </customView>
                                                                     </subviews>
                                                                     <constraints>
                                                                         <constraint firstAttribute="width" constant="30" id="Nfv-Mp-Azh"/>
@@ -192,8 +185,7 @@
                                                             <connections>
                                                                 <outlet property="currentLocationIndicator" destination="SVj-Xy-zG5" id="rSl-mD-dA2"/>
                                                                 <outlet property="customName" destination="etF-33-bCB" id="6Yz-qc-WmD"/>
-                                                                <outlet property="extraOptions" destination="Y5g-Az-pAQ" id="mhX-9A-ydN"/>
-                                                                <outlet property="noteLabel" destination="6At-J8-gzZ" id="ud8-i9-7xZ"/>
+                                                                <outlet property="dstLabel" destination="6At-J8-gzZ" id="ud8-i9-7xZ"/>
                                                                 <outlet property="relativeDate" destination="QUd-7D-q14" id="Ath-zr-bGo"/>
                                                                 <outlet property="sunriseImage" destination="sML-fJ-nbv" id="68T-Fi-vOE"/>
                                                                 <outlet property="sunriseSetTime" destination="uOg-ij-alO" id="PgN-VP-joq"/>

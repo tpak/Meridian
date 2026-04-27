@@ -23,10 +23,6 @@ class ParentPanelController: NSWindowController {
 
     var parentTimer: Repeater?
 
-    var previousPopoverRow: Int = -1
-
-    var additionalOptionsPopover: NSPopover?
-
     var datasource: TimezoneDataSource?
 
     var dataStore: DataStoring = DataStore.shared()
@@ -227,11 +223,6 @@ class ParentPanelController: NSWindowController {
         updateTableContent()
     }
 
-    override func windowDidLoad() {
-        super.windowDidLoad()
-        additionalOptionsPopover = NSPopover()
-    }
-
     func invalidateMenubarTimer() {
         parentTimer = nil
     }
@@ -251,39 +242,8 @@ class ParentPanelController: NSWindowController {
                                 for: sender)
     }
 
-    @discardableResult
-    func showNotesPopover(forRow row: Int, relativeTo _: NSRect, andButton target: NSButton!) -> Bool {
-        guard let target = target else { return false }
-
-        let defaults = dataStore.timezones()
-
-        guard let popover = additionalOptionsPopover else {
-            Logger.debug("Data was unexpectedly nil")
-            return false
-        }
-
-        var correctRow = row
-
-        target.image = NSImage(systemSymbolName: "ellipsis.circle.fill", accessibilityDescription: "Options")
-
-        popover.animates = true
-
-        // Found a case where row number was 8 but we had only 2 timezones
-        if correctRow >= defaults.count {
-            correctRow = defaults.count - 1
-        }
-
-        return true
-    }
-
     func dismissRowActions() {
         mainTableView.rowActionsVisible = false
-    }
-
-    // If the popover is displayed, close it
-    // Called when preferences are going to be displayed!
-    func updatePopoverDisplayState() {
-        additionalOptionsPopover = nil
     }
 }
 
@@ -398,17 +358,15 @@ extension ParentPanelController {
             cellView.relativeDate.stringValue = dataOperation.date(with: futureSliderValue, displayType: .panel)
         }
 
-        cellView.currentLocationIndicator.isHidden = !model.isSystemTimezone
+        cellView.currentLocationIndicator.isHidden = !(model.isSystemTimezone || model.timezone() == TimeZone.autoupdatingCurrent.identifier)
         cellView.sunriseImage.image = model.isSunriseOrSunset
             ? NSImage(systemSymbolName: "sunrise.fill", accessibilityDescription: "Sunrise")
             : NSImage(systemSymbolName: "sunset.fill", accessibilityDescription: "Sunset")
         cellView.sunriseImage.contentTintColor = model.isSunriseOrSunset ? NSColor.systemYellow : NSColor.systemOrange
-        if let note = model.note, !note.isEmpty {
-            cellView.noteLabel.stringValue = note
-        } else if let value = dataOperation.nextDaylightSavingsTransitionIfAvailable(with: futureSliderValue) {
-            cellView.noteLabel.stringValue = value
+        if let value = dataOperation.nextDaylightSavingsTransitionIfAvailable(with: futureSliderValue) {
+            cellView.dstLabel.stringValue = value
         } else {
-            cellView.noteLabel.stringValue = UserDefaultKeys.emptyString
+            cellView.dstLabel.stringValue = UserDefaultKeys.emptyString
         }
         cellView.layout(with: model)
     }

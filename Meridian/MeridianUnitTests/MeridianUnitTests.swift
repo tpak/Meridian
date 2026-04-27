@@ -483,7 +483,6 @@ class MeridianUnitTests: XCTestCase {
         original.isFavourite = 1
         original.selectionType = .city
         original.setShouldOverrideGlobalTimeFormat(2) // 24-hour
-        original.note = "Test note"
 
         // Archive using secureArchive
         guard let archivedData = NSKeyedArchiver.secureArchive(with: original) else {
@@ -502,7 +501,6 @@ class MeridianUnitTests: XCTestCase {
         XCTAssertEqual(restored?.isFavourite, original.isFavourite, "isFavourite should match")
         XCTAssertEqual(restored?.selectionType, original.selectionType, "selectionType should match")
         XCTAssertEqual(restored?.overrideFormat, original.overrideFormat, "overrideFormat should match")
-        XCTAssertEqual(restored?.note, original.note, "note should match")
         XCTAssertEqual(restored?.isSystemTimezone, original.isSystemTimezone, "isSystemTimezone should match")
         XCTAssertEqual(restored?.latitude, original.latitude, "latitude should match")
         XCTAssertEqual(restored?.longitude, original.longitude, "longitude should match")

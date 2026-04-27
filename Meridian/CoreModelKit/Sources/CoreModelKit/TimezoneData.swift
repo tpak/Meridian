@@ -11,7 +11,6 @@ struct ModelConstants {
     static let emptyString = ""
     static let latitude = "latitude"
     static let longitude = "longitude"
-    static let note = "note"
 }
 
 public enum RelativeDayDisplay: Int {
@@ -86,7 +85,6 @@ public class TimezoneData: NSObject, NSCoding, NSSecureCoding {
     public var timezoneID: String? = ModelConstants.emptyString
     public var latitude: Double?
     public var longitude: Double?
-    public var note: String? = ModelConstants.emptyString
     public var nextUpdate: Date? = Date()
     public var sunriseTime: Date?
     public var sunsetTime: Date?
@@ -99,7 +97,6 @@ public class TimezoneData: NSObject, NSCoding, NSSecureCoding {
     override public init() {
         selectionType = .timezone
         isFavourite = 0
-        note = ModelConstants.emptyString
         isSystemTimezone = false
         overrideFormat = .globalFormat
         placeID = UUID().uuidString
@@ -122,7 +119,6 @@ public class TimezoneData: NSObject, NSCoding, NSSecureCoding {
         formattedAddress = (dictionary[ModelConstants.timezoneName] as? String) ?? "Error"
         isFavourite = 0
         selectionType = .city
-        note = (dictionary[ModelConstants.note] as? String) ?? ModelConstants.emptyString
         isSystemTimezone = false
         overrideFormat = .globalFormat
     }
@@ -134,7 +130,6 @@ public class TimezoneData: NSObject, NSCoding, NSSecureCoding {
         timezoneID = aDecoder.decodeObject(of: NSString.self, forKey: "timezoneID") as? String
         latitude = aDecoder.decodeObject(of: NSNumber.self, forKey: "latitude")?.doubleValue
         longitude = aDecoder.decodeObject(of: NSNumber.self, forKey: "longitude")?.doubleValue
-        note = aDecoder.decodeObject(of: NSString.self, forKey: "note") as? String
         nextUpdate = aDecoder.decodeObject(of: NSDate.self, forKey: "nextUpdate") as? Date
         sunriseTime = aDecoder.decodeObject(of: NSDate.self, forKey: "sunriseTime") as? Date
         sunsetTime = aDecoder.decodeObject(of: NSDate.self, forKey: "sunsetTime") as? Date
@@ -188,7 +183,6 @@ public class TimezoneData: NSObject, NSCoding, NSSecureCoding {
         aCoder.encode(sunriseTime, forKey: "sunriseTime")
         aCoder.encode(sunsetTime, forKey: "sunsetTime")
         aCoder.encode(selectionType.rawValue, forKey: "selectionType")
-        aCoder.encode(note, forKey: "note")
         aCoder.encode(isSystemTimezone, forKey: "isSystemTimezone")
         aCoder.encode(overrideFormat.rawValue, forKey: "overrideFormat")
     }
@@ -352,7 +346,6 @@ public extension TimezoneData {
         Sunrise Time: \(String(describing: sunriseTime))
         Sunset Time: \(String(describing: sunsetTime))
         Selection Type: \(selectionType.rawValue)
-        Note: \(String(describing: note))
         Is System Timezone: \(isSystemTimezone)
         Override: \(overrideFormat)
         """
