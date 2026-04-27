@@ -142,14 +142,23 @@
                                                                             </constraints>
                                                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyDown" image="CurrentLocation" id="oBW-Gh-ZWI"/>
                                                                         </imageView>
+                                                                        <customView translatesAutoresizingMaskIntoConstraints="NO" id="Y5g-Az-pAQ">
+                                                                            <rect key="frame" x="0.0" y="0.0" width="30" height="35"/>
+                                                                            <constraints>
+                                                                                <constraint firstAttribute="height" constant="35" id="KT8-zo-Jox"/>
+                                                                                <constraint firstAttribute="width" constant="30" id="YCy-Bh-1Ik"/>
+                                                                            </constraints>
+                                                                        </customView>
                                                                     </subviews>
                                                                     <constraints>
                                                                         <constraint firstAttribute="width" constant="30" id="Nfv-Mp-Azh"/>
                                                                     </constraints>
                                                                     <visibilityPriorities>
                                                                         <integer value="1000"/>
+                                                                        <integer value="1000"/>
                                                                     </visibilityPriorities>
                                                                     <customSpacing>
+                                                                        <real value="3.4028234663852886e+38"/>
                                                                         <real value="3.4028234663852886e+38"/>
                                                                     </customSpacing>
                                                                 </stackView>
