@@ -264,6 +264,14 @@ extension AppDelegate: SPUUpdaterDelegate {
         return true
     }
 
+    // Sparkle channels (issue #98). Stable users see only items with no
+    // <sparkle:channel> tag. Opting in adds the "beta" channel — they then see
+    // beta-tagged items AND default-channel items, so the GA release supersedes
+    // the last beta automatically.
+    public func allowedChannels(for _: SPUUpdater) -> Set<String> {
+        UserDefaults.standard.bool(forKey: UserDefaultKeys.betaUpdatesEnabled) ? ["beta"] : []
+    }
+
     public func updater(_: SPUUpdater,
                         mayPerform updateCheck: SPUUpdateCheck) throws {
         Logger.production("Sparkle: checking for updates (\(describe(updateCheck)))")

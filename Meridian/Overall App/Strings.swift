@@ -32,6 +32,7 @@ public enum UserDefaultKeys {
     static let switchToCompactModeAlert = "com.tpak.meridian.switchToCompactMode"
     static let appleInterfaceStyleKey = "AppleInterfaceStyle"
     static let debugLoggingEnabled = "com.tpak.meridian.debugLoggingEnabled"
+    static let betaUpdatesEnabled = "com.tpak.meridian.betaUpdatesEnabled"
     static let latitude = "latitude"
     static let longitude = "longitude"
     static let nextUpdate = "nextUpdate"
