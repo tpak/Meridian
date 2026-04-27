@@ -28,14 +28,23 @@ done
 # ── Phase 1: Validate ──────────────────────────────────────────────
 
 if [[ -z "$VERSION" ]]; then
-    echo "Usage: scripts/release.sh [-n \"release notes\"] X.Y.Z"
+    echo "Usage: scripts/release.sh [-n \"release notes\"] X.Y.Z[-betaN]"
     echo "       make release VERSION=X.Y.Z"
+    echo "       make release VERSION=X.Y.Z-beta1   (publishes to Sparkle 'beta' channel)"
     exit 1
 fi
 
-if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    echo "Error: VERSION must match X.Y.Z pattern (got: $VERSION)"
+# Accept stable (X.Y.Z) and beta (X.Y.Z-betaN) versions.
+# Beta releases publish a prerelease GitHub release, tag the appcast item with
+# <sparkle:channel>beta</sparkle:channel>, and skip the Homebrew cask update.
+if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-beta[0-9]+)?$ ]]; then
+    echo "Error: VERSION must match X.Y.Z or X.Y.Z-betaN pattern (got: $VERSION)"
     exit 1
+fi
+
+IS_BETA=0
+if [[ "$VERSION" == *-beta* ]]; then
+    IS_BETA=1
 fi
 
 if [[ "$(git branch --show-current)" != "main" ]]; then
@@ -275,7 +284,11 @@ echo "  Length: $LENGTH"
 
 echo "── Creating GitHub release..."
 RELEASE_BODY="$(echo "$NOTES" | while IFS= read -r line; do echo "- $line"; done)"
-gh release create "v$VERSION" "$ZIP_PATH" --title "v$VERSION" --notes "$RELEASE_BODY"
+GH_RELEASE_FLAGS=()
+if [[ $IS_BETA -eq 1 ]]; then
+    GH_RELEASE_FLAGS+=(--prerelease)
+fi
+gh release create "v$VERSION" "$ZIP_PATH" --title "v$VERSION" --notes "$RELEASE_BODY" "${GH_RELEASE_FLAGS[@]}"
 
 echo "── GitHub release created."
 
@@ -297,9 +310,18 @@ LI_ITEMS="${LI_ITEMS%$'\n'}"
 
 DOWNLOAD_URL="https://github.com/tpak/Meridian/releases/download/v$VERSION/Meridian.app.zip"
 
+# Beta items get a <sparkle:channel>beta</sparkle:channel> tag so only users who
+# enabled "Receive beta releases" in About see them. Stable items omit the tag
+# (the default channel is always allowed).
+CHANNEL_TAG=""
+if [[ $IS_BETA -eq 1 ]]; then
+    CHANNEL_TAG="
+            <sparkle:channel>beta</sparkle:channel>"
+fi
+
 NEW_ITEM="        <item>
             <title>$VERSION</title>
-            <pubDate>$PUB_DATE</pubDate>
+            <pubDate>$PUB_DATE</pubDate>$CHANNEL_TAG
             <sparkle:version>$VERSION</sparkle:version>
             <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
@@ -341,29 +363,34 @@ fi
 echo "── Appcast updated and pushed."
 
 # ── Phase 6: Update Homebrew cask ──────────────────────────────────
+# Skipped for betas — the Homebrew cask tracks stable releases only.
 
-echo "── Updating Homebrew cask..."
-ZIP_SHA256="$(shasum -a 256 "$ZIP_PATH" | awk '{print $1}')"
-
-CASK_REPO="tpak/homebrew-tpak"
-CASK_FILE="Casks/meridian.rb"
-
-if FILE_SHA="$(gh api "repos/$CASK_REPO/contents/$CASK_FILE" --jq '.sha' 2>/dev/null)"; then
-    CASK_CONTENT="$(gh api "repos/$CASK_REPO/contents/$CASK_FILE" \
-        --jq '.content' | base64 -d \
-        | sed "s/version \".*\"/version \"$VERSION\"/" \
-        | sed "s/sha256 \".*\"/sha256 \"$ZIP_SHA256\"/")"
-
-    ENCODED="$(printf '%s' "$CASK_CONTENT" | base64)"
-
-    gh api --method PUT "repos/$CASK_REPO/contents/$CASK_FILE" \
-        -f message="Update meridian to v$VERSION" \
-        -f content="$ENCODED" \
-        -f sha="$FILE_SHA" > /dev/null
-
-    echo "── Homebrew cask updated to v$VERSION."
+if [[ $IS_BETA -eq 1 ]]; then
+    echo "── Skipping Homebrew cask update for beta release."
 else
-    echo "WARNING: Homebrew cask file not found at $CASK_REPO/$CASK_FILE. Skipping cask update."
+    echo "── Updating Homebrew cask..."
+    ZIP_SHA256="$(shasum -a 256 "$ZIP_PATH" | awk '{print $1}')"
+
+    CASK_REPO="tpak/homebrew-tpak"
+    CASK_FILE="Casks/meridian.rb"
+
+    if FILE_SHA="$(gh api "repos/$CASK_REPO/contents/$CASK_FILE" --jq '.sha' 2>/dev/null)"; then
+        CASK_CONTENT="$(gh api "repos/$CASK_REPO/contents/$CASK_FILE" \
+            --jq '.content' | base64 -d \
+            | sed "s/version \".*\"/version \"$VERSION\"/" \
+            | sed "s/sha256 \".*\"/sha256 \"$ZIP_SHA256\"/")"
+
+        ENCODED="$(printf '%s' "$CASK_CONTENT" | base64)"
+
+        gh api --method PUT "repos/$CASK_REPO/contents/$CASK_FILE" \
+            -f message="Update meridian to v$VERSION" \
+            -f content="$ENCODED" \
+            -f sha="$FILE_SHA" > /dev/null
+
+        echo "── Homebrew cask updated to v$VERSION."
+    else
+        echo "WARNING: Homebrew cask file not found at $CASK_REPO/$CASK_FILE. Skipping cask update."
+    fi
 fi
 
 # ── Phase 7: Summary ────────────────────────────────────────────────
