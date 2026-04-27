@@ -96,4 +96,19 @@ class PanelTableView: NSTableView {
         let mousePoint = convert(mousePointInWindow, from: nil)
         evaluateForHighlight(at: mousePoint)
     }
+
+    // Inline time-entry support: when a TimezoneCellView is editing its time
+    // field, NSTableView's built-in keyDown intercepts left/right arrows for
+    // its own purposes and ends editing. Forward arrows to the field editor
+    // so the caret moves within the text instead.
+    override func keyDown(with event: NSEvent) {
+        let arrowKeyCodes: Set<UInt16> = [123, 124, 125, 126]  // left, right, down, up
+        if arrowKeyCodes.contains(event.keyCode),
+           let editor = window?.firstResponder as? NSText,
+           editor.delegate is TimezoneCellView {
+            editor.interpretKeyEvents([event])
+            return
+        }
+        super.keyDown(with: event)
+    }
 }

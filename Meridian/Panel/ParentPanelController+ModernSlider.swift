@@ -134,14 +134,23 @@ extension ParentPanelController {
         }
         let total = modernSlider.numberOfItems(inSection: 0)
         let center = total / 2
-        let itemsFromCenter = minutes / PanelConstants.minutesPerSliderPoint
+        let pointSize = PanelConstants.minutesPerSliderPoint
+        // Round to nearest 15-min mark (slider's visual position only — collection
+        // view items are discrete). Floor-divide would always pick the earlier
+        // mark, so 7:32 would land at 7:30 even though 7:30 is further from the
+        // user's intent than 7:30 → 7:32 → 7:45 (closer to 7:30 by 2 min).
+        let itemsFromCenter = Int((Double(minutes) / Double(pointSize)).rounded())
         let target = max(0, min(center + itemsFromCenter, total - 1))
         currentCenterIndexPath = target
-        let minutesToAdd = setDefaultDateLabel(target)
-        setTimezoneDatasourceSlider(sliderValue: minutesToAdd)
+        // Update the slider's center label to reflect the snapped time.
+        _ = setDefaultDateLabel(target)
+        // BUT: drive every cell's displayed time from the EXACT minutes the user
+        // typed, not the rounded slider position. Otherwise typing 7:32 would
+        // show 7:30 in every row, which is the bug we're fixing.
+        setTimezoneDatasourceSlider(sliderValue: minutes)
         mainTableView.reloadData()
         modernSlider.scrollToItems(at: [IndexPath(item: target, section: 0)], scrollPosition: .centeredHorizontally)
-        setResetButtonHidden(minutesToAdd == 0)
+        setResetButtonHidden(minutes == 0)
     }
 
     @objc func collectionViewDidScroll(_ notification: NSNotification) {
