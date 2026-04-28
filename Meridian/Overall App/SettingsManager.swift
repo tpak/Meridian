@@ -12,35 +12,6 @@ struct SettingsManager {
     // (General/Appearance/About) and survives export → import.
     // (defaultMenubarMode / "com.tpak.meridian.shouldDefaultToCompactMode"
     //  is intentionally omitted — it's a dead key with no readers.)
-    // Modernized typed keys (issue #97). The bool semantics migration in
-    // AppDefaults moves user data to these on first launch of 2.21+ and
-    // deletes the legacy showSunriseSetTime / displayFutureSlider / showDay
-    // / showDate / showPlaceName / displayAppAsForegroundApp /
-    // is24HourFormatSelected keys. Export/import operate on the new keys.
-    // Commit 5/5 of issue #97 layers a typed JSON schema (named bools and
-    // enum cases) over this; for now the values are still raw Bool / Int.
-    private static let preferenceKeys: [String] = [
-        // Appearance tab — time/theme/format
-        UserDefaultKeys.timeFormat,
-        UserDefaultKeys.themeKey,
-        UserDefaultKeys.relativeDateKey,
-        // Appearance tab — display toggles
-        UserDefaultKeys.showFutureSlider,
-        UserDefaultKeys.showSunriseSunset,
-        UserDefaultKeys.floatOnTop,
-        UserDefaultKeys.userFontSizePreference,
-        UserDefaultKeys.truncateTextLength,
-        UserDefaultKeys.futureSliderRange,
-        UserDefaultKeys.appDisplayOptions,
-        // Appearance tab — menubar
-        UserDefaultKeys.showDayInMenubar,
-        UserDefaultKeys.showDateInMenubar,
-        UserDefaultKeys.showPlaceNameInMenubar,
-        UserDefaultKeys.menubarCompactMode,
-        // About tab — debug logging
-        UserDefaultKeys.debugLoggingEnabled
-    ]
-
     // startAtLogin is exported alongside the rest, but APPLIED via StartupManager
     // (SMAppService.mainApp) during import so the system actually registers/unregisters
     // the login item — writing UserDefaults alone wouldn't change behavior.
@@ -124,27 +95,63 @@ struct SettingsManager {
 
     // MARK: - Private
 
-    private static func buildJSON() -> Data? {
-        let timezoneBase64 = DataStore.shared().timezones().map { $0.base64EncodedString() }
+    // Issue #97 — v2 JSON keys. Stable string identifiers used in the
+    // exported file. Keep these constants frozen across releases since
+    // users' export files persist them.
+    private enum V2Key {
+        static let showSunriseSunset = "showSunriseSunset"
+        static let showFutureSlider = "showFutureSlider"
+        static let showDayInMenubar = "showDayInMenubar"
+        static let showDateInMenubar = "showDateInMenubar"
+        static let showPlaceNameInMenubar = "showPlaceNameInMenubar"
+        static let floatOnTop = "floatOnTop"
+        static let menubarMode = "menubarMode"
+        static let theme = "theme"
+        static let relativeDateDisplay = "relativeDateDisplay"
+        static let appPresentation = "appPresentation"
+        static let timeFormat = "timeFormat"
+        static let userFontSize = "userFontSize"
+        static let truncateTextLength = "truncateTextLength"
+        static let futureSliderRange = "futureSliderRange"
+        static let debugLoggingEnabled = "debugLoggingEnabled"
+    }
 
-        // For UserDefaults-backed prefs, fall back to the registered default
-        // (see AppDefaults.defaultsDictionary) so we never silently drop a key
-        // the user has never explicitly touched.
-        var prefs: [String: Any] = [:]
-        for key in preferenceKeys {
-            if let value = UserDefaults.standard.object(forKey: key) {
-                prefs[key] = value
-            }
-        }
+    // Build a v2 JSON payload — bools are emitted as bools, enums as named
+    // case strings ("compact", "twelveHour", etc.) instead of raw ints.
+    // The user's complaint that motivated issue #97 — exported settings
+    // showing "showSunriseSetTime: 0" for a setting that was on — is
+    // resolved here: same value is now exported as "showSunriseSunset": true.
+    // Internal so SettingsManagerVersioningTests can verify the v2 schema
+    // and v1-back-compat decoding without going through the file picker.
+    static func buildJSON() -> Data? {
+        let store = DataStore.shared()
+        let timezoneBase64 = store.timezones().map { $0.base64EncodedString() }
+        let defaults = UserDefaults.standard
 
-        // startAtLogin is the actual SMAppService state, not what's in UserDefaults
-        // (UserDefaults can drift from the system state if the user toggled it elsewhere).
+        let prefs: [String: Any] = [
+            V2Key.showSunriseSunset: store.showSunriseSunset,
+            V2Key.showFutureSlider: store.showFutureSlider,
+            V2Key.showDayInMenubar: store.showDayInMenubar,
+            V2Key.showDateInMenubar: store.showDateInMenubar,
+            V2Key.showPlaceNameInMenubar: store.showPlaceNameInMenubar,
+            V2Key.floatOnTop: store.floatOnTop,
+            V2Key.menubarMode: store.menubarMode.jsonName,
+            V2Key.theme: store.theme.jsonName,
+            V2Key.relativeDateDisplay: store.relativeDateDisplay.jsonName,
+            V2Key.appPresentation: store.appPresentation.jsonName,
+            V2Key.timeFormat: store.timeFormat.jsonName,
+            V2Key.userFontSize: defaults.integer(forKey: UserDefaultKeys.userFontSizePreference),
+            V2Key.truncateTextLength: defaults.integer(forKey: UserDefaultKeys.truncateTextLength),
+            V2Key.futureSliderRange: defaults.integer(forKey: UserDefaultKeys.futureSliderRange),
+            V2Key.debugLoggingEnabled: defaults.bool(forKey: UserDefaultKeys.debugLoggingEnabled)
+        ]
+
+        // startAtLogin reflects the actual SMAppService state, not UserDefaults.
         let startAtLoginEnabled = StartupManager.isLoginItemEnabled()
 
-        // Sparkle prefs are read from the live updater, NOT from UserDefaults.
-        // Sparkle uses lazy registration — if the user has never opened the
-        // schedule picker, SUScheduledCheckInterval is nil in UserDefaults
-        // even though the updater has a real running value (typically 86400).
+        // Sparkle prefs come from the live updater because Sparkle registers
+        // its defaults lazily — UserDefaults can be nil even when the updater
+        // has a real running interval value.
         var sparkle: [String: Any] = [:]
         if let updater = (NSApp.delegate as? AppDelegate)?.updaterController.updater {
             sparkle[SparkleExportField.automaticallyChecksForUpdates] = updater.automaticallyChecksForUpdates
@@ -153,24 +160,26 @@ struct SettingsManager {
         }
 
         let payload: [String: Any] = [
-            ExportKey.version: 1,
+            ExportKey.version: 2,
             ExportKey.timezones: timezoneBase64,
             ExportKey.preferences: prefs,
             ExportKey.startAtLogin: startAtLoginEnabled,
-            ExportKey.sparkle: sparkle,
+            ExportKey.sparkle: sparkle
         ]
         return try? JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys])
     }
 
-    private static func applySettings(from data: Data) throws {
+    static func applySettings(from data: Data) throws {
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             throw ImportError.invalidFormat
         }
-        guard let version = json[ExportKey.version] as? Int, version == 1 else {
-            throw ImportError.unsupportedVersion
-        }
 
-        // Validate and decode timezones
+        // version: 1 came from 2.19/2.20; version: 2 is post-#97. We accept
+        // either so users importing older export files still get correct
+        // values (with the inversion undone).
+        let version = json[ExportKey.version] as? Int ?? 0
+
+        // Validate and decode timezones (format unchanged across versions).
         var timezoneBlobs: [Data] = []
         if let encoded = json[ExportKey.timezones] as? [String] {
             for base64 in encoded {
@@ -182,26 +191,23 @@ struct SettingsManager {
             }
         }
 
-        // Apply UserDefaults preferences (Appearance + About debug logging)
         if let prefs = json[ExportKey.preferences] as? [String: Any] {
-            for key in preferenceKeys {
-                if let value = prefs[key] {
-                    UserDefaults.standard.set(value, forKey: key)
-                }
+            switch version {
+            case 1: applyV1Preferences(prefs)
+            case 2: applyV2Preferences(prefs)
+            default: throw ImportError.unsupportedVersion
             }
         }
 
-        // Apply startAtLogin via StartupManager — UserDefaults alone won't register/unregister
-        // the SMAppService login item, so toggle it explicitly.
+        // Apply startAtLogin via StartupManager — UserDefaults alone won't
+        // register/unregister the SMAppService login item.
         if let startAtLogin = json[ExportKey.startAtLogin] as? Bool {
             UserDefaults.standard.set(startAtLogin, forKey: startAtLoginKey)
             StartupManager().toggleLogin(startAtLogin)
         }
 
-        // Apply timezones
         DataStore.shared().setTimezones(timezoneBlobs)
 
-        // Refresh UI + apply Sparkle prefs to the live updater
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .customLabelChanged, object: nil)
             if let panel = PanelController.panel() {
@@ -210,9 +216,6 @@ struct SettingsManager {
             }
             if let appDelegate = NSApp.delegate as? AppDelegate {
                 appDelegate.statusItemForPanel().refresh()
-                // Apply Sparkle prefs from the import payload directly to the live
-                // updater so the new schedule takes effect immediately. Setting these
-                // on the updater also writes them to UserDefaults under Sparkle's keys.
                 if let sparkle = json[ExportKey.sparkle] as? [String: Any] {
                     let updater = appDelegate.updaterController.updater
                     if let v = sparkle[SparkleExportField.automaticallyChecksForUpdates] as? Bool {
@@ -227,6 +230,73 @@ struct SettingsManager {
                 }
             }
             NSApp.keyWindow?.contentView?.makeToast("Settings imported")
+        }
+    }
+
+    // v1 — legacy raw-int preferences from 2.19/2.20 export files.
+    // Read the legacy keys, apply via typed accessors so the inversion is
+    // undone exactly once on import. We do NOT write the legacy UserDefaults
+    // keys here — migration runs at every launch, but post-2.21 imports
+    // should put data directly into the modernized schema.
+    private static func applyV1Preferences(_ prefs: [String: Any]) {
+        let store = DataStore.shared()
+        let defaults = UserDefaults.standard
+
+        // Inverted bools — legacy 0 = show, 1 = hide.
+        if let v = prefs["showSunriseSetTime"] as? Int { store.showSunriseSunset = (v == 0) }
+        if let v = prefs["displayFutureSlider"] as? Int { store.showFutureSlider = (v == 0) }
+        if let v = prefs["showDay"] as? Int { store.showDayInMenubar = (v == 0) }
+        if let v = prefs["showDate"] as? Int { store.showDateInMenubar = (v == 0) }
+        if let v = prefs["showPlaceName"] as? Int { store.showPlaceNameInMenubar = (v == 0) }
+
+        // Non-inverted bool — legacy 1 = float.
+        if let v = prefs["displayAppAsForegroundApp"] as? Int { store.floatOnTop = (v == 1) }
+
+        // Time format — value semantics unchanged, just key rename.
+        if let v = prefs["is24HourFormatSelected"] as? Int { store.timeFormat = TimeFormat(rawValue: v) ?? .twelveHour }
+
+        // Already-correct enum keys (kept by name in the legacy export too).
+        if let v = prefs["defaultTheme"] as? Int { store.theme = Theme(rawValue: v) ?? .light }
+        if let v = prefs["relativeDate"] as? Int { store.relativeDateDisplay = RelativeDateDisplay(rawValue: v) ?? .relative }
+        if let v = prefs["com.tpak.meridian.appDisplayOptions"] as? Int { store.appPresentation = AppPresentation(rawValue: v) ?? .menubarOnly }
+        if let v = prefs["com.tpak.meridian.menubarCompactMode"] as? Int { store.menubarMode = MenubarMode(rawValue: v) ?? .standard }
+
+        // Untouched — copy raw values.
+        if let v = prefs["userFontSize"] { defaults.set(v, forKey: UserDefaultKeys.userFontSizePreference) }
+        if let v = prefs["truncateTextLength"] { defaults.set(v, forKey: UserDefaultKeys.truncateTextLength) }
+        if let v = prefs["sliderDayRange"] { defaults.set(v, forKey: UserDefaultKeys.futureSliderRange) }
+        if let v = prefs["com.tpak.meridian.debugLoggingEnabled"] as? Bool {
+            defaults.set(v, forKey: UserDefaultKeys.debugLoggingEnabled)
+        }
+    }
+
+    // v2 — typed bools and named enums, no inversion.
+    private static func applyV2Preferences(_ prefs: [String: Any]) {
+        let store = DataStore.shared()
+        let defaults = UserDefaults.standard
+
+        // Bools — write directly.
+        if let v = prefs[V2Key.showSunriseSunset] as? Bool { store.showSunriseSunset = v }
+        if let v = prefs[V2Key.showFutureSlider] as? Bool { store.showFutureSlider = v }
+        if let v = prefs[V2Key.showDayInMenubar] as? Bool { store.showDayInMenubar = v }
+        if let v = prefs[V2Key.showDateInMenubar] as? Bool { store.showDateInMenubar = v }
+        if let v = prefs[V2Key.showPlaceNameInMenubar] as? Bool { store.showPlaceNameInMenubar = v }
+        if let v = prefs[V2Key.floatOnTop] as? Bool { store.floatOnTop = v }
+
+        // Enums — parse the case name string. Unknown names fall through to
+        // existing value (typed accessor leaves the underlying key alone).
+        if let s = prefs[V2Key.menubarMode] as? String, let m = MenubarMode(jsonName: s) { store.menubarMode = m }
+        if let s = prefs[V2Key.theme] as? String, let t = Theme(jsonName: s) { store.theme = t }
+        if let s = prefs[V2Key.relativeDateDisplay] as? String, let r = RelativeDateDisplay(jsonName: s) { store.relativeDateDisplay = r }
+        if let s = prefs[V2Key.appPresentation] as? String, let a = AppPresentation(jsonName: s) { store.appPresentation = a }
+        if let s = prefs[V2Key.timeFormat] as? String, let t = TimeFormat(jsonName: s) { store.timeFormat = t }
+
+        // Untouched — copy raw values.
+        if let v = prefs[V2Key.userFontSize] { defaults.set(v, forKey: UserDefaultKeys.userFontSizePreference) }
+        if let v = prefs[V2Key.truncateTextLength] { defaults.set(v, forKey: UserDefaultKeys.truncateTextLength) }
+        if let v = prefs[V2Key.futureSliderRange] { defaults.set(v, forKey: UserDefaultKeys.futureSliderRange) }
+        if let v = prefs[V2Key.debugLoggingEnabled] as? Bool {
+            defaults.set(v, forKey: UserDefaultKeys.debugLoggingEnabled)
         }
     }
 

@@ -157,25 +157,25 @@ class DataStore: NSObject, DataStoring {
 
 // MARK: - Typed preference enums (issue #97)
 
-enum MenubarMode: Int, Codable {
+enum MenubarMode: Int, Codable, CaseIterable {
     case compact = 0
     case standard = 1
 }
 
-enum Theme: Int, Codable {
+enum Theme: Int, Codable, CaseIterable {
     case light = 0
     case dark = 1
     case system = 2
 }
 
-enum RelativeDateDisplay: Int, Codable {
+enum RelativeDateDisplay: Int, Codable, CaseIterable {
     case relative = 0
     case actual = 1
     case date = 2
     case hidden = 3
 }
 
-enum AppPresentation: Int, Codable {
+enum AppPresentation: Int, Codable, CaseIterable {
     case menubarOnly = 0
     case menubarAndDock = 1
 }
@@ -183,7 +183,7 @@ enum AppPresentation: Int, Codable {
 // Indices match the popup item order in
 // AppearanceViewController.setupTimeFormatPopup(); 2/5/8 are disabled
 // separator rows and intentionally have no enum case.
-enum TimeFormat: Int, Codable {
+enum TimeFormat: Int, Codable, CaseIterable {
     case twelveHour = 0
     case twentyFourHour = 1
     case twelveHourWithSeconds = 3
@@ -193,6 +193,47 @@ enum TimeFormat: Int, Codable {
     case twelveHourWithoutAmPm = 9
     case twelveHourWithoutAmPmAndSeconds = 10
     case epoch = 11
+}
+
+// Stable string name for typed preference enums. Used by SettingsManager v2
+// JSON export ("compact" instead of 0). Names are derived from the Swift
+// case identifier — keep them stable across releases since users' export
+// files persist them.
+extension MenubarMode { var jsonName: String { String(describing: self) } }
+extension Theme { var jsonName: String { String(describing: self) } }
+extension RelativeDateDisplay { var jsonName: String { String(describing: self) } }
+extension AppPresentation { var jsonName: String { String(describing: self) } }
+extension TimeFormat { var jsonName: String { String(describing: self) } }
+
+extension MenubarMode {
+    init?(jsonName: String) {
+        guard let match = Self.allCases.first(where: { $0.jsonName == jsonName }) else { return nil }
+        self = match
+    }
+}
+extension Theme {
+    init?(jsonName: String) {
+        guard let match = Self.allCases.first(where: { $0.jsonName == jsonName }) else { return nil }
+        self = match
+    }
+}
+extension RelativeDateDisplay {
+    init?(jsonName: String) {
+        guard let match = Self.allCases.first(where: { $0.jsonName == jsonName }) else { return nil }
+        self = match
+    }
+}
+extension AppPresentation {
+    init?(jsonName: String) {
+        guard let match = Self.allCases.first(where: { $0.jsonName == jsonName }) else { return nil }
+        self = match
+    }
+}
+extension TimeFormat {
+    init?(jsonName: String) {
+        guard let match = Self.allCases.first(where: { $0.jsonName == jsonName }) else { return nil }
+        self = match
+    }
 }
 
 // MARK: - Typed accessors (issue #97)
