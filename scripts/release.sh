@@ -284,11 +284,13 @@ echo "  Length: $LENGTH"
 
 echo "── Creating GitHub release..."
 RELEASE_BODY="$(echo "$NOTES" | while IFS= read -r line; do echo "- $line"; done)"
-GH_RELEASE_FLAGS=()
+# macOS bash 3.x trips on expanding empty arrays under `set -u`, so split the
+# command on whether the prerelease flag applies instead of using an array.
 if [[ $IS_BETA -eq 1 ]]; then
-    GH_RELEASE_FLAGS+=(--prerelease)
+    gh release create "v$VERSION" "$ZIP_PATH" --title "v$VERSION" --notes "$RELEASE_BODY" --prerelease
+else
+    gh release create "v$VERSION" "$ZIP_PATH" --title "v$VERSION" --notes "$RELEASE_BODY"
 fi
-gh release create "v$VERSION" "$ZIP_PATH" --title "v$VERSION" --notes "$RELEASE_BODY" "${GH_RELEASE_FLAGS[@]}"
 
 echo "── GitHub release created."
 
