@@ -3,6 +3,21 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>2.20.1-beta1</title>
+            <pubDate>Tue, 28 Apr 2026 13:28:37 +0000</pubDate>
+            <sparkle:channel>beta</sparkle:channel>
+            <sparkle:version>2.20.1-beta1</sparkle:version>
+            <sparkle:shortVersionString>2.20.1-beta1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Internal release tooling fix (no user-facing changes)</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.20.1-beta1/Meridian.app.zip" length="3235784" type="application/octet-stream" sparkle:edSignature="iHkAjtFW66S0HntP159DrIdZfzx4qbQbo0j6/6PAd0rEccfVJ/uQnMFN3UxeCb89d4I8vyEJ/rMYuL15un5SDw=="/>
+        </item>
+        <item>
             <title>2.20.0</title>
             <pubDate>Tue, 28 Apr 2026 13:18:00 +0000</pubDate>
             <sparkle:version>2.20.0</sparkle:version>
