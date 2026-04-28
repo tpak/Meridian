@@ -129,51 +129,29 @@ class DataStore: NSObject, DataStoring {
     }
 
     func timezoneFormat() -> NSNumber {
-        return userDefaults.object(forKey: UserDefaultKeys.selectedTimeZoneFormatKey) as? NSNumber ?? NSNumber(value: 0)
+        return NSNumber(value: timeFormat.rawValue)
     }
 
     func isBufferRequiredForTwelveHourFormats() -> Bool {
         return DataStore.timeFormatsWithSuffix.contains(timezoneFormat())
     }
 
+    // shouldDisplay(_:) is the legacy entry point — kept for source-compat
+    // with call sites we haven't swept yet (see commit 3/5 of issue #97). It
+    // now delegates to the typed accessors so the underlying storage details
+    // live in exactly one place.
     func shouldDisplay(_ type: ViewType) -> Bool {
         switch type {
-        case .futureSlider:
-            let hidden = 1
-            return (retrieve(key: UserDefaultKeys.displayFutureSliderKey) as? NSNumber).map { $0.intValue != hidden } ?? false
-        case .twelveHour:
-            return shouldDisplayHelper(UserDefaultKeys.selectedTimeZoneFormatKey)
-        case .sunrise:
-            return shouldDisplayHelper(UserDefaultKeys.sunriseSunsetTime)
-        case .showAppInForeground:
-            return userDefaults.integer(forKey: UserDefaultKeys.showAppInForeground) == 1
-        case .dateInMenubar:
-            return shouldDisplayNonObjectHelper(UserDefaultKeys.showDateInMenu)
-        case .placeInMenubar:
-            return shouldDisplayHelper(UserDefaultKeys.showPlaceInMenu)
-        case .dayInMenubar:
-            return shouldDisplayNonObjectHelper(UserDefaultKeys.showDayInMenu)
-        case .appDisplayOptions:
-            return shouldDisplayHelper(UserDefaultKeys.appDisplayOptions)
-        case .menubarCompactMode:
-            return (retrieve(key: UserDefaultKeys.menubarCompactMode) as? Int) == 0
+        case .futureSlider:        return showFutureSlider
+        case .twelveHour:          return timeFormat == .twelveHour
+        case .sunrise:             return showSunriseSunset
+        case .showAppInForeground: return floatOnTop
+        case .dateInMenubar:       return showDateInMenubar
+        case .placeInMenubar:      return showPlaceNameInMenubar
+        case .dayInMenubar:        return showDayInMenubar
+        case .appDisplayOptions:   return appPresentation == .menubarOnly
+        case .menubarCompactMode:  return menubarMode == .compact
         }
-    }
-
-    // MARK: Private
-
-    private func shouldDisplayHelper(_ key: String) -> Bool {
-        guard let value = retrieve(key: key) as? NSNumber else {
-            return false
-        }
-        return value.isEqual(to: NSNumber(value: 0))
-    }
-
-    // MARK: Some values are stored as plain integers; objectForKey: will return nil, so using integerForKey:
-
-    private func shouldDisplayNonObjectHelper(_ key: String) -> Bool {
-        let value = userDefaults.integer(forKey: key)
-        return value == 0
     }
 }
 
@@ -219,120 +197,65 @@ enum TimeFormat: Int, Codable {
 
 // MARK: - Typed accessors (issue #97)
 
-// These wrap the legacy inverted/Int storage with type-safe APIs. They read
-// and write the same UserDefaults keys as the existing shouldDisplay(_:)
-// switch, so behavior is unchanged — they exist so callers can stop
-// re-implementing the inversion at every read site. A subsequent commit
-// migrates storage to native Bool / enum-rawValue keys and renames legacy
-// keys; the accessors are the seam where that swap happens.
+// Type-safe preference surface backed by modernized UserDefaults keys.
+// Storage was migrated from the legacy inverted-bool / int-encoded keys by
+// AppDefaults.runBoolSemanticsMigration on first launch of the modernized
+// build. Defaults for missing keys come from AppDefaults.defaultsDictionary.
 extension DataStore {
-    // Inverted bools — legacy storage: 0 = show, 1 = hide.
+    // Bools.
     var showSunriseSunset: Bool {
-        get {
-            guard let value = userDefaults.object(forKey: UserDefaultKeys.sunriseSunsetTime) as? NSNumber else {
-                return false
-            }
-            return value.intValue == 0
-        }
-        set {
-            userDefaults.set(NSNumber(value: newValue ? 0 : 1), forKey: UserDefaultKeys.sunriseSunsetTime)
-        }
+        get { userDefaults.bool(forKey: UserDefaultKeys.showSunriseSunset) }
+        set { userDefaults.set(newValue, forKey: UserDefaultKeys.showSunriseSunset) }
     }
 
     var showFutureSlider: Bool {
-        get {
-            guard let value = userDefaults.object(forKey: UserDefaultKeys.displayFutureSliderKey) as? NSNumber else {
-                return false
-            }
-            return value.intValue != 1
-        }
-        set {
-            userDefaults.set(NSNumber(value: newValue ? 0 : 1), forKey: UserDefaultKeys.displayFutureSliderKey)
-        }
+        get { userDefaults.bool(forKey: UserDefaultKeys.showFutureSlider) }
+        set { userDefaults.set(newValue, forKey: UserDefaultKeys.showFutureSlider) }
     }
 
     var showDayInMenubar: Bool {
-        get { userDefaults.integer(forKey: UserDefaultKeys.showDayInMenu) == 0 }
-        set { userDefaults.set(newValue ? 0 : 1, forKey: UserDefaultKeys.showDayInMenu) }
+        get { userDefaults.bool(forKey: UserDefaultKeys.showDayInMenubar) }
+        set { userDefaults.set(newValue, forKey: UserDefaultKeys.showDayInMenubar) }
     }
 
     var showDateInMenubar: Bool {
-        get { userDefaults.integer(forKey: UserDefaultKeys.showDateInMenu) == 0 }
-        set { userDefaults.set(newValue ? 0 : 1, forKey: UserDefaultKeys.showDateInMenu) }
+        get { userDefaults.bool(forKey: UserDefaultKeys.showDateInMenubar) }
+        set { userDefaults.set(newValue, forKey: UserDefaultKeys.showDateInMenubar) }
     }
 
     var showPlaceNameInMenubar: Bool {
-        get {
-            guard let value = userDefaults.object(forKey: UserDefaultKeys.showPlaceInMenu) as? NSNumber else {
-                return false
-            }
-            return value.intValue == 0
-        }
-        set {
-            userDefaults.set(NSNumber(value: newValue ? 0 : 1), forKey: UserDefaultKeys.showPlaceInMenu)
-        }
+        get { userDefaults.bool(forKey: UserDefaultKeys.showPlaceNameInMenubar) }
+        set { userDefaults.set(newValue, forKey: UserDefaultKeys.showPlaceNameInMenubar) }
     }
 
-    // Non-inverted bool — legacy storage: 1 = float, 0 = menubar.
     var floatOnTop: Bool {
-        get { userDefaults.integer(forKey: UserDefaultKeys.showAppInForeground) == 1 }
-        set { userDefaults.set(newValue ? 1 : 0, forKey: UserDefaultKeys.showAppInForeground) }
+        get { userDefaults.bool(forKey: UserDefaultKeys.floatOnTop) }
+        set { userDefaults.set(newValue, forKey: UserDefaultKeys.floatOnTop) }
     }
 
-    // Enums — raw int storage matches the popup/segment selectedIndex.
+    // Enums (Int-backed; raw values match the popup/segment selectedIndex).
     var menubarMode: MenubarMode {
-        get {
-            guard let raw = userDefaults.object(forKey: UserDefaultKeys.menubarCompactMode) as? Int else {
-                return .standard
-            }
-            return MenubarMode(rawValue: raw) ?? .standard
-        }
+        get { MenubarMode(rawValue: userDefaults.integer(forKey: UserDefaultKeys.menubarCompactMode)) ?? .standard }
         set { userDefaults.set(newValue.rawValue, forKey: UserDefaultKeys.menubarCompactMode) }
     }
 
     var theme: Theme {
-        get {
-            guard let raw = userDefaults.object(forKey: UserDefaultKeys.themeKey) as? Int else {
-                return .light
-            }
-            return Theme(rawValue: raw) ?? .light
-        }
+        get { Theme(rawValue: userDefaults.integer(forKey: UserDefaultKeys.themeKey)) ?? .light }
         set { userDefaults.set(newValue.rawValue, forKey: UserDefaultKeys.themeKey) }
     }
 
     var relativeDateDisplay: RelativeDateDisplay {
-        get {
-            guard let raw = (userDefaults.object(forKey: UserDefaultKeys.relativeDateKey) as? NSNumber)?.intValue else {
-                return .relative
-            }
-            return RelativeDateDisplay(rawValue: raw) ?? .relative
-        }
-        set {
-            userDefaults.set(NSNumber(value: newValue.rawValue), forKey: UserDefaultKeys.relativeDateKey)
-        }
+        get { RelativeDateDisplay(rawValue: userDefaults.integer(forKey: UserDefaultKeys.relativeDateKey)) ?? .relative }
+        set { userDefaults.set(newValue.rawValue, forKey: UserDefaultKeys.relativeDateKey) }
     }
 
     var appPresentation: AppPresentation {
-        get {
-            guard let value = userDefaults.object(forKey: UserDefaultKeys.appDisplayOptions) as? NSNumber else {
-                return .menubarOnly
-            }
-            return AppPresentation(rawValue: value.intValue) ?? .menubarOnly
-        }
-        set {
-            userDefaults.set(NSNumber(value: newValue.rawValue), forKey: UserDefaultKeys.appDisplayOptions)
-        }
+        get { AppPresentation(rawValue: userDefaults.integer(forKey: UserDefaultKeys.appDisplayOptions)) ?? .menubarOnly }
+        set { userDefaults.set(newValue.rawValue, forKey: UserDefaultKeys.appDisplayOptions) }
     }
 
     var timeFormat: TimeFormat {
-        get {
-            guard let raw = (userDefaults.object(forKey: UserDefaultKeys.selectedTimeZoneFormatKey) as? NSNumber)?.intValue else {
-                return .twelveHour
-            }
-            return TimeFormat(rawValue: raw) ?? .twelveHour
-        }
-        set {
-            userDefaults.set(NSNumber(value: newValue.rawValue), forKey: UserDefaultKeys.selectedTimeZoneFormatKey)
-        }
+        get { TimeFormat(rawValue: userDefaults.integer(forKey: UserDefaultKeys.timeFormat)) ?? .twelveHour }
+        set { userDefaults.set(newValue.rawValue, forKey: UserDefaultKeys.timeFormat) }
     }
 }

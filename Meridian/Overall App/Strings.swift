@@ -36,4 +36,22 @@ public enum UserDefaultKeys {
     static let latitude = "latitude"
     static let longitude = "longitude"
     static let nextUpdate = "nextUpdate"
+
+    // MARK: - Modernized typed-storage keys (issue #97)
+    // These replace the legacy inverted-bool / int-encoded keys above.
+    // AppDefaults.runBoolSemanticsMigration moves user data from the legacy
+    // keys to these on first launch of the modernized build, then deletes
+    // the legacy keys.
+    static let showSunriseSunset = "com.tpak.meridian.showSunriseSunset"
+    static let showFutureSlider = "com.tpak.meridian.showFutureSlider"
+    static let showDayInMenubar = "com.tpak.meridian.showDayInMenubar"
+    static let showDateInMenubar = "com.tpak.meridian.showDateInMenubar"
+    static let showPlaceNameInMenubar = "com.tpak.meridian.showPlaceNameInMenubar"
+    static let floatOnTop = "com.tpak.meridian.floatOnTop"
+    static let timeFormat = "com.tpak.meridian.timeFormat"
+
+    // One-time migration flag. Set after runBoolSemanticsMigration completes
+    // its first successful pass; read on every launch to make the migration
+    // idempotent.
+    static let boolSemanticsMigrationV1 = "com.tpak.meridian.boolSemanticsMigrationV1"
 }

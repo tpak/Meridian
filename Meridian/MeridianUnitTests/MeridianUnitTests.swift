@@ -529,162 +529,91 @@ class DataStoreTypedAccessorsTests: XCTestCase {
         super.tearDown()
     }
 
-    // MARK: showSunriseSunset (inverted bool)
+    // MARK: bools — read
 
-    func testShowSunriseSunset_legacyShowReturnsTrue() {
-        defaults.set(NSNumber(value: 0), forKey: UserDefaultKeys.sunriseSunsetTime)
+    func testShowSunriseSunset_readsNewKey() {
+        defaults.set(true, forKey: UserDefaultKeys.showSunriseSunset)
         XCTAssertTrue(store.showSunriseSunset)
-    }
-
-    func testShowSunriseSunset_legacyHideReturnsFalse() {
-        defaults.set(NSNumber(value: 1), forKey: UserDefaultKeys.sunriseSunsetTime)
+        defaults.set(false, forKey: UserDefaultKeys.showSunriseSunset)
         XCTAssertFalse(store.showSunriseSunset)
     }
 
-    func testShowSunriseSunset_missingKeyReturnsFalse() {
-        XCTAssertFalse(store.showSunriseSunset)
-    }
-
-    func testShowSunriseSunset_writeTrueStoresZero() {
-        store.showSunriseSunset = true
-        XCTAssertEqual((defaults.object(forKey: UserDefaultKeys.sunriseSunsetTime) as? NSNumber)?.intValue, 0)
-    }
-
-    func testShowSunriseSunset_writeFalseStoresOne() {
-        store.showSunriseSunset = false
-        XCTAssertEqual((defaults.object(forKey: UserDefaultKeys.sunriseSunsetTime) as? NSNumber)?.intValue, 1)
-    }
-
-    func testShowSunriseSunset_roundTrip() {
-        store.showSunriseSunset = true
-        XCTAssertTrue(store.showSunriseSunset)
-        store.showSunriseSunset = false
-        XCTAssertFalse(store.showSunriseSunset)
-    }
-
-    // MARK: showFutureSlider (inverted bool)
-
-    func testShowFutureSlider_legacyShowReturnsTrue() {
-        defaults.set(NSNumber(value: 0), forKey: UserDefaultKeys.displayFutureSliderKey)
+    func testShowFutureSlider_readsNewKey() {
+        defaults.set(true, forKey: UserDefaultKeys.showFutureSlider)
         XCTAssertTrue(store.showFutureSlider)
-    }
-
-    func testShowFutureSlider_legacyHideReturnsFalse() {
-        defaults.set(NSNumber(value: 1), forKey: UserDefaultKeys.displayFutureSliderKey)
+        defaults.set(false, forKey: UserDefaultKeys.showFutureSlider)
         XCTAssertFalse(store.showFutureSlider)
     }
 
-    func testShowFutureSlider_roundTrip() {
-        store.showFutureSlider = true
-        XCTAssertTrue(store.showFutureSlider)
+    func testShowDayInMenubar_readsNewKey() {
+        defaults.set(true, forKey: UserDefaultKeys.showDayInMenubar)
+        XCTAssertTrue(store.showDayInMenubar)
+    }
+
+    func testShowDateInMenubar_readsNewKey() {
+        defaults.set(true, forKey: UserDefaultKeys.showDateInMenubar)
+        XCTAssertTrue(store.showDateInMenubar)
+    }
+
+    func testShowPlaceNameInMenubar_readsNewKey() {
+        defaults.set(true, forKey: UserDefaultKeys.showPlaceNameInMenubar)
+        XCTAssertTrue(store.showPlaceNameInMenubar)
+    }
+
+    func testFloatOnTop_readsNewKey() {
+        defaults.set(true, forKey: UserDefaultKeys.floatOnTop)
+        XCTAssertTrue(store.floatOnTop)
+        defaults.set(false, forKey: UserDefaultKeys.floatOnTop)
+        XCTAssertFalse(store.floatOnTop)
+    }
+
+    // MARK: bools — write
+
+    func testShowSunriseSunset_writeStoresBool() {
+        store.showSunriseSunset = true
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.showSunriseSunset))
+        store.showSunriseSunset = false
+        XCTAssertFalse(defaults.bool(forKey: UserDefaultKeys.showSunriseSunset))
+    }
+
+    func testFloatOnTop_writeStoresBool() {
+        store.floatOnTop = true
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.floatOnTop))
+    }
+
+    // MARK: bools — round-trip
+
+    func testBoolAccessors_roundTrip() {
+        store.showSunriseSunset = true
         store.showFutureSlider = false
-        XCTAssertFalse(store.showFutureSlider)
-    }
-
-    // MARK: showDayInMenubar (inverted bool, plain Int storage)
-
-    func testShowDayInMenubar_legacyShowReturnsTrue() {
-        defaults.set(0, forKey: UserDefaultKeys.showDayInMenu)
-        XCTAssertTrue(store.showDayInMenubar)
-    }
-
-    func testShowDayInMenubar_legacyHideReturnsFalse() {
-        defaults.set(1, forKey: UserDefaultKeys.showDayInMenu)
-        XCTAssertFalse(store.showDayInMenubar)
-    }
-
-    func testShowDayInMenubar_roundTrip() {
         store.showDayInMenubar = true
-        XCTAssertTrue(store.showDayInMenubar)
-        store.showDayInMenubar = false
-        XCTAssertFalse(store.showDayInMenubar)
-    }
-
-    // MARK: showDateInMenubar (inverted bool, plain Int storage)
-
-    func testShowDateInMenubar_legacyShowReturnsTrue() {
-        defaults.set(0, forKey: UserDefaultKeys.showDateInMenu)
-        XCTAssertTrue(store.showDateInMenubar)
-    }
-
-    func testShowDateInMenubar_legacyHideReturnsFalse() {
-        defaults.set(1, forKey: UserDefaultKeys.showDateInMenu)
-        XCTAssertFalse(store.showDateInMenubar)
-    }
-
-    func testShowDateInMenubar_roundTrip() {
-        store.showDateInMenubar = true
-        XCTAssertTrue(store.showDateInMenubar)
         store.showDateInMenubar = false
-        XCTAssertFalse(store.showDateInMenubar)
-    }
-
-    // MARK: showPlaceNameInMenubar (inverted bool, NSNumber storage)
-
-    func testShowPlaceNameInMenubar_legacyShowReturnsTrue() {
-        defaults.set(NSNumber(value: 0), forKey: UserDefaultKeys.showPlaceInMenu)
-        XCTAssertTrue(store.showPlaceNameInMenubar)
-    }
-
-    func testShowPlaceNameInMenubar_legacyHideReturnsFalse() {
-        defaults.set(NSNumber(value: 1), forKey: UserDefaultKeys.showPlaceInMenu)
-        XCTAssertFalse(store.showPlaceNameInMenubar)
-    }
-
-    func testShowPlaceNameInMenubar_roundTrip() {
         store.showPlaceNameInMenubar = true
+        store.floatOnTop = true
+
+        XCTAssertTrue(store.showSunriseSunset)
+        XCTAssertFalse(store.showFutureSlider)
+        XCTAssertTrue(store.showDayInMenubar)
+        XCTAssertFalse(store.showDateInMenubar)
         XCTAssertTrue(store.showPlaceNameInMenubar)
-        store.showPlaceNameInMenubar = false
-        XCTAssertFalse(store.showPlaceNameInMenubar)
-    }
-
-    // MARK: floatOnTop (NON-inverted bool, 1=on)
-
-    func testFloatOnTop_legacyOnReturnsTrue() {
-        defaults.set(1, forKey: UserDefaultKeys.showAppInForeground)
         XCTAssertTrue(store.floatOnTop)
     }
 
-    func testFloatOnTop_legacyOffReturnsFalse() {
-        defaults.set(0, forKey: UserDefaultKeys.showAppInForeground)
-        XCTAssertFalse(store.floatOnTop)
-    }
+    // MARK: enums
 
-    func testFloatOnTop_writeTrueStoresOne() {
-        store.floatOnTop = true
-        XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.showAppInForeground), 1)
-    }
-
-    func testFloatOnTop_writeFalseStoresZero() {
-        store.floatOnTop = false
-        XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.showAppInForeground), 0)
-    }
-
-    func testFloatOnTop_roundTrip() {
-        store.floatOnTop = true
-        XCTAssertTrue(store.floatOnTop)
-        store.floatOnTop = false
-        XCTAssertFalse(store.floatOnTop)
-    }
-
-    // MARK: menubarMode (enum)
-
-    func testMenubarMode_legacyCompactReturnsCompact() {
-        defaults.set(0, forKey: UserDefaultKeys.menubarCompactMode)
+    func testMenubarMode_readsCanonicalKey() {
+        defaults.set(MenubarMode.compact.rawValue, forKey: UserDefaultKeys.menubarCompactMode)
         XCTAssertEqual(store.menubarMode, .compact)
-    }
-
-    func testMenubarMode_legacyStandardReturnsStandard() {
-        defaults.set(1, forKey: UserDefaultKeys.menubarCompactMode)
-        XCTAssertEqual(store.menubarMode, .standard)
-    }
-
-    func testMenubarMode_missingKeyReturnsStandardDefault() {
+        defaults.set(MenubarMode.standard.rawValue, forKey: UserDefaultKeys.menubarCompactMode)
         XCTAssertEqual(store.menubarMode, .standard)
     }
 
     func testMenubarMode_invalidRawFallsBackToStandard() {
         defaults.set(99, forKey: UserDefaultKeys.menubarCompactMode)
+        XCTAssertEqual(store.menubarMode, .standard)
+    }
+
+    func testMenubarMode_missingKeyReturnsStandard() {
         XCTAssertEqual(store.menubarMode, .standard)
     }
 
@@ -695,58 +624,18 @@ class DataStoreTypedAccessorsTests: XCTestCase {
         XCTAssertEqual(store.menubarMode, .standard)
     }
 
-    // MARK: theme (enum)
-
-    func testTheme_legacyValuesMapCorrectly() {
-        defaults.set(0, forKey: UserDefaultKeys.themeKey)
-        XCTAssertEqual(store.theme, .light)
-        defaults.set(1, forKey: UserDefaultKeys.themeKey)
-        XCTAssertEqual(store.theme, .dark)
-        defaults.set(2, forKey: UserDefaultKeys.themeKey)
-        XCTAssertEqual(store.theme, .system)
+    func testTheme_allCases() {
+        for theme: Theme in [.light, .dark, .system] {
+            store.theme = theme
+            XCTAssertEqual(store.theme, theme)
+        }
     }
 
-    func testTheme_missingKeyReturnsLightDefault() {
-        XCTAssertEqual(store.theme, .light)
-    }
-
-    func testTheme_roundTrip() {
-        store.theme = .dark
-        XCTAssertEqual(store.theme, .dark)
-        store.theme = .system
-        XCTAssertEqual(store.theme, .system)
-    }
-
-    // MARK: relativeDateDisplay (enum)
-
-    func testRelativeDateDisplay_legacyValuesMapCorrectly() {
-        defaults.set(NSNumber(value: 0), forKey: UserDefaultKeys.relativeDateKey)
-        XCTAssertEqual(store.relativeDateDisplay, .relative)
-        defaults.set(NSNumber(value: 1), forKey: UserDefaultKeys.relativeDateKey)
-        XCTAssertEqual(store.relativeDateDisplay, .actual)
-        defaults.set(NSNumber(value: 2), forKey: UserDefaultKeys.relativeDateKey)
-        XCTAssertEqual(store.relativeDateDisplay, .date)
-        defaults.set(NSNumber(value: 3), forKey: UserDefaultKeys.relativeDateKey)
-        XCTAssertEqual(store.relativeDateDisplay, .hidden)
-    }
-
-    func testRelativeDateDisplay_roundTrip() {
-        store.relativeDateDisplay = .actual
-        XCTAssertEqual(store.relativeDateDisplay, .actual)
-        store.relativeDateDisplay = .hidden
-        XCTAssertEqual(store.relativeDateDisplay, .hidden)
-    }
-
-    // MARK: appPresentation (enum)
-
-    func testAppPresentation_legacyMenubarOnlyReturnsMenubarOnly() {
-        defaults.set(NSNumber(value: 0), forKey: UserDefaultKeys.appDisplayOptions)
-        XCTAssertEqual(store.appPresentation, .menubarOnly)
-    }
-
-    func testAppPresentation_legacyMenubarAndDockReturnsMenubarAndDock() {
-        defaults.set(NSNumber(value: 1), forKey: UserDefaultKeys.appDisplayOptions)
-        XCTAssertEqual(store.appPresentation, .menubarAndDock)
+    func testRelativeDateDisplay_allCases() {
+        for value: RelativeDateDisplay in [.relative, .actual, .date, .hidden] {
+            store.relativeDateDisplay = value
+            XCTAssertEqual(store.relativeDateDisplay, value)
+        }
     }
 
     func testAppPresentation_roundTrip() {
@@ -756,88 +645,263 @@ class DataStoreTypedAccessorsTests: XCTestCase {
         XCTAssertEqual(store.appPresentation, .menubarOnly)
     }
 
-    // MARK: timeFormat (enum)
-
-    func testTimeFormat_legacyValuesMapCorrectly() {
-        defaults.set(NSNumber(value: 0), forKey: UserDefaultKeys.selectedTimeZoneFormatKey)
-        XCTAssertEqual(store.timeFormat, .twelveHour)
-        defaults.set(NSNumber(value: 1), forKey: UserDefaultKeys.selectedTimeZoneFormatKey)
-        XCTAssertEqual(store.timeFormat, .twentyFourHour)
-        defaults.set(NSNumber(value: 11), forKey: UserDefaultKeys.selectedTimeZoneFormatKey)
-        XCTAssertEqual(store.timeFormat, .epoch)
+    func testTimeFormat_allValidIndices() {
+        let cases: [TimeFormat] = [
+            .twelveHour, .twentyFourHour,
+            .twelveHourWithSeconds, .twentyFourHourWithSeconds,
+            .twelveHourWithLeadingZero, .twelveHourWithLeadingZeroAndSeconds,
+            .twelveHourWithoutAmPm, .twelveHourWithoutAmPmAndSeconds,
+            .epoch,
+        ]
+        for value in cases {
+            store.timeFormat = value
+            XCTAssertEqual(store.timeFormat, value, "round-trip failed for \(value)")
+        }
     }
 
-    func testTimeFormat_separatorIndexFallsBackToTwelveHour() {
-        // Index 2 is the "-- With Seconds --" separator row, which should never
-        // be selectable but defend against a stored value reaching us anyway.
-        defaults.set(NSNumber(value: 2), forKey: UserDefaultKeys.selectedTimeZoneFormatKey)
-        XCTAssertEqual(store.timeFormat, .twelveHour)
-    }
-
-    func testTimeFormat_roundTrip() {
-        store.timeFormat = .twentyFourHourWithSeconds
-        XCTAssertEqual(store.timeFormat, .twentyFourHourWithSeconds)
+    func testTimeFormat_separatorRawFallsBackToTwelveHour() {
+        // Indices 2/5/8 are disabled separator rows; if a stale value lands
+        // there we should not crash, just fall back.
+        for separatorRaw in [2, 5, 8] {
+            defaults.set(separatorRaw, forKey: UserDefaultKeys.timeFormat)
+            XCTAssertEqual(store.timeFormat, .twelveHour)
+        }
     }
 
     // MARK: parity with shouldDisplay()
 
-    // These prove the typed accessors return the same value as the existing
-    // shouldDisplay(_:) switch — so commit #3 can sweep call sites without
-    // introducing behavior changes.
+    // shouldDisplay(_:) now delegates to typed accessors; these asserts make
+    // sure that delegation never drifts.
 
     func testParity_sunrise() {
-        defaults.set(NSNumber(value: 0), forKey: UserDefaultKeys.sunriseSunsetTime)
+        store.showSunriseSunset = true
         XCTAssertEqual(store.showSunriseSunset, store.shouldDisplay(.sunrise))
-        defaults.set(NSNumber(value: 1), forKey: UserDefaultKeys.sunriseSunsetTime)
+        store.showSunriseSunset = false
         XCTAssertEqual(store.showSunriseSunset, store.shouldDisplay(.sunrise))
     }
 
     func testParity_futureSlider() {
-        defaults.set(NSNumber(value: 0), forKey: UserDefaultKeys.displayFutureSliderKey)
+        store.showFutureSlider = true
         XCTAssertEqual(store.showFutureSlider, store.shouldDisplay(.futureSlider))
-        defaults.set(NSNumber(value: 1), forKey: UserDefaultKeys.displayFutureSliderKey)
+        store.showFutureSlider = false
         XCTAssertEqual(store.showFutureSlider, store.shouldDisplay(.futureSlider))
     }
 
     func testParity_dayInMenubar() {
-        defaults.set(0, forKey: UserDefaultKeys.showDayInMenu)
+        store.showDayInMenubar = true
         XCTAssertEqual(store.showDayInMenubar, store.shouldDisplay(.dayInMenubar))
-        defaults.set(1, forKey: UserDefaultKeys.showDayInMenu)
+        store.showDayInMenubar = false
         XCTAssertEqual(store.showDayInMenubar, store.shouldDisplay(.dayInMenubar))
     }
 
     func testParity_dateInMenubar() {
-        defaults.set(0, forKey: UserDefaultKeys.showDateInMenu)
+        store.showDateInMenubar = true
         XCTAssertEqual(store.showDateInMenubar, store.shouldDisplay(.dateInMenubar))
-        defaults.set(1, forKey: UserDefaultKeys.showDateInMenu)
+        store.showDateInMenubar = false
         XCTAssertEqual(store.showDateInMenubar, store.shouldDisplay(.dateInMenubar))
     }
 
     func testParity_placeNameInMenubar() {
-        defaults.set(NSNumber(value: 0), forKey: UserDefaultKeys.showPlaceInMenu)
+        store.showPlaceNameInMenubar = true
         XCTAssertEqual(store.showPlaceNameInMenubar, store.shouldDisplay(.placeInMenubar))
-        defaults.set(NSNumber(value: 1), forKey: UserDefaultKeys.showPlaceInMenu)
+        store.showPlaceNameInMenubar = false
         XCTAssertEqual(store.showPlaceNameInMenubar, store.shouldDisplay(.placeInMenubar))
     }
 
     func testParity_floatOnTop() {
-        defaults.set(1, forKey: UserDefaultKeys.showAppInForeground)
+        store.floatOnTop = true
         XCTAssertEqual(store.floatOnTop, store.shouldDisplay(.showAppInForeground))
-        defaults.set(0, forKey: UserDefaultKeys.showAppInForeground)
+        store.floatOnTop = false
         XCTAssertEqual(store.floatOnTop, store.shouldDisplay(.showAppInForeground))
     }
 
     func testParity_menubarMode() {
-        defaults.set(0, forKey: UserDefaultKeys.menubarCompactMode)
-        XCTAssertEqual(store.menubarMode == .compact, store.shouldDisplay(.menubarCompactMode))
-        defaults.set(1, forKey: UserDefaultKeys.menubarCompactMode)
-        XCTAssertEqual(store.menubarMode == .compact, store.shouldDisplay(.menubarCompactMode))
+        store.menubarMode = .compact
+        XCTAssertTrue(store.shouldDisplay(.menubarCompactMode))
+        store.menubarMode = .standard
+        XCTAssertFalse(store.shouldDisplay(.menubarCompactMode))
     }
 
     func testParity_appPresentation() {
-        defaults.set(NSNumber(value: 0), forKey: UserDefaultKeys.appDisplayOptions)
-        XCTAssertEqual(store.appPresentation == .menubarOnly, store.shouldDisplay(.appDisplayOptions))
-        defaults.set(NSNumber(value: 1), forKey: UserDefaultKeys.appDisplayOptions)
-        XCTAssertEqual(store.appPresentation == .menubarOnly, store.shouldDisplay(.appDisplayOptions))
+        store.appPresentation = .menubarOnly
+        XCTAssertTrue(store.shouldDisplay(.appDisplayOptions))
+        store.appPresentation = .menubarAndDock
+        XCTAssertFalse(store.shouldDisplay(.appDisplayOptions))
+    }
+}
+
+// MARK: - BoolSemanticsMigration tests (issue #97)
+
+class BoolSemanticsMigrationTests: XCTestCase {
+    private var defaults: UserDefaults!
+    private var suiteName: String!
+
+    override func setUp() {
+        super.setUp()
+        suiteName = "com.tpak.meridian.migration.\(UUID().uuidString)"
+        defaults = UserDefaults(suiteName: suiteName)
+    }
+
+    override func tearDown() {
+        defaults.removePersistentDomain(forName: suiteName)
+        defaults = nil
+        suiteName = nil
+        super.tearDown()
+    }
+
+    // MARK: idempotency
+
+    // The persistent domain excludes the global registration domain (which
+    // the host app's launch populates via register(defaults:)), so it's
+    // the right lens for "did the migration actually persist a write".
+    private func persistent() -> [String: Any] {
+        defaults.persistentDomain(forName: suiteName) ?? [:]
+    }
+
+    func testFreshInstall_noOpButSetsFlag() {
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.boolSemanticsMigrationV1))
+        // The only persistent write should be the flag — migration didn't
+        // touch any new key because no legacy values were present.
+        let p = persistent()
+        XCTAssertNil(p[UserDefaultKeys.showSunriseSunset])
+        XCTAssertNil(p[UserDefaultKeys.floatOnTop])
+        XCTAssertNil(p[UserDefaultKeys.timeFormat])
+        XCTAssertNotNil(p[UserDefaultKeys.boolSemanticsMigrationV1])
+    }
+
+    func testIdempotent_secondRunIsNoOp() {
+        // First run: flag set, no legacy values present.
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+        // Now plant legacy keys — second run should ignore them because the
+        // flag is set, so no new-key writes should happen.
+        defaults.set(0, forKey: UserDefaultKeys.sunriseSunsetTime)
+        defaults.set(1, forKey: UserDefaultKeys.showAppInForeground)
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+        let p = persistent()
+        XCTAssertNil(p[UserDefaultKeys.showSunriseSunset])
+        XCTAssertNil(p[UserDefaultKeys.floatOnTop])
+        // Legacy keys are still where the test left them — second run did
+        // not migrate them away.
+        XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.sunriseSunsetTime), 0)
+    }
+
+    // MARK: inverted bools
+
+    func testInvertedBool_legacyZeroBecomesTrue() {
+        // 0 = show in legacy
+        defaults.set(0, forKey: UserDefaultKeys.sunriseSunsetTime)
+        defaults.set(0, forKey: UserDefaultKeys.displayFutureSliderKey)
+        defaults.set(0, forKey: UserDefaultKeys.showDayInMenu)
+        defaults.set(0, forKey: UserDefaultKeys.showDateInMenu)
+        defaults.set(0, forKey: UserDefaultKeys.showPlaceInMenu)
+
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.showSunriseSunset))
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.showFutureSlider))
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.showDayInMenubar))
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.showDateInMenubar))
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.showPlaceNameInMenubar))
+    }
+
+    func testInvertedBool_legacyOneBecomesFalse() {
+        defaults.set(1, forKey: UserDefaultKeys.sunriseSunsetTime)
+        defaults.set(1, forKey: UserDefaultKeys.displayFutureSliderKey)
+        defaults.set(1, forKey: UserDefaultKeys.showDayInMenu)
+        defaults.set(1, forKey: UserDefaultKeys.showDateInMenu)
+        defaults.set(1, forKey: UserDefaultKeys.showPlaceInMenu)
+
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+
+        XCTAssertFalse(defaults.bool(forKey: UserDefaultKeys.showSunriseSunset))
+        XCTAssertFalse(defaults.bool(forKey: UserDefaultKeys.showFutureSlider))
+        XCTAssertFalse(defaults.bool(forKey: UserDefaultKeys.showDayInMenubar))
+        XCTAssertFalse(defaults.bool(forKey: UserDefaultKeys.showDateInMenubar))
+        XCTAssertFalse(defaults.bool(forKey: UserDefaultKeys.showPlaceNameInMenubar))
+    }
+
+    func testInvertedBool_legacyKeysRemovedAfterMigration() {
+        defaults.set(0, forKey: UserDefaultKeys.sunriseSunsetTime)
+        defaults.set(1, forKey: UserDefaultKeys.showDayInMenu)
+
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+
+        XCTAssertNil(defaults.object(forKey: UserDefaultKeys.sunriseSunsetTime))
+        XCTAssertNil(defaults.object(forKey: UserDefaultKeys.showDayInMenu))
+    }
+
+    // MARK: non-inverted bool
+
+    func testFloatOnTop_legacyOneBecomesTrue() {
+        defaults.set(1, forKey: UserDefaultKeys.showAppInForeground)
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.floatOnTop))
+        XCTAssertNil(defaults.object(forKey: UserDefaultKeys.showAppInForeground))
+    }
+
+    func testFloatOnTop_legacyZeroBecomesFalse() {
+        defaults.set(0, forKey: UserDefaultKeys.showAppInForeground)
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+        XCTAssertFalse(defaults.bool(forKey: UserDefaultKeys.floatOnTop))
+        XCTAssertNil(defaults.object(forKey: UserDefaultKeys.showAppInForeground))
+    }
+
+    // MARK: time format rename
+
+    func testTimeFormat_legacyValueCopiedToNewKey() {
+        defaults.set(NSNumber(value: 7), forKey: UserDefaultKeys.selectedTimeZoneFormatKey)
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+        XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.timeFormat), 7)
+        XCTAssertNil(defaults.object(forKey: UserDefaultKeys.selectedTimeZoneFormatKey))
+    }
+
+    // MARK: untouched keys
+
+    func testUntouchedKeys_themeAndRelativeDateAndAppDisplayAndMenubarMode() {
+        defaults.set(2, forKey: UserDefaultKeys.themeKey)
+        defaults.set(3, forKey: UserDefaultKeys.relativeDateKey)
+        defaults.set(1, forKey: UserDefaultKeys.appDisplayOptions)
+        defaults.set(0, forKey: UserDefaultKeys.menubarCompactMode)
+
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+
+        // Migration must not touch already-correct enum keys.
+        XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.themeKey), 2)
+        XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.relativeDateKey), 3)
+        XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.appDisplayOptions), 1)
+        XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.menubarCompactMode), 0)
+    }
+
+    // MARK: integration with typed accessors
+
+    func testEndToEnd_legacyValuesReadableViaTypedAccessorsAfterMigration() {
+        // Plant the full legacy schema for an upgrading user.
+        defaults.set(0, forKey: UserDefaultKeys.sunriseSunsetTime)         // show
+        defaults.set(1, forKey: UserDefaultKeys.displayFutureSliderKey)    // hide
+        defaults.set(0, forKey: UserDefaultKeys.showDayInMenu)             // show
+        defaults.set(1, forKey: UserDefaultKeys.showDateInMenu)            // hide
+        defaults.set(0, forKey: UserDefaultKeys.showPlaceInMenu)           // show
+        defaults.set(1, forKey: UserDefaultKeys.showAppInForeground)       // float
+        defaults.set(NSNumber(value: 4), forKey: UserDefaultKeys.selectedTimeZoneFormatKey)
+        defaults.set(0, forKey: UserDefaultKeys.menubarCompactMode)        // compact
+        defaults.set(1, forKey: UserDefaultKeys.appDisplayOptions)         // dock
+        defaults.set(2, forKey: UserDefaultKeys.themeKey)                  // system
+        defaults.set(3, forKey: UserDefaultKeys.relativeDateKey)           // hidden
+
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+
+        let store = DataStore(with: defaults)
+        XCTAssertTrue(store.showSunriseSunset)
+        XCTAssertFalse(store.showFutureSlider)
+        XCTAssertTrue(store.showDayInMenubar)
+        XCTAssertFalse(store.showDateInMenubar)
+        XCTAssertTrue(store.showPlaceNameInMenubar)
+        XCTAssertTrue(store.floatOnTop)
+        XCTAssertEqual(store.timeFormat, .twentyFourHourWithSeconds)
+        XCTAssertEqual(store.menubarMode, .compact)
+        XCTAssertEqual(store.appPresentation, .menubarAndDock)
+        XCTAssertEqual(store.theme, .system)
+        XCTAssertEqual(store.relativeDateDisplay, .hidden)
     }
 }
