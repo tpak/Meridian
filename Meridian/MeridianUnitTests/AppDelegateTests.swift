@@ -120,6 +120,28 @@ class AppDelegateTests: XCTestCase {
         XCTAssertNotNil(statusItemHandler?.statusItem.button)
     }
 
+    // Sparkle beta channel (issue #98). Verifies the SPUUpdaterDelegate routes
+    // users to the right release channel based on UserDefaultKeys.betaUpdatesEnabled.
+    func testAllowedChannels_optedOutByDefault() throws {
+        let subject = try XCTUnwrap(NSApplication.shared.delegate as? AppDelegate)
+        let priorValue = UserDefaults.standard.bool(forKey: UserDefaultKeys.betaUpdatesEnabled)
+        defer { UserDefaults.standard.set(priorValue, forKey: UserDefaultKeys.betaUpdatesEnabled) }
+
+        UserDefaults.standard.set(false, forKey: UserDefaultKeys.betaUpdatesEnabled)
+        XCTAssertEqual(subject.allowedChannels(for: subject.updaterController.updater), [],
+                       "Stable users must not see beta-tagged appcast items")
+    }
+
+    func testAllowedChannels_optedInExposesBetaChannel() throws {
+        let subject = try XCTUnwrap(NSApplication.shared.delegate as? AppDelegate)
+        let priorValue = UserDefaults.standard.bool(forKey: UserDefaultKeys.betaUpdatesEnabled)
+        defer { UserDefaults.standard.set(priorValue, forKey: UserDefaultKeys.betaUpdatesEnabled) }
+
+        UserDefaults.standard.set(true, forKey: UserDefaultKeys.betaUpdatesEnabled)
+        XCTAssertEqual(subject.allowedChannels(for: subject.updaterController.updater), ["beta"],
+                       "Beta opt-in must allow the \"beta\" channel")
+    }
+
     func testStandardModeMenubarSetup() throws {
         // Integration test: requires DataStore.shared() to drive the live status item handler.
         let olderTimezones = DataStore.shared().timezones()

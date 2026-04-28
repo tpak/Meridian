@@ -61,6 +61,8 @@ struct AboutView: View {
 
             AutoUpdateToggle()
 
+            BetaChannelToggle()
+
             HStack(spacing: 8) {
                 Text(String(localized: "Check for Updates"))
                     .font(.custom("Avenir-Light", size: 13))
@@ -201,6 +203,33 @@ private struct UpdateCheckControls: View {
             appDelegate.updaterController.checkForUpdates(nil)
         }
         .font(.custom("Avenir-Light", size: 12))
+    }
+}
+
+// Beta channel opt-in (issue #98). When enabled, Sparkle's allowedChannels
+// delegate hands back ["beta"], unlocking pre-release items in appcast.xml.
+// Flipping the toggle on triggers an immediate background check so the user
+// sees a pending beta without waiting for the next scheduled poll.
+private struct BetaChannelToggle: View {
+    @AppStorage(UserDefaultKeys.betaUpdatesEnabled) private var receiveBetas = false
+
+    var body: some View {
+        VStack(alignment: .center, spacing: 4) {
+            Toggle(String(localized: "Receive beta releases"), isOn: $receiveBetas)
+                .font(.custom("Avenir-Book", size: 13))
+                .toggleStyle(.checkbox)
+                .fixedSize()
+                .accessibilityIdentifier("ReceiveBetaReleases")
+                .onChange(of: receiveBetas) { _ in
+                    guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
+                    appDelegate.updaterController.updater.checkForUpdateInformation()
+                }
+
+            Text(String(localized: "Pre-release builds — may have bugs."))
+                .font(.custom("Avenir-Light", size: 11))
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 
