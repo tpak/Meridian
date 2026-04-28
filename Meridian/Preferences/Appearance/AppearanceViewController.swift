@@ -33,6 +33,10 @@ class AppearanceViewController: ParentViewController {
     @IBOutlet var appDisplayControl: NSSegmentedControl!
     @IBOutlet var floatOnTopControl: NSSegmentedControl!
     @IBOutlet var floatOnTopLabel: NSTextField!
+    // Issue #97 — explicit outlets so viewWillAppear can set initial segments
+    // for controls that previously used Cocoa bindings to legacy keys.
+    @IBOutlet var sunriseControl: NSSegmentedControl!
+    @IBOutlet var futureSliderControl: NSSegmentedControl!
 
     private static let sliderDayValues = [1, 2, 3, 4, 5, 6, 7, 14, 30, 90]
 
@@ -122,17 +126,20 @@ class AppearanceViewController: ParentViewController {
             }
         }
 
-        let shouldDisplayCompact = dataStore.shouldDisplay(.menubarCompactMode)
-        menubarMode.setSelected(true, forSegment: shouldDisplayCompact ? 0 : 1)
-
-        // True is Menubar Only and False is Menubar + Dock
-        let appDisplayOptions = dataStore.shouldDisplay(.appDisplayOptions)
-        appDisplayControl.setSelected(true, forSegment: appDisplayOptions ? 0 : 1)
-
-        // True means float on top enabled
-        let floatOnTop = dataStore.shouldDisplay(.showAppInForeground)
-        floatOnTopControl.setSelected(true, forSegment: floatOnTop ? 0 : 1)
-
+        // Issue #97 — segmented controls used to read their initial state via
+        // Cocoa bindings to legacy UserDefaults keys; bindings were removed so
+        // we set initial state from the typed accessors here. The convention is
+        // segment 0 = Yes/show/compact, segment 1 = No/hide/standard, matching
+        // the storyboard's segment labels.
+        let store = DataStore.shared()
+        menubarMode.setSelected(true, forSegment: store.menubarMode == .compact ? 0 : 1)
+        appDisplayControl.setSelected(true, forSegment: store.appPresentation == .menubarOnly ? 0 : 1)
+        floatOnTopControl.setSelected(true, forSegment: store.floatOnTop ? 0 : 1)
+        sunriseControl.setSelected(true, forSegment: store.showSunriseSunset ? 0 : 1)
+        futureSliderControl.setSelected(true, forSegment: store.showFutureSlider ? 0 : 1)
+        includeDayInMenubarControl.setSelected(true, forSegment: store.showDayInMenubar ? 0 : 1)
+        includeDateInMenubarControl.setSelected(true, forSegment: store.showDateInMenubar ? 0 : 1)
+        includePlaceNameControl.setSelected(true, forSegment: store.showPlaceNameInMenubar ? 0 : 1)
     }
 
     @IBOutlet var timeFormatLabel: NSTextField!
@@ -182,9 +189,8 @@ class AppearanceViewController: ParentViewController {
     }
 
     @IBAction func timeFormatSelectionChanged(_ sender: NSPopUpButton) {
-        let selection = NSNumber(value: sender.indexOfSelectedItem)
-
-        UserDefaults.standard.set(selection, forKey: UserDefaultKeys.selectedTimeZoneFormatKey)
+        let index = sender.indexOfSelectedItem
+        DataStore.shared().timeFormat = TimeFormat(rawValue: index) ?? .twelveHour
         refresh(panel: true)
 
         if let selectedFormat = sender.selectedItem?.title,
@@ -251,30 +257,39 @@ class AppearanceViewController: ParentViewController {
         previewPanelTableView.reloadData()
     }
 
-    @IBAction func showFutureSlider(_: Any) {
+    @IBAction func showFutureSlider(_ sender: NSSegmentedControl) {
+        // Segment 0 = "Show", Segment 1 = "Hide".
+        DataStore.shared().showFutureSlider = sender.selectedSegment == 0
         refresh(panel: false)
     }
 
     @IBAction func showSunriseSunset(_ sender: NSSegmentedControl) {
-        Logger.debug("Sunrise Sunset: IsItDisplayed=\(sender.selectedSegment == 0 ? "YES" : "NO")")
+        let enabled = sender.selectedSegment == 0
+        DataStore.shared().showSunriseSunset = enabled
+        Logger.debug("Sunrise Sunset: IsItDisplayed=\(enabled ? "YES" : "NO")")
         refresh(panel: true)
         previewPanelTableView.reloadData()
     }
 
     @IBAction func changeAppDisplayOptions(_ sender: NSSegmentedControl) {
-        if sender.selectedSegment == 0 {
+        // Segment 0 = Menubar only, Segment 1 = Menubar + Dock.
+        let presentation: AppPresentation = sender.selectedSegment == 0 ? .menubarOnly : .menubarAndDock
+        DataStore.shared().appPresentation = presentation
+        switch presentation {
+        case .menubarOnly:
             Logger.debug("Dock Mode: Selection=Menubar")
             NSApp.setActivationPolicy(.accessory)
-        } else {
+        case .menubarAndDock:
             Logger.debug("Dock Mode: Selection=Menubar and Dock")
             NSApp.setActivationPolicy(.regular)
         }
     }
 
     @IBAction func floatOnTopChanged(_ sender: NSSegmentedControl) {
-        let value = sender.selectedSegment == 0 ? 1 : 0
-        UserDefaults.standard.set(value, forKey: UserDefaultKeys.showAppInForeground)
-        Logger.debug("Float on Top: \(value == 1 ? "Enabled" : "Disabled")")
+        // Segment 0 = "Yes" (float on), Segment 1 = "No" (menubar).
+        let enabled = sender.selectedSegment == 0
+        DataStore.shared().floatOnTop = enabled
+        Logger.debug("Float on Top: \(enabled ? "Enabled" : "Disabled")")
     }
 
     private func refresh(panel: Bool) {
@@ -292,15 +307,18 @@ class AppearanceViewController: ParentViewController {
         }
     }
 
-    @IBAction func displayDayInMenubarAction(_: Any) {
+    @IBAction func displayDayInMenubarAction(_ sender: NSSegmentedControl) {
+        DataStore.shared().showDayInMenubar = sender.selectedSegment == 0
         updateStatusItem()
     }
 
-    @IBAction func displayDateInMenubarAction(_: Any) {
+    @IBAction func displayDateInMenubarAction(_ sender: NSSegmentedControl) {
+        DataStore.shared().showDateInMenubar = sender.selectedSegment == 0
         updateStatusItem()
     }
 
-    @IBAction func displayPlaceInMenubarAction(_: Any) {
+    @IBAction func displayPlaceInMenubarAction(_ sender: NSSegmentedControl) {
+        DataStore.shared().showPlaceNameInMenubar = sender.selectedSegment == 0
         updateStatusItem()
     }
 
@@ -317,15 +335,18 @@ class AppearanceViewController: ParentViewController {
     }
 
     @IBAction func menubarModeChanged(_ sender: NSSegmentedControl) {
+        let mode: MenubarMode = sender.selectedSegment == 0 ? .compact : .standard
+        DataStore.shared().menubarMode = mode
+
         guard let statusItem = (NSApplication.shared.delegate as? AppDelegate)?.statusItemForPanel() else {
             return
         }
-
         statusItem.setupStatusItem()
 
-        if sender.selectedSegment == 0 {
+        switch mode {
+        case .compact:
             Logger.debug("Switched to Compact Mode: Context=In Appearance View")
-        } else {
+        case .standard:
             Logger.debug("Switched to Standard Mode: Context=In Appearance View")
         }
     }

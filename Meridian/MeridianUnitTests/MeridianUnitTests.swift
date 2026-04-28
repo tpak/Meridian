@@ -506,3 +506,651 @@ class MeridianUnitTests: XCTestCase {
         XCTAssertEqual(restored?.longitude, original.longitude, "longitude should match")
     }
 }
+
+// MARK: - Typed accessor tests (issue #97)
+
+class DataStoreTypedAccessorsTests: XCTestCase {
+    private var defaults: UserDefaults!
+    private var suiteName: String!
+    private var store: DataStore!
+
+    override func setUp() {
+        super.setUp()
+        suiteName = "com.tpak.meridian.tests.\(UUID().uuidString)"
+        defaults = UserDefaults(suiteName: suiteName)
+        store = DataStore(with: defaults)
+    }
+
+    override func tearDown() {
+        defaults.removePersistentDomain(forName: suiteName)
+        defaults = nil
+        store = nil
+        suiteName = nil
+        super.tearDown()
+    }
+
+    // MARK: bools — read
+
+    func testShowSunriseSunset_readsNewKey() {
+        defaults.set(true, forKey: UserDefaultKeys.showSunriseSunset)
+        XCTAssertTrue(store.showSunriseSunset)
+        defaults.set(false, forKey: UserDefaultKeys.showSunriseSunset)
+        XCTAssertFalse(store.showSunriseSunset)
+    }
+
+    func testShowFutureSlider_readsNewKey() {
+        defaults.set(true, forKey: UserDefaultKeys.showFutureSlider)
+        XCTAssertTrue(store.showFutureSlider)
+        defaults.set(false, forKey: UserDefaultKeys.showFutureSlider)
+        XCTAssertFalse(store.showFutureSlider)
+    }
+
+    func testShowDayInMenubar_readsNewKey() {
+        defaults.set(true, forKey: UserDefaultKeys.showDayInMenubar)
+        XCTAssertTrue(store.showDayInMenubar)
+    }
+
+    func testShowDateInMenubar_readsNewKey() {
+        defaults.set(true, forKey: UserDefaultKeys.showDateInMenubar)
+        XCTAssertTrue(store.showDateInMenubar)
+    }
+
+    func testShowPlaceNameInMenubar_readsNewKey() {
+        defaults.set(true, forKey: UserDefaultKeys.showPlaceNameInMenubar)
+        XCTAssertTrue(store.showPlaceNameInMenubar)
+    }
+
+    func testFloatOnTop_readsNewKey() {
+        defaults.set(true, forKey: UserDefaultKeys.floatOnTop)
+        XCTAssertTrue(store.floatOnTop)
+        defaults.set(false, forKey: UserDefaultKeys.floatOnTop)
+        XCTAssertFalse(store.floatOnTop)
+    }
+
+    // MARK: bools — write
+
+    func testShowSunriseSunset_writeStoresBool() {
+        store.showSunriseSunset = true
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.showSunriseSunset))
+        store.showSunriseSunset = false
+        XCTAssertFalse(defaults.bool(forKey: UserDefaultKeys.showSunriseSunset))
+    }
+
+    func testFloatOnTop_writeStoresBool() {
+        store.floatOnTop = true
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.floatOnTop))
+    }
+
+    // MARK: bools — round-trip
+
+    func testBoolAccessors_roundTrip() {
+        store.showSunriseSunset = true
+        store.showFutureSlider = false
+        store.showDayInMenubar = true
+        store.showDateInMenubar = false
+        store.showPlaceNameInMenubar = true
+        store.floatOnTop = true
+
+        XCTAssertTrue(store.showSunriseSunset)
+        XCTAssertFalse(store.showFutureSlider)
+        XCTAssertTrue(store.showDayInMenubar)
+        XCTAssertFalse(store.showDateInMenubar)
+        XCTAssertTrue(store.showPlaceNameInMenubar)
+        XCTAssertTrue(store.floatOnTop)
+    }
+
+    // MARK: enums
+
+    func testMenubarMode_readsCanonicalKey() {
+        defaults.set(MenubarMode.compact.rawValue, forKey: UserDefaultKeys.menubarCompactMode)
+        XCTAssertEqual(store.menubarMode, .compact)
+        defaults.set(MenubarMode.standard.rawValue, forKey: UserDefaultKeys.menubarCompactMode)
+        XCTAssertEqual(store.menubarMode, .standard)
+    }
+
+    func testMenubarMode_invalidRawFallsBackToStandard() {
+        defaults.set(99, forKey: UserDefaultKeys.menubarCompactMode)
+        XCTAssertEqual(store.menubarMode, .standard)
+    }
+
+    func testMenubarMode_missingKeyReturnsStandard() {
+        XCTAssertEqual(store.menubarMode, .standard)
+    }
+
+    func testMenubarMode_roundTrip() {
+        store.menubarMode = .compact
+        XCTAssertEqual(store.menubarMode, .compact)
+        store.menubarMode = .standard
+        XCTAssertEqual(store.menubarMode, .standard)
+    }
+
+    func testTheme_allCases() {
+        for theme: Theme in [.light, .dark, .system] {
+            store.theme = theme
+            XCTAssertEqual(store.theme, theme)
+        }
+    }
+
+    func testRelativeDateDisplay_allCases() {
+        for value: RelativeDateDisplay in [.relative, .actual, .date, .hidden] {
+            store.relativeDateDisplay = value
+            XCTAssertEqual(store.relativeDateDisplay, value)
+        }
+    }
+
+    func testAppPresentation_roundTrip() {
+        store.appPresentation = .menubarAndDock
+        XCTAssertEqual(store.appPresentation, .menubarAndDock)
+        store.appPresentation = .menubarOnly
+        XCTAssertEqual(store.appPresentation, .menubarOnly)
+    }
+
+    func testTimeFormat_allValidIndices() {
+        let cases: [TimeFormat] = [
+            .twelveHour, .twentyFourHour,
+            .twelveHourWithSeconds, .twentyFourHourWithSeconds,
+            .twelveHourWithLeadingZero, .twelveHourWithLeadingZeroAndSeconds,
+            .twelveHourWithoutAmPm, .twelveHourWithoutAmPmAndSeconds,
+            .epoch,
+        ]
+        for value in cases {
+            store.timeFormat = value
+            XCTAssertEqual(store.timeFormat, value, "round-trip failed for \(value)")
+        }
+    }
+
+    func testTimeFormat_separatorRawFallsBackToTwelveHour() {
+        // Indices 2/5/8 are disabled separator rows; if a stale value lands
+        // there we should not crash, just fall back.
+        for separatorRaw in [2, 5, 8] {
+            defaults.set(separatorRaw, forKey: UserDefaultKeys.timeFormat)
+            XCTAssertEqual(store.timeFormat, .twelveHour)
+        }
+    }
+
+    // MARK: parity with shouldDisplay()
+
+    // shouldDisplay(_:) now delegates to typed accessors; these asserts make
+    // sure that delegation never drifts.
+
+    func testParity_sunrise() {
+        store.showSunriseSunset = true
+        XCTAssertEqual(store.showSunriseSunset, store.shouldDisplay(.sunrise))
+        store.showSunriseSunset = false
+        XCTAssertEqual(store.showSunriseSunset, store.shouldDisplay(.sunrise))
+    }
+
+    func testParity_futureSlider() {
+        store.showFutureSlider = true
+        XCTAssertEqual(store.showFutureSlider, store.shouldDisplay(.futureSlider))
+        store.showFutureSlider = false
+        XCTAssertEqual(store.showFutureSlider, store.shouldDisplay(.futureSlider))
+    }
+
+    func testParity_dayInMenubar() {
+        store.showDayInMenubar = true
+        XCTAssertEqual(store.showDayInMenubar, store.shouldDisplay(.dayInMenubar))
+        store.showDayInMenubar = false
+        XCTAssertEqual(store.showDayInMenubar, store.shouldDisplay(.dayInMenubar))
+    }
+
+    func testParity_dateInMenubar() {
+        store.showDateInMenubar = true
+        XCTAssertEqual(store.showDateInMenubar, store.shouldDisplay(.dateInMenubar))
+        store.showDateInMenubar = false
+        XCTAssertEqual(store.showDateInMenubar, store.shouldDisplay(.dateInMenubar))
+    }
+
+    func testParity_placeNameInMenubar() {
+        store.showPlaceNameInMenubar = true
+        XCTAssertEqual(store.showPlaceNameInMenubar, store.shouldDisplay(.placeInMenubar))
+        store.showPlaceNameInMenubar = false
+        XCTAssertEqual(store.showPlaceNameInMenubar, store.shouldDisplay(.placeInMenubar))
+    }
+
+    func testParity_floatOnTop() {
+        store.floatOnTop = true
+        XCTAssertEqual(store.floatOnTop, store.shouldDisplay(.showAppInForeground))
+        store.floatOnTop = false
+        XCTAssertEqual(store.floatOnTop, store.shouldDisplay(.showAppInForeground))
+    }
+
+    func testParity_menubarMode() {
+        store.menubarMode = .compact
+        XCTAssertTrue(store.shouldDisplay(.menubarCompactMode))
+        store.menubarMode = .standard
+        XCTAssertFalse(store.shouldDisplay(.menubarCompactMode))
+    }
+
+    func testParity_appPresentation() {
+        store.appPresentation = .menubarOnly
+        XCTAssertTrue(store.shouldDisplay(.appDisplayOptions))
+        store.appPresentation = .menubarAndDock
+        XCTAssertFalse(store.shouldDisplay(.appDisplayOptions))
+    }
+}
+
+// MARK: - BoolSemanticsMigration tests (issue #97)
+
+class BoolSemanticsMigrationTests: XCTestCase {
+    private var defaults: UserDefaults!
+    private var suiteName: String!
+
+    override func setUp() {
+        super.setUp()
+        suiteName = "com.tpak.meridian.migration.\(UUID().uuidString)"
+        defaults = UserDefaults(suiteName: suiteName)
+    }
+
+    override func tearDown() {
+        defaults.removePersistentDomain(forName: suiteName)
+        defaults = nil
+        suiteName = nil
+        super.tearDown()
+    }
+
+    // MARK: idempotency
+
+    // The persistent domain excludes the global registration domain (which
+    // the host app's launch populates via register(defaults:)), so it's
+    // the right lens for "did the migration actually persist a write".
+    private func persistent() -> [String: Any] {
+        defaults.persistentDomain(forName: suiteName) ?? [:]
+    }
+
+    func testFreshInstall_noOpButSetsFlag() {
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.boolSemanticsMigrationV1))
+        // The only persistent write should be the flag — migration didn't
+        // touch any new key because no legacy values were present.
+        let p = persistent()
+        XCTAssertNil(p[UserDefaultKeys.showSunriseSunset])
+        XCTAssertNil(p[UserDefaultKeys.floatOnTop])
+        XCTAssertNil(p[UserDefaultKeys.timeFormat])
+        XCTAssertNotNil(p[UserDefaultKeys.boolSemanticsMigrationV1])
+    }
+
+    func testIdempotent_secondRunIsNoOp() {
+        // First run: flag set, no legacy values present.
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+        // Now plant legacy keys — second run should ignore them because the
+        // flag is set, so no new-key writes should happen.
+        defaults.set(0, forKey: UserDefaultKeys.sunriseSunsetTime)
+        defaults.set(1, forKey: UserDefaultKeys.showAppInForeground)
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+        let p = persistent()
+        XCTAssertNil(p[UserDefaultKeys.showSunriseSunset])
+        XCTAssertNil(p[UserDefaultKeys.floatOnTop])
+        // Legacy keys are still where the test left them — second run did
+        // not migrate them away.
+        XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.sunriseSunsetTime), 0)
+    }
+
+    // MARK: inverted bools
+
+    func testInvertedBool_legacyZeroBecomesTrue() {
+        // 0 = show in legacy
+        defaults.set(0, forKey: UserDefaultKeys.sunriseSunsetTime)
+        defaults.set(0, forKey: UserDefaultKeys.displayFutureSliderKey)
+        defaults.set(0, forKey: UserDefaultKeys.showDayInMenu)
+        defaults.set(0, forKey: UserDefaultKeys.showDateInMenu)
+        defaults.set(0, forKey: UserDefaultKeys.showPlaceInMenu)
+
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.showSunriseSunset))
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.showFutureSlider))
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.showDayInMenubar))
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.showDateInMenubar))
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.showPlaceNameInMenubar))
+    }
+
+    func testInvertedBool_legacyOneBecomesFalse() {
+        defaults.set(1, forKey: UserDefaultKeys.sunriseSunsetTime)
+        defaults.set(1, forKey: UserDefaultKeys.displayFutureSliderKey)
+        defaults.set(1, forKey: UserDefaultKeys.showDayInMenu)
+        defaults.set(1, forKey: UserDefaultKeys.showDateInMenu)
+        defaults.set(1, forKey: UserDefaultKeys.showPlaceInMenu)
+
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+
+        XCTAssertFalse(defaults.bool(forKey: UserDefaultKeys.showSunriseSunset))
+        XCTAssertFalse(defaults.bool(forKey: UserDefaultKeys.showFutureSlider))
+        XCTAssertFalse(defaults.bool(forKey: UserDefaultKeys.showDayInMenubar))
+        XCTAssertFalse(defaults.bool(forKey: UserDefaultKeys.showDateInMenubar))
+        XCTAssertFalse(defaults.bool(forKey: UserDefaultKeys.showPlaceNameInMenubar))
+    }
+
+    func testInvertedBool_legacyKeysRemovedAfterMigration() {
+        defaults.set(0, forKey: UserDefaultKeys.sunriseSunsetTime)
+        defaults.set(1, forKey: UserDefaultKeys.showDayInMenu)
+
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+
+        XCTAssertNil(defaults.object(forKey: UserDefaultKeys.sunriseSunsetTime))
+        XCTAssertNil(defaults.object(forKey: UserDefaultKeys.showDayInMenu))
+    }
+
+    // MARK: non-inverted bool
+
+    func testFloatOnTop_legacyOneBecomesTrue() {
+        defaults.set(1, forKey: UserDefaultKeys.showAppInForeground)
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.floatOnTop))
+        XCTAssertNil(defaults.object(forKey: UserDefaultKeys.showAppInForeground))
+    }
+
+    func testFloatOnTop_legacyZeroBecomesFalse() {
+        defaults.set(0, forKey: UserDefaultKeys.showAppInForeground)
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+        XCTAssertFalse(defaults.bool(forKey: UserDefaultKeys.floatOnTop))
+        XCTAssertNil(defaults.object(forKey: UserDefaultKeys.showAppInForeground))
+    }
+
+    // MARK: time format rename
+
+    func testTimeFormat_legacyValueCopiedToNewKey() {
+        defaults.set(NSNumber(value: 7), forKey: UserDefaultKeys.selectedTimeZoneFormatKey)
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+        XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.timeFormat), 7)
+        XCTAssertNil(defaults.object(forKey: UserDefaultKeys.selectedTimeZoneFormatKey))
+    }
+
+    // MARK: untouched keys
+
+    func testUntouchedKeys_themeAndRelativeDateAndAppDisplayAndMenubarMode() {
+        defaults.set(2, forKey: UserDefaultKeys.themeKey)
+        defaults.set(3, forKey: UserDefaultKeys.relativeDateKey)
+        defaults.set(1, forKey: UserDefaultKeys.appDisplayOptions)
+        defaults.set(0, forKey: UserDefaultKeys.menubarCompactMode)
+
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+
+        // Migration must not touch already-correct enum keys.
+        XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.themeKey), 2)
+        XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.relativeDateKey), 3)
+        XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.appDisplayOptions), 1)
+        XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.menubarCompactMode), 0)
+    }
+
+    // MARK: integration with typed accessors
+
+    func testEndToEnd_legacyValuesReadableViaTypedAccessorsAfterMigration() {
+        // Plant the full legacy schema for an upgrading user.
+        defaults.set(0, forKey: UserDefaultKeys.sunriseSunsetTime)         // show
+        defaults.set(1, forKey: UserDefaultKeys.displayFutureSliderKey)    // hide
+        defaults.set(0, forKey: UserDefaultKeys.showDayInMenu)             // show
+        defaults.set(1, forKey: UserDefaultKeys.showDateInMenu)            // hide
+        defaults.set(0, forKey: UserDefaultKeys.showPlaceInMenu)           // show
+        defaults.set(1, forKey: UserDefaultKeys.showAppInForeground)       // float
+        defaults.set(NSNumber(value: 4), forKey: UserDefaultKeys.selectedTimeZoneFormatKey)
+        defaults.set(0, forKey: UserDefaultKeys.menubarCompactMode)        // compact
+        defaults.set(1, forKey: UserDefaultKeys.appDisplayOptions)         // dock
+        defaults.set(2, forKey: UserDefaultKeys.themeKey)                  // system
+        defaults.set(3, forKey: UserDefaultKeys.relativeDateKey)           // hidden
+
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+
+        let store = DataStore(with: defaults)
+        XCTAssertTrue(store.showSunriseSunset)
+        XCTAssertFalse(store.showFutureSlider)
+        XCTAssertTrue(store.showDayInMenubar)
+        XCTAssertFalse(store.showDateInMenubar)
+        XCTAssertTrue(store.showPlaceNameInMenubar)
+        XCTAssertTrue(store.floatOnTop)
+        XCTAssertEqual(store.timeFormat, .twentyFourHourWithSeconds)
+        XCTAssertEqual(store.menubarMode, .compact)
+        XCTAssertEqual(store.appPresentation, .menubarAndDock)
+        XCTAssertEqual(store.theme, .system)
+        XCTAssertEqual(store.relativeDateDisplay, .hidden)
+    }
+}
+
+// MARK: - SettingsManager v1/v2 schema tests (issue #97)
+
+class SettingsManagerVersioningTests: XCTestCase {
+    // SettingsManager.buildJSON / applySettings touch DataStore.shared() — the
+    // singleton — so we save+restore around each test to avoid leaking state.
+    private struct PreservedState {
+        let showSunriseSunset: Bool
+        let showFutureSlider: Bool
+        let showDayInMenubar: Bool
+        let showDateInMenubar: Bool
+        let showPlaceNameInMenubar: Bool
+        let floatOnTop: Bool
+        let menubarMode: MenubarMode
+        let theme: Theme
+        let relativeDateDisplay: RelativeDateDisplay
+        let appPresentation: AppPresentation
+        let timeFormat: TimeFormat
+    }
+
+    private var preserved: PreservedState!
+
+    override func setUp() {
+        super.setUp()
+        let s = DataStore.shared()
+        preserved = PreservedState(
+            showSunriseSunset: s.showSunriseSunset,
+            showFutureSlider: s.showFutureSlider,
+            showDayInMenubar: s.showDayInMenubar,
+            showDateInMenubar: s.showDateInMenubar,
+            showPlaceNameInMenubar: s.showPlaceNameInMenubar,
+            floatOnTop: s.floatOnTop,
+            menubarMode: s.menubarMode,
+            theme: s.theme,
+            relativeDateDisplay: s.relativeDateDisplay,
+            appPresentation: s.appPresentation,
+            timeFormat: s.timeFormat
+        )
+    }
+
+    override func tearDown() {
+        let s = DataStore.shared()
+        s.showSunriseSunset = preserved.showSunriseSunset
+        s.showFutureSlider = preserved.showFutureSlider
+        s.showDayInMenubar = preserved.showDayInMenubar
+        s.showDateInMenubar = preserved.showDateInMenubar
+        s.showPlaceNameInMenubar = preserved.showPlaceNameInMenubar
+        s.floatOnTop = preserved.floatOnTop
+        s.menubarMode = preserved.menubarMode
+        s.theme = preserved.theme
+        s.relativeDateDisplay = preserved.relativeDateDisplay
+        s.appPresentation = preserved.appPresentation
+        s.timeFormat = preserved.timeFormat
+        super.tearDown()
+    }
+
+    private func parse(_ data: Data) -> [String: Any]? {
+        return try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+    }
+
+    // MARK: export — v2 schema
+
+    func testExport_versionIs2() {
+        guard let data = SettingsManager.buildJSON(), let json = parse(data) else {
+            XCTFail("buildJSON returned no data")
+            return
+        }
+        XCTAssertEqual(json["version"] as? Int, 2)
+    }
+
+    func testExport_boolsAreEmittedAsBools() {
+        let s = DataStore.shared()
+        s.showSunriseSunset = true
+        s.showFutureSlider = false
+        s.showDayInMenubar = true
+        s.showDateInMenubar = false
+        s.showPlaceNameInMenubar = true
+        s.floatOnTop = false
+
+        guard let data = SettingsManager.buildJSON(),
+              let json = parse(data),
+              let prefs = json["preferences"] as? [String: Any] else {
+            XCTFail("export failed")
+            return
+        }
+        XCTAssertEqual(prefs["showSunriseSunset"] as? Bool, true)
+        XCTAssertEqual(prefs["showFutureSlider"] as? Bool, false)
+        XCTAssertEqual(prefs["showDayInMenubar"] as? Bool, true)
+        XCTAssertEqual(prefs["showDateInMenubar"] as? Bool, false)
+        XCTAssertEqual(prefs["showPlaceNameInMenubar"] as? Bool, true)
+        XCTAssertEqual(prefs["floatOnTop"] as? Bool, false)
+    }
+
+    func testExport_enumsAreEmittedAsNamedStrings() {
+        let s = DataStore.shared()
+        s.menubarMode = .compact
+        s.theme = .dark
+        s.relativeDateDisplay = .actual
+        s.appPresentation = .menubarAndDock
+        s.timeFormat = .twentyFourHourWithSeconds
+
+        guard let data = SettingsManager.buildJSON(),
+              let json = parse(data),
+              let prefs = json["preferences"] as? [String: Any] else {
+            XCTFail("export failed")
+            return
+        }
+        XCTAssertEqual(prefs["menubarMode"] as? String, "compact")
+        XCTAssertEqual(prefs["theme"] as? String, "dark")
+        XCTAssertEqual(prefs["relativeDateDisplay"] as? String, "actual")
+        XCTAssertEqual(prefs["appPresentation"] as? String, "menubarAndDock")
+        XCTAssertEqual(prefs["timeFormat"] as? String, "twentyFourHourWithSeconds")
+    }
+
+    // The original user complaint motivating issue #97 — exported JSON had
+    // "showSunriseSetTime: 0" for a setting the user had toggled on. This
+    // test pins the new behavior so it doesn't regress.
+    func testExport_userComplaintExample_sunriseTrueExportedAsTrue() {
+        DataStore.shared().showSunriseSunset = true
+        guard let data = SettingsManager.buildJSON(),
+              let json = parse(data),
+              let prefs = json["preferences"] as? [String: Any] else {
+            XCTFail("export failed")
+            return
+        }
+        XCTAssertEqual(prefs["showSunriseSunset"] as? Bool, true)
+        XCTAssertNil(prefs["showSunriseSetTime"], "Legacy key string should not appear in v2 export")
+    }
+
+    // MARK: import — v2 round-trip
+
+    func testImport_v2RoundTrip() throws {
+        // Set known typed state, export, mutate, import back, verify.
+        let s = DataStore.shared()
+        s.showSunriseSunset = true
+        s.showFutureSlider = false
+        s.menubarMode = .compact
+        s.theme = .dark
+        s.relativeDateDisplay = .hidden
+        s.timeFormat = .twentyFourHour
+        s.floatOnTop = true
+
+        guard let data = SettingsManager.buildJSON() else {
+            XCTFail("export failed")
+            return
+        }
+
+        // Mutate to confirm import actually overwrites.
+        s.showSunriseSunset = false
+        s.showFutureSlider = true
+        s.menubarMode = .standard
+        s.theme = .light
+        s.relativeDateDisplay = .relative
+        s.timeFormat = .twelveHour
+        s.floatOnTop = false
+
+        try SettingsManager.applySettings(from: data)
+
+        XCTAssertTrue(s.showSunriseSunset)
+        XCTAssertFalse(s.showFutureSlider)
+        XCTAssertEqual(s.menubarMode, .compact)
+        XCTAssertEqual(s.theme, .dark)
+        XCTAssertEqual(s.relativeDateDisplay, .hidden)
+        XCTAssertEqual(s.timeFormat, .twentyFourHour)
+        XCTAssertTrue(s.floatOnTop)
+    }
+
+    // MARK: import — v1 back-compat (2.19/2.20 export files)
+
+    func testImport_v1LegacyExportConvertsInversion() throws {
+        // Build a v1 payload by hand — this is what 2.19/2.20 wrote.
+        let v1: [String: Any] = [
+            "version": 1,
+            "preferences": [
+                "showSunriseSetTime": 0,         // legacy 0 = show
+                "displayFutureSlider": 1,        // legacy 1 = hide
+                "showDay": 0,                    // legacy 0 = show
+                "showDate": 1,                   // legacy 1 = hide
+                "showPlaceName": 0,              // legacy 0 = show
+                "displayAppAsForegroundApp": 1,  // legacy 1 = float
+                "is24HourFormatSelected": 4,     // 24-hour with seconds
+                "defaultTheme": 2,               // System
+                "relativeDate": 3,               // Hidden
+                "com.tpak.meridian.appDisplayOptions": 1,
+                "com.tpak.meridian.menubarCompactMode": 0
+            ],
+            "timezones": [String](),
+            "startAtLogin": false,
+            "sparkle": [String: Any]()
+        ]
+        let data = try JSONSerialization.data(withJSONObject: v1)
+
+        // Reset typed state to defaults so we can detect the v1 import wrote.
+        let s = DataStore.shared()
+        s.showSunriseSunset = false
+        s.showFutureSlider = true
+        s.showDayInMenubar = false
+        s.showDateInMenubar = true
+        s.showPlaceNameInMenubar = false
+        s.floatOnTop = false
+        s.timeFormat = .twelveHour
+        s.theme = .light
+        s.relativeDateDisplay = .relative
+        s.appPresentation = .menubarOnly
+        s.menubarMode = .standard
+
+        try SettingsManager.applySettings(from: data)
+
+        XCTAssertTrue(s.showSunriseSunset, "legacy 0 (show) should map to true")
+        XCTAssertFalse(s.showFutureSlider, "legacy 1 (hide) should map to false")
+        XCTAssertTrue(s.showDayInMenubar)
+        XCTAssertFalse(s.showDateInMenubar)
+        XCTAssertTrue(s.showPlaceNameInMenubar)
+        XCTAssertTrue(s.floatOnTop, "legacy 1 (float) should map to true (non-inverted)")
+        XCTAssertEqual(s.timeFormat, .twentyFourHourWithSeconds)
+        XCTAssertEqual(s.theme, .system)
+        XCTAssertEqual(s.relativeDateDisplay, .hidden)
+        XCTAssertEqual(s.appPresentation, .menubarAndDock)
+        XCTAssertEqual(s.menubarMode, .compact)
+    }
+
+    // MARK: import — error paths
+
+    func testImport_unsupportedVersionThrows() {
+        let payload: [String: Any] = ["version": 99, "preferences": [String: Any]()]
+        let data = try! JSONSerialization.data(withJSONObject: payload)
+        XCTAssertThrowsError(try SettingsManager.applySettings(from: data))
+    }
+
+    func testImport_invalidJSONThrows() {
+        let data = Data("not json".utf8)
+        XCTAssertThrowsError(try SettingsManager.applySettings(from: data))
+    }
+
+    func testImport_unknownEnumNameLeavesValueUnchanged() throws {
+        DataStore.shared().menubarMode = .standard
+        let payload: [String: Any] = [
+            "version": 2,
+            "preferences": ["menubarMode": "totallyMadeUp"],
+            "timezones": [String](),
+            "startAtLogin": false,
+            "sparkle": [String: Any]()
+        ]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        try SettingsManager.applySettings(from: data)
+        // Unknown enum name should not crash and should not corrupt the value.
+        XCTAssertEqual(DataStore.shared().menubarMode, .standard)
+    }
+}
