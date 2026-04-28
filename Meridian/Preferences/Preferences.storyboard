@@ -401,8 +401,7 @@
                                                                                 <connections>
                                                                                     <outlet property="currentLocationIndicator" destination="r6M-RL-W27" id="JT0-pd-geS"/>
                                                                                     <outlet property="customName" destination="WD5-zQ-PiS" id="fGw-Z8-CXy"/>
-                                                                                    <outlet property="extraOptions" destination="PsO-qX-ocD" id="jbR-H4-6j8"/>
-                                                                                    <outlet property="noteLabel" destination="lUV-93-e7u" id="QCZ-yG-NfA"/>
+                                                                                    <outlet property="dstLabel" destination="lUV-93-e7u" id="QCZ-yG-NfA"/>
                                                                                     <outlet property="relativeDate" destination="dqz-hf-wTd" id="GYm-cn-Y1L"/>
                                                                                     <outlet property="sunriseImage" destination="2Kk-Xa-pWa" id="fYO-6Y-dqW"/>
                                                                                     <outlet property="sunriseSetTime" destination="kIm-II-xOl" id="op1-ET-w9E"/>
