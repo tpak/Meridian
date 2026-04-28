@@ -176,7 +176,7 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc func hideFromDock() {
-        UserDefaults.standard.set(0, forKey: UserDefaultKeys.appDisplayOptions)
+        DataStore.shared().appPresentation = .menubarOnly
         NSApp.setActivationPolicy(.accessory)
     }
 
@@ -196,10 +196,9 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
 
     // Should we have a dock icon or just stay in the menubar?
     private func setActivationPolicy() {
-        let defaults = UserDefaults.standard
-
         let currentActivationPolicy = NSRunningApplication.current.activationPolicy
-        let activationPolicy: NSApplication.ActivationPolicy = defaults.integer(forKey: UserDefaultKeys.appDisplayOptions) == 0 ? .accessory : .regular
+        let activationPolicy: NSApplication.ActivationPolicy =
+            DataStore.shared().appPresentation == .menubarOnly ? .accessory : .regular
 
         if currentActivationPolicy != activationPolicy {
             NSApp.setActivationPolicy(activationPolicy)

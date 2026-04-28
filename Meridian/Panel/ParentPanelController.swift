@@ -11,11 +11,6 @@ struct PanelConstants {
     static let minutesPerSliderPoint = 15
 }
 
-private enum FutureSliderDisplayState: Int {
-    case visible = 0
-    case hidden = 1
-}
-
 class ParentPanelController: NSWindowController {
     var cancellables = Set<AnyCancellable>()
 
@@ -68,12 +63,11 @@ class ParentPanelController: NSWindowController {
     }
 
     private func setupObservers() {
-        UserDefaults.standard.publisher(for: \.displayFutureSlider)
+        UserDefaults.standard.publisher(for: \.showFutureSlider)
             .receive(on: RunLoop.main)
-            .sink { [weak self] changedValue in
+            .sink { [weak self] visible in
                 guard let self = self, let containerView = self.modernContainerView else { return }
-                let state = FutureSliderDisplayState(rawValue: changedValue)
-                containerView.isHidden = (state == .hidden)
+                containerView.isHidden = !visible
             }
             .store(in: &cancellables)
 
@@ -140,11 +134,7 @@ class ParentPanelController: NSWindowController {
     }
 
     private func configureSliderVisibility(containerView: ModernSliderContainerView) {
-        guard let futureSliderValue = dataStore.retrieve(key: UserDefaultKeys.displayFutureSliderKey) as? NSNumber else {
-            containerView.isHidden = true
-            return
-        }
-        containerView.isHidden = (futureSliderValue.intValue == FutureSliderDisplayState.hidden.rawValue)
+        containerView.isHidden = !dataStore.shouldDisplay(.futureSlider)
     }
 
     private func setupRoundedDateView() {

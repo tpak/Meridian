@@ -182,9 +182,8 @@ class AppearanceViewController: ParentViewController {
     }
 
     @IBAction func timeFormatSelectionChanged(_ sender: NSPopUpButton) {
-        let selection = NSNumber(value: sender.indexOfSelectedItem)
-
-        UserDefaults.standard.set(selection, forKey: UserDefaultKeys.selectedTimeZoneFormatKey)
+        let index = sender.indexOfSelectedItem
+        DataStore.shared().timeFormat = TimeFormat(rawValue: index) ?? .twelveHour
         refresh(panel: true)
 
         if let selectedFormat = sender.selectedItem?.title,
@@ -272,9 +271,10 @@ class AppearanceViewController: ParentViewController {
     }
 
     @IBAction func floatOnTopChanged(_ sender: NSSegmentedControl) {
-        let value = sender.selectedSegment == 0 ? 1 : 0
-        UserDefaults.standard.set(value, forKey: UserDefaultKeys.showAppInForeground)
-        Logger.debug("Float on Top: \(value == 1 ? "Enabled" : "Disabled")")
+        // Segment 0 = "Yes" (float on), Segment 1 = "No" (menubar).
+        let enabled = sender.selectedSegment == 0
+        DataStore.shared().floatOnTop = enabled
+        Logger.debug("Float on Top: \(enabled ? "Enabled" : "Disabled")")
     }
 
     private func refresh(panel: Bool) {

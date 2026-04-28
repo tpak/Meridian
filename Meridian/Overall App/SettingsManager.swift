@@ -12,26 +12,33 @@ struct SettingsManager {
     // (General/Appearance/About) and survives export → import.
     // (defaultMenubarMode / "com.tpak.meridian.shouldDefaultToCompactMode"
     //  is intentionally omitted — it's a dead key with no readers.)
+    // Modernized typed keys (issue #97). The bool semantics migration in
+    // AppDefaults moves user data to these on first launch of 2.21+ and
+    // deletes the legacy showSunriseSetTime / displayFutureSlider / showDay
+    // / showDate / showPlaceName / displayAppAsForegroundApp /
+    // is24HourFormatSelected keys. Export/import operate on the new keys.
+    // Commit 5/5 of issue #97 layers a typed JSON schema (named bools and
+    // enum cases) over this; for now the values are still raw Bool / Int.
     private static let preferenceKeys: [String] = [
         // Appearance tab — time/theme/format
-        UserDefaultKeys.selectedTimeZoneFormatKey,
+        UserDefaultKeys.timeFormat,
         UserDefaultKeys.themeKey,
         UserDefaultKeys.relativeDateKey,
         // Appearance tab — display toggles
-        UserDefaultKeys.displayFutureSliderKey,
-        UserDefaultKeys.sunriseSunsetTime,
-        UserDefaultKeys.showAppInForeground,
+        UserDefaultKeys.showFutureSlider,
+        UserDefaultKeys.showSunriseSunset,
+        UserDefaultKeys.floatOnTop,
         UserDefaultKeys.userFontSizePreference,
         UserDefaultKeys.truncateTextLength,
         UserDefaultKeys.futureSliderRange,
         UserDefaultKeys.appDisplayOptions,
         // Appearance tab — menubar
-        UserDefaultKeys.showDayInMenu,
-        UserDefaultKeys.showDateInMenu,
-        UserDefaultKeys.showPlaceInMenu,
+        UserDefaultKeys.showDayInMenubar,
+        UserDefaultKeys.showDateInMenubar,
+        UserDefaultKeys.showPlaceNameInMenubar,
         UserDefaultKeys.menubarCompactMode,
         // About tab — debug logging
-        UserDefaultKeys.debugLoggingEnabled,
+        UserDefaultKeys.debugLoggingEnabled
     ]
 
     // startAtLogin is exported alongside the rest, but APPLIED via StartupManager
