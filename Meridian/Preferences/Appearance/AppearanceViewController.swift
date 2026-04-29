@@ -252,13 +252,13 @@ class AppearanceViewController: ParentViewController {
         DataStore.shared().teamAccent = team
         Logger.production("Team Accent: selection=\(team.displayName)")
         NotificationCenter.default.post(name: .accentColorDidChange, object: nil)
-        // AppKit's controlAccentColor swizzle (DataStore.swift) makes every
-        // NSPopUpButton / NSSegmentedControl / NSCheckbox return the team
-        // color, but the controls don't auto-repaint — kick them with the
-        // system-colors-changed notification + an explicit needsDisplay on
-        // every open window's content view.
-        NotificationCenter.default.post(name: NSColor.systemColorsDidChangeNotification, object: nil)
-        NSApp.windows.forEach { $0.contentView?.needsDisplay = true }
+        // AppKit caches dynamic-color resolutions and toolbar tinted
+        // bitmaps. Without invalidating those caches the swizzled accent
+        // color only takes effect on surfaces that haven't been drawn yet
+        // (or that get re-drawn for some other reason — tab navigation,
+        // window resize). Force-invalidate everything visible so the new
+        // accent shows up immediately.
+        NSApp.mer_invalidateAccentEverywhere()
         previewPanelTableView.reloadData()
     }
 

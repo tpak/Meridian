@@ -215,8 +215,10 @@ struct SettingsManager {
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .customLabelChanged, object: nil)
             NotificationCenter.default.post(name: .accentColorDidChange, object: nil)
-            NotificationCenter.default.post(name: NSColor.systemColorsDidChangeNotification, object: nil)
-            NSApp.windows.forEach { $0.contentView?.needsDisplay = true }
+            // Drop AppKit's accent caches across every visible window so
+            // an imported teamAccent change actually paints — see
+            // NSApplication.mer_invalidateAccentEverywhere in DataStore.swift.
+            NSApp.mer_invalidateAccentEverywhere()
             if let panel = PanelController.panel() {
                 panel.updateDefaultPreferences()
                 panel.updateTableContent()

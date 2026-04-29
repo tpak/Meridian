@@ -262,18 +262,36 @@ extension Notification.Name {
     static let accentColorDidChange = Notification.Name("com.tpak.meridian.accentColorDidChange")
 }
 
-// MARK: - controlAccentColor swizzle
+// MARK: - controlAccentColor swizzle + invalidation
 //
+// Why we swizzle:
 // Without this, NSColor.controlAccentColor falls through to the
 // `Accent Color` colorset in Media.xcassets — a baked-in Aston Martin
 // green. So every NSPopUpButton selected indicator, NSSegmentedControl
-// segment fill, NSCheckbox check, and focus ring would stay green
-// regardless of which team the user picks.
-//
+// segment fill, NSCheckbox check, NSToolbarItem tab icon, and focus
+// ring would stay green regardless of which team the user picks.
 // We swap the class-method getter at app launch so AppKit's internal
-// callers (and our own) get the live team color. To trigger a repaint
-// of system controls already onscreen, post NSSystemColorsDidChange
-// from the AppearanceViewController IBAction and the import path.
+// callers (and our own) get the live team color.
+//
+// Why a simple swizzle is not enough:
+// controlAccentColor is implemented as an NSDynamicSystemColor — a
+// dynamic system color whose resolution AppKit caches per
+// NSAppearance. Even after the swizzle returns a new color value,
+// AppKit reuses the previously-cached resolution for any surface that
+// has already been drawn. NSToolbarItem also caches its tinted
+// bitmap separately. Result: switching team A → team B in place does
+// nothing visible until some other event (tab nav, window
+// resize) forces a re-render.
+//
+// `NSApplication.mer_invalidateAccentEverywhere` performs the three
+// kinds of invalidation that, together, cover every visible surface:
+//   1. Re-set NSToolbarItem.image and NSTabViewItem.label/.image so
+//      the toolbar's tinted-bitmap cache is dropped.
+//   2. Recursive setNeedsDisplay on every view (and its CALayer) so
+//      layer-backed bitmaps repaint with the new accent.
+//   3. Toggle window.appearance through its current effective value
+//      so AppKit drops the NSDynamicSystemColor cache for that
+//      window's view tree without causing a light/dark flash.
 extension NSColor {
     @objc class func mer_currentTeamAccentColor() -> NSColor {
         DataStore.shared().teamAccent.accentColor
@@ -292,6 +310,53 @@ extension NSColor {
             return
         }
         method_exchangeImplementations(original, custom)
+    }
+}
+
+extension NSApplication {
+    /// Forces every visible AppKit surface to re-resolve dynamic colors
+    /// (including the swizzled controlAccentColor) and re-render. Call
+    /// this after the team accent changes — without it, AppKit's caches
+    /// keep showing the previous accent until something else forces a
+    /// repaint (tab navigation, window resize, etc.).
+    func mer_invalidateAccentEverywhere() {
+        for window in windows {
+            // 1. Tab-style preferences toolbar: re-set label + image so
+            //    the tinted-bitmap cache is dropped per tab item.
+            if let tabVC = window.contentViewController as? NSTabViewController {
+                for item in tabVC.tabViewItems {
+                    let label = item.label
+                    let image = item.image
+                    item.label = ""
+                    item.label = label
+                    item.image = nil
+                    item.image = image
+                }
+            }
+            // 2. Generic NSToolbar (covers non-tab toolbars too).
+            if let toolbar = window.toolbar {
+                for item in toolbar.items {
+                    let image = item.image
+                    item.image = nil
+                    item.image = image
+                }
+            }
+            // 3. Recursive view + layer invalidation.
+            Self.mer_invalidateViewTree(window.contentView)
+            // 4. Toggle window.appearance through its current effective
+            //    value to drop the NSDynamicSystemColor cache. Using the
+            //    current effective appearance avoids a light/dark flash.
+            let saved = window.appearance
+            window.appearance = window.effectiveAppearance
+            window.appearance = saved
+        }
+    }
+
+    private static func mer_invalidateViewTree(_ view: NSView?) {
+        guard let view = view else { return }
+        view.needsDisplay = true
+        view.layer?.setNeedsDisplay()
+        for sub in view.subviews { mer_invalidateViewTree(sub) }
     }
 }
 
