@@ -1074,6 +1074,22 @@ class SettingsManagerVersioningTests: XCTestCase {
 
     // MARK: import — v1 back-compat (2.19/2.20 export files)
 
+    func testExport_betaUpdatesEnabledRoundTrip() throws {
+        UserDefaults.standard.set(true, forKey: UserDefaultKeys.betaUpdatesEnabled)
+        defer { UserDefaults.standard.removeObject(forKey: UserDefaultKeys.betaUpdatesEnabled) }
+        guard let data = SettingsManager.buildJSON(),
+              let json = parse(data),
+              let prefs = json["preferences"] as? [String: Any] else {
+            XCTFail("export failed")
+            return
+        }
+        XCTAssertEqual(prefs["betaUpdatesEnabled"] as? Bool, true)
+
+        UserDefaults.standard.set(false, forKey: UserDefaultKeys.betaUpdatesEnabled)
+        try SettingsManager.applySettings(from: data)
+        XCTAssertTrue(UserDefaults.standard.bool(forKey: UserDefaultKeys.betaUpdatesEnabled))
+    }
+
     func testImport_v1LegacyExportConvertsInversion() throws {
         // Build a v1 payload by hand — this is what 2.19/2.20 wrote.
         let v1: [String: Any] = [
@@ -1089,7 +1105,8 @@ class SettingsManagerVersioningTests: XCTestCase {
                 "defaultTheme": 2,               // System
                 "relativeDate": 3,               // Hidden
                 "com.tpak.meridian.appDisplayOptions": 1,
-                "com.tpak.meridian.menubarCompactMode": 0
+                "com.tpak.meridian.menubarCompactMode": 0,
+                "com.tpak.meridian.betaUpdatesEnabled": true
             ],
             "timezones": [String](),
             "startAtLogin": false,
@@ -1124,6 +1141,8 @@ class SettingsManagerVersioningTests: XCTestCase {
         XCTAssertEqual(s.relativeDateDisplay, .hidden)
         XCTAssertEqual(s.appPresentation, .menubarAndDock)
         XCTAssertEqual(s.menubarMode, .compact)
+        XCTAssertTrue(UserDefaults.standard.bool(forKey: UserDefaultKeys.betaUpdatesEnabled))
+        UserDefaults.standard.removeObject(forKey: UserDefaultKeys.betaUpdatesEnabled)
     }
 
     // MARK: import — error paths

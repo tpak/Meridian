@@ -131,7 +131,6 @@
                                                                 </popUpButtonCell>
                                                                 <connections>
                                                                     <action selector="timeFormatSelectionChanged:" target="1aL-zR-8L4" id="WMA-an-RrO"/>
-                                                                    <binding destination="Gpv-Gr-MxZ" name="selectedIndex" keyPath="values.is24HourFormatSelected" id="dda-hb-Th8"/>
                                                                 </connections>
                                                             </popUpButton>
                                                         </gridCell>

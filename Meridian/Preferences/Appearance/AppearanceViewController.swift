@@ -140,6 +140,12 @@ class AppearanceViewController: ParentViewController {
         includeDayInMenubarControl.setSelected(true, forSegment: store.showDayInMenubar ? 0 : 1)
         includeDateInMenubarControl.setSelected(true, forSegment: store.showDateInMenubar ? 0 : 1)
         includePlaceNameControl.setSelected(true, forSegment: store.showPlaceNameInMenubar ? 0 : 1)
+
+        // Time format popup binding to is24HourFormatSelected was dropped
+        // because the migration deletes that key — refresh the popup
+        // selection from the typed accessor here so it tracks imports and
+        // tab re-entry.
+        timeFormat.selectItem(at: store.timezoneFormat().intValue)
     }
 
     @IBOutlet var timeFormatLabel: NSTextField!

@@ -114,6 +114,7 @@ struct SettingsManager {
         static let truncateTextLength = "truncateTextLength"
         static let futureSliderRange = "futureSliderRange"
         static let debugLoggingEnabled = "debugLoggingEnabled"
+        static let betaUpdatesEnabled = "betaUpdatesEnabled"
     }
 
     // Build a v2 JSON payload — bools are emitted as bools, enums as named
@@ -143,7 +144,8 @@ struct SettingsManager {
             V2Key.userFontSize: defaults.integer(forKey: UserDefaultKeys.userFontSizePreference),
             V2Key.truncateTextLength: defaults.integer(forKey: UserDefaultKeys.truncateTextLength),
             V2Key.futureSliderRange: defaults.integer(forKey: UserDefaultKeys.futureSliderRange),
-            V2Key.debugLoggingEnabled: defaults.bool(forKey: UserDefaultKeys.debugLoggingEnabled)
+            V2Key.debugLoggingEnabled: defaults.bool(forKey: UserDefaultKeys.debugLoggingEnabled),
+            V2Key.betaUpdatesEnabled: defaults.bool(forKey: UserDefaultKeys.betaUpdatesEnabled)
         ]
 
         // startAtLogin reflects the actual SMAppService state, not UserDefaults.
@@ -268,6 +270,9 @@ struct SettingsManager {
         if let v = prefs["com.tpak.meridian.debugLoggingEnabled"] as? Bool {
             defaults.set(v, forKey: UserDefaultKeys.debugLoggingEnabled)
         }
+        if let v = prefs["com.tpak.meridian.betaUpdatesEnabled"] as? Bool {
+            defaults.set(v, forKey: UserDefaultKeys.betaUpdatesEnabled)
+        }
     }
 
     // v2 — typed bools and named enums, no inversion.
@@ -297,6 +302,9 @@ struct SettingsManager {
         if let v = prefs[V2Key.futureSliderRange] { defaults.set(v, forKey: UserDefaultKeys.futureSliderRange) }
         if let v = prefs[V2Key.debugLoggingEnabled] as? Bool {
             defaults.set(v, forKey: UserDefaultKeys.debugLoggingEnabled)
+        }
+        if let v = prefs[V2Key.betaUpdatesEnabled] as? Bool {
+            defaults.set(v, forKey: UserDefaultKeys.betaUpdatesEnabled)
         }
     }
 
