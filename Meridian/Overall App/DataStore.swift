@@ -314,41 +314,22 @@ extension NSColor {
 }
 
 extension NSApplication {
-    /// Forces every visible AppKit surface to re-resolve dynamic colors
-    /// (including the swizzled controlAccentColor) and re-render. Call
-    /// this after the team accent changes — without it, AppKit's caches
-    /// keep showing the previous accent until something else forces a
-    /// repaint (tab navigation, window resize, etc.).
+    /// Lets observers (PanelController, OneWindowController) repaint
+    /// the surfaces we explicitly tint with the team color: panel pin
+    /// button, slider chevrons + reset button, Preferences toolbar
+    /// icons (palette-baked SF Symbols).
+    ///
+    /// We do NOT attempt to invalidate AppKit's NSDynamicSystemColor
+    /// caches here. Every approach we tried (window.appearance
+    /// toggle, NSApp.deactivate/activate, tabStyle toggle, recursive
+    /// setNeedsDisplay) had at least one failure mode. macOS doesn't
+    /// expose a runtime API for changing controlAccentColor and
+    /// expecting AppKit's cached renderings to follow. The reliable
+    /// path is the one Apple takes for the system-wide accent change:
+    /// quit and relaunch. AppearanceViewController offers that as a
+    /// modal choice when the user picks a team.
     func mer_invalidateAccentEverywhere() {
-        // Notify observers (OneWindowController rebuilds toolbar items;
-        // PanelController repaints slider buttons + pin tint).
         NotificationCenter.default.post(name: .accentColorDidChange, object: nil)
-
-        // Force the app's deactivate→activate cycle. This is the same
-        // code path that runs when the user Cmd-Tabs away and back —
-        // the only mechanism that reliably drops AppKit's
-        // NSDynamicSystemColor caches across every visible window's
-        // view tree. Toggling `window.appearance` to the opposite value
-        // does not work: AppKit only invalidates the dynamic-color
-        // cache when the EFFECTIVE appearance changes during a draw
-        // cycle, not on synchronous self-cancelling toggles.
-        //
-        // Side effects: the Settings window briefly shows inactive
-        // window chrome (~50ms). The status bar item and panel are
-        // unaffected. The user's IBAction event has already been
-        // committed (NSPopUpButton.indexOfSelectedItem reflects the new
-        // selection) before we get here, so the popup state stays.
-        deactivate()
-        DispatchQueue.main.async {
-            self.activate(ignoringOtherApps: true)
-        }
-    }
-
-    private static func mer_invalidateViewTree(_ view: NSView?) {
-        guard let view = view else { return }
-        view.needsDisplay = true
-        view.layer?.setNeedsDisplay()
-        for sub in view.subviews { mer_invalidateViewTree(sub) }
     }
 }
 

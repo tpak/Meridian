@@ -67,4 +67,10 @@ public enum UserDefaultKeys {
     // F1 team accent color selection. Stored as TeamAccent.rawValue (String).
     // See DataStore.swift for the enum definition and resolved NSColor.
     static let teamAccent = "com.tpak.meridian.teamAccent"
+
+    // Set to true by AppearanceViewController when the user picks a new
+    // team and chooses Restart Now in the relaunch prompt. AppDelegate
+    // checks this on the next applicationDidFinishLaunching, opens
+    // Settings to the Appearance tab, and clears the flag.
+    static let reopenAppearanceOnLaunch = "com.tpak.meridian.reopenAppearanceOnLaunch"
 }

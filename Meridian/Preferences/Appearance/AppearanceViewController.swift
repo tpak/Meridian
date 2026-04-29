@@ -250,13 +250,64 @@ class AppearanceViewController: ParentViewController {
         guard index >= 0, index < TeamAccent.allCases.count else { return }
         let team = TeamAccent.allCases[index]
         DataStore.shared().teamAccent = team
-        Logger.production("[Accent] teamAccentChanged IBAction fired: team=\(team.displayName) index=\(index)")
-        // Posts .accentColorDidChange (PanelController + OneWindowController
-        // observers) and triggers the activation cycle so AppKit drops
-        // NSDynamicSystemColor caches across every visible window. See
-        // NSApplication.mer_invalidateAccentEverywhere in DataStore.swift.
+        Logger.production("[Accent] teamAccentChanged: team=\(team.displayName)")
+        // Notify observers — panel pin/slider buttons and Preferences
+        // toolbar icons repaint immediately with the new color.
         NSApp.mer_invalidateAccentEverywhere()
         previewPanelTableView.reloadData()
+
+        // The remaining accent surfaces in Settings — popup highlights,
+        // segmented control fills, focus rings, checkbox checks, the
+        // toolbar tab text labels — are tinted by AppKit through code
+        // paths that don't refresh at runtime no matter how the
+        // app pokes them (verified across betas 2-7). Offer the user
+        // the only mechanism that works: a quit+relaunch.
+        promptForRestart(applying: team)
+    }
+
+    private func promptForRestart(applying team: TeamAccent) {
+        let alert = NSAlert()
+        alert.messageText = "Restart Meridian to apply \(team.displayName) throughout?"
+        alert.informativeText = """
+        macOS doesn't allow accent color changes to apply to existing AppKit \
+        controls (popups, segmented controls, toolbar text) at runtime. The \
+        panel and toolbar icons have already updated. To apply \(team.displayName) \
+        to the rest of the UI, Meridian needs to relaunch.
+
+        Your timezones and other settings are preserved.
+        """
+        alert.addButton(withTitle: "Restart Now")
+        alert.addButton(withTitle: "Apply at Next Launch")
+        alert.alertStyle = .informational
+
+        let response = alert.runModal()
+        guard response == .alertFirstButtonReturn else { return }
+
+        // Persist a flag so AppDelegate reopens Settings → Appearance
+        // after the new instance launches; the user lands back where
+        // they were instead of an empty menu bar app.
+        UserDefaults.standard.set(true, forKey: UserDefaultKeys.reopenAppearanceOnLaunch)
+        UserDefaults.standard.synchronize()
+
+        // Spawn a new instance, then terminate this one. `open -n` makes
+        // the new instance start fresh rather than activating the
+        // existing one (which is about to terminate anyway).
+        let bundlePath = Bundle.main.bundlePath
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+        task.arguments = ["-n", bundlePath]
+        do {
+            try task.run()
+        } catch {
+            Logger.production("[Accent] restart spawn failed: \(error)")
+        }
+
+        // Brief delay so the spawn has time to register before we
+        // terminate; otherwise macOS may treat it as a duplicate-launch
+        // suppression and the new instance never appears.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            NSApp.terminate(nil)
+        }
     }
 
     @IBAction func themeChanged(_ sender: NSPopUpButton) {

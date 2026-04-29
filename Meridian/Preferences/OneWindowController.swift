@@ -109,28 +109,8 @@ class OneWindowController: NSWindowController {
 
     @objc private func refreshToolbarForAccentChange() {
         let team = DataStore.shared().teamAccent.displayName
-        let count = window?.toolbar?.items.count ?? 0
-        let ids = window?.toolbar?.items.map { $0.itemIdentifier.rawValue } ?? []
-        Logger.production("[Accent] refreshToolbar fired: team=\(team) toolbar.items.count=\(count) ids=\(ids)")
-
+        Logger.production("[Accent] refreshToolbar fired: team=\(team)")
         setupToolbarImages()
-
-        // Updating tabViewItem.image and toolbar.items[].image is enough
-        // for the FIRST team change after the toolbar is built — AppKit
-        // drops its tinted-bitmap cache and re-renders. But for SUBSEQUENT
-        // changes, the auto-generated NSToolbarItems short-circuit on what
-        // they see as an equivalent image (same SF symbol, same palette
-        // shape) and skip the re-render. The only documented mechanism
-        // that reliably tears down and re-creates the toolbar's items is
-        // toggling NSTabViewController.tabStyle. We toggle to
-        // .segmentedControlOnTop and back to .toolbar within the same
-        // runloop tick so AppKit treats it as a real style change.
-        if let tabVC = contentViewController as? CenteredTabViewController,
-           tabVC.tabStyle == .toolbar {
-            tabVC.tabStyle = .segmentedControlOnTop
-            tabVC.tabStyle = .toolbar
-            Logger.production("[Accent] tabStyle toggled to force toolbar rebuild")
-        }
     }
 
     // MARK: Public
@@ -138,6 +118,14 @@ class OneWindowController: NSWindowController {
     // Action mapped to the + button in the PanelController. We should always open the General Pane when the + button is clicked.
     func openGeneralPane() {
         openPreferenceTab(at: 0)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    /// Opens Settings to the Appearance tab. Used by AppDelegate to land
+    /// the user back on the accent picker after a restart-to-apply-team
+    /// relaunch.
+    func openAppearancePane() {
+        openPreferenceTab(at: 1)
         NSApp.activate(ignoringOtherApps: true)
     }
 
