@@ -93,6 +93,7 @@
                                                     <rows>
                                                         <gridRow id="3zv-Qe-ePN"/>
                                                         <gridRow id="YtR-o1-nGp"/>
+                                                        <gridRow id="Acc-1r-Row"/>
                                                         <gridRow id="vjb-Ch-BZs"/>
                                                         <gridRow id="ad4-FM-AWq"/>
                                                         <gridRow id="fbk-ef-Req"/>
@@ -163,6 +164,43 @@
                                                                 <connections>
                                                                     <action selector="themeChanged:" target="1aL-zR-8L4" id="xEa-kP-arJ"/>
                                                                     <binding destination="Gpv-Gr-MxZ" name="selectedIndex" keyPath="values.defaultTheme" id="i3n-M4-cBd"/>
+                                                                </connections>
+                                                            </popUpButton>
+                                                        </gridCell>
+                                                        <gridCell row="Acc-1r-Row" column="ARE-A4-4k4" id="Acc-Ce-Lab">
+                                                            <textField key="contentView" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" preferredMaxLayoutWidth="120" translatesAutoresizingMaskIntoConstraints="NO" id="Acc-Tf-Lab">
+                                                                <rect key="frame" x="103" y="167" width="110" height="18"/>
+                                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Accent Color" id="Acc-Cl-Lab">
+                                                                    <font key="font" size="13" name="Avenir-Light"/>
+                                                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                </textFieldCell>
+                                                            </textField>
+                                                        </gridCell>
+                                                        <gridCell row="Acc-1r-Row" column="YBI-pK-gPQ" id="Acc-Ce-Pop">
+                                                            <popUpButton key="contentView" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Acc-Pb-Pop">
+                                                                <rect key="frame" x="228" y="162" width="160" height="25"/>
+                                                                <popUpButtonCell key="cell" type="push" title="Aston Martin" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="Acm-iA-Asn" id="Acc-Pc-Pop">
+                                                                    <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                                                    <font key="font" size="13" name="Avenir-Book"/>
+                                                                    <menu key="menu" id="Acc-Mn-Pop">
+                                                                        <items>
+                                                                            <menuItem title="Alpine" id="Acm-iA-Alp"/>
+                                                                            <menuItem title="Aston Martin" state="on" id="Acm-iA-Asn"/>
+                                                                            <menuItem title="Audi" id="Acm-iA-Aud"/>
+                                                                            <menuItem title="Cadillac" id="Acm-iA-Cad"/>
+                                                                            <menuItem title="Ferrari" id="Acm-iA-Fer"/>
+                                                                            <menuItem title="Haas" id="Acm-iA-Has"/>
+                                                                            <menuItem title="McLaren" id="Acm-iA-Mcl"/>
+                                                                            <menuItem title="Mercedes" id="Acm-iA-Mer"/>
+                                                                            <menuItem title="Racing Bulls" id="Acm-iA-Rbu"/>
+                                                                            <menuItem title="Red Bull Racing" id="Acm-iA-Red"/>
+                                                                            <menuItem title="Williams" id="Acm-iA-Wil"/>
+                                                                        </items>
+                                                                    </menu>
+                                                                </popUpButtonCell>
+                                                                <connections>
+                                                                    <action selector="teamAccentChanged:" target="1aL-zR-8L4" id="Acc-Ac-Pop"/>
                                                                 </connections>
                                                             </popUpButton>
                                                         </gridCell>
@@ -779,6 +817,8 @@
                         <outlet property="showSliderLabel" destination="8Jv-Cf-blJ" id="UHb-hK-VVl"/>
                         <outlet property="showSunriseLabel" destination="4lt-X6-3uU" id="tez-s5-RzL"/>
                         <outlet property="sliderDayRangePopup" destination="8Nx-Xq-XDU" id="PBM-yB-Yo1"/>
+                        <outlet property="teamAccentPopup" destination="Acc-Pb-Pop" id="Acc-Ol-Pop"/>
+                        <outlet property="accentColorLabel" destination="Acc-Tf-Lab" id="Acc-Ol-Lab"/>
 <outlet property="theme" destination="89w-KN-GJ6" id="SAL-Sh-eqp"/>
                         <outlet property="timeFormat" destination="iiG-Xu-4id" id="oM3-1Y-fAF"/>
                         <outlet property="timeFormatLabel" destination="wtO-uL-QBf" id="udS-d6-Tep"/>

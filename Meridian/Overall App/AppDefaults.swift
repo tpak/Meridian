@@ -107,7 +107,11 @@ class AppDefaults {
             UserDefaultKeys.startAtLogin: 0,
             UserDefaultKeys.userFontSizePreference: AppDefaultValues.defaultUserFontSize,
             UserDefaultKeys.futureSliderRange: AppDefaultValues.defaultFutureSliderRange,
-            UserDefaultKeys.truncateTextLength: AppDefaultValues.defaultTruncateTextLength
+            UserDefaultKeys.truncateTextLength: AppDefaultValues.defaultTruncateTextLength,
+
+            // F1 team accent. Default preserves the Aston Martin look that
+            // was hardcoded in the asset catalog before this feature shipped.
+            UserDefaultKeys.teamAccent: TeamAccent.default.rawValue
         ]
     }
 }

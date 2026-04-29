@@ -63,4 +63,8 @@ public enum UserDefaultKeys {
     // its first successful pass; read on every launch to make the migration
     // idempotent.
     static let boolSemanticsMigrationV1 = "com.tpak.meridian.boolSemanticsMigrationV1"
+
+    // F1 team accent color selection. Stored as TeamAccent.rawValue (String).
+    // See DataStore.swift for the enum definition and resolved NSColor.
+    static let teamAccent = "com.tpak.meridian.teamAccent"
 }

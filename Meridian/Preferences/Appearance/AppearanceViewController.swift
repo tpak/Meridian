@@ -22,6 +22,7 @@ private enum AppearanceTabIndex {
 class AppearanceViewController: ParentViewController {
     @IBOutlet var timeFormat: NSPopUpButton!
     @IBOutlet var theme: NSPopUpButton!
+    @IBOutlet var teamAccentPopup: NSPopUpButton!
     @IBOutlet var informationLabel: NSTextField!
     @IBOutlet var sliderDayRangePopup: NSPopUpButton!
     @IBOutlet var visualEffectView: NSVisualEffectView!
@@ -50,6 +51,7 @@ class AppearanceViewController: ParentViewController {
         informationLabel.setAccessibilityIdentifier("InformationLabel")
 
         setupTimeFormatPopup()
+        setupTeamAccentPopup()
 
         sliderDayRangePopup.removeAllItems()
         sliderDayRangePopup.addItems(withTitles: Self.sliderDayValues.map { days in
@@ -80,6 +82,20 @@ class AppearanceViewController: ParentViewController {
         previewPanelTableView.enclosingScrollView?.hasVerticalScroller = false
         previewPanelTableView.enclosingScrollView?.wantsLayer = true
         previewPanelTableView.enclosingScrollView?.layer?.cornerRadius = 12
+    }
+
+    /// Builds the F1 team accent popup from `TeamAccent.allCases`. The enum
+    /// is the single source of truth for the team list — storyboard menu
+    /// items are placeholders and get replaced here on every load.
+    private func setupTeamAccentPopup() {
+        guard let popup = teamAccentPopup else { return }
+        popup.removeAllItems()
+        popup.addItems(withTitles: TeamAccent.allCases.map { $0.displayName })
+        let current = DataStore.shared().teamAccent
+        if let index = TeamAccent.allCases.firstIndex(of: current) {
+            popup.selectItem(at: index)
+        }
+        popup.setAccessibilityIdentifier("TeamAccentPopover")
     }
 
     private func setupTimeFormatPopup() {
@@ -147,6 +163,12 @@ class AppearanceViewController: ParentViewController {
         // tab re-entry.
         timeFormat.selectItem(at: store.timezoneFormat().intValue)
 
+        // Team accent: refresh on tab re-entry so settings imports flow in.
+        if let popup = teamAccentPopup,
+           let index = TeamAccent.allCases.firstIndex(of: store.teamAccent) {
+            popup.selectItem(at: index)
+        }
+
         // The preview table renders sample rows using TimezoneDataOperations
         // which reads the live time format. Settings import doesn't notify
         // this view controller, so refresh on tab re-entry.
@@ -167,6 +189,7 @@ class AppearanceViewController: ParentViewController {
     @IBOutlet var menubarModeLabel: NSTextField!
     @IBOutlet var previewLabel: NSTextField!
     @IBOutlet var miscelleaneousLabel: NSTextField!
+    @IBOutlet var accentColorLabel: NSTextField!
 
     // Panel Preview
     @IBOutlet var previewPanelTableView: NSTableView!
@@ -174,6 +197,7 @@ class AppearanceViewController: ParentViewController {
     private func setup() {
         timeFormatLabel.stringValue = "Time Format".localized()
         panelTheme.stringValue = "Panel Theme".localized()
+        accentColorLabel?.stringValue = "Accent Color".localized()
         dayDisplayOptionsLabel.stringValue = "Day Display Options".localized()
         showSliderLabel.stringValue = "Time Scroller".localized()
         showSunriseLabel.stringValue = "Show Sunrise/Sunset".localized()
@@ -188,7 +212,7 @@ class AppearanceViewController: ParentViewController {
         floatOnTopLabel.stringValue = "Float on Top".localized()
         appDisplayLabel.stringValue = "Show Meridian in".localized()
 
-        [timeFormatLabel, panelTheme,
+        [timeFormatLabel, panelTheme, accentColorLabel,
          dayDisplayOptionsLabel, showSliderLabel,
          showSunriseLabel, largerTextLabel, futureSliderRangeLabel,
          includeDayLabel, includeDateLabel, includePlaceLabel, appDisplayLabel, menubarModeLabel,
@@ -212,6 +236,16 @@ class AppearanceViewController: ParentViewController {
         }
 
         updateStatusItem()
+        previewPanelTableView.reloadData()
+    }
+
+    @IBAction func teamAccentChanged(_ sender: NSPopUpButton) {
+        let index = sender.indexOfSelectedItem
+        guard index >= 0, index < TeamAccent.allCases.count else { return }
+        let team = TeamAccent.allCases[index]
+        DataStore.shared().teamAccent = team
+        Logger.debug("Team Accent: selection=\(team.displayName)")
+        NotificationCenter.default.post(name: .accentColorDidChange, object: nil)
         previewPanelTableView.reloadData()
     }
 

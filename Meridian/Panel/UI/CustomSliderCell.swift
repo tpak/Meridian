@@ -33,7 +33,7 @@ class CustomSliderCell: NSSliderCell {
                                   xRadius: barRadius,
                                   yRadius: barRadius)
 
-        NSColor.controlAccentColor.setFill()
+        DataStore.shared().teamAccent.accentColor.setFill()
         active.fill()
     }
 

@@ -51,6 +51,25 @@ class PanelController: ParentPanelController {
 
         setupFloatingModeObserver()
         setupFloatModeUI()
+        setupAccentColorObserver()
+    }
+
+    private func setupAccentColorObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(accentColorDidChange),
+            name: .accentColorDidChange,
+            object: nil
+        )
+    }
+
+    @objc private func accentColorDidChange() {
+        // Pin button: re-apply tint via the same code path that picks the
+        // floating-vs-secondary color, so a paused-mid-update tint flips
+        // immediately when the user changes teams.
+        updateFloatModeUI()
+        // Slider chevron + reset buttons.
+        applyTeamAccentToSliderControls()
     }
 
     private func enablePerformanceLoggingIfNeccessary() {
@@ -133,7 +152,7 @@ class PanelController: ParentPanelController {
         dragHandleView?.isHidden = !floating
         let symbol = floating ? "pin.fill" : "pin"
         pinButton?.image = NSImage(systemSymbolName: symbol, accessibilityDescription: floating ? "Unpin from Desktop" : "Pin to Desktop")
-        pinButton?.contentTintColor = floating ? .controlAccentColor : .secondaryLabelColor
+        pinButton?.contentTintColor = floating ? DataStore.shared().teamAccent.accentColor : .secondaryLabelColor
         pinButton?.toolTip = floating ? "Unpin from Desktop" : "Pin to Desktop"
     }
 

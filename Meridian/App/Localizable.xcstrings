@@ -69,7 +69,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u00dcber"
+            "value": "Über"
           }
         },
         "es": {
@@ -97,7 +97,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0627\u0644\u062a\u0631\u062a\u064a\u0628 \u062d\u0633\u0628 \u0627\u0644\u0641\u0627\u0631\u0642 \u0627\u0644\u0632\u0645\u0646\u064a"
+            "value": "الترتيب حسب الفارق الزمني"
           }
         },
         "de": {
@@ -115,13 +115,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trier par diff\u00e9rence de temps"
+            "value": "Trier par différence de temps"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0938\u092e\u092f \u0905\u0902\u0924\u0930 \u0926\u094d\u0935\u093e\u0930\u093e \u0938\u0949\u0930\u094d\u091f \u0915\u0930\u0947\u0902"
+            "value": "समय अंतर द्वारा सॉर्ट करें"
           }
         },
         "hr": {
@@ -133,49 +133,49 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6642\u5dee\u3067\u4e26\u3079\u66ff\u3048"
+            "value": "時差で並べ替え"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sortuj wed\u0142ug R\u00f3\u017cnicy Czasu"
+            "value": "Sortuj według Różnicy Czasu"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ordenar por diferen\u00e7a de hor\u00e1rio"
+            "value": "Ordenar por diferença de horário"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0421\u043e\u0440\u0442 \u043f\u043e \u0440\u0430\u0437\u043d\u0438\u0446\u0435 \u0432\u0440\u0435\u043c\u0435\u043d\u0438"
+            "value": "Сорт по разнице времени"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zaman fark\u0131na g\u00f6re s\u0131rala"
+            "value": "Zaman farkına göre sırala"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0421\u043e\u0440\u0442\u0443\u0432\u0430\u0442\u0438 \u0437\u0430 \u0420\u0456\u0437\u043d\u0438\u0446\u0435\u044e \u0443 \u0447\u0430\u0441\u0456"
+            "value": "Сортувати за Різницею у часі"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6309\u65f6\u95f4\u5dee\u6392\u5e8f"
+            "value": "按时间差排序"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6309\u6642\u5dee\u6392\u5e8f"
+            "value": "按時差排序"
           }
         }
       }
@@ -191,7 +191,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0627\u0644\u062a\u0631\u062a\u064a\u0628 \u062d\u0633\u0628 \u0627\u0644\u0627\u0633\u0645"
+            "value": "الترتيب حسب الاسم"
           }
         },
         "de": {
@@ -215,7 +215,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0928\u093e\u092e \u0926\u094d\u0935\u093e\u0930\u093e \u0938\u0949\u0930\u094d\u091f \u0915\u0930\u0947\u0902"
+            "value": "नाम द्वारा सॉर्ट करें"
           }
         },
         "hr": {
@@ -227,7 +227,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u5730\u540d\u3067\u4e26\u3079\u66ff\u3048"
+            "value": "地名で並べ替え"
           }
         },
         "pl": {
@@ -245,31 +245,31 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0421\u043e\u0440\u0442 \u043f\u043e \u0438\u043c\u0435\u043d\u0438"
+            "value": "Сорт по имени"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ada g\u00f6re s\u0131rala"
+            "value": "Ada göre sırala"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0421\u043e\u0440\u0442\u0443\u0432\u0430\u0442\u0438 \u0437\u0430 \u041d\u0430\u0437\u0432\u043e\u044e"
+            "value": "Сортувати за Назвою"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6309\u540d\u79f0\u6392\u5e8f"
+            "value": "按名称排序"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6309\u540d\u7a31\u6392\u5e8f"
+            "value": "按名稱排序"
           }
         }
       }
@@ -285,7 +285,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0627\u0644\u062a\u0631\u062a\u064a\u0628 \u062d\u0633\u0628 \u0627\u0644\u0639\u0644\u0627\u0645\u0629"
+            "value": "الترتيب حسب العلامة"
           }
         },
         "de": {
@@ -303,13 +303,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trier par \u00e9tiquette"
+            "value": "Trier par étiquette"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0932\u0947\u092c\u0932 \u0926\u094d\u0935\u093e\u0930\u093e \u0938\u0949\u0930\u094d\u091f \u0915\u0930\u0947\u0902"
+            "value": "लेबल द्वारा सॉर्ट करें"
           }
         },
         "hr": {
@@ -321,13 +321,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u30e9\u30d9\u30eb\u3067\u4e26\u3079\u66ff\u3048"
+            "value": "ラベルで並べ替え"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sortuj wed\u0142ug Etykiety"
+            "value": "Sortuj według Etykiety"
           }
         },
         "pt-BR": {
@@ -339,31 +339,31 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0421\u043e\u0440\u0442 \u043f\u043e \u043c\u0435\u0442\u043a\u0435"
+            "value": "Сорт по метке"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Etikete g\u00f6re s\u0131rala"
+            "value": "Etikete göre sırala"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0421\u043e\u0440\u0442\u0443\u0432\u0430\u0442\u0438 \u0437\u0430 \u041f\u043e\u0437\u043d\u0430\u0447\u0435\u043d\u043d\u044f\u043c"
+            "value": "Сортувати за Позначенням"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6309\u6807\u7b7e\u6392\u5e8f"
+            "value": "按标签排序"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6309\u6a19\u7c64\u6392\u5e8f"
+            "value": "按標籤排序"
           }
         }
       }
@@ -379,7 +379,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0623\u062f\u062e\u0644 \u0627\u0633\u0645 \u0627\u0644\u0645\u062f\u064a\u0646\u0629 \u0623\u0648 \u0627\u0644\u0648\u0644\u0627\u064a\u0629 \u0623\u0648 \u0627\u0644\u0628\u0644\u062f"
+            "value": "أدخل اسم المدينة أو الولاية أو البلد"
           }
         },
         "de": {
@@ -391,73 +391,73 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Introduzca un nombre de ciudad, estado o pa\u00eds"
+            "value": "Introduzca un nombre de ciudad, estado o país"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saisissez une ville, une r\u00e9gion ou un pays"
+            "value": "Saisissez une ville, une région ou un pays"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0936\u0939\u0930, \u0930\u093e\u091c\u094d\u092f \u092f\u093e \u0926\u0947\u0936 \u0915\u093e \u0928\u093e\u092e \u0926\u0930\u094d\u091c \u0915\u0930\u0947\u0902"
+            "value": "शहर, राज्य या देश का नाम दर्ज करें"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Upi\u0161i grad, dr\u017eavu ili zemlju"
+            "value": "Upiši grad, državu ili zemlju"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u90fd\u5e02\u540d\u3001\u5dde\u3084\u770c\u3001\u56fd\u540d\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044"
+            "value": "都市名、州や県、国名を入力してください"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wprowad\u017a miasto, wojew\u00f3dztwo lub nazw\u0119 kraju"
+            "value": "Wprowadź miasto, województwo lub nazwę kraju"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Insira uma cidade, estado ou pa\u00eds"
+            "value": "Insira uma cidade, estado ou país"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u0433\u043e\u0440\u043e\u0434\u0430, \u0448\u0442\u0430\u0442\u0430 \u0438\u043b\u0438 \u0441\u0442\u0440\u0430\u043d\u044b"
+            "value": "Введите название города, штата или страны"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bir \u015fehir, b\u00f6lge veya \u00fclke girin"
+            "value": "Bir şehir, bölge veya ülke girin"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0412\u0432\u0435\u0434\u0456\u0442\u044c \u043c\u0456\u0441\u0442\u043e, \u043e\u0431\u043b\u0430\u0441\u0442\u044c \u0430\u0431\u043e \u043d\u0430\u0437\u0432\u0443 \u043a\u0440\u0430\u0457\u043d\u0438"
+            "value": "Введіть місто, область або назву країни"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u8f93\u5165\u57ce\u5e02\u3001\u7701/\u5dde\u6216\u56fd\u5bb6\u540d\u79f0"
+            "value": "输入城市、省/州或国家名称"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u8f38\u5165\u4e00\u500b\u5730\u9ede\u7684\u540d\u7a31"
+            "value": "輸入一個地點的名稱"
           }
         }
       }
@@ -473,25 +473,25 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0631\u062c\u0627\u0621 \u0627\u062e\u062a\u0631 \u0645\u0646\u0637\u0642\u062a\u0643 \u0627\u0644\u0632\u0645\u0646\u064a\u0629!"
+            "value": "رجاء اختر منطقتك الزمنية!"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bitte w\u00e4hle eine Zeitzone!"
+            "value": "Bitte wähle eine Zeitzone!"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u00a1Por favor, selecciona una zona horaria!"
+            "value": "¡Por favor, selecciona una zona horaria!"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Veuillez s\u00e9lectionner un fuseau horaire !"
+            "value": "Veuillez sélectionner un fuseau horaire !"
           }
         },
         "hr": {
@@ -503,49 +503,49 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6642\u9593\u5e2f\u3092\u9078\u629e\u3057\u3066\u304f\u3060\u3055\u3044!"
+            "value": "時間帯を選択してください!"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wybierz stref\u0119 czasow\u0105!"
+            "value": "Wybierz strefę czasową!"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Por favor, selecione um fuso hor\u00e1rio!"
+            "value": "Por favor, selecione um fuso horário!"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u041f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430, \u0432\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0447\u0430\u0441\u043e\u0432\u043e\u0439 \u043f\u043e\u044f\u0441!"
+            "value": "Пожалуйста, выберите часовой пояс!"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "L\u00fctfen saat dilimi se\u00e7in!"
+            "value": "Lütfen saat dilimi seçin!"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0411\u0443\u0434\u044c \u043b\u0430\u0441\u043a\u0430, \u043e\u0431\u0435\u0440\u0456\u0442\u044c \u0447\u0430\u0441\u043e\u0432\u0438\u0439 \u043f\u043e\u044f\u0441!"
+            "value": "Будь ласка, оберіть часовий пояс!"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u8bf7\u9009\u62e9\u4e00\u4e2a\u65f6\u533a\uff01"
+            "value": "请选择一个时区！"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u8acb\u9078\u53d6\u4e00\u500b\u6642\u5340\uff01"
+            "value": "請選取一個時區！"
           }
         }
       }
@@ -561,37 +561,37 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0642\u0635\u0649 \u0627\u0644\u0645\u0633\u0645\u0648\u062d \u0628\u0647 100 \u0645\u0646\u0637\u0642\u0629 \u0632\u0645\u0646\u064a\u0629!"
+            "value": "الحد الأقصى المسموح به 100 منطقة زمنية!"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Es werden maximal 100 Zeitzonen unterst\u00fctzt!"
+            "value": "Es werden maximal 100 Zeitzonen unterstützt!"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u00a1Se permiten m\u00e1ximo 100 zonas horarias!"
+            "value": "¡Se permiten máximo 100 zonas horarias!"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "100 fuseaux horaires maximum autoris\u00e9s !"
+            "value": "100 fuseaux horaires maximum autorisés !"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ograni\u010deno na 100 vremenskih zona!"
+            "value": "Ograničeno na 100 vremenskih zona!"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6700\u5927\u3067100\u306e\u6642\u9593\u5e2f\u304c\u8a2d\u5b9a\u53ef\u80fd\u3067\u3059!"
+            "value": "最大で100の時間帯が設定可能です!"
           }
         },
         "pl": {
@@ -603,13 +603,13 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "M\u00e1ximo de fusos hor\u00e1rios permitido: 100!"
+            "value": "Máximo de fusos horários permitido: 100!"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0420\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u043e \u043c\u0430\u043a\u0441\u0438\u043c\u0443\u043c 100 \u0447\u0430\u0441\u043e\u0432\u044b\u0445 \u043f\u043e\u044f\u0441\u043e\u0432!"
+            "value": "Разрешено максимум 100 часовых поясов!"
           }
         },
         "tr": {
@@ -621,19 +621,19 @@
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u041c\u0430\u043a\u0441\u0438\u043c\u0430\u043b\u044c\u043d\u043e \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u043e 100 \u0447\u0430\u0441\u043e\u0432\u0438\u0445 \u043f\u043e\u044f\u0441\u0456\u0432!"
+            "value": "Максимально доступно 100 часових поясів!"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6700\u591a\u5141\u8bb8 100 \u4e2a\u65f6\u533a\uff01"
+            "value": "最多允许 100 个时区！"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6700\u591a\u5141\u8a31 100 \u500b\u6642\u5340\uff01"
+            "value": "最多允許 100 個時區！"
           }
         }
       }
@@ -649,7 +649,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0642\u0635\u0649 50 \u062d\u0631\u0641\u064b\u0627!"
+            "value": "الحد الأقصى 50 حرفًا!"
           }
         },
         "de": {
@@ -661,49 +661,49 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u00a1Solo se permiten 50 caracteres!"
+            "value": "¡Solo se permiten 50 caracteres!"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "50 caract\u00e8res maximum autoris\u00e9s !"
+            "value": "50 caractères maximum autorisés !"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ograni\u010deno na 50 znakova!"
+            "value": "Ograničeno na 50 znakova!"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u8a2d\u5b9a\u53ef\u80fd\u306a\u6587\u5b57\u6570\u306f50\u3067\u3059!"
+            "value": "設定可能な文字数は50です!"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "50 \ubb38\uc790\uae4c\uc9c0\ub9cc \ud5c8\uc6a9\ub429\ub2c8\ub2e4!"
+            "value": "50 문자까지만 허용됩니다!"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dozwolone jest tylko 50 znak\u00f3w!"
+            "value": "Dozwolone jest tylko 50 znaków!"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "S\u00f3 s\u00e3o permitidos at\u00e9 50 caracteres!"
+            "value": "Só são permitidos até 50 caracteres!"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0420\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u043e \u0432\u0441\u0435\u0433\u043e 50 \u0441\u0438\u043c\u0432\u043e\u043b\u043e\u0432!"
+            "value": "Разрешено всего 50 символов!"
           }
         },
         "tr": {
@@ -715,13 +715,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6700\u591a\u5141\u8bb8 50 \u4e2a\u5b57\u7b26\uff01"
+            "value": "最多允许 50 个字符！"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u53ea\u5141\u8a31 50 \u500b\u5b57\u5143\uff01"
+            "value": "只允許 50 個字元！"
           }
         }
       }
@@ -737,19 +737,19 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0625\u0636\u0627\u0641\u0629"
+            "value": "إضافة"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hinzuf\u00fcgen"
+            "value": "Hinzufügen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "A\u00f1adir"
+            "value": "Añadir"
           }
         },
         "fr": {
@@ -761,7 +761,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0910\u0921"
+            "value": "ऐड"
           }
         },
         "hr": {
@@ -773,13 +773,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u8ffd\u52a0"
+            "value": "追加"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\ucd94\uac00"
+            "value": "추가"
           }
         },
         "pl": {
@@ -797,7 +797,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c"
+            "value": "Добавить"
           }
         },
         "tr": {
@@ -809,13 +809,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6dfb\u52a0"
+            "value": "添加"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u65b0\u589e"
+            "value": "新增"
           }
         }
       }
@@ -831,13 +831,13 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0625\u063a\u0644\u0627\u0642"
+            "value": "إغلاق"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Schlie\u00dfen"
+            "value": "Schließen"
           }
         },
         "es": {
@@ -855,7 +855,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u092c\u0902\u0926 \u0915\u0930\u0947"
+            "value": "बंद करे"
           }
         },
         "hr": {
@@ -867,13 +867,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u9589\u3058\u308b"
+            "value": "閉じる"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\ub2eb\uae30"
+            "value": "닫기"
           }
         },
         "pl": {
@@ -891,7 +891,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0417\u0430\u043a\u0440\u044b\u0442\u044c"
+            "value": "Закрыть"
           }
         },
         "tr": {
@@ -903,13 +903,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u5173\u95ed"
+            "value": "关闭"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u95dc\u9589"
+            "value": "關閉"
           }
         }
       }
@@ -931,25 +931,25 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apariencia de la aplicaci\u00f3n"
+            "value": "Apariencia de la aplicación"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apparence de la fen\u00eatre"
+            "value": "Apparence de la fenêtre"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u092a\u094d\u0930\u0915\u091f\u0928"
+            "value": "प्रकटन"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tema plo\u010de"
+            "value": "Tema ploče"
           }
         },
         "pt-BR": {
@@ -961,25 +961,25 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0422\u0435\u043c\u0430 \u043f\u0430\u043d\u0435\u043b\u0438"
+            "value": "Тема панели"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Panel Temas\u0131"
+            "value": "Panel Teması"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u9762\u677f\u4e3b\u9898"
+            "value": "面板主题"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u9762\u677f\u4e3b\u984c"
+            "value": "面板主題"
           }
         }
       }
@@ -995,19 +995,19 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Favorisiere eine Zeitzone, um diese in der Men\u00fcleiste zu zeigen."
+            "value": "Favorisiere eine Zeitzone, um diese in der Menüleiste zu zeigen."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elija una zona horaria como favorita para habilitar las opciones de visualizaci\u00f3n de la barra de men\u00fa."
+            "value": "Elija una zona horaria como favorita para habilitar las opciones de visualización de la barra de menú."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mettre en favori un fuseau horaire pour activer les options d\u2019affichage de la barre de menus."
+            "value": "Mettre en favori un fuseau horaire pour activer les options d’affichage de la barre de menus."
           }
         },
         "hr": {
@@ -1019,37 +1019,37 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u30e1\u30cb\u30e5\u30fc\u30d0\u30fc\u306e\u8868\u793a\u30aa\u30d7\u30b7\u30e7\u30f3\u3092\u6709\u52b9\u306b\u3059\u308b\u306b\u306f\u3001\u30bf\u30a4\u30e0\u30be\u30fc\u30f3\u3092\u304a\u6c17\u306b\u5165\u308a\u3068\u3057\u3066\u767b\u9332\u3057\u3066\u304f\u3060\u3055\u3044\u3002"
+            "value": "メニューバーの表示オプションを有効にするには、タイムゾーンをお気に入りとして登録してください。"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Favorite um fuso hor\u00e1rio para habilitar op\u00e7\u00f5es de exibi\u00e7\u00e3o na barra de menus."
+            "value": "Favorite um fuso horário para habilitar opções de exibição na barra de menus."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u041f\u043e\u043c\u0435\u0442\u044c\u0442\u0435 \u0432\u0440\u0435\u043c\u0435\u043d\u043d\u0443\u044e \u0437\u043e\u043d\u0443 \u043a\u0430\u043a \u0438\u0437\u0431\u0440\u0430\u043d\u043d\u0443\u044e \u0447\u0442\u043e\u0431\u044b \u0432\u043a\u043b\u044e\u0447\u0438\u0442\u044c \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u044b \u043e\u0442\u043e\u0431\u0440\u0430\u0436\u0435\u043d\u0438\u044f \u0441\u0442\u0440\u043e\u043a\u0438 \u043c\u0435\u043d\u044e."
+            "value": "Пометьте временную зону как избранную чтобы включить параметры отображения строки меню."
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Men\u00fc \u00e7ubu\u011fu g\u00f6r\u00fcn\u00fcm\u00fc se\u00e7eneklerini etkinle\u015ftirmek i\u00e7in bir zaman dilimini favorileyin."
+            "value": "Menü çubuğu görünümü seçeneklerini etkinleştirmek için bir zaman dilimini favorileyin."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6536\u85cf\u4e00\u4e2a\u65f6\u533a\u4ee5\u5728\u83dc\u5355\u680f\u4e0a\u663e\u793a\u53ef\u9009\u9879\u3002"
+            "value": "收藏一个时区以在菜单栏上显示可选项。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u5c07\u4e00\u6642\u5340\u8a2d\u70ba\u559c\u597d\u9805\u76ee\u4ee5\u555f\u7528\u9078\u55ae\u5217\u986f\u793a\u9078\u9805\u3002"
+            "value": "將一時區設為喜好項目以啟用選單列顯示選項。"
           }
         }
       }
@@ -1077,7 +1077,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Format de l\u2019heure"
+            "value": "Format de l’heure"
           }
         },
         "hr": {
@@ -1089,7 +1089,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u8868\u793a\u30d5\u30a9\u30fc\u30de\u30c3\u30c8"
+            "value": "表示フォーマット"
           }
         },
         "pl": {
@@ -1107,31 +1107,31 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0424\u043e\u0440\u043c\u0430\u0442 \u0432\u0440\u0435\u043c\u0435\u043d\u0438"
+            "value": "Формат времени"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zaman Format\u0131"
+            "value": "Zaman Formatı"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0424\u043e\u0440\u043c\u0430\u0442 \u0447\u0430\u0441\u0443"
+            "value": "Формат часу"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u65f6\u95f4\u683c\u5f0f"
+            "value": "时间格式"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6642\u9593\u683c\u5f0f"
+            "value": "時間格式"
           }
         }
       }
@@ -1147,19 +1147,19 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anzeigeoptionen f\u00fcr den Tag"
+            "value": "Anzeigeoptionen für den Tag"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Formato de visualizaci\u00f3n del d\u00eda"
+            "value": "Formato de visualización del día"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Options d\u2019affichage du jour"
+            "value": "Options d’affichage du jour"
           }
         },
         "hr": {
@@ -1171,49 +1171,49 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\uc77c \ud45c\uc2dc \uc635\uc158"
+            "value": "일 표시 옵션"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opcje wy\u015bwietlania daty"
+            "value": "Opcje wyświetlania daty"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Op\u00e7\u00f5es de Exibi\u00e7\u00e3o do Dia"
+            "value": "Opções de Exibição do Dia"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u041f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u044b \u043e\u0442\u043e\u0431\u0440\u0430\u0436\u0435\u043d\u0438\u044f \u0434\u043d\u044f"
+            "value": "Параметры отображения дня"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "G\u00fcn G\u00f6r\u00fcn\u00fcm Se\u00e7enekleri"
+            "value": "Gün Görünüm Seçenekleri"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0412\u0430\u0440\u0456\u0430\u043d\u0442\u0438 \u0432\u0456\u0434\u043e\u0431\u0440\u0430\u0436\u0430\u043d\u043d\u044f \u0434\u043d\u044f"
+            "value": "Варіанти відображання дня"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u65e5\u663e\u793a\u9009\u9879"
+            "value": "日显示选项"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u65e5\u671f\u986f\u793a\u9078\u9805"
+            "value": "日期顯示選項"
           }
         }
       }
@@ -1257,43 +1257,43 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prika\u017ei izlazak/zalazak sunca"
+            "value": "Prikaži izlazak/zalazak sunca"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poka\u017c wsch\u00f3d/zach\u00f3d S\u0142o\u0144ca"
+            "value": "Pokaż wschód/zachód Słońca"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mostrar Nascer do Sol / P\u00f4r do Sol"
+            "value": "Mostrar Nascer do Sol / Pôr do Sol"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u041f\u043e\u043a\u0430\u0437\u044b\u0432\u0430\u0442\u044c \u0412\u043e\u0441\u0445\u043e\u0434/\u0417\u0430\u043a\u0430\u0442"
+            "value": "Показывать Восход/Закат"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "G\u00fcn Do\u011fumu/Bat\u0131m\u0131\u2019n\u0131 G\u00f6ster"
+            "value": "Gün Doğumu/Batımı’nı Göster"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u663e\u793a\u65e5\u51fa/\u65e5\u843d"
+            "value": "显示日出/日落"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u986f\u793a\u65e5\u51fa/\u65e5\u843d"
+            "value": "顯示日出/日落"
           }
         }
       }
@@ -1309,31 +1309,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gr\u00f6\u00dferer Text"
+            "value": "Größerer Text"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Texto m\u00e1s grande"
+            "value": "Texto más grande"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ve\u0107i tekst"
+            "value": "Veći tekst"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\uae00\uc528\ub97c \ud06c\uac8c\ud558\uae30"
+            "value": "글씨를 크게하기"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Powi\u0119kszenie tekstu"
+            "value": "Powiększenie tekstu"
           }
         },
         "pt-BR": {
@@ -1345,31 +1345,31 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0423\u0432\u0435\u043b\u0438\u0447\u0435\u043d\u043d\u044b\u0439 \u0442\u0435\u043a\u0441\u0442"
+            "value": "Увеличенный текст"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Daha B\u00fcy\u00fck Yaz\u0131"
+            "value": "Daha Büyük Yazı"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0411\u0456\u043b\u044c\u0448\u0438\u0439 \u0442\u0435\u043a\u0441\u0442"
+            "value": "Більший текст"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u66f4\u5927\u5b57\u53f7"
+            "value": "更大字号"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6587\u5b57\u5927\u5c0f"
+            "value": "文字大小"
           }
         }
       }
@@ -1385,7 +1385,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bereich f\u00fcr den \"Future Slider\""
+            "value": "Bereich für den \"Future Slider\""
           }
         },
         "es": {
@@ -1397,43 +1397,43 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kliza\u010d za raspon budu\u0107nosti"
+            "value": "Klizač za raspon budućnosti"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\ubbf8\ub798 \uc2ac\ub77c\uc774\ub354 \ubc94\uc704"
+            "value": "미래 슬라이더 범위"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zakres suwaka przysz\u0142o\u015bci"
+            "value": "Zakres suwaka przyszłości"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0414\u0438\u0430\u043f\u0430\u0437\u043e\u043d \u043f\u043e\u043b\u0437\u0443\u043d\u043a\u0430"
+            "value": "Диапазон ползунка"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zaman Kayd\u0131r\u0131c\u0131 Aral\u0131\u011f\u0131"
+            "value": "Zaman Kaydırıcı Aralığı"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u672a\u6765\u6ed1\u5757\u8303\u56f4"
+            "value": "未来滑块范围"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u672a\u4f86\u6ed1\u687f\u7bc4\u570d"
+            "value": "未來滑桿範圍"
           }
         }
       }
@@ -1449,7 +1449,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Datum hinzuf\u00fcgen"
+            "value": "Datum hinzufügen"
           }
         },
         "es": {
@@ -1461,19 +1461,19 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uklju\u010di datum"
+            "value": "Uključi datum"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\ub0a0\uc9dc \ucd94\uac00\ud558\uae30"
+            "value": "날짜 추가하기"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poka\u017c dat\u0119"
+            "value": "Pokaż datę"
           }
         },
         "pt-BR": {
@@ -1485,7 +1485,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0414\u0430\u0442\u0443"
+            "value": "Добавить Дату"
           }
         },
         "tr": {
@@ -1497,13 +1497,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u5305\u542b\u65e5\u671f"
+            "value": "包含日期"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u5305\u542b\u65e5\u671f"
+            "value": "包含日期"
           }
         }
       }
@@ -1519,31 +1519,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tag hinzuf\u00fcgen"
+            "value": "Tag hinzufügen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mostrar d\u00eda"
+            "value": "Mostrar día"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uklju\u010di dan"
+            "value": "Uključi dan"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\uc2dc\uac04 \ucd94\uac00\ud558\uae30"
+            "value": "시간 추가하기"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poka\u017c dzie\u0144"
+            "value": "Pokaż dzień"
           }
         },
         "pt-BR": {
@@ -1555,25 +1555,25 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0414\u0435\u043d\u044c"
+            "value": "Добавить День"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "G\u00fcn\u00fc Dahil Et"
+            "value": "Günü Dahil Et"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u5305\u542b\u65e5"
+            "value": "包含日"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u5305\u542b\u661f\u671f"
+            "value": "包含星期"
           }
         }
       }
@@ -1589,7 +1589,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ortsname hinzuf\u00fcgen"
+            "value": "Ortsname hinzufügen"
           }
         },
         "es": {
@@ -1601,19 +1601,19 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uklju\u010di ime mjesta"
+            "value": "Uključi ime mjesta"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\uc7a5\uc18c \uc774\ub984"
+            "value": "장소 이름"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poka\u017c miejsce"
+            "value": "Pokaż miejsce"
           }
         },
         "pt-BR": {
@@ -1625,25 +1625,25 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u043c\u0435\u0441\u0442\u0430"
+            "value": "Добавить название места"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Yer Ad\u0131n\u0131 Dahil Et"
+            "value": "Yer Adını Dahil Et"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u5305\u542b\u5730\u540d"
+            "value": "包含地名"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u5305\u542b\u4f4d\u7f6e\u540d\u7a31"
+            "value": "包含位置名稱"
           }
         }
       }
@@ -1659,13 +1659,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Men\u00fcleisten-Modus"
+            "value": "Menüleisten-Modus"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Modo en la barra de men\u00fa"
+            "value": "Modo en la barra de menú"
           }
         },
         "hr": {
@@ -1677,19 +1677,19 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u30e1\u30cb\u30e5\u30fc\u30d0\u30fc\u30e2\u30fc\u30c9"
+            "value": "メニューバーモード"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\uba54\ub274\ubc14 \ubaa8\ub4dc"
+            "value": "메뉴바 모드"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wygl\u0105d na pasku menu"
+            "value": "Wygląd na pasku menu"
           }
         },
         "pt-BR": {
@@ -1701,25 +1701,25 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0420\u0435\u0436\u0438\u043c\u044b \u043c\u0435\u043d\u044e"
+            "value": "Режимы меню"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Men\u00fc \u00c7ubu\u011fu Mod\u2019u"
+            "value": "Menü Çubuğu Mod’u"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u83dc\u5355\u680f\u6a21\u5f0f"
+            "value": "菜单栏模式"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u9078\u55ae\u5217\u6a21\u5f0f"
+            "value": "選單列模式"
           }
         }
       }
@@ -1747,7 +1747,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pr\u00e9visualisation"
+            "value": "Prévisualisation"
           }
         },
         "hr": {
@@ -1759,49 +1759,49 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u30d7\u30ec\u30d3\u30e5\u30fc"
+            "value": "プレビュー"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\ubbf8\ub9ac\ubcf4\uae30"
+            "value": "미리보기"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Podgl\u0105d"
+            "value": "Podgląd"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pr\u00e9-visualizar"
+            "value": "Pré-visualizar"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u041f\u0440\u0435\u0434\u043f\u0440\u043e\u0441\u043c\u043e\u0442\u0440"
+            "value": "Предпросмотр"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u00d6n \u0130zleme"
+            "value": "Ön İzleme"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u9884\u89c8"
+            "value": "预览"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u9810\u89bd"
+            "value": "預覽"
           }
         }
       }
@@ -1835,19 +1835,19 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u305d\u306e\u4ed6"
+            "value": "その他"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\uae30\ud0c0"
+            "value": "기타"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pozosta\u0142e"
+            "value": "Pozostałe"
           }
         },
         "pt-BR": {
@@ -1859,25 +1859,25 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u041f\u0440\u043e\u0447\u0435\u0435"
+            "value": "Прочее"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u00c7e\u015fitli"
+            "value": "Çeşitli"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6742\u9879\u8bbe\u7f6e"
+            "value": "杂项设置"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u5176\u4ed6\u8a2d\u5b9a"
+            "value": "其他設定"
           }
         }
       }
@@ -1893,19 +1893,19 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine Orte hinzugef\u00fcgt"
+            "value": "Keine Orte hinzugefügt"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No hay zonas horarias a\u00f1adidas"
+            "value": "No hay zonas horarias añadidas"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun lieu ajout\u00e9"
+            "value": "Aucun lieu ajouté"
           }
         },
         "hr": {
@@ -1917,7 +1917,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\ucd94\uac00\ub41c \uc7a5\uc18c\uac00 \uc5c6\uc74c"
+            "value": "추가된 장소가 없음"
           }
         },
         "pl": {
@@ -1935,7 +1935,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u041d\u0435\u0442 \u0434\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u043d\u044b\u0445 \u043c\u0435\u0441\u0442"
+            "value": "Нет добавленных мест"
           }
         },
         "tr": {
@@ -1947,13 +1947,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6ca1\u6709\u6dfb\u52a0\u5730\u70b9"
+            "value": "没有添加地点"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u672a\u52a0\u5165\u5730\u9ede"
+            "value": "未加入地點"
           }
         }
       }
@@ -1987,7 +1987,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\ud53c\ub4dc\ubc31\uc740 \uc5b8\uc81c\ub098 \ud658\uc601\uc785\ub2c8\ub2e4:"
+            "value": "피드백은 언제나 환영입니다:"
           }
         },
         "pl": {
@@ -1999,25 +1999,25 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Feedback \u00e9 sempre bem-vindo:"
+            "value": "Feedback é sempre bem-vindo:"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u041e\u0431\u0440\u0430\u0442\u043d\u0430\u044f \u0441\u0432\u044f\u0437\u044c \u0432\u0441\u0435\u0433\u0434\u0430 \u043f\u0440\u0438\u0432\u0435\u0442\u0441\u0442\u0432\u0443\u0435\u0442\u0441\u044f:"
+            "value": "Обратная связь всегда приветствуется:"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Geri bildirimleriniz memnuniyetle kar\u015f\u0131lan\u0131r:"
+            "value": "Geri bildirimleriniz memnuniyetle karşılanır:"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u6b22\u8fce\u63d0\u4f9b\u53cd\u9988\uff1a"
+            "value": "欢迎提供反馈："
           }
         }
       }
@@ -2137,7 +2137,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You\u2019re offline, maybe?"
+            "value": "You’re offline, maybe?"
           }
         },
         "de": {
@@ -2149,55 +2149,55 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u00bfQuiz\u00e1s est\u00e1s sin conexi\u00f3n a internet?"
+            "value": "¿Quizás estás sin conexión a internet?"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mo\u017eda nema\u0161 vezu s internetom?"
+            "value": "Možda nemaš vezu s internetom?"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u30aa\u30d5\u30e9\u30a4\u30f3\u306e\u3088\u3046\u3067\u3059\u3002"
+            "value": "オフラインのようです。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\ub2f9\uc2e0\uc740 \uc624\ud504\ub77c\uc778\uc785\ub2c8\ub2e4. \uc544\ub9c8\ub3c4?"
+            "value": "당신은 오프라인입니다. 아마도?"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jeste\u015b offline (?)"
+            "value": "Jesteś offline (?)"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Voc\u00ea est\u00e1 offline, talvez?"
+            "value": "Você está offline, talvez?"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0412\u043e\u0437\u043c\u043e\u0436\u043d\u043e \u0412\u044b \u043d\u0435 \u0432 \u0441\u0435\u0442\u0438?"
+            "value": "Возможно Вы не в сети?"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Acaba \u00e7evrimd\u0131\u015f\u0131 m\u0131s\u0131n\u0131z?"
+            "value": "Acaba çevrimdışı mısınız?"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u60a8\u5df2\u7ecf\u79bb\u7ebf\uff1f"
+            "value": "您已经离线？"
           }
         }
       }
@@ -2219,25 +2219,25 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u00bfPodr\u00edas intentarlo otra vez?"
+            "value": "¿Podrías intentarlo otra vez?"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u017deli\u0161 li ponovo poku\u0161ati?"
+            "value": "Želiš li ponovo pokušati?"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\ub2e4\uc2dc \uc2dc\ub3c4 \ud574\ubcf4\uc138\uc694"
+            "value": "다시 시도 해보세요"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spr\u00f3buj ponownie p\u00f3\u017aniej"
+            "value": "Spróbuj ponownie później"
           }
         },
         "pt-BR": {
@@ -2249,7 +2249,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u041f\u043e\u043f\u0440\u043e\u0431\u043e\u0432\u0430\u0442\u044c \u0435\u0449\u0435 \u0440\u0430\u0437?"
+            "value": "Попробовать еще раз?"
           }
         },
         "tr": {
@@ -2261,13 +2261,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u7a0d\u540e\u518d\u8bd5\uff1f"
+            "value": "稍后再试？"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u518d\u8a66\u4e00\u6b21\uff1f"
+            "value": "再試一次？"
           }
         }
       }
@@ -2289,55 +2289,55 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Parece que no hay conexi\u00f3n a internet."
+            "value": "Parece que no hay conexión a internet."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u010cini se da ne postoji veza s internetom."
+            "value": "Čini se da ne postoji veza s internetom."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\uc778\ud130\ub137 \uc5f0\uacb0\uc774 \uc624\ud504\ub77c\uc778 \uc0c1\ud0dc\uc785\ub2c8\ub2e4."
+            "value": "인터넷 연결이 오프라인 상태입니다."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wygl\u0105da na to, \u017ce nie dzia\u0142a po\u0142\u0105czenie z internetem."
+            "value": "Wygląda na to, że nie działa połączenie z internetem."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "A conex\u00e3o \u00e0 Internet parece estar desligada."
+            "value": "A conexão à Internet parece estar desligada."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u041f\u043e\u0445\u043e\u0436\u0435, \u0447\u0442\u043e \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435 \u043a \u0418\u043d\u0442\u0435\u0440\u043d\u0435\u0442\u0443 \u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u043d\u043e."
+            "value": "Похоже, что подключение к Интернету недоступно."
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u0130nternet ba\u011flant\u0131n\u0131z \u00e7evrimd\u0131\u015f\u0131 g\u00f6r\u00fcn\u00fcyor."
+            "value": "İnternet bağlantınız çevrimdışı görünüyor."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u7f51\u7edc\u8fde\u63a5\u5df2\u65ad\u5f00\u3002"
+            "value": "网络连接已断开。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Internet\u9023\u7dda\u5df2\u65b7\u958b\u3002"
+            "value": "Internet連線已斷開。"
           }
         }
       }
@@ -2353,7 +2353,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prijelaz na ljetno ra\u010dunanje vremena dogodit \u0107e se za < 24 sata"
+            "value": "Prijelaz na ljetno računanje vremena dogodit će se za < 24 sata"
           }
         }
       }
@@ -2369,13 +2369,24 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kopirano u me\u0111uspremnik"
+            "value": "Kopirano u međuspremnik"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u5df2\u590d\u5236\u5230\u526a\u8d34\u677f"
+            "value": "已复制到剪贴板"
+          }
+        }
+      }
+    },
+    "Accent Color": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accent Color"
           }
         }
       }

@@ -180,6 +180,88 @@ enum AppPresentation: Int, Codable, CaseIterable {
     case menubarAndDock = 1
 }
 
+// F1 team accent color. Stable string raw values are used both as the
+// UserDefaults storage value and as the SettingsManager v2 export jsonName.
+// Rename a case at your peril — existing exported settings files persist
+// the old raw values.
+//
+// Hex codes sourced from infysia.com (March 2026 update). Two substitutions:
+// Haas (#FFFFFF white) and Cadillac (#111111 near-black) are unusable as
+// accent colors at one appearance — we substitute Haas livery red and a
+// Cadillac-brand gold, respectively.
+enum TeamAccent: String, Codable, CaseIterable {
+    case alpine
+    case astonMartin
+    case audi
+    case cadillac
+    case ferrari
+    case haas
+    case mclaren
+    case mercedes
+    case racingBulls
+    case redBull
+    case williams
+
+    static let `default`: TeamAccent = .astonMartin
+
+    var displayName: String {
+        switch self {
+        case .alpine:       return "Alpine"
+        case .astonMartin:  return "Aston Martin"
+        case .audi:         return "Audi"
+        case .cadillac:     return "Cadillac"
+        case .ferrari:      return "Ferrari"
+        case .haas:         return "Haas"
+        case .mclaren:      return "McLaren"
+        case .mercedes:     return "Mercedes"
+        case .racingBulls:  return "Racing Bulls"
+        case .redBull:      return "Red Bull Racing"
+        case .williams:     return "Williams"
+        }
+    }
+
+    private var hex: String {
+        switch self {
+        case .alpine:       return "0090FF"
+        case .astonMartin:  return "006F62"
+        case .audi:         return "C00000"
+        case .cadillac:     return "DCA62E"
+        case .ferrari:      return "DC0000"
+        case .haas:         return "ED1C24"
+        case .mclaren:      return "FF8000"
+        case .mercedes:     return "00D2BE"
+        case .racingBulls:  return "2647D8"
+        case .redBull:      return "1E5BC6"
+        case .williams:     return "005AFF"
+        }
+    }
+
+    /// Resolved accent color used by PanelController and CustomSliderCell.
+    /// Alpha 0.85 matches the toned-down Aston Martin shipping value (PR
+    /// e4ad82b2) so saturation feels consistent across teams.
+    var accentColor: NSColor {
+        let h = hex
+        let red = CGFloat(Int(h.prefix(2), radix: 16) ?? 0) / 255.0
+        let green = CGFloat(Int(h.dropFirst(2).prefix(2), radix: 16) ?? 0) / 255.0
+        let blue = CGFloat(Int(h.suffix(2), radix: 16) ?? 0) / 255.0
+        return NSColor(srgbRed: red, green: green, blue: blue, alpha: 0.85)
+    }
+
+    var jsonName: String { rawValue }
+
+    init?(jsonName: String) {
+        guard let match = Self.allCases.first(where: { $0.rawValue == jsonName }) else { return nil }
+        self = match
+    }
+}
+
+extension Notification.Name {
+    /// Posted when the user changes the team accent in Appearance settings.
+    /// PanelController observes this and triggers a redraw of the slider
+    /// fill + pin button tint.
+    static let accentColorDidChange = Notification.Name("com.tpak.meridian.accentColorDidChange")
+}
+
 // Indices match the popup item order in
 // AppearanceViewController.setupTimeFormatPopup(); 2/5/8 are disabled
 // separator rows and intentionally have no enum case.
@@ -298,5 +380,19 @@ extension DataStore {
     var timeFormat: TimeFormat {
         get { TimeFormat(rawValue: userDefaults.integer(forKey: UserDefaultKeys.timeFormat)) ?? .twelveHour }
         set { userDefaults.set(newValue.rawValue, forKey: UserDefaultKeys.timeFormat) }
+    }
+
+    // String-backed enum (the only one in the typed surface). Default falls
+    // through to `.astonMartin` so a clean install matches the shipped
+    // Aston Martin tone — matching the previous hardcoded asset catalog.
+    var teamAccent: TeamAccent {
+        get {
+            guard let raw = userDefaults.string(forKey: UserDefaultKeys.teamAccent),
+                  let team = TeamAccent(rawValue: raw) else {
+                return TeamAccent.default
+            }
+            return team
+        }
+        set { userDefaults.set(newValue.rawValue, forKey: UserDefaultKeys.teamAccent) }
     }
 }

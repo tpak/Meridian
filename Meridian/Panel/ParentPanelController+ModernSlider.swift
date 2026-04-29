@@ -41,6 +41,7 @@ extension ParentPanelController {
             }
             goBackwardsButton.image = NSImage(systemSymbolName: "chevron.left", accessibilityDescription: "Go backwards")
             goForwardButton.image = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: "Go forward")
+            applyTeamAccentToSliderControls()
 
             goForwardButton.isContinuous = true
             goBackwardsButton.isContinuous = true
@@ -81,6 +82,16 @@ extension ParentPanelController {
             let indexPaths: Set<IndexPath> = Set([IndexPath(item: centerItem, section: 0)])
             modernSlider.scrollToItems(at: indexPaths, scrollPosition: .centeredHorizontally)
         }
+    }
+
+    /// Applies the user's selected F1 team accent color to the slider's
+    /// chevron + reset buttons. Called from `setupModernSliderIfNeccessary`
+    /// at panel construction and again when `accentColorDidChange` fires.
+    func applyTeamAccentToSliderControls() {
+        let tint = DataStore.shared().teamAccent.accentColor
+        goBackwardsButton?.contentTintColor = tint
+        goForwardButton?.contentTintColor = tint
+        resetModernSliderButton?.contentTintColor = tint
     }
 
     @IBAction func goForward(_: NSButton) {
