@@ -250,10 +250,10 @@ class AppearanceViewController: ParentViewController {
         guard index >= 0, index < TeamAccent.allCases.count else { return }
         let team = TeamAccent.allCases[index]
         DataStore.shared().teamAccent = team
-        Logger.production("Team Accent: selection=\(team.displayName)")
+        Logger.production("[Accent] teamAccentChanged IBAction fired: team=\(team.displayName) index=\(index)")
         // Posts .accentColorDidChange (PanelController + OneWindowController
-        // observers) and forces every window's NSDynamicSystemColor cache
-        // to drop, then synchronously repaints. See
+        // observers) and triggers the activation cycle so AppKit drops
+        // NSDynamicSystemColor caches across every visible window. See
         // NSApplication.mer_invalidateAccentEverywhere in DataStore.swift.
         NSApp.mer_invalidateAccentEverywhere()
         previewPanelTableView.reloadData()
