@@ -146,6 +146,11 @@ class AppearanceViewController: ParentViewController {
         // selection from the typed accessor here so it tracks imports and
         // tab re-entry.
         timeFormat.selectItem(at: store.timezoneFormat().intValue)
+
+        // The preview table renders sample rows using TimezoneDataOperations
+        // which reads the live time format. Settings import doesn't notify
+        // this view controller, so refresh on tab re-entry.
+        previewPanelTableView.reloadData()
     }
 
     @IBOutlet var timeFormatLabel: NSTextField!
