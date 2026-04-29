@@ -18,6 +18,11 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
 
     public func applicationDidFinishLaunching(_: Notification) {
         AppDefaults.initialize(with: DataStore.shared(), defaults: UserDefaults.standard)
+        // Swap NSColor.controlAccentColor to return the user's team accent
+        // before any window is built, so AppKit's first paint of every
+        // NSPopUpButton / NSSegmentedControl / NSCheckbox already uses the
+        // chosen team color instead of the asset catalog default.
+        NSColor.installTeamAccentSwizzle()
         logLaunch()
         sentinelTask = Task.detached(priority: .utility) {
             self.checkForPreviousUncleanExit()

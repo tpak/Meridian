@@ -215,6 +215,8 @@ struct SettingsManager {
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .customLabelChanged, object: nil)
             NotificationCenter.default.post(name: .accentColorDidChange, object: nil)
+            NotificationCenter.default.post(name: NSColor.systemColorsDidChangeNotification, object: nil)
+            NSApp.windows.forEach { $0.contentView?.needsDisplay = true }
             if let panel = PanelController.panel() {
                 panel.updateDefaultPreferences()
                 panel.updateTableContent()

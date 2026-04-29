@@ -262,6 +262,39 @@ extension Notification.Name {
     static let accentColorDidChange = Notification.Name("com.tpak.meridian.accentColorDidChange")
 }
 
+// MARK: - controlAccentColor swizzle
+//
+// Without this, NSColor.controlAccentColor falls through to the
+// `Accent Color` colorset in Media.xcassets — a baked-in Aston Martin
+// green. So every NSPopUpButton selected indicator, NSSegmentedControl
+// segment fill, NSCheckbox check, and focus ring would stay green
+// regardless of which team the user picks.
+//
+// We swap the class-method getter at app launch so AppKit's internal
+// callers (and our own) get the live team color. To trigger a repaint
+// of system controls already onscreen, post NSSystemColorsDidChange
+// from the AppearanceViewController IBAction and the import path.
+extension NSColor {
+    @objc class func mer_currentTeamAccentColor() -> NSColor {
+        DataStore.shared().teamAccent.accentColor
+    }
+
+    /// Idempotent — guarded with a static flag so repeated calls are no-ops.
+    static func installTeamAccentSwizzle() {
+        struct Once { static var done = false }
+        guard !Once.done else { return }
+        Once.done = true
+
+        let originalSel = #selector(getter: NSColor.controlAccentColor)
+        let customSel = #selector(NSColor.mer_currentTeamAccentColor)
+        guard let original = class_getClassMethod(NSColor.self, originalSel),
+              let custom = class_getClassMethod(NSColor.self, customSel) else {
+            return
+        }
+        method_exchangeImplementations(original, custom)
+    }
+}
+
 // Indices match the popup item order in
 // AppearanceViewController.setupTimeFormatPopup(); 2/5/8 are disabled
 // separator rows and intentionally have no enum case.

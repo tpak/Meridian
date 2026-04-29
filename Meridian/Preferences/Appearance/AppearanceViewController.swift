@@ -95,6 +95,12 @@ class AppearanceViewController: ParentViewController {
         if let index = TeamAccent.allCases.firstIndex(of: current) {
             popup.selectItem(at: index)
         }
+        // Wire target/action programmatically as a safety net. The storyboard
+        // also wires this via @IBAction, but if storyboard parsing skips the
+        // connection (or the outlet/action is renamed without a sweep) the
+        // popup still functions.
+        popup.target = self
+        popup.action = #selector(teamAccentChanged(_:))
         popup.setAccessibilityIdentifier("TeamAccentPopover")
     }
 
@@ -244,8 +250,15 @@ class AppearanceViewController: ParentViewController {
         guard index >= 0, index < TeamAccent.allCases.count else { return }
         let team = TeamAccent.allCases[index]
         DataStore.shared().teamAccent = team
-        Logger.debug("Team Accent: selection=\(team.displayName)")
+        Logger.production("Team Accent: selection=\(team.displayName)")
         NotificationCenter.default.post(name: .accentColorDidChange, object: nil)
+        // AppKit's controlAccentColor swizzle (DataStore.swift) makes every
+        // NSPopUpButton / NSSegmentedControl / NSCheckbox return the team
+        // color, but the controls don't auto-repaint — kick them with the
+        // system-colors-changed notification + an explicit needsDisplay on
+        // every open window's content view.
+        NotificationCenter.default.post(name: NSColor.systemColorsDidChangeNotification, object: nil)
+        NSApp.windows.forEach { $0.contentView?.needsDisplay = true }
         previewPanelTableView.reloadData()
     }
 
