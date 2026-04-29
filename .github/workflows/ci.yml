@@ -37,7 +37,12 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/Library/Developer/Xcode/DerivedData
-          key: deriveddata-${{ runner.os }}-${{ hashFiles('Meridian/Meridian.xcodeproj/project.pbxproj', 'Meridian/CoreLoggerKit/Package.swift', 'Meridian/CoreModelKit/Package.swift') }}
+          # Cache key includes Swift sources so a code change invalidates
+          # the cached module artifacts (otherwise xcodebuild reuses
+          # stale .swiftmodule files compiled against an older API
+          # surface and the build fails with cryptic "(24 failures)"
+          # errors that don't appear locally).
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('Meridian/Meridian.xcodeproj/project.pbxproj', 'Meridian/CoreLoggerKit/Package.swift', 'Meridian/CoreModelKit/Package.swift', 'Meridian/**/*.swift') }}
           restore-keys: |
             deriveddata-${{ runner.os }}-
 
@@ -74,7 +79,10 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/Library/Developer/Xcode/DerivedData
-          key: deriveddata-${{ runner.os }}-${{ hashFiles('Meridian/Meridian.xcodeproj/project.pbxproj', 'Meridian/CoreLoggerKit/Package.swift', 'Meridian/CoreModelKit/Package.swift') }}
+          # Match build job's cache key so the Build & Lint output
+          # carries forward into Unit Tests rather than rebuilding from
+          # scratch on a partial-match fallback.
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('Meridian/Meridian.xcodeproj/project.pbxproj', 'Meridian/CoreLoggerKit/Package.swift', 'Meridian/CoreModelKit/Package.swift', 'Meridian/**/*.swift') }}
           restore-keys: |
             deriveddata-${{ runner.os }}-
 
