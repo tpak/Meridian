@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## App Identity
 
-**Meridian** (formerly Clocker) — macOS menu bar world clock app. ~11K lines of Swift across 77 files. Bundle ID: `com.tpak.Meridian`. Forked from [Clocker](https://github.com/n0shake/Clocker) by Abhishek Banthia.
+**Meridian** (formerly Clocker) — macOS menu bar world clock app. ~9.9K lines of Swift across 66 source files (~14K including tests). Bundle ID: `com.tpak.Meridian`. Forked from [Clocker](https://github.com/n0shake/Clocker) by Abhishek Banthia.
 
 GitHub repository: [`tpak/Meridian`](https://github.com/tpak/Meridian) — always use this URL for issues, PRs, and releases. The old Clocker repo is upstream and unrelated.
 
@@ -290,7 +290,7 @@ make release VERSION=X.Y.Z
 **Menu bar panel** (main UI):
 - `PanelController` → `ParentPanelController` (base class, manages table + slider)
 - `TimezoneDataSource` drives the NSTableView of `TimezoneCellView` rows
-- Modern slider scrubs ±48h; extensions in `ParentPanelController+ModernSlider.swift`
+- Modern slider scrubs ±N days (default 6, configurable in Appearance → Future Slider Range); extensions in `ParentPanelController+ModernSlider.swift`
 
 **Preferences** (3 tabs: General, Appearance, About):
 - `PreferencesViewController` manages timezone list add/remove/reorder
@@ -314,6 +314,12 @@ New SwiftUI strings should use `String(localized:)`.
 
 `StartupManager` uses `SMAppService.mainApp` (macOS 13+). No helper app needed.
 
+### Preferences & Settings JSON
+
+- `AppDefaults` registers default values and runs the v1 bool-semantics migration (issue #97). New code should read/write through the typed accessors and enums it exposes — avoid raw `UserDefaults` reads/writes.
+- `UserDefaults + KVOExtensions.swift` adds typed getters keyed off `UserDefaultKeys` (string constants live in `Strings.swift`).
+- `SettingsManager` exports/imports a JSON document to `~/.meridian/meridian_settings.json` (or any chosen location, or the clipboard). Schema is **v2** with full **v1 back-compat** for older exports. `startAtLogin` is exported but applied via `StartupManager` on import so the system actually registers/unregisters the login item.
+
 ### SPM Packages (local, under `Meridian/`)
 
 - **CoreLoggerKit** — OSLog wrapper
@@ -330,17 +336,23 @@ All in `Meridian/Dependencies/`.
 
 | File | Role |
 |------|------|
-| `Panel/ParentPanelController.swift` | Main panel — largest UI file |
-| `Preferences/General/PreferencesViewController.swift` | Timezone management |
-| `Overall App/DataStore.swift` | Singleton state hub |
-| `Preferences/Menu Bar/StatusItemHandler.swift` | NSStatusBar item + menubar timer |
+| `Panel/PanelController.swift` | Concrete panel controller (window, show/hide, ±N day scrubber) |
+| `Panel/ParentPanelController.swift` | Base class — table view + slider plumbing |
 | `Panel/Data Layer/TimezoneDataOperations.swift` | Time/date formatting + sunrise/sunset |
+| `Preferences/General/PreferencesViewController.swift` | Timezone list (add/remove/reorder, favorites) |
 | `Preferences/General/TimezoneAdditionHandler.swift` | Search + add timezone logic |
-| `AppDelegate.swift` | App entry point (`@main`), global shortcut, startup |
+| `Preferences/Appearance/AppearanceViewController.swift` | Time format, menubar mode, display options |
+| `Preferences/About/AboutView.swift` | SwiftUI About tab (version, debug logging, beta opt-in) |
+| `Preferences/Menu Bar/StatusItemHandler.swift` | NSStatusBar item + menubar timer |
+| `Overall App/DataStore.swift` | Singleton state hub (protocol `DataStoring` for DI) |
+| `Overall App/AppDefaults.swift` | Default registration + bool-semantics migration |
+| `Overall App/SettingsManager.swift` | Settings export/import (JSON v2 with v1 back-compat) |
+| `Overall App/Strings.swift` | `UserDefaultKeys` constants |
+| `AppDelegate.swift` | App entry point (`@main`), global shortcut, startup, Sparkle channels |
 
 ## Test Notes
 
-- Unit tests in `Meridian/MeridianUnitTests/` (112 tests)
+- Unit tests in `Meridian/MeridianUnitTests/` (204 tests)
 - `MockDataStore` available for DI; `MockURLProtocol` for network mocking
 - UI tests in `Meridian/MeridianUITests/` (panel interactions)
 - `@testable import Meridian` (module follows PRODUCT_NAME)
