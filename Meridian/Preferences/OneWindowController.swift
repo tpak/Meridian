@@ -1,6 +1,7 @@
 // Copyright © 2015 Abhishek Banthia
 
 import Cocoa
+import CoreLoggerKit
 
 class CenteredTabViewController: NSTabViewController {
     override func viewDidLoad() {
@@ -43,36 +44,72 @@ class OneWindowController: NSWindowController {
         window?.center()
     }
 
-    /// Sets each NSTabViewItem's image to a freshly-allocated NSImage.
-    /// Called at windowDidLoad and again from `refreshToolbarForAccentChange`
-    /// when the user picks a new team accent — re-using the same NSImage
-    /// instance is not enough to invalidate AppKit's tinted-bitmap cache
-    /// for the toolbar tabs.
+    private static let identifierToSymbol: [String: String] = [
+        "Preferences Tab": "gearshape",
+        "Appearance Tab": "paintbrush",
+        "About Tab": "info.circle"
+    ]
+
+    /// Why this is more involved than just `NSImage(systemSymbolName:)`:
+    ///
+    /// The tint applied by AppKit for the SELECTED tab in
+    /// `NSTabViewController` toolbar style does NOT go through
+    /// `NSColor.controlAccentColor`. The swizzle in DataStore.swift
+    /// covers controlAccentColor — verified by
+    /// `testSwizzleMakesControlAccentColorReturnTeamAccent` — but the
+    /// toolbar-tab tint is applied by a private AppKit code path that
+    /// bypasses it entirely. That's why the toolbar tabs stayed
+    /// Aston Martin green even after multiple cache-invalidation
+    /// attempts.
+    ///
+    /// The fix: bake the team color into the SF Symbol itself with
+    /// `NSImage.SymbolConfiguration(paletteColors:)`. A palette
+    /// configuration is rendered into the image's bitmap when AppKit
+    /// resolves the symbol, so the resulting NSImage already carries
+    /// the team color. AppKit's selection tinting still applies
+    /// (alpha/saturation differences between selected and unselected
+    /// tabs), but the BASE color is the team color regardless.
+    ///
+    /// Updates both layers:
+    ///   - `tabViewItem.image` — used when AppKit rebuilds the toolbar.
+    ///   - `window.toolbar.items[].image` — the live rendered items.
+    /// nil-then-set on the toolbar items defeats AppKit's
+    /// image-identity short-circuit so the new tint actually paints.
     private func setupToolbarImages() {
         guard let tabViewController = contentViewController as? CenteredTabViewController else {
             return
         }
 
-        let identifierToSymbol: [String: String] = [
-            "Preferences Tab": "gearshape",
-            "Appearance Tab": "paintbrush",
-            "About Tab": "info.circle"
-        ]
+        let teamColor = DataStore.shared().teamAccent.accentColor
+        let paletteConfig = NSImage.SymbolConfiguration(paletteColors: [teamColor])
 
+        func tintedSymbol(_ name: String) -> NSImage? {
+            guard let base = NSImage(systemSymbolName: name, accessibilityDescription: nil) else { return nil }
+            return base.withSymbolConfiguration(paletteConfig)
+        }
+
+        // Model layer.
         tabViewController.tabViewItems.forEach { tabViewItem in
             let identity = (tabViewItem.identifier as? String) ?? ""
-            if let symbol = identifierToSymbol[identity] {
-                // Always create a NEW NSImage. AppKit's NSToolbarItem caches
-                // the tinted bitmap of `tabViewItem.image` and the
-                // identity-comparison check skips re-rendering when the same
-                // NSImage instance is assigned, so swapping in a fresh
-                // instance is what forces the re-tint.
-                tabViewItem.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)
+            if let symbol = Self.identifierToSymbol[identity] {
+                tabViewItem.image = tintedSymbol(symbol)
+            }
+        }
+
+        // Rendering layer.
+        if let toolbar = window?.toolbar {
+            for item in toolbar.items {
+                if let symbol = Self.identifierToSymbol[item.itemIdentifier.rawValue] {
+                    item.image = nil
+                    item.image = tintedSymbol(symbol)
+                }
             }
         }
     }
 
     @objc private func refreshToolbarForAccentChange() {
+        let count = window?.toolbar?.items.count ?? 0
+        Logger.production("OneWindowController: refreshToolbarForAccentChange firing, toolbar.items.count=\(count)")
         setupToolbarImages()
     }
 

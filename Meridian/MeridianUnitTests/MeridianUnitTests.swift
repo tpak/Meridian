@@ -1304,4 +1304,29 @@ class TeamAccentTests: XCTestCase {
         // Restore default so we don't leak between tests.
         DataStore.shared().teamAccent = .astonMartin
     }
+
+    // MARK: swizzle integration
+
+    /// Proves the controlAccentColor swizzle is wired up: after install,
+    /// NSColor.controlAccentColor must equal DataStore.shared().teamAccent.
+    /// accentColor — not the asset-catalog Aston Martin colorset.
+    /// If this test fails, every "but the toolbar didn't update!" UAT
+    /// downstream will fail too.
+    func testSwizzleMakesControlAccentColorReturnTeamAccent() {
+        NSColor.installTeamAccentSwizzle()
+        let savedTeam = DataStore.shared().teamAccent
+        defer { DataStore.shared().teamAccent = savedTeam }
+
+        for team in TeamAccent.allCases {
+            DataStore.shared().teamAccent = team
+            let expected = team.accentColor.usingColorSpace(.sRGB)!
+            let actual = NSColor.controlAccentColor.usingColorSpace(.sRGB)!
+            XCTAssertEqual(actual.redComponent, expected.redComponent, accuracy: 0.001,
+                           "controlAccentColor.red mismatch for \(team)")
+            XCTAssertEqual(actual.greenComponent, expected.greenComponent, accuracy: 0.001,
+                           "controlAccentColor.green mismatch for \(team)")
+            XCTAssertEqual(actual.blueComponent, expected.blueComponent, accuracy: 0.001,
+                           "controlAccentColor.blue mismatch for \(team)")
+        }
+    }
 }

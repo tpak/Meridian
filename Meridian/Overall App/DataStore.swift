@@ -320,33 +320,27 @@ extension NSApplication {
     /// keep showing the previous accent until something else forces a
     /// repaint (tab navigation, window resize, etc.).
     func mer_invalidateAccentEverywhere() {
-        // Notify observers that need to rebuild assets (e.g. the
-        // Preferences window controller recreates SF Symbol NSImages
-        // from scratch — re-setting the existing NSImage instance is
-        // not enough to invalidate AppKit's tinted-bitmap cache).
+        // Notify observers (OneWindowController rebuilds toolbar items;
+        // PanelController repaints slider buttons + pin tint).
         NotificationCenter.default.post(name: .accentColorDidChange, object: nil)
 
-        for window in windows {
-            // Toggle window.appearance to the OPPOSITE NSAppearance and
-            // then back, all within the same runloop tick. AppKit only
-            // sees a change if the appearance differs from the current
-            // value, and only an actual change drops the
-            // NSDynamicSystemColor cache. Setting back to `saved` before
-            // the next paint prevents any visible flicker — AppKit
-            // coalesces the two assignments and the user only ever sees
-            // the final value.
-            let saved = window.appearance
-            let effective = window.effectiveAppearance.name
-            let opposite: NSAppearance.Name = effective == .darkAqua ? .aqua : .darkAqua
-            window.appearance = NSAppearance(named: opposite)
-            window.appearance = saved
-
-            // Recursive view + layer invalidation, then a synchronous
-            // display() pass to force every visible surface to repaint
-            // with the freshly-resolved accent.
-            Self.mer_invalidateViewTree(window.contentView)
-            window.viewsNeedDisplay = true
-            window.displayIfNeeded()
+        // Force the app's deactivate→activate cycle. This is the same
+        // code path that runs when the user Cmd-Tabs away and back —
+        // the only mechanism that reliably drops AppKit's
+        // NSDynamicSystemColor caches across every visible window's
+        // view tree. Toggling `window.appearance` to the opposite value
+        // does not work: AppKit only invalidates the dynamic-color
+        // cache when the EFFECTIVE appearance changes during a draw
+        // cycle, not on synchronous self-cancelling toggles.
+        //
+        // Side effects: the Settings window briefly shows inactive
+        // window chrome (~50ms). The status bar item and panel are
+        // unaffected. The user's IBAction event has already been
+        // committed (NSPopUpButton.indexOfSelectedItem reflects the new
+        // selection) before we get here, so the popup state stays.
+        deactivate()
+        DispatchQueue.main.async {
+            self.activate(ignoringOtherApps: true)
         }
     }
 
