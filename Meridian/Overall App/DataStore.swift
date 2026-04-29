@@ -320,35 +320,33 @@ extension NSApplication {
     /// keep showing the previous accent until something else forces a
     /// repaint (tab navigation, window resize, etc.).
     func mer_invalidateAccentEverywhere() {
+        // Notify observers that need to rebuild assets (e.g. the
+        // Preferences window controller recreates SF Symbol NSImages
+        // from scratch — re-setting the existing NSImage instance is
+        // not enough to invalidate AppKit's tinted-bitmap cache).
+        NotificationCenter.default.post(name: .accentColorDidChange, object: nil)
+
         for window in windows {
-            // 1. Tab-style preferences toolbar: re-set label + image so
-            //    the tinted-bitmap cache is dropped per tab item.
-            if let tabVC = window.contentViewController as? NSTabViewController {
-                for item in tabVC.tabViewItems {
-                    let label = item.label
-                    let image = item.image
-                    item.label = ""
-                    item.label = label
-                    item.image = nil
-                    item.image = image
-                }
-            }
-            // 2. Generic NSToolbar (covers non-tab toolbars too).
-            if let toolbar = window.toolbar {
-                for item in toolbar.items {
-                    let image = item.image
-                    item.image = nil
-                    item.image = image
-                }
-            }
-            // 3. Recursive view + layer invalidation.
-            Self.mer_invalidateViewTree(window.contentView)
-            // 4. Toggle window.appearance through its current effective
-            //    value to drop the NSDynamicSystemColor cache. Using the
-            //    current effective appearance avoids a light/dark flash.
+            // Toggle window.appearance to the OPPOSITE NSAppearance and
+            // then back, all within the same runloop tick. AppKit only
+            // sees a change if the appearance differs from the current
+            // value, and only an actual change drops the
+            // NSDynamicSystemColor cache. Setting back to `saved` before
+            // the next paint prevents any visible flicker — AppKit
+            // coalesces the two assignments and the user only ever sees
+            // the final value.
             let saved = window.appearance
-            window.appearance = window.effectiveAppearance
+            let effective = window.effectiveAppearance.name
+            let opposite: NSAppearance.Name = effective == .darkAqua ? .aqua : .darkAqua
+            window.appearance = NSAppearance(named: opposite)
             window.appearance = saved
+
+            // Recursive view + layer invalidation, then a synchronous
+            // display() pass to force every visible surface to repaint
+            // with the freshly-resolved accent.
+            Self.mer_invalidateViewTree(window.contentView)
+            window.viewsNeedDisplay = true
+            window.displayIfNeeded()
         }
     }
 

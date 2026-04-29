@@ -19,6 +19,16 @@ class OneWindowController: NSWindowController {
     override func windowDidLoad() {
         super.windowDidLoad()
         setup()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(refreshToolbarForAccentChange),
+            name: .accentColorDidChange,
+            object: nil
+        )
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     private func setup() {
@@ -33,23 +43,37 @@ class OneWindowController: NSWindowController {
         window?.center()
     }
 
+    /// Sets each NSTabViewItem's image to a freshly-allocated NSImage.
+    /// Called at windowDidLoad and again from `refreshToolbarForAccentChange`
+    /// when the user picks a new team accent — re-using the same NSImage
+    /// instance is not enough to invalidate AppKit's tinted-bitmap cache
+    /// for the toolbar tabs.
     private func setupToolbarImages() {
         guard let tabViewController = contentViewController as? CenteredTabViewController else {
             return
         }
 
-        let identifierToImageMapping: [String: NSImage] = [
-            "Preferences Tab": NSImage(systemSymbolName: "gearshape", accessibilityDescription: nil) ?? NSImage(),
-            "Appearance Tab": NSImage(systemSymbolName: "paintbrush", accessibilityDescription: nil) ?? NSImage(),
-            "About Tab": NSImage(systemSymbolName: "info.circle", accessibilityDescription: nil) ?? NSImage()
+        let identifierToSymbol: [String: String] = [
+            "Preferences Tab": "gearshape",
+            "Appearance Tab": "paintbrush",
+            "About Tab": "info.circle"
         ]
 
         tabViewController.tabViewItems.forEach { tabViewItem in
             let identity = (tabViewItem.identifier as? String) ?? ""
-            if let image = identifierToImageMapping[identity] {
-                tabViewItem.image = image
+            if let symbol = identifierToSymbol[identity] {
+                // Always create a NEW NSImage. AppKit's NSToolbarItem caches
+                // the tinted bitmap of `tabViewItem.image` and the
+                // identity-comparison check skips re-rendering when the same
+                // NSImage instance is assigned, so swapping in a fresh
+                // instance is what forces the re-tint.
+                tabViewItem.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)
             }
         }
+    }
+
+    @objc private func refreshToolbarForAccentChange() {
+        setupToolbarImages()
     }
 
     // MARK: Public
