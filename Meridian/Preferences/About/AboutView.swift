@@ -159,7 +159,12 @@ private struct AutoUpdateToggle: View {
                 }
                 .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
                     guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
-                    lastCheckDate = appDelegate.updaterController.updater.lastUpdateCheckDate
+                    let updater = appDelegate.updaterController.updater
+                    lastCheckDate = updater.lastUpdateCheckDate
+                    // Re-read autoUpdate so a settings import reflects in the
+                    // toggle without requiring the user to leave & re-enter
+                    // the About tab.
+                    autoUpdate = updater.automaticallyDownloadsUpdates
                 }
 
             Text(lastCheckedText)

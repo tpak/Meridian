@@ -138,7 +138,7 @@ class PanelController: ParentPanelController {
     }
 
     private func setupFloatingModeObserver() {
-        UserDefaults.standard.publisher(for: \.displayAppAsForegroundApp)
+        UserDefaults.standard.publisher(for: \.floatOnTop)
             .receive(on: RunLoop.main)
             .dropFirst()
             .sink { [weak self] _ in
@@ -189,12 +189,8 @@ class PanelController: ParentPanelController {
 
         if dataStore.timezones().isEmpty || dataStore.shouldDisplay(.futureSlider) == false {
             modernContainerView.isHidden = true
-        } else if let value = dataStore.retrieve(key: UserDefaultKeys.displayFutureSliderKey) as? NSNumber, modernContainerView != nil {
-            if value.intValue == 1 {
-                modernContainerView.isHidden = true
-            } else if value.intValue == 0 {
-                modernContainerView.isHidden = false
-            }
+        } else if modernContainerView != nil {
+            modernContainerView.isHidden = !dataStore.shouldDisplay(.futureSlider)
         }
 
         // Reset future slider value to zero
@@ -263,38 +259,28 @@ class PanelController: ParentPanelController {
         PerfLogger.endMarker("Set Panel Frame")
     }
 
-    /// Groups all panel-open display preferences for structured logging, replacing 8 separate NSNumber guard bindings.
+    /// Groups all panel-open display preferences for structured logging.
     private struct LogDisplayPreferences {
-        let theme: NSNumber
-        let displayFutureSlider: NSNumber
-        let showAppInForeground: NSNumber
-        let relativeDateKey: NSNumber
-        let fontSize: NSNumber
-        let sunriseTime: NSNumber
-        let showDayInMenu: NSNumber
-        let showDateInMenu: NSNumber
-        let showPlaceInMenu: NSNumber
+        let theme: Theme
+        let displayFutureSlider: Bool
+        let floatOnTop: Bool
+        let relativeDateDisplay: RelativeDateDisplay
+        let fontSize: Int
+        let showSunriseSunset: Bool
+        let showDayInMenubar: Bool
+        let showDateInMenubar: Bool
+        let showPlaceNameInMenubar: Bool
 
-        init?(from store: DataStoring) {
-            guard let theme = store.retrieve(key: UserDefaultKeys.themeKey) as? NSNumber,
-                  let displayFutureSlider = store.retrieve(key: UserDefaultKeys.displayFutureSliderKey) as? NSNumber,
-                  let showAppInForeground = store.retrieve(key: UserDefaultKeys.showAppInForeground) as? NSNumber,
-                  let relativeDateKey = store.retrieve(key: UserDefaultKeys.relativeDateKey) as? NSNumber,
-                  let fontSize = store.retrieve(key: UserDefaultKeys.userFontSizePreference) as? NSNumber,
-                  let sunriseTime = store.retrieve(key: UserDefaultKeys.sunriseSunsetTime) as? NSNumber,
-                  let showDayInMenu = store.retrieve(key: UserDefaultKeys.showDayInMenu) as? NSNumber,
-                  let showDateInMenu = store.retrieve(key: UserDefaultKeys.showDateInMenu) as? NSNumber,
-                  let showPlaceInMenu = store.retrieve(key: UserDefaultKeys.showPlaceInMenu) as? NSNumber
-            else { return nil }
-            self.theme = theme
-            self.displayFutureSlider = displayFutureSlider
-            self.showAppInForeground = showAppInForeground
-            self.relativeDateKey = relativeDateKey
-            self.fontSize = fontSize
-            self.sunriseTime = sunriseTime
-            self.showDayInMenu = showDayInMenu
-            self.showDateInMenu = showDateInMenu
-            self.showPlaceInMenu = showPlaceInMenu
+        init(from store: DataStore) {
+            theme = store.theme
+            displayFutureSlider = store.showFutureSlider
+            floatOnTop = store.floatOnTop
+            relativeDateDisplay = store.relativeDateDisplay
+            fontSize = (store.retrieve(key: UserDefaultKeys.userFontSizePreference) as? NSNumber)?.intValue ?? 4
+            showSunriseSunset = store.showSunriseSunset
+            showDayInMenubar = store.showDayInMenubar
+            showDateInMenubar = store.showDateInMenubar
+            showPlaceNameInMenubar = store.showPlaceNameInMenubar
         }
     }
 
@@ -303,29 +289,36 @@ class PanelController: ParentPanelController {
 
         let preferences = dataStore.timezones()
 
-        guard let prefs = LogDisplayPreferences(from: dataStore),
-              let country = Locale.autoupdatingCurrent.region?.identifier
-        else {
+        guard let country = Locale.autoupdatingCurrent.region?.identifier else {
             return
         }
+        let prefs = LogDisplayPreferences(from: DataStore.shared())
 
-        var relativeDate = "Relative"
-        if prefs.relativeDateKey.isEqual(to: NSNumber(value: 1)) {
-            relativeDate = "Actual Day"
-        } else if prefs.relativeDateKey.isEqual(to: NSNumber(value: 2)) {
-            relativeDate = "Date"
+        let themeName: String
+        switch prefs.theme {
+        case .light: themeName = "Light"
+        case .dark: themeName = "Dark"
+        case .system: themeName = "System"
+        }
+
+        let relativeDateName: String
+        switch prefs.relativeDateDisplay {
+        case .relative: relativeDateName = "Relative"
+        case .actual: relativeDateName = "Actual Day"
+        case .date: relativeDateName = "Date"
+        case .hidden: relativeDateName = "Hidden"
         }
 
         let panelEvent: [String: Any] = [
-            "Theme": prefs.theme.isEqual(to: NSNumber(value: 0)) ? "Default" : "Black",
-            "Display Future Slider": prefs.displayFutureSlider.isEqual(to: NSNumber(value: 0)) ? "Yes" : "No",
-            "Meridian mode": prefs.showAppInForeground.isEqual(to: NSNumber(value: 0)) ? "Menubar" : "Floating",
-            "Relative Date": relativeDate,
+            "Theme": themeName,
+            "Display Future Slider": prefs.displayFutureSlider,
+            "Meridian mode": prefs.floatOnTop ? "Floating" : "Menubar",
+            "Relative Date": relativeDateName,
             "Font Size": prefs.fontSize,
-            "Sunrise Sunset": prefs.sunriseTime.isEqual(to: NSNumber(value: 0)) ? "Yes" : "No",
-            "Show Day in Menu": prefs.showDayInMenu.isEqual(to: NSNumber(value: 0)) ? "Yes" : "No",
-            "Show Date in Menu": prefs.showDateInMenu.isEqual(to: NSNumber(value: 0)) ? "Yes" : "No",
-            "Show Place in Menu": prefs.showPlaceInMenu.isEqual(to: NSNumber(value: 0)) ? "Yes" : "No",
+            "Sunrise Sunset": prefs.showSunriseSunset,
+            "Show Day in Menu": prefs.showDayInMenubar,
+            "Show Date in Menu": prefs.showDateInMenubar,
+            "Show Place in Menu": prefs.showPlaceNameInMenubar,
             "Country": country,
             "Number of Timezones": preferences.count
         ]
@@ -462,8 +455,7 @@ class PanelController: ParentPanelController {
     }
 
     @objc func toggleFloatingMode() {
-        let newValue = isFloatingMode ? 0 : 1
-        UserDefaults.standard.set(newValue, forKey: UserDefaultKeys.showAppInForeground)
+        DataStore.shared().floatOnTop = !isFloatingMode
         applyWindowMode()
     }
 

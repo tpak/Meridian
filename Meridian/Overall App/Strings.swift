@@ -36,4 +36,31 @@ public enum UserDefaultKeys {
     static let latitude = "latitude"
     static let longitude = "longitude"
     static let nextUpdate = "nextUpdate"
+
+    // MARK: - Modernized typed-storage keys (issue #97)
+    // These replace the legacy inverted-bool / int-encoded keys above.
+    // AppDefaults.runBoolSemanticsMigration moves user data from the legacy
+    // keys to these on first launch of the modernized build, then deletes
+    // the legacy keys.
+    //
+    // Names intentionally do NOT use the com.tpak.meridian.* prefix used by
+    // other namespaced keys (appDisplayOptions, menubarCompactMode, etc.).
+    // Two reasons: (1) NSUserDefaultsController storyboard bindings of the
+    // form values.<key> traverse dots as nested keypaths and don't work
+    // cleanly for dotted keys; (2) @objc dynamic var floatOnTop on
+    // UserDefaults can only emit KVO notifications for keypath \.floatOnTop
+    // when the underlying UserDefaults key string matches the property
+    // identifier, which can't contain dots.
+    static let showSunriseSunset = "showSunriseSunset"
+    static let showFutureSlider = "showFutureSlider"
+    static let showDayInMenubar = "showDayInMenubar"
+    static let showDateInMenubar = "showDateInMenubar"
+    static let showPlaceNameInMenubar = "showPlaceNameInMenubar"
+    static let floatOnTop = "floatOnTop"
+    static let timeFormat = "timeFormat"
+
+    // One-time migration flag. Set after runBoolSemanticsMigration completes
+    // its first successful pass; read on every launch to make the migration
+    // idempotent.
+    static let boolSemanticsMigrationV1 = "com.tpak.meridian.boolSemanticsMigrationV1"
 }

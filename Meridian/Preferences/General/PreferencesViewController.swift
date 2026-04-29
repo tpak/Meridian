@@ -309,7 +309,7 @@ extension PreferencesViewController: NSTableViewDataSource, NSTableViewDelegate 
         guard response == .alertFirstButtonReturn else { return }
 
         OperationQueue.main.addOperation {
-            UserDefaults.standard.set(0, forKey: UserDefaultKeys.menubarCompactMode)
+            DataStore.shared().menubarMode = .compact
 
             if alert.suppressionButton?.state == .on {
                 UserDefaults.standard.set(true, forKey: UserDefaultKeys.longStatusBarWarningMessage)

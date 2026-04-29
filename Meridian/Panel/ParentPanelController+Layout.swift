@@ -109,16 +109,11 @@ extension ParentPanelController {
             scrollViewHeight.constant = (screenHeight() - PanelLayoutConstants.screenEdgeBuffer)
         }
 
+        // Past this guard the slider is visible; the height adjustment below
+        // shrinks the scroll view to make room for it.
         guard dataStore.shouldDisplay(.futureSlider) else { return }
-        let isModernSliderDisplayed = dataStore.retrieve(key: UserDefaultKeys.displayFutureSliderKey) as? NSNumber ?? 0
-        if isModernSliderDisplayed == 0 {
-            if scrollViewHeight.constant >= (screenHeight() - PanelLayoutConstants.sliderVisibleScreenBuffer) {
-                scrollViewHeight.constant = (screenHeight() - PanelLayoutConstants.sliderHiddenScreenBuffer)
-            }
-        } else {
-            if scrollViewHeight.constant >= (screenHeight() - PanelLayoutConstants.sliderVisibleScreenBuffer) {
-                scrollViewHeight.constant = (screenHeight() - PanelLayoutConstants.sliderVisibleScreenBuffer)
-            }
+        if scrollViewHeight.constant >= (screenHeight() - PanelLayoutConstants.sliderVisibleScreenBuffer) {
+            scrollViewHeight.constant = (screenHeight() - PanelLayoutConstants.sliderHiddenScreenBuffer)
         }
     }
 }

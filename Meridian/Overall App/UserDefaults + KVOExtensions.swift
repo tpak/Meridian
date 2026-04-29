@@ -3,10 +3,6 @@
 import Cocoa
 
 extension UserDefaults {
-    @objc dynamic var displayFutureSlider: Int {
-        return integer(forKey: UserDefaultKeys.displayFutureSliderKey)
-    }
-
     @objc dynamic var userFontSize: Int {
         return integer(forKey: UserDefaultKeys.userFontSizePreference)
     }
@@ -15,8 +11,14 @@ extension UserDefaults {
         return integer(forKey: UserDefaultKeys.futureSliderRange)
     }
 
-    // Property name must match the UserDefaults key string for KVO notifications to fire.
-    @objc dynamic var displayAppAsForegroundApp: Int {
-        return integer(forKey: UserDefaultKeys.showAppInForeground)
+    // For KVO notifications to fire, the property name must match the
+    // UserDefaults key string. Combine subscribers in PanelController and
+    // ParentPanelController watch these to react to user toggles.
+    @objc dynamic var floatOnTop: Bool {
+        return bool(forKey: UserDefaultKeys.floatOnTop)
+    }
+
+    @objc dynamic var showFutureSlider: Bool {
+        return bool(forKey: UserDefaultKeys.showFutureSlider)
     }
 }
