@@ -211,6 +211,36 @@ These are different mechanisms with different audiences:
 
 Use a local UAT beta to gain confidence in a feature, then cut a Sparkle beta to widen the test pool, then cut GA.
 
+### Cutting a beta off an unmerged feature branch
+
+When you want a signed/notarized beta build for UAT (or to push to beta-channel users) **without merging the feature branch to main yet** — useful when the feature isn't ready for permanent main but a wider test pool would help.
+
+`scripts/release.sh` allows beta versions (`X.Y.Z-betaN`) from any branch; only stable releases require main. The flow:
+
+```bash
+# 1. On the feature branch with everything committed and CI green:
+git checkout feature/your-branch
+bash scripts/release.sh -n "release notes" 2.21.0-betaN
+```
+
+The script bumps `pbxproj`, builds, signs, notarizes, creates a GitHub prerelease, and writes the appcast entry — **all on the feature branch**. It also tries to push the appcast.
+
+**Important: at this point Sparkle beta-channel users still don't see the build**, because their `SUFeedURL` reads `appcast.xml` from `main`, which the feature-branch appcast change hasn't reached. To put the beta on the channel:
+
+```bash
+# 2. Cherry-pick ONLY the appcast.xml commit (NOT the pbxproj version bump):
+APPCAST_COMMIT=$(git log feature/your-branch --oneline | grep "appcast.*betaN" | awk '{print $1}')
+git checkout main && git pull
+git cherry-pick $APPCAST_COMMIT
+git push origin main
+```
+
+Why only the appcast and not the pbxproj bump: cherry-picking the version bump to main would set `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` to a value whose code isn't on main yet (the feature is still on the branch). Anyone building from main locally would produce a binary labelled with a version that doesn't match its source. Leave main's pbxproj at its real state; only the appcast pointer needs to land so beta-channel users discover the GitHub release.
+
+**When the feature later merges to main**, the merge brings in the version bump from the feature branch. If you want to ship that bump as a stable release, run `make release VERSION=X.Y.Z` from main as usual — `release.sh`'s "version already set, skipping commit" branch handles the case where the bump is already there.
+
+**Stable releases must still run from main.** The branch check in `release.sh` enforces this for non-beta versions.
+
 ## Coming Back After Months Away
 
 If you haven't touched this project in a while, here's how to get back up to speed and ship an update.
