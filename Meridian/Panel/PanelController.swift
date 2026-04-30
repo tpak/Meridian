@@ -63,6 +63,10 @@ class PanelController: ParentPanelController {
         )
     }
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     @objc private func accentColorDidChange() {
         // Pin button: re-apply tint via the same code path that picks the
         // floating-vs-secondary color, so a paused-mid-update tint flips
