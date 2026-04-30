@@ -3,6 +3,21 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>2.21.0-beta6</title>
+            <pubDate>Thu, 30 Apr 2026 11:56:23 +0000</pubDate>
+            <sparkle:channel>beta</sparkle:channel>
+            <sparkle:version>2210006</sparkle:version>
+            <sparkle:shortVersionString>2.21.0-beta6</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Selected toolbar tab background now matches the team color (was bleeding through Aston Martin green / system blue).</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.21.0-beta6/Meridian.app.zip" length="3274226" type="application/octet-stream" sparkle:edSignature="/7PQ25ezWvQGuzxRTqfNuWFbtCT0Up7iTDNkAK14LcUxt1Pz17d42c4atWgapk5JJB0EY+XufsmYVhrvG3fSAg=="/>
+        </item>
+        <item>
             <title>2.21.0-beta5</title>
             <pubDate>Thu, 30 Apr 2026 11:44:49 +0000</pubDate>
             <sparkle:channel>beta</sparkle:channel>
