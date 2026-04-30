@@ -74,56 +74,56 @@ public extension Date {
         // @"Today", @"This week", @"This month", @"This year"
         // and @"This morning", @"This afternoon"
 
-        if components.year! >= 2 {
-            return logicalLocalizedStringFromFormat(format: "%%d %@years ago", value: components.year!)
-        } else if components.year! >= 1 {
+        if (components.year ?? 0) >= 2 {
+            return logicalLocalizedStringFromFormat(format: "%%d %@years ago", value: (components.year ?? 0))
+        } else if (components.year ?? 0) >= 1 {
             if numericDates {
                 return dateToolsLocalizedStrings("1 year ago")
             }
 
             return dateToolsLocalizedStrings("Last year")
-        } else if components.month! >= 2 {
-            return logicalLocalizedStringFromFormat(format: "%%d %@months ago", value: components.month!)
-        } else if components.month! >= 1 {
+        } else if (components.month ?? 0) >= 2 {
+            return logicalLocalizedStringFromFormat(format: "%%d %@months ago", value: (components.month ?? 0))
+        } else if (components.month ?? 0) >= 1 {
             if numericDates {
                 return dateToolsLocalizedStrings("1 month ago")
             }
 
             return dateToolsLocalizedStrings("Last month")
-        } else if components.weekOfYear! >= 2 {
-            return logicalLocalizedStringFromFormat(format: "%%d %@weeks ago", value: components.weekOfYear!)
-        } else if components.weekOfYear! >= 1 {
+        } else if (components.weekOfYear ?? 0) >= 2 {
+            return logicalLocalizedStringFromFormat(format: "%%d %@weeks ago", value: (components.weekOfYear ?? 0))
+        } else if (components.weekOfYear ?? 0) >= 1 {
             if numericDates {
                 return dateToolsLocalizedStrings("1 week ago")
             }
 
             return dateToolsLocalizedStrings("Last week")
-        } else if components.day! >= 2 {
-            return logicalLocalizedStringFromFormat(format: "%%d %@days ago", value: components.day!)
+        } else if (components.day ?? 0) >= 2 {
+            return logicalLocalizedStringFromFormat(format: "%%d %@days ago", value: (components.day ?? 0))
         } else if isYesterday {
             if numericDates {
                 return dateToolsLocalizedStrings("1 day ago")
             }
 
             return dateToolsLocalizedStrings("Yesterday")
-        } else if components.hour! >= 2 {
-            return logicalLocalizedStringFromFormat(format: "%%d %@hours ago", value: components.hour!)
-        } else if components.hour! >= 1 {
+        } else if (components.hour ?? 0) >= 2 {
+            return logicalLocalizedStringFromFormat(format: "%%d %@hours ago", value: (components.hour ?? 0))
+        } else if (components.hour ?? 0) >= 1 {
             if numericTimes {
                 return dateToolsLocalizedStrings("1 hour ago")
             }
 
             return dateToolsLocalizedStrings("1h ago")
-        } else if components.minute! >= 2 {
-            return logicalLocalizedStringFromFormat(format: "%%d%@m ago", value: components.minute!)
-        } else if components.minute! >= 1 {
+        } else if (components.minute ?? 0) >= 2 {
+            return logicalLocalizedStringFromFormat(format: "%%d%@m ago", value: (components.minute ?? 0))
+        } else if (components.minute ?? 0) >= 1 {
             if numericTimes {
                 return dateToolsLocalizedStrings("1m ago")
             }
 
             return dateToolsLocalizedStrings("A minute ago")
-        } else if components.second! >= 3 {
-            return logicalLocalizedStringFromFormat(format: "%%d %@seconds ago", value: components.second!)
+        } else if (components.second ?? 0) >= 3 {
+            return logicalLocalizedStringFromFormat(format: "%%d %@seconds ago", value: (components.second ?? 0))
         } else {
             if numericTimes {
                 return dateToolsLocalizedStrings("1 second ago")
@@ -145,24 +145,24 @@ public extension Date {
         let yesterday = date.subtract(1.days)
         let isYesterday = yesterday.day == day
 
-        if components.year! >= 1 {
-            return logicalLocalizedStringFromFormat(format: "%%d%@y", value: components.year!)
-        } else if components.month! >= 1 {
-            return logicalLocalizedStringFromFormat(format: "%%d%@M", value: components.month!)
-        } else if components.weekOfYear! >= 1 {
-            return logicalLocalizedStringFromFormat(format: "%%d%@w", value: components.weekOfYear!)
-        } else if components.day! >= 2 {
-            return logicalLocalizedStringFromFormat(format: "%%d%@d", value: components.day!)
+        if (components.year ?? 0) >= 1 {
+            return logicalLocalizedStringFromFormat(format: "%%d%@y", value: (components.year ?? 0))
+        } else if (components.month ?? 0) >= 1 {
+            return logicalLocalizedStringFromFormat(format: "%%d%@M", value: (components.month ?? 0))
+        } else if (components.weekOfYear ?? 0) >= 1 {
+            return logicalLocalizedStringFromFormat(format: "%%d%@w", value: (components.weekOfYear ?? 0))
+        } else if (components.day ?? 0) >= 2 {
+            return logicalLocalizedStringFromFormat(format: "%%d%@d", value: (components.day ?? 0))
         } else if isYesterday {
             return logicalLocalizedStringFromFormat(format: "%%d%@d", value: 1)
-        } else if components.hour! >= 1 {
-            return logicalLocalizedStringFromFormat(format: "%%d%@h", value: components.hour!)
-        } else if components.minute! >= 1 {
-            return logicalLocalizedStringFromFormat(format: "%%d%@m", value: components.minute!)
-        } else if components.second! >= 3 {
-            return logicalLocalizedStringFromFormat(format: "%%d%@s", value: components.second!)
+        } else if (components.hour ?? 0) >= 1 {
+            return logicalLocalizedStringFromFormat(format: "%%d%@h", value: (components.hour ?? 0))
+        } else if (components.minute ?? 0) >= 1 {
+            return logicalLocalizedStringFromFormat(format: "%%d%@m", value: (components.minute ?? 0))
+        } else if (components.second ?? 0) >= 3 {
+            return logicalLocalizedStringFromFormat(format: "%%d%@s", value: (components.second ?? 0))
         } else {
-            return logicalLocalizedStringFromFormat(format: "%%d%@s", value: components.second!)
+            return logicalLocalizedStringFromFormat(format: "%%d%@s", value: (components.second ?? 0))
             // return DateToolsLocalizedStrings(@"Now"); //string not yet translated 2014.04.05
         }
     }
@@ -173,7 +173,7 @@ public extension Date {
     }
 
     private func getLocaleFormatUnderscoresWithValue(_ value: Double) -> String {
-        let localCode = Bundle.main.preferredLocalizations[0]
+        let localCode = Bundle.main.preferredLocalizations.first ?? "en"
         if localCode == "ru" || localCode == "uk" {
             let xy = Int(floor(value).truncatingRemainder(dividingBy: 100))
             let y = Int(floor(value).truncatingRemainder(dividingBy: 10))
