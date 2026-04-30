@@ -3,6 +3,21 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>2.21.0-beta2</title>
+            <pubDate>Thu, 30 Apr 2026 10:53:47 +0000</pubDate>
+            <sparkle:channel>beta</sparkle:channel>
+            <sparkle:version>2.21.0-beta2</sparkle:version>
+            <sparkle:shortVersionString>2.21.0-beta2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>F1 team accent color picker (Settings → Appearance) — pick from all 11 2026 constructors. Default stays Aston Martin. UAT preview build off feature branch; not on Sparkle beta channel.</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.21.0-beta2/Meridian.app.zip" length="3273346" type="application/octet-stream" sparkle:edSignature="465MoPgGYRR2MCd8XegVcbEUhuKTOUVsOHpI92Y+6UDNtYCQE/9eZTui2cuax+xLzOES8M7kFdNX1tZn7BLoDA=="/>
+        </item>
+        <item>
             <title>2.21.0-beta1</title>
             <pubDate>Wed, 29 Apr 2026 11:59:42 +0000</pubDate>
             <sparkle:channel>beta</sparkle:channel>
