@@ -10,8 +10,6 @@ struct SettingsManager {
 
     // Every user-settable preference. Each appears in some Settings tab
     // (General/Appearance/About) and survives export → import.
-    // (defaultMenubarMode / "com.tpak.meridian.shouldDefaultToCompactMode"
-    //  is intentionally omitted — it's a dead key with no readers.)
     // startAtLogin is exported alongside the rest, but APPLIED via StartupManager
     // (SMAppService.mainApp) during import so the system actually registers/unregisters
     // the login item — writing UserDefaults alone wouldn't change behavior.

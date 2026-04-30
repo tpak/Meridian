@@ -76,9 +76,9 @@ extension ParentPanelController {
                 modernSliderLabel.stringValue = timeScrollerViewModel.timezoneFormattedStringRepresentation(unwrappedClosetQuarterTime)
             }
 
-            // Make sure modern slider is centered horizontally and seed currentCenterIndexPath.
+            // Make sure modern slider is centered horizontally and seed currentCenterSliderItemIndex.
             let centerItem = modernSlider.numberOfItems(inSection: 0) / 2
-            currentCenterIndexPath = centerItem
+            currentCenterSliderItemIndex = centerItem
             let indexPaths: Set<IndexPath> = Set([IndexPath(item: centerItem, section: 0)])
             modernSlider.scrollToItems(at: indexPaths, scrollPosition: .centeredHorizontally)
         }
@@ -123,15 +123,15 @@ extension ParentPanelController {
     }
 
     private func snapSliderToCurrentItem() {
-        guard currentCenterIndexPath >= 0 else { return }
-        modernSlider.scrollToItems(at: [IndexPath(item: currentCenterIndexPath, section: 0)],
+        guard currentCenterSliderItemIndex >= 0 else { return }
+        modernSlider.scrollToItems(at: [IndexPath(item: currentCenterSliderItemIndex, section: 0)],
                                    scrollPosition: .centeredHorizontally)
     }
 
     private func navigateModernSliderToSpecificIndex(_ index: Int) {
         guard modernSlider != nil else { return }
         let total = modernSlider.numberOfItems(inSection: 0)
-        let base = currentCenterIndexPath >= 0 ? currentCenterIndexPath : total / 2
+        let base = currentCenterSliderItemIndex >= 0 ? currentCenterSliderItemIndex : total / 2
         let target = max(0, min(base + index, total - 1))
         modernSlider.scrollToItems(at: [IndexPath(item: target, section: 0)],
                                    scrollPosition: .centeredHorizontally)
@@ -152,7 +152,7 @@ extension ParentPanelController {
         // user's intent than 7:30 → 7:32 → 7:45 (closer to 7:30 by 2 min).
         let itemsFromCenter = Int((Double(minutes) / Double(pointSize)).rounded())
         let target = max(0, min(center + itemsFromCenter, total - 1))
-        currentCenterIndexPath = target
+        currentCenterSliderItemIndex = target
         // Update the slider's center label to reflect the snapped time.
         _ = setDefaultDateLabel(target)
         // BUT: drive every cell's displayed time from the EXACT minutes the user
@@ -172,8 +172,8 @@ extension ParentPanelController {
         let changedOrigin = contentView.documentVisibleRect.origin
         let newPoint = NSPoint(x: changedOrigin.x + contentView.frame.width / 2, y: changedOrigin.y)
         let indexPath = modernSlider.indexPathForItem(at: newPoint)
-        if let correctIndexPath = indexPath?.item, currentCenterIndexPath != correctIndexPath {
-            currentCenterIndexPath = correctIndexPath
+        if let correctIndexPath = indexPath?.item, currentCenterSliderItemIndex != correctIndexPath {
+            currentCenterSliderItemIndex = correctIndexPath
             let minutesToAdd = setDefaultDateLabel(correctIndexPath)
             setTimezoneDatasourceSlider(sliderValue: minutesToAdd)
             mainTableView.reloadData()

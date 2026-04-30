@@ -44,7 +44,7 @@ class ParentPanelController: NSWindowController {
     @IBOutlet var roundedDateView: NSView!
 
     // Modern Slider
-    public var currentCenterIndexPath: Int = -1
+    public var currentCenterSliderItemIndex: Int = -1
     public var closestQuarterTimeRepresentation: Date?
     @IBOutlet var modernSlider: NSCollectionView!
     @IBOutlet var modernSliderLabel: NSTextField!
@@ -315,7 +315,7 @@ extension ParentPanelController {
         let timezones = dataStore.timezoneObjects()
 
         if modernSlider != nil, modernSlider.isHidden == false, modernContainerView.currentlyInFocus == false {
-            if currentCenterIndexPath != -1, currentCenterIndexPath != modernSlider.numberOfItems(inSection: 0) / 2 {
+            if currentCenterSliderItemIndex != -1, currentCenterSliderItemIndex != modernSlider.numberOfItems(inSection: 0) / 2 {
                 // User is currently scrolling, return!
                 return
             }
