@@ -275,6 +275,10 @@ private struct DebugLoggingSection: View {
                     .appendingPathComponent("meridian-log-\(UUID().uuidString).txt")
                 do {
                     try Logger.exportLog(to: url)
+                    // Restrict to user-only read/write so other accounts on shared
+                    // systems can't read the exported log.
+                    try? FileManager.default.setAttributes([.posixPermissions: 0o600],
+                                                           ofItemAtPath: url.path)
                     NSWorkspace.shared.selectFile(url.path, inFileViewerRootedAtPath: "")
                 } catch {
                     Logger.production("Failed to export log: \(error.localizedDescription)")
