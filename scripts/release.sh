@@ -73,9 +73,16 @@ else
 fi
 echo "── Build number derived from VERSION=$VERSION → $BUILD_NUMBER"
 
-if [[ "$(git branch --show-current)" != "main" ]]; then
-    echo "Error: Must be on 'main' branch (currently on '$(git branch --show-current)')"
-    exit 1
+CURRENT_BRANCH="$(git branch --show-current)"
+if [[ "$CURRENT_BRANCH" != "main" ]]; then
+    if [[ "$IS_BETA" == "1" ]]; then
+        echo "Note: cutting a beta from non-main branch '$CURRENT_BRANCH'."
+        echo "      Beta is OK off any branch (prerelease + beta channel + cask skip)."
+        echo "      The version bump and appcast commits will land on '$CURRENT_BRANCH'."
+    else
+        echo "Error: Stable releases must be cut from 'main' (currently on '$CURRENT_BRANCH')."
+        exit 1
+    fi
 fi
 
 if [[ -n "$(git diff --stat HEAD)" ]]; then

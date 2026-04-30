@@ -1173,3 +1173,160 @@ class SettingsManagerVersioningTests: XCTestCase {
         XCTAssertEqual(DataStore.shared().menubarMode, .standard)
     }
 }
+
+// MARK: - TeamAccent (F1 team color picker)
+
+class TeamAccentTests: XCTestCase {
+    private var defaults: UserDefaults!
+    private var suiteName: String!
+    private var store: DataStore!
+
+    override func setUp() {
+        super.setUp()
+        suiteName = "com.tpak.meridian.tests.\(UUID().uuidString)"
+        defaults = UserDefaults(suiteName: suiteName)
+        store = DataStore(with: defaults)
+    }
+
+    override func tearDown() {
+        defaults.removePersistentDomain(forName: suiteName)
+        defaults = nil
+        store = nil
+        suiteName = nil
+        super.tearDown()
+    }
+
+    // MARK: enum shape
+
+    func testHasAllElevenTeams() {
+        XCTAssertEqual(TeamAccent.allCases.count, 11)
+    }
+
+    func testEachTeamHasUniqueDisplayName() {
+        let names = TeamAccent.allCases.map { $0.displayName }
+        XCTAssertEqual(Set(names).count, names.count, "Display names must be unique")
+    }
+
+    func testEachTeamHasUniqueRawValue() {
+        let raws = TeamAccent.allCases.map { $0.rawValue }
+        XCTAssertEqual(Set(raws).count, raws.count, "Raw values must be unique (used in UserDefaults storage)")
+    }
+
+    func testDefaultIsAstonMartin() {
+        XCTAssertEqual(TeamAccent.default, .astonMartin)
+    }
+
+    // MARK: color resolution
+
+    func testEveryTeamProducesAnSRGBColorWithAlpha85() {
+        for team in TeamAccent.allCases {
+            let color = team.accentColor.usingColorSpace(.sRGB)
+            XCTAssertNotNil(color, "\(team) accentColor must convert to sRGB")
+            XCTAssertEqual(color?.alphaComponent ?? 0, 0.85, accuracy: 0.001,
+                           "\(team) should ship at alpha 0.85 to match the toned-down Aston Martin baseline")
+        }
+    }
+
+    func testHaasIsRedNotWhite() {
+        // The infysia source lists Haas as #FFFFFF (white) which is unusable
+        // as an accent color on light mode. Confirm we substitute red.
+        let color = TeamAccent.haas.accentColor.usingColorSpace(.sRGB)
+        XCTAssertGreaterThan(color?.redComponent ?? 0, 0.5)
+        XCTAssertLessThan(color?.greenComponent ?? 1, 0.5)
+        XCTAssertLessThan(color?.blueComponent ?? 1, 0.5)
+    }
+
+    func testCadillacIsGoldNotBlack() {
+        // The infysia source lists Cadillac as #111111 (near-black) which is
+        // unusable on dark mode. Confirm we substitute a lighter gold.
+        let color = TeamAccent.cadillac.accentColor.usingColorSpace(.sRGB)
+        XCTAssertGreaterThan(color?.redComponent ?? 0, 0.5)
+        XCTAssertGreaterThan(color?.greenComponent ?? 0, 0.4)
+    }
+
+    // MARK: JSON round-trip
+
+    func testJsonNameRoundTripsForAllCases() {
+        for team in TeamAccent.allCases {
+            let name = team.jsonName
+            XCTAssertEqual(TeamAccent(jsonName: name), team)
+        }
+    }
+
+    func testUnknownJsonNameReturnsNil() {
+        XCTAssertNil(TeamAccent(jsonName: "ferrariClassic"))
+        XCTAssertNil(TeamAccent(jsonName: ""))
+    }
+
+    // MARK: typed accessor on DataStore
+
+    func testAccessor_defaultsToAstonMartinWhenNoStoredValue() {
+        XCTAssertEqual(store.teamAccent, .astonMartin)
+    }
+
+    func testAccessor_writeThenReadRoundTrip() {
+        store.teamAccent = .ferrari
+        XCTAssertEqual(store.teamAccent, .ferrari)
+        XCTAssertEqual(defaults.string(forKey: UserDefaultKeys.teamAccent), "ferrari")
+    }
+
+    func testAccessor_unknownStoredValueFallsBackToDefault() {
+        defaults.set("aMythicalTeam", forKey: UserDefaultKeys.teamAccent)
+        XCTAssertEqual(store.teamAccent, .astonMartin)
+    }
+
+    // MARK: settings export/import sweep
+
+    func testExportContainsTeamAccent() throws {
+        DataStore.shared().teamAccent = .mclaren
+        guard let data = SettingsManager.buildJSON(),
+              let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let prefs = json["preferences"] as? [String: Any] else {
+            return XCTFail("Could not serialize export")
+        }
+        XCTAssertEqual(prefs["teamAccent"] as? String, "mclaren")
+        // Restore default so we don't leak between tests.
+        DataStore.shared().teamAccent = .astonMartin
+    }
+
+    func testImportRestoresTeamAccent() throws {
+        DataStore.shared().teamAccent = .astonMartin
+        let payload: [String: Any] = [
+            "version": 2,
+            "preferences": ["teamAccent": "redBull"],
+            "timezones": [String](),
+            "startAtLogin": false,
+            "sparkle": [String: Any]()
+        ]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        try SettingsManager.applySettings(from: data)
+        XCTAssertEqual(DataStore.shared().teamAccent, .redBull)
+        // Restore default so we don't leak between tests.
+        DataStore.shared().teamAccent = .astonMartin
+    }
+
+    // MARK: swizzle integration
+
+    /// Proves the controlAccentColor swizzle is wired up: after install,
+    /// NSColor.controlAccentColor must equal DataStore.shared().teamAccent.
+    /// accentColor — not the asset-catalog Aston Martin colorset.
+    /// If this test fails, every "but the toolbar didn't update!" UAT
+    /// downstream will fail too.
+    func testSwizzleMakesControlAccentColorReturnTeamAccent() {
+        NSColor.installTeamAccentSwizzle()
+        let savedTeam = DataStore.shared().teamAccent
+        defer { DataStore.shared().teamAccent = savedTeam }
+
+        for team in TeamAccent.allCases {
+            DataStore.shared().teamAccent = team
+            let expected = team.accentColor.usingColorSpace(.sRGB)!
+            let actual = NSColor.controlAccentColor.usingColorSpace(.sRGB)!
+            XCTAssertEqual(actual.redComponent, expected.redComponent, accuracy: 0.001,
+                           "controlAccentColor.red mismatch for \(team)")
+            XCTAssertEqual(actual.greenComponent, expected.greenComponent, accuracy: 0.001,
+                           "controlAccentColor.green mismatch for \(team)")
+            XCTAssertEqual(actual.blueComponent, expected.blueComponent, accuracy: 0.001,
+                           "controlAccentColor.blue mismatch for \(team)")
+        }
+    }
+}

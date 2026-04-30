@@ -115,6 +115,7 @@ struct SettingsManager {
         static let futureSliderRange = "futureSliderRange"
         static let debugLoggingEnabled = "debugLoggingEnabled"
         static let betaUpdatesEnabled = "betaUpdatesEnabled"
+        static let teamAccent = "teamAccent"
     }
 
     // Build a v2 JSON payload — bools are emitted as bools, enums as named
@@ -145,7 +146,8 @@ struct SettingsManager {
             V2Key.truncateTextLength: defaults.integer(forKey: UserDefaultKeys.truncateTextLength),
             V2Key.futureSliderRange: defaults.integer(forKey: UserDefaultKeys.futureSliderRange),
             V2Key.debugLoggingEnabled: defaults.bool(forKey: UserDefaultKeys.debugLoggingEnabled),
-            V2Key.betaUpdatesEnabled: defaults.bool(forKey: UserDefaultKeys.betaUpdatesEnabled)
+            V2Key.betaUpdatesEnabled: defaults.bool(forKey: UserDefaultKeys.betaUpdatesEnabled),
+            V2Key.teamAccent: store.teamAccent.jsonName
         ]
 
         // startAtLogin reflects the actual SMAppService state, not UserDefaults.
@@ -212,6 +214,11 @@ struct SettingsManager {
 
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .customLabelChanged, object: nil)
+            NotificationCenter.default.post(name: .accentColorDidChange, object: nil)
+            // Drop AppKit's accent caches across every visible window so
+            // an imported teamAccent change actually paints — see
+            // NSApplication.mer_invalidateAccentEverywhere in DataStore.swift.
+            NSApp.mer_invalidateAccentEverywhere()
             if let panel = PanelController.panel() {
                 panel.updateDefaultPreferences()
                 panel.updateTableContent()
@@ -305,6 +312,11 @@ struct SettingsManager {
         }
         if let v = prefs[V2Key.betaUpdatesEnabled] as? Bool {
             defaults.set(v, forKey: UserDefaultKeys.betaUpdatesEnabled)
+        }
+        // Team accent — string-backed enum. Unknown values fall through to
+        // existing selection.
+        if let s = prefs[V2Key.teamAccent] as? String, let team = TeamAccent(jsonName: s) {
+            store.teamAccent = team
         }
     }
 

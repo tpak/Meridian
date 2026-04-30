@@ -18,6 +18,9 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
 
     public func applicationDidFinishLaunching(_: Notification) {
         AppDefaults.initialize(with: DataStore.shared(), defaults: UserDefaults.standard)
+        // Single swizzle on +controlAccentColor — covers popups,
+        // segmented controls, checkboxes, sliders, focus rings.
+        NSColor.installTeamAccentSwizzle()
         logLaunch()
         sentinelTask = Task.detached(priority: .utility) {
             self.checkForPreviousUncleanExit()
@@ -27,6 +30,23 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         backfillMissingCoordinates()
         continueUsually()
         setupMemoryPressureMonitoring()
+        reopenAppearanceIfRelaunchedForTeamAccent()
+    }
+
+    /// If we were just relaunched by the user picking a new accent color
+    /// from Settings → Appearance and clicking Restart Now, land them
+    /// back on the Appearance tab so it doesn't feel like they lost
+    /// their place. The flag is set in
+    /// AppearanceViewController.promptForRestart and consumed exactly
+    /// once here.
+    private func reopenAppearanceIfRelaunchedForTeamAccent() {
+        guard UserDefaults.standard.bool(forKey: UserDefaultKeys.reopenAppearanceOnLaunch) else { return }
+        UserDefaults.standard.removeObject(forKey: UserDefaultKeys.reopenAppearanceOnLaunch)
+        // Brief delay so AppDelegate finishes building the panel /
+        // status item before we open Settings on top.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.panelController.oneWindow?.openAppearancePane()
+        }
     }
 
     public func applicationWillTerminate(_: Notification) {

@@ -22,6 +22,7 @@ private enum AppearanceTabIndex {
 class AppearanceViewController: ParentViewController {
     @IBOutlet var timeFormat: NSPopUpButton!
     @IBOutlet var theme: NSPopUpButton!
+    @IBOutlet var teamAccentPopup: NSPopUpButton!
     @IBOutlet var informationLabel: NSTextField!
     @IBOutlet var sliderDayRangePopup: NSPopUpButton!
     @IBOutlet var visualEffectView: NSVisualEffectView!
@@ -50,6 +51,7 @@ class AppearanceViewController: ParentViewController {
         informationLabel.setAccessibilityIdentifier("InformationLabel")
 
         setupTimeFormatPopup()
+        setupTeamAccentPopup()
 
         sliderDayRangePopup.removeAllItems()
         sliderDayRangePopup.addItems(withTitles: Self.sliderDayValues.map { days in
@@ -80,6 +82,26 @@ class AppearanceViewController: ParentViewController {
         previewPanelTableView.enclosingScrollView?.hasVerticalScroller = false
         previewPanelTableView.enclosingScrollView?.wantsLayer = true
         previewPanelTableView.enclosingScrollView?.layer?.cornerRadius = 12
+    }
+
+    /// Builds the F1 team accent popup from `TeamAccent.allCases`. The enum
+    /// is the single source of truth for the team list — storyboard menu
+    /// items are placeholders and get replaced here on every load.
+    private func setupTeamAccentPopup() {
+        guard let popup = teamAccentPopup else { return }
+        popup.removeAllItems()
+        popup.addItems(withTitles: TeamAccent.allCases.map { $0.displayName })
+        let current = DataStore.shared().teamAccent
+        if let index = TeamAccent.allCases.firstIndex(of: current) {
+            popup.selectItem(at: index)
+        }
+        // Wire target/action programmatically as a safety net. The storyboard
+        // also wires this via @IBAction, but if storyboard parsing skips the
+        // connection (or the outlet/action is renamed without a sweep) the
+        // popup still functions.
+        popup.target = self
+        popup.action = #selector(teamAccentChanged(_:))
+        popup.setAccessibilityIdentifier("TeamAccentPopover")
     }
 
     private func setupTimeFormatPopup() {
@@ -147,6 +169,12 @@ class AppearanceViewController: ParentViewController {
         // tab re-entry.
         timeFormat.selectItem(at: store.timezoneFormat().intValue)
 
+        // Team accent: refresh on tab re-entry so settings imports flow in.
+        if let popup = teamAccentPopup,
+           let index = TeamAccent.allCases.firstIndex(of: store.teamAccent) {
+            popup.selectItem(at: index)
+        }
+
         // The preview table renders sample rows using TimezoneDataOperations
         // which reads the live time format. Settings import doesn't notify
         // this view controller, so refresh on tab re-entry.
@@ -167,6 +195,7 @@ class AppearanceViewController: ParentViewController {
     @IBOutlet var menubarModeLabel: NSTextField!
     @IBOutlet var previewLabel: NSTextField!
     @IBOutlet var miscelleaneousLabel: NSTextField!
+    @IBOutlet var accentColorLabel: NSTextField!
 
     // Panel Preview
     @IBOutlet var previewPanelTableView: NSTableView!
@@ -174,6 +203,7 @@ class AppearanceViewController: ParentViewController {
     private func setup() {
         timeFormatLabel.stringValue = "Time Format".localized()
         panelTheme.stringValue = "Panel Theme".localized()
+        accentColorLabel?.stringValue = "Accent Color".localized()
         dayDisplayOptionsLabel.stringValue = "Day Display Options".localized()
         showSliderLabel.stringValue = "Time Scroller".localized()
         showSunriseLabel.stringValue = "Show Sunrise/Sunset".localized()
@@ -188,7 +218,7 @@ class AppearanceViewController: ParentViewController {
         floatOnTopLabel.stringValue = "Float on Top".localized()
         appDisplayLabel.stringValue = "Show Meridian in".localized()
 
-        [timeFormatLabel, panelTheme,
+        [timeFormatLabel, panelTheme, accentColorLabel,
          dayDisplayOptionsLabel, showSliderLabel,
          showSunriseLabel, largerTextLabel, futureSliderRangeLabel,
          includeDayLabel, includeDateLabel, includePlaceLabel, appDisplayLabel, menubarModeLabel,
@@ -213,6 +243,71 @@ class AppearanceViewController: ParentViewController {
 
         updateStatusItem()
         previewPanelTableView.reloadData()
+    }
+
+    @IBAction func teamAccentChanged(_ sender: NSPopUpButton) {
+        let index = sender.indexOfSelectedItem
+        guard index >= 0, index < TeamAccent.allCases.count else { return }
+        let team = TeamAccent.allCases[index]
+        DataStore.shared().teamAccent = team
+        Logger.production("[Accent] teamAccentChanged: team=\(team.displayName)")
+        // Notify observers — panel pin/slider buttons and Preferences
+        // toolbar icons repaint immediately with the new color.
+        NSApp.mer_invalidateAccentEverywhere()
+        previewPanelTableView.reloadData()
+
+        // The remaining accent surfaces in Settings — popup highlights,
+        // segmented control fills, focus rings, checkbox checks, the
+        // toolbar tab text labels — are tinted by AppKit through code
+        // paths that don't refresh at runtime no matter how the
+        // app pokes them (verified across betas 2-7). Offer the user
+        // the only mechanism that works: a quit+relaunch.
+        promptForRestart(applying: team)
+    }
+
+    private func promptForRestart(applying team: TeamAccent) {
+        let alert = NSAlert()
+        alert.messageText = "Restart Meridian to apply \(team.displayName) throughout?"
+        alert.informativeText = """
+        macOS doesn't allow accent color changes to apply to existing AppKit \
+        controls (popups, segmented controls, toolbar text) at runtime. The \
+        panel and toolbar icons have already updated. To apply \(team.displayName) \
+        to the rest of the UI, Meridian needs to relaunch.
+
+        Your timezones and other settings are preserved.
+        """
+        alert.addButton(withTitle: "Restart Now")
+        alert.addButton(withTitle: "Apply at Next Launch")
+        alert.alertStyle = .informational
+
+        let response = alert.runModal()
+        guard response == .alertFirstButtonReturn else { return }
+
+        // Persist a flag so AppDelegate reopens Settings → Appearance
+        // after the new instance launches; the user lands back where
+        // they were instead of an empty menu bar app.
+        UserDefaults.standard.set(true, forKey: UserDefaultKeys.reopenAppearanceOnLaunch)
+        UserDefaults.standard.synchronize()
+
+        // Spawn a new instance, then terminate this one. `open -n` makes
+        // the new instance start fresh rather than activating the
+        // existing one (which is about to terminate anyway).
+        let bundlePath = Bundle.main.bundlePath
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+        task.arguments = ["-n", bundlePath]
+        do {
+            try task.run()
+        } catch {
+            Logger.production("[Accent] restart spawn failed: \(error)")
+        }
+
+        // Brief delay so the spawn has time to register before we
+        // terminate; otherwise macOS may treat it as a duplicate-launch
+        // suppression and the new instance never appears.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            NSApp.terminate(nil)
+        }
     }
 
     @IBAction func themeChanged(_ sender: NSPopUpButton) {

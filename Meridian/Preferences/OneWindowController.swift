@@ -1,6 +1,7 @@
 // Copyright © 2015 Abhishek Banthia
 
 import Cocoa
+import CoreLoggerKit
 
 class CenteredTabViewController: NSTabViewController {
     override func viewDidLoad() {
@@ -19,6 +20,16 @@ class OneWindowController: NSWindowController {
     override func windowDidLoad() {
         super.windowDidLoad()
         setup()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(refreshToolbarForAccentChange),
+            name: .accentColorDidChange,
+            object: nil
+        )
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     private func setup() {
@@ -33,23 +44,73 @@ class OneWindowController: NSWindowController {
         window?.center()
     }
 
+    private static let identifierToSymbol: [String: String] = [
+        "Preferences Tab": "gearshape",
+        "Appearance Tab": "paintbrush",
+        "About Tab": "info.circle"
+    ]
+
+    /// Why this is more involved than just `NSImage(systemSymbolName:)`:
+    ///
+    /// The tint applied by AppKit for the SELECTED tab in
+    /// `NSTabViewController` toolbar style does NOT go through
+    /// `NSColor.controlAccentColor`. The swizzle in DataStore.swift
+    /// covers controlAccentColor — verified by
+    /// `testSwizzleMakesControlAccentColorReturnTeamAccent` — but the
+    /// toolbar-tab tint is applied by a private AppKit code path that
+    /// bypasses it entirely. That's why the toolbar tabs stayed
+    /// Aston Martin green even after multiple cache-invalidation
+    /// attempts.
+    ///
+    /// The fix: bake the team color into the SF Symbol itself with
+    /// `NSImage.SymbolConfiguration(paletteColors:)`. A palette
+    /// configuration is rendered into the image's bitmap when AppKit
+    /// resolves the symbol, so the resulting NSImage already carries
+    /// the team color. AppKit's selection tinting still applies
+    /// (alpha/saturation differences between selected and unselected
+    /// tabs), but the BASE color is the team color regardless.
+    ///
+    /// Updates both layers:
+    ///   - `tabViewItem.image` — used when AppKit rebuilds the toolbar.
+    ///   - `window.toolbar.items[].image` — the live rendered items.
+    /// nil-then-set on the toolbar items defeats AppKit's
+    /// image-identity short-circuit so the new tint actually paints.
     private func setupToolbarImages() {
         guard let tabViewController = contentViewController as? CenteredTabViewController else {
             return
         }
 
-        let identifierToImageMapping: [String: NSImage] = [
-            "Preferences Tab": NSImage(systemSymbolName: "gearshape", accessibilityDescription: nil) ?? NSImage(),
-            "Appearance Tab": NSImage(systemSymbolName: "paintbrush", accessibilityDescription: nil) ?? NSImage(),
-            "About Tab": NSImage(systemSymbolName: "info.circle", accessibilityDescription: nil) ?? NSImage()
-        ]
+        let teamColor = DataStore.shared().teamAccent.accentColor
+        let paletteConfig = NSImage.SymbolConfiguration(paletteColors: [teamColor])
 
+        func tintedSymbol(_ name: String) -> NSImage? {
+            guard let base = NSImage(systemSymbolName: name, accessibilityDescription: nil) else { return nil }
+            return base.withSymbolConfiguration(paletteConfig)
+        }
+
+        // Model layer.
         tabViewController.tabViewItems.forEach { tabViewItem in
             let identity = (tabViewItem.identifier as? String) ?? ""
-            if let image = identifierToImageMapping[identity] {
-                tabViewItem.image = image
+            if let symbol = Self.identifierToSymbol[identity] {
+                tabViewItem.image = tintedSymbol(symbol)
             }
         }
+
+        // Rendering layer.
+        if let toolbar = window?.toolbar {
+            for item in toolbar.items {
+                if let symbol = Self.identifierToSymbol[item.itemIdentifier.rawValue] {
+                    item.image = nil
+                    item.image = tintedSymbol(symbol)
+                }
+            }
+        }
+    }
+
+    @objc private func refreshToolbarForAccentChange() {
+        let team = DataStore.shared().teamAccent.displayName
+        Logger.production("[Accent] refreshToolbar fired: team=\(team)")
+        setupToolbarImages()
     }
 
     // MARK: Public
@@ -57,6 +118,14 @@ class OneWindowController: NSWindowController {
     // Action mapped to the + button in the PanelController. We should always open the General Pane when the + button is clicked.
     func openGeneralPane() {
         openPreferenceTab(at: 0)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    /// Opens Settings to the Appearance tab. Used by AppDelegate to land
+    /// the user back on the accent picker after a restart-to-apply-team
+    /// relaunch.
+    func openAppearancePane() {
+        openPreferenceTab(at: 1)
         NSApp.activate(ignoringOtherApps: true)
     }
 

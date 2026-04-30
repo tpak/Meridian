@@ -180,6 +180,187 @@ enum AppPresentation: Int, Codable, CaseIterable {
     case menubarAndDock = 1
 }
 
+// F1 team accent color. Stable string raw values are used both as the
+// UserDefaults storage value and as the SettingsManager v2 export jsonName.
+// Rename a case at your peril — existing exported settings files persist
+// the old raw values.
+//
+// Hex codes sourced from infysia.com (March 2026 update). Two substitutions:
+// Haas (#FFFFFF white) and Cadillac (#111111 near-black) are unusable as
+// accent colors at one appearance — we substitute Haas livery red and a
+// Cadillac-brand gold, respectively.
+enum TeamAccent: String, Codable, CaseIterable {
+    case alpine
+    case astonMartin
+    case audi
+    case cadillac
+    case ferrari
+    case haas
+    case mclaren
+    case mercedes
+    case racingBulls
+    case redBull
+    case williams
+
+    static let `default`: TeamAccent = .astonMartin
+
+    var displayName: String {
+        switch self {
+        case .alpine:       return "Alpine"
+        case .astonMartin:  return "Aston Martin"
+        case .audi:         return "Audi"
+        case .cadillac:     return "Cadillac"
+        case .ferrari:      return "Ferrari"
+        case .haas:         return "Haas"
+        case .mclaren:      return "McLaren"
+        case .mercedes:     return "Mercedes"
+        case .racingBulls:  return "Racing Bulls"
+        case .redBull:      return "Red Bull Racing"
+        case .williams:     return "Williams"
+        }
+    }
+
+    private var hex: String {
+        switch self {
+        case .alpine:       return "0090FF"
+        case .astonMartin:  return "006F62"
+        case .audi:         return "C00000"
+        case .cadillac:     return "DCA62E"
+        case .ferrari:      return "DC0000"
+        case .haas:         return "ED1C24"
+        case .mclaren:      return "FF8000"
+        case .mercedes:     return "00D2BE"
+        case .racingBulls:  return "2647D8"
+        case .redBull:      return "1E5BC6"
+        case .williams:     return "005AFF"
+        }
+    }
+
+    /// Resolved accent color used by PanelController and CustomSliderCell.
+    /// Alpha 0.85 matches the toned-down Aston Martin shipping value (PR
+    /// e4ad82b2) so saturation feels consistent across teams.
+    var accentColor: NSColor {
+        let h = hex
+        let red = CGFloat(Int(h.prefix(2), radix: 16) ?? 0) / 255.0
+        let green = CGFloat(Int(h.dropFirst(2).prefix(2), radix: 16) ?? 0) / 255.0
+        let blue = CGFloat(Int(h.suffix(2), radix: 16) ?? 0) / 255.0
+        return NSColor(srgbRed: red, green: green, blue: blue, alpha: 0.85)
+    }
+
+    var jsonName: String { rawValue }
+
+    init?(jsonName: String) {
+        guard let match = Self.allCases.first(where: { $0.rawValue == jsonName }) else { return nil }
+        self = match
+    }
+}
+
+extension Notification.Name {
+    /// Posted when the user changes the team accent in Appearance settings.
+    /// PanelController observes this and triggers a redraw of the slider
+    /// fill + pin button tint.
+    static let accentColorDidChange = Notification.Name("com.tpak.meridian.accentColorDidChange")
+}
+
+// MARK: - controlAccentColor swizzle + invalidation
+//
+// Why we swizzle:
+// Without this, NSColor.controlAccentColor falls through to the
+// `Accent Color` colorset in Media.xcassets — a baked-in Aston Martin
+// green. So every NSPopUpButton selected indicator, NSSegmentedControl
+// segment fill, NSCheckbox check, NSToolbarItem tab icon, and focus
+// ring would stay green regardless of which team the user picks.
+// We swap the class-method getter at app launch so AppKit's internal
+// callers (and our own) get the live team color.
+//
+// Why a simple swizzle is not enough:
+// controlAccentColor is implemented as an NSDynamicSystemColor — a
+// dynamic system color whose resolution AppKit caches per
+// NSAppearance. Even after the swizzle returns a new color value,
+// AppKit reuses the previously-cached resolution for any surface that
+// has already been drawn. NSToolbarItem also caches its tinted
+// bitmap separately. Result: switching team A → team B in place does
+// nothing visible until some other event (tab nav, window
+// resize) forces a re-render.
+//
+// `NSApplication.mer_invalidateAccentEverywhere` performs the three
+// kinds of invalidation that, together, cover every visible surface:
+//   1. Re-set NSToolbarItem.image and NSTabViewItem.label/.image so
+//      the toolbar's tinted-bitmap cache is dropped.
+//   2. Recursive setNeedsDisplay on every view (and its CALayer) so
+//      layer-backed bitmaps repaint with the new accent.
+//   3. Toggle window.appearance through its current effective value
+//      so AppKit drops the NSDynamicSystemColor cache for that
+//      window's view tree without causing a light/dark flash.
+extension NSColor {
+    @objc class func mer_currentTeamAccentColor() -> NSColor {
+        DataStore.shared().teamAccent.accentColor
+    }
+
+    /// Intercepts `NSColor(named:)` lookups. When the name is the asset
+    /// catalog's accent entry ("AccentColor" / "Accent Color"), return
+    /// the live team accent. All other names fall through to the
+    /// original implementation.
+    ///
+    /// This is needed because AppKit's selected-toolbar-tab background
+    /// reads the asset catalog directly via `+colorNamed:` instead of
+    /// going through `+controlAccentColor`. Swizzling only the latter
+    /// left the tab background showing whatever was baked into
+    /// `Accent Color.colorset` (Aston Martin green) regardless of the
+    /// user's team selection.
+    @objc class func mer_swizzledColorNamed(_ name: String) -> NSColor? {
+        if name == "AccentColor" || name == "Accent Color" {
+            return DataStore.shared().teamAccent.accentColor
+        }
+        // After method_exchangeImplementations, this call lands on the
+        // original `+colorNamed:` because the implementations were
+        // swapped at runtime.
+        return mer_swizzledColorNamed(name)
+    }
+
+    /// Idempotent — guarded with a static flag so repeated calls are no-ops.
+    static func installTeamAccentSwizzle() {
+        struct Once { static var done = false }
+        guard !Once.done else { return }
+        Once.done = true
+
+        // Swizzle +controlAccentColor only. This covers NSPopUpButton,
+        // NSSegmentedControl, NSCheckbox, NSSlider, focus rings, etc.
+        // The selected-tab pill background is left to read the asset
+        // catalog (a neutral light gray) — chasing it through colorNamed:
+        // and private _selectionMaterialTintColor swizzles wasn't reliably
+        // working and the gray is unobtrusive enough that it doesn't fight
+        // the team color elsewhere.
+        let originalSel = #selector(getter: NSColor.controlAccentColor)
+        let customSel = #selector(NSColor.mer_currentTeamAccentColor)
+        guard let original = class_getClassMethod(NSColor.self, originalSel),
+              let custom = class_getClassMethod(NSColor.self, customSel) else {
+            return
+        }
+        method_exchangeImplementations(original, custom)
+    }
+}
+
+extension NSApplication {
+    /// Lets observers (PanelController, OneWindowController) repaint
+    /// the surfaces we explicitly tint with the team color: panel pin
+    /// button, slider chevrons + reset button, Preferences toolbar
+    /// icons (palette-baked SF Symbols).
+    ///
+    /// We do NOT attempt to invalidate AppKit's NSDynamicSystemColor
+    /// caches here. Every approach we tried (window.appearance
+    /// toggle, NSApp.deactivate/activate, tabStyle toggle, recursive
+    /// setNeedsDisplay) had at least one failure mode. macOS doesn't
+    /// expose a runtime API for changing controlAccentColor and
+    /// expecting AppKit's cached renderings to follow. The reliable
+    /// path is the one Apple takes for the system-wide accent change:
+    /// quit and relaunch. AppearanceViewController offers that as a
+    /// modal choice when the user picks a team.
+    func mer_invalidateAccentEverywhere() {
+        NotificationCenter.default.post(name: .accentColorDidChange, object: nil)
+    }
+}
+
 // Indices match the popup item order in
 // AppearanceViewController.setupTimeFormatPopup(); 2/5/8 are disabled
 // separator rows and intentionally have no enum case.
@@ -298,5 +479,19 @@ extension DataStore {
     var timeFormat: TimeFormat {
         get { TimeFormat(rawValue: userDefaults.integer(forKey: UserDefaultKeys.timeFormat)) ?? .twelveHour }
         set { userDefaults.set(newValue.rawValue, forKey: UserDefaultKeys.timeFormat) }
+    }
+
+    // String-backed enum (the only one in the typed surface). Default falls
+    // through to `.astonMartin` so a clean install matches the shipped
+    // Aston Martin tone — matching the previous hardcoded asset catalog.
+    var teamAccent: TeamAccent {
+        get {
+            guard let raw = userDefaults.string(forKey: UserDefaultKeys.teamAccent),
+                  let team = TeamAccent(rawValue: raw) else {
+                return TeamAccent.default
+            }
+            return team
+        }
+        set { userDefaults.set(newValue.rawValue, forKey: UserDefaultKeys.teamAccent) }
     }
 }

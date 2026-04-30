@@ -37,9 +37,17 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/Library/Developer/Xcode/DerivedData
-          key: deriveddata-${{ runner.os }}-${{ hashFiles('Meridian/Meridian.xcodeproj/project.pbxproj', 'Meridian/CoreLoggerKit/Package.swift', 'Meridian/CoreModelKit/Package.swift') }}
-          restore-keys: |
-            deriveddata-${{ runner.os }}-
+          # Cache key includes Swift sources so a code change invalidates
+          # the cached module artifacts (otherwise xcodebuild reuses
+          # stale .swiftmodule files compiled against an older API
+          # surface and the build fails with cryptic "(24 failures)"
+          # errors that don't appear locally).
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('Meridian/Meridian.xcodeproj/project.pbxproj', 'Meridian/CoreLoggerKit/Package.swift', 'Meridian/CoreModelKit/Package.swift', 'Meridian/**/*.swift') }}
+          # Intentionally no restore-keys: a partial-match fallback
+          # would pull in DerivedData built against a different Swift
+          # API surface and the build would fail with stale-module
+          # errors. Cache miss on source change → clean build, which
+          # is the only safe state.
 
       - name: SwiftLint
         run: |
@@ -74,9 +82,15 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/Library/Developer/Xcode/DerivedData
-          key: deriveddata-${{ runner.os }}-${{ hashFiles('Meridian/Meridian.xcodeproj/project.pbxproj', 'Meridian/CoreLoggerKit/Package.swift', 'Meridian/CoreModelKit/Package.swift') }}
-          restore-keys: |
-            deriveddata-${{ runner.os }}-
+          # Match build job's cache key so the Build & Lint output
+          # carries forward into Unit Tests rather than rebuilding from
+          # scratch on a partial-match fallback.
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('Meridian/Meridian.xcodeproj/project.pbxproj', 'Meridian/CoreLoggerKit/Package.swift', 'Meridian/CoreModelKit/Package.swift', 'Meridian/**/*.swift') }}
+          # Intentionally no restore-keys: a partial-match fallback
+          # would pull in DerivedData built against a different Swift
+          # API surface and the build would fail with stale-module
+          # errors. Cache miss on source change → clean build, which
+          # is the only safe state.
 
       - name: Run Unit Tests
         run: |
