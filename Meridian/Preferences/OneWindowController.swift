@@ -26,6 +26,23 @@ class OneWindowController: NSWindowController {
             name: .accentColorDidChange,
             object: nil
         )
+        // AppKit re-paints toolbar tab text labels on its own schedule
+        // (window key transitions, tab switches). Re-apply our tint on
+        // those events so the team-coloured labels stay visible.
+        if let win = window {
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(reapplyToolbarTabTint),
+                name: NSWindow.didBecomeKeyNotification,
+                object: win
+            )
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(reapplyToolbarTabTint),
+                name: NSWindow.didUpdateNotification,
+                object: win
+            )
+        }
     }
 
     deinit {
@@ -35,6 +52,13 @@ class OneWindowController: NSWindowController {
     private func setup() {
         setupWindow()
         setupToolbarImages()
+        // Defer the label tint until after AppKit's first layout pass —
+        // the toolbar's NSTextField subviews don't exist in the view
+        // tree before that. The didBecomeKey notification handles
+        // subsequent re-applications.
+        DispatchQueue.main.async { [weak self] in
+            self?.tintToolbarTabLabels()
+        }
     }
 
     private func setupWindow() {
@@ -111,6 +135,38 @@ class OneWindowController: NSWindowController {
         let team = DataStore.shared().teamAccent.displayName
         Logger.production("[Accent] refreshToolbar fired: team=\(team)")
         setupToolbarImages()
+        DispatchQueue.main.async { [weak self] in
+            self?.tintToolbarTabLabels()
+        }
+    }
+
+    @objc private func reapplyToolbarTabTint() {
+        DispatchQueue.main.async { [weak self] in
+            self?.tintToolbarTabLabels()
+        }
+    }
+
+    /// Walks the window's NSThemeFrame view tree, finds NSTextFields whose
+    /// stringValue matches one of our localised tab labels (Preferences,
+    /// Appearance, About) and tints them with the active team accent.
+    /// Necessary because tab-style NSTabViewController renders these
+    /// labels through a private code path that ignores controlAccentColor.
+    private func tintToolbarTabLabels() {
+        guard let themeFrame = window?.contentView?.superview else { return }
+        let teamColor = DataStore.shared().teamAccent.accentColor
+        let labels: Set<String> = Set(Self.identifierToSymbol.keys.map {
+            NSLocalizedString($0, comment: "")
+        })
+        Self.colorMatchingTextFields(in: themeFrame, labels: labels, color: teamColor)
+    }
+
+    private static func colorMatchingTextFields(in view: NSView, labels: Set<String>, color: NSColor) {
+        if let field = view as? NSTextField, labels.contains(field.stringValue) {
+            field.textColor = color
+        }
+        for sub in view.subviews {
+            colorMatchingTextFields(in: sub, labels: labels, color: color)
+        }
     }
 
     // MARK: Public
