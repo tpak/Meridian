@@ -16,18 +16,11 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
     private var backfillTask: Task<Void, Never>?
     private var sentinelTask: Task<Void, Never>?
 
-    public func applicationWillFinishLaunching(_: Notification) {
-        // Install accent-color swizzles BEFORE AppKit caches its
-        // asset-catalog AccentColor lookups. By applicationDidFinish-
-        // Launching some accent surfaces (notably the selected-tab
-        // pill background in NSTabViewController toolbar style) have
-        // already resolved to the asset-catalog value, and a swizzle
-        // installed after that point never reaches the cached path.
-        NSColor.installTeamAccentSwizzle()
-    }
-
     public func applicationDidFinishLaunching(_: Notification) {
         AppDefaults.initialize(with: DataStore.shared(), defaults: UserDefaults.standard)
+        // Single swizzle on +controlAccentColor — covers popups,
+        // segmented controls, checkboxes, sliders, focus rings.
+        NSColor.installTeamAccentSwizzle()
         logLaunch()
         sentinelTask = Task.detached(priority: .utility) {
             self.checkForPreviousUncleanExit()
