@@ -318,7 +318,16 @@ extension NSColor {
         return mer_swizzledColorNamed(name)
     }
 
+    /// Returns the live team accent. Used by all swizzled accent
+    /// getters — declared @objc so the runtime can invoke it.
+    @objc class func mer_currentTeamAccentColorAlt() -> NSColor {
+        DataStore.shared().teamAccent.accentColor
+    }
+
     /// Idempotent — guarded with a static flag so repeated calls are no-ops.
+    /// Install as early as possible (applicationWillFinishLaunching) so
+    /// AppKit's first asset-catalog accent lookup hits the swizzle, not
+    /// the cached pre-swizzle value.
     static func installTeamAccentSwizzle() {
         struct Once { static var done = false }
         guard !Once.done else { return }
@@ -331,11 +340,23 @@ extension NSColor {
         }
 
         // Swizzle 2: +colorNamed: — covers AppKit code paths that read
-        // the asset catalog directly (notably the selected-tab pill
-        // background in NSTabViewController toolbar style).
+        // the asset catalog directly.
         let colorNamedSel = NSSelectorFromString("colorNamed:")
         if let original = class_getClassMethod(NSColor.self, colorNamedSel),
            let custom = class_getClassMethod(NSColor.self, #selector(NSColor.mer_swizzledColorNamed(_:))) {
+            method_exchangeImplementations(original, custom)
+        }
+
+        // Swizzle 3: +_selectionMaterialTintColor — private NSColor
+        // method documented in the macOS_headers dump (NSColor.h). This
+        // is what NSToolbarItem's selected-tab pill rendering reads in
+        // NSTabViewController toolbar style, and it bypasses both
+        // controlAccentColor and colorNamed:. Returning the team accent
+        // here makes the selected tab pill match every other accent
+        // surface.
+        let selectionTintSel = NSSelectorFromString("_selectionMaterialTintColor")
+        if let original = class_getClassMethod(NSColor.self, selectionTintSel),
+           let custom = class_getClassMethod(NSColor.self, #selector(NSColor.mer_currentTeamAccentColorAlt)) {
             method_exchangeImplementations(original, custom)
         }
     }
