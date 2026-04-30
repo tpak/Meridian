@@ -47,6 +47,32 @@ if [[ "$VERSION" == *-beta* ]]; then
     IS_BETA=1
 fi
 
+# Derive a numeric build number from VERSION. Sparkle's
+# SUStandardVersionComparator tokenizes versions and BREAKS at the first
+# `-`, so "2.21.0-beta1" and "2.21.0-beta2" tokenize identically and are
+# treated as equal. That made every beta-to-beta auto-update silently
+# fail. We side-step by:
+#   - keeping MARKETING_VERSION = display string (e.g. "2.21.0-beta3")
+#   - setting CURRENT_PROJECT_VERSION = numeric build (e.g. 2210003)
+#   - publishing <sparkle:version>2210003</sparkle:version> in the appcast
+#     so Sparkle's comparator gets a clean integer to diff
+#   - publishing <sparkle:shortVersionString>2.21.0-beta3</sparkle:shortVersionString>
+#     so the user-facing alert still shows the readable version
+#
+# Encoding: MAJOR*1_000_000 + MINOR*10_000 + PATCH*1_000 + BETA_N
+# (BETA_N=100 reserved for stable so stable > any beta of same X.Y.Z).
+if [[ "$VERSION" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)(-beta([0-9]+))?$ ]]; then
+    V_MAJOR="${BASH_REMATCH[1]}"
+    V_MINOR="${BASH_REMATCH[2]}"
+    V_PATCH="${BASH_REMATCH[3]}"
+    V_BETA="${BASH_REMATCH[5]:-100}"
+    BUILD_NUMBER=$((V_MAJOR * 1000000 + V_MINOR * 10000 + V_PATCH * 1000 + V_BETA))
+else
+    echo "Error: VERSION '$VERSION' did not parse for build-number derivation"
+    exit 1
+fi
+echo "── Build number derived from VERSION=$VERSION → $BUILD_NUMBER"
+
 if [[ "$(git branch --show-current)" != "main" ]]; then
     echo "Error: Must be on 'main' branch (currently on '$(git branch --show-current)')"
     exit 1
@@ -181,10 +207,10 @@ echo ""
 
 # ── Phase 2: Bump version + commit ─────────────────────────────────
 
-echo "── Bumping version to $VERSION..."
+echo "── Bumping version to $VERSION (build $BUILD_NUMBER)..."
 PBXPROJ="Meridian/Meridian.xcodeproj/project.pbxproj"
 sed -i '' "s/MARKETING_VERSION = [^;]*;/MARKETING_VERSION = $VERSION;/g" "$PBXPROJ"
-sed -i '' "s/CURRENT_PROJECT_VERSION = [^;]*;/CURRENT_PROJECT_VERSION = $VERSION;/g" "$PBXPROJ"
+sed -i '' "s/CURRENT_PROJECT_VERSION = [^;]*;/CURRENT_PROJECT_VERSION = $BUILD_NUMBER;/g" "$PBXPROJ"
 
 git add "$PBXPROJ"
 if git diff --cached --quiet; then
@@ -324,7 +350,7 @@ fi
 NEW_ITEM="        <item>
             <title>$VERSION</title>
             <pubDate>$PUB_DATE</pubDate>$CHANNEL_TAG
-            <sparkle:version>$VERSION</sparkle:version>
+            <sparkle:version>$BUILD_NUMBER</sparkle:version>
             <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
