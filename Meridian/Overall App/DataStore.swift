@@ -297,19 +297,47 @@ extension NSColor {
         DataStore.shared().teamAccent.accentColor
     }
 
+    /// Intercepts `NSColor(named:)` lookups. When the name is the asset
+    /// catalog's accent entry ("AccentColor" / "Accent Color"), return
+    /// the live team accent. All other names fall through to the
+    /// original implementation.
+    ///
+    /// This is needed because AppKit's selected-toolbar-tab background
+    /// reads the asset catalog directly via `+colorNamed:` instead of
+    /// going through `+controlAccentColor`. Swizzling only the latter
+    /// left the tab background showing whatever was baked into
+    /// `Accent Color.colorset` (Aston Martin green) regardless of the
+    /// user's team selection.
+    @objc class func mer_swizzledColorNamed(_ name: String) -> NSColor? {
+        if name == "AccentColor" || name == "Accent Color" {
+            return DataStore.shared().teamAccent.accentColor
+        }
+        // After method_exchangeImplementations, this call lands on the
+        // original `+colorNamed:` because the implementations were
+        // swapped at runtime.
+        return mer_swizzledColorNamed(name)
+    }
+
     /// Idempotent — guarded with a static flag so repeated calls are no-ops.
     static func installTeamAccentSwizzle() {
         struct Once { static var done = false }
         guard !Once.done else { return }
         Once.done = true
 
-        let originalSel = #selector(getter: NSColor.controlAccentColor)
-        let customSel = #selector(NSColor.mer_currentTeamAccentColor)
-        guard let original = class_getClassMethod(NSColor.self, originalSel),
-              let custom = class_getClassMethod(NSColor.self, customSel) else {
-            return
+        // Swizzle 1: +controlAccentColor — covers most accent surfaces.
+        if let original = class_getClassMethod(NSColor.self, #selector(getter: NSColor.controlAccentColor)),
+           let custom = class_getClassMethod(NSColor.self, #selector(NSColor.mer_currentTeamAccentColor)) {
+            method_exchangeImplementations(original, custom)
         }
-        method_exchangeImplementations(original, custom)
+
+        // Swizzle 2: +colorNamed: — covers AppKit code paths that read
+        // the asset catalog directly (notably the selected-tab pill
+        // background in NSTabViewController toolbar style).
+        let colorNamedSel = NSSelectorFromString("colorNamed:")
+        if let original = class_getClassMethod(NSColor.self, colorNamedSel),
+           let custom = class_getClassMethod(NSColor.self, #selector(NSColor.mer_swizzledColorNamed(_:))) {
+            method_exchangeImplementations(original, custom)
+        }
     }
 }
 
