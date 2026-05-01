@@ -2,7 +2,7 @@
 
 Generated 2026-04-30 via four-agent parallel code review (security, dead code, resilience, maintainability).
 
-**Status as of 2026-05-01**: 12 items shipped in v2.21.1 (PRs #108, #109) and #110 (R9). 2 items skipped as not-urgent for this use case. 1 item retired as already-done. **8 items remain**, all in the "needs design judgment" bucket.
+**Status as of 2026-05-01**: 12 items shipped in v2.21.1 (PRs #108, #109) and #110 (R9). 2 items skipped as not-urgent for this use case. 1 item retired as already-done. **9 items remain**, all in the "needs design judgment" bucket.
 
 ---
 
@@ -23,11 +23,11 @@ Generated 2026-04-30 via four-agent parallel code review (security, dead code, r
 | M2, M3, M4 | ✅ Done | PR #109 (v2.21.1) |
 | M10 | ✅ Done | PR #108 (v2.21.1) |
 | Dead Code | ✅ Done | PR #109 (v2.21.1) |
-| M1, M5, M6, M7, M8, M9, M11, M12 | ⏳ Pending | Need design judgment — see below |
+| M1, M5, M6, M7, M8, M9, M11, M12, M13 | ⏳ Pending | Need design judgment — see below |
 
 ---
 
-## Remaining Items (8)
+## Remaining Items (9)
 
 ### M1 — Implicitly unwrapped optional `statusBarHandler`
 - **File:** `Meridian/AppDelegate.swift:11`
@@ -68,6 +68,15 @@ Generated 2026-04-30 via four-agent parallel code review (security, dead code, r
 - **File:** `Meridian/Preferences/General/TimezoneAdditionHandler.swift:63–123`
 - **Issue:** One method handles input validation, UI feedback, network call, and error handling sequentially.
 - **Fix:** Extract `validateSearchInput() -> Bool`, `showSearchInProgress()`, and `presentNetworkError(_:)` sub-methods. The main `search()` becomes an orchestrator.
+
+### M13 — CLGeocoder deprecated in macOS 26.0
+- **Files:** `Meridian/Overall App/NetworkManager.swift` (forward geocode), `Meridian/App/LocationController.swift` (reverse geocode + the `CLGeocoder` extension added in PR #110)
+- **Issue:** Apple deprecated `CLGeocoder` and `geocodeAddressString` / `reverseGeocodeLocation` in macOS 26.0. Build emits warnings now; will become an error in a future macOS release. Apple recommends `MKGeocodingRequest` / `MKReverseGeocodingRequest` from MapKit.
+- **Fix:** Migrate both call sites to `MKGeocodingRequest`. The new API is async-native and integrates with `MKMapItem`. Two paths to update:
+  1. `LocationController.locationManager(_:didUpdateLocations:)` — reverse-geocode the system location to a city name.
+  2. `NetworkManager.geocodeAddress(_:)` — forward-geocode user-entered city search strings to coordinates.
+  
+  The PR #110 `CLGeocoder` timeout extensions can be replaced with whatever cancellation primitives the new API exposes (likely `Task` cancellation, since `MKGeocodingRequest` is fully async). Verify the `MapKit` framework is already linked (it should be — Meridian already uses `CLLocation`).
 
 ---
 
