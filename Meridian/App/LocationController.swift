@@ -75,9 +75,15 @@ extension LocationController: CLLocationManagerDelegate {
             guard let self else { return }
             let geocoder = CLGeocoder()
             defer { self.locationManager.stopUpdatingLocation() }
-            guard let placemarks = try? await geocoder.reverseGeocodeLocation(locations[0]),
-                  let customLabel = placemarks.first?.locality else { return }
-            self.updateHomeObject(with: customLabel, coordinates: coordinates)
+
+            do {
+                let placemarks = try await geocoder.reverseGeocodeLocation(locations[0],
+                                                                            timeout: GeocodingConstants.timeout)
+                guard let customLabel = placemarks.first?.locality else { return }
+                self.updateHomeObject(with: customLabel, coordinates: coordinates)
+            } catch {
+                Logger.production("Reverse geocode failed: \(error.localizedDescription)")
+            }
         }
     }
 
@@ -92,5 +98,41 @@ extension LocationController: CLLocationManagerDelegate {
 
     func locationManager(_: CLLocationManager, didFailWithError error: Error) {
         Logger.production("Location error: \(error.localizedDescription)")
+    }
+}
+
+enum GeocodingConstants {
+    /// Cap geocoding waits at 10 seconds. Apple's CLGeocoder has no built-in
+    /// timeout — without one, a stalled network during location-permission
+    /// grant or first-launch reverse geocode can hang the calling Task forever.
+    static let timeout: TimeInterval = 10
+}
+
+extension CLGeocoder {
+    /// Reverse-geocodes a location, racing against a timeout. On timeout the
+    /// in-flight geocode is cancelled (CLGeocoder.cancelGeocode), which causes
+    /// the awaited call to throw — the caller receives that error.
+    func reverseGeocodeLocation(_ location: CLLocation, timeout: TimeInterval) async throws -> [CLPlacemark] {
+        let timeoutTask = Task {
+            try? await Task.sleep(nanoseconds: UInt64(timeout * 1_000_000_000))
+            if !Task.isCancelled {
+                self.cancelGeocode()
+            }
+        }
+        defer { timeoutTask.cancel() }
+        return try await reverseGeocodeLocation(location)
+    }
+
+    /// Forward-geocodes an address string, racing against a timeout. Same
+    /// cancellation behavior as the reverse variant.
+    func geocodeAddressString(_ address: String, timeout: TimeInterval) async throws -> [CLPlacemark] {
+        let timeoutTask = Task {
+            try? await Task.sleep(nanoseconds: UInt64(timeout * 1_000_000_000))
+            if !Task.isCancelled {
+                self.cancelGeocode()
+            }
+        }
+        defer { timeoutTask.cancel() }
+        return try await geocodeAddressString(address)
     }
 }

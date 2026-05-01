@@ -81,13 +81,16 @@ extension NetworkManager {
 
     // MARK: - Geocoding
 
-    /// Geocode an address string using Apple's CLGeocoder.
+    /// Geocode an address string using Apple's CLGeocoder, capped at
+    /// `GeocodingConstants.timeout`. On timeout the geocode is cancelled and
+    /// the call throws.
     /// - Parameter address: The address string to geocode
     /// - Returns: The first matching CLPlacemark
-    /// - Throws: NSError if no results are found or geocoding fails
+    /// - Throws: NSError if no results are found, the request times out, or
+    ///           geocoding fails
     static func geocodeAddress(_ address: String) async throws -> CLPlacemark {
         let geocoder = CLGeocoder()
-        let placemarks = try await geocoder.geocodeAddressString(address)
+        let placemarks = try await geocoder.geocodeAddressString(address, timeout: GeocodingConstants.timeout)
         guard let placemark = placemarks.first else {
             throw NSError(domain: "NetworkManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "No results found"])
         }
