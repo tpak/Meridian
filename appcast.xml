@@ -3,6 +3,24 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>2.21.1</title>
+            <pubDate>Fri, 01 May 2026 00:47:59 +0000</pubDate>
+            <sparkle:version>2211100</sparkle:version>
+            <sparkle:shortVersionString>2.21.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Fix rare crashes when the system timezone database is incomplete</li>
+                    <li>Harden city search URL handling against unexpected input</li>
+                    <li>Localize slider button tooltips</li>
+                    <li>Restrict exported debug log file to user-only permissions</li>
+                    <li>Improve reliability of menu bar timer and panel observer cleanup</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.21.1/Meridian.app.zip" length="3279151" type="application/octet-stream" sparkle:edSignature="ZslaZp+7qJ2tNVpqPLxtMaDHPK9C68EeyamUbIdKrW1F5VYArKanTHwhHck0eCFbBfnoQh/k0H/wFRnr28oHDg=="/>
+        </item>
+        <item>
             <title>2.21.0</title>
             <pubDate>Thu, 30 Apr 2026 12:29:04 +0000</pubDate>
             <sparkle:version>2210100</sparkle:version>
