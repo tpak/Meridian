@@ -32,6 +32,23 @@ protocol DataStoring: AnyObject {
     func shouldShowDayInMenubar() -> Bool
 }
 
+// Conforming `CaseIterable` enums get a stable string identifier (`jsonName`,
+// defaulting to the Swift case name) for SettingsManager export/import, plus
+// a failable `init?(jsonName:)` for the inverse lookup. Override `jsonName`
+// when the enum's stable identifier needs to differ from the case name.
+protocol JSONNameDecodable: CaseIterable {
+    var jsonName: String { get }
+}
+
+extension JSONNameDecodable {
+    var jsonName: String { String(describing: self) }
+
+    init?(jsonName: String) {
+        guard let match = Self.allCases.first(where: { $0.jsonName == jsonName }) else { return nil }
+        self = match
+    }
+}
+
 class DataStore: NSObject, DataStoring {
     private static var sharedStore = DataStore(with: UserDefaults.standard)
     private var userDefaults: UserDefaults!
@@ -247,13 +264,14 @@ enum TeamAccent: String, Codable, CaseIterable {
         return NSColor(srgbRed: red, green: green, blue: blue, alpha: 0.85)
     }
 
+    // Override the JSONNameDecodable default (`String(describing: self)`) to
+    // explicitly use rawValue. Functionally equivalent today since cases have
+    // no explicit raw values, but the override locks in stability if a case
+    // ever needs an explicit raw value that diverges from the case name.
     var jsonName: String { rawValue }
-
-    init?(jsonName: String) {
-        guard let match = Self.allCases.first(where: { $0.rawValue == jsonName }) else { return nil }
-        self = match
-    }
 }
+
+extension TeamAccent: JSONNameDecodable {}
 
 extension Notification.Name {
     /// Posted when the user changes the team accent in Appearance settings.
@@ -376,46 +394,16 @@ enum TimeFormat: Int, Codable, CaseIterable {
     case epoch = 11
 }
 
-// Stable string name for typed preference enums. Used by SettingsManager v2
+// Stable string name for typed preference enums via the JSONNameDecodable
+// protocol (declared near the top of this file). Used by SettingsManager v2
 // JSON export ("compact" instead of 0). Names are derived from the Swift
 // case identifier — keep them stable across releases since users' export
 // files persist them.
-extension MenubarMode { var jsonName: String { String(describing: self) } }
-extension Theme { var jsonName: String { String(describing: self) } }
-extension RelativeDateDisplay { var jsonName: String { String(describing: self) } }
-extension AppPresentation { var jsonName: String { String(describing: self) } }
-extension TimeFormat { var jsonName: String { String(describing: self) } }
-
-extension MenubarMode {
-    init?(jsonName: String) {
-        guard let match = Self.allCases.first(where: { $0.jsonName == jsonName }) else { return nil }
-        self = match
-    }
-}
-extension Theme {
-    init?(jsonName: String) {
-        guard let match = Self.allCases.first(where: { $0.jsonName == jsonName }) else { return nil }
-        self = match
-    }
-}
-extension RelativeDateDisplay {
-    init?(jsonName: String) {
-        guard let match = Self.allCases.first(where: { $0.jsonName == jsonName }) else { return nil }
-        self = match
-    }
-}
-extension AppPresentation {
-    init?(jsonName: String) {
-        guard let match = Self.allCases.first(where: { $0.jsonName == jsonName }) else { return nil }
-        self = match
-    }
-}
-extension TimeFormat {
-    init?(jsonName: String) {
-        guard let match = Self.allCases.first(where: { $0.jsonName == jsonName }) else { return nil }
-        self = match
-    }
-}
+extension MenubarMode: JSONNameDecodable {}
+extension Theme: JSONNameDecodable {}
+extension RelativeDateDisplay: JSONNameDecodable {}
+extension AppPresentation: JSONNameDecodable {}
+extension TimeFormat: JSONNameDecodable {}
 
 // MARK: - Typed accessors (issue #97)
 
