@@ -11,6 +11,12 @@ struct PanelConstants {
     static let minutesPerSliderPoint = 15
 }
 
+// Properties below are scoped to subclass-or-extension reach intentionally:
+// - cancellables / parentTimer / datasource: written by PanelController subclass
+// - futureSliderValue: read by TimezoneCellView (an unrelated UI cell that
+//   needs the current scrub offset)
+// - dataStore: kept internal so tests can swap in a mock
+// All other state on this class stays private.
 class ParentPanelController: NSWindowController {
     var cancellables = Set<AnyCancellable>()
 
@@ -44,8 +50,8 @@ class ParentPanelController: NSWindowController {
     @IBOutlet var roundedDateView: NSView!
 
     // Modern Slider
-    public var currentCenterSliderItemIndex: Int = -1
-    public var closestQuarterTimeRepresentation: Date?
+    var currentCenterSliderItemIndex: Int = -1
+    var closestQuarterTimeRepresentation: Date?
     @IBOutlet var modernSlider: NSCollectionView!
     @IBOutlet var modernSliderLabel: NSTextField!
     @IBOutlet var modernContainerView: ModernSliderContainerView!
