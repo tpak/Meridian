@@ -8,7 +8,7 @@ import Sparkle
 @main
 open class AppDelegate: NSObject, NSApplicationDelegate {
     internal lazy var panelController = PanelController(windowNibName: .panel)
-    private var statusBarHandler: StatusItemHandler!
+    private lazy var statusBarHandler: StatusItemHandler = StatusItemHandler(with: DataStore.shared())
     lazy var updaterController: SPUStandardUpdaterController = {
         SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: self, userDriverDelegate: nil)
     }()
@@ -204,8 +204,10 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         // Check if another instance of the app is already running. If so, then stop this one.
         checkIfAppIsAlreadyOpen()
 
-        // Install the menubar item!
-        statusBarHandler = StatusItemHandler(with: DataStore.shared())
+        // Force the lazy var to materialize here so the menubar item appears
+        // at this specific point in the launch sequence rather than on first
+        // access elsewhere.
+        _ = statusBarHandler
 
         UserDefaults.standard.register(defaults: ["NSApplicationCrashOnExceptions": true])
 
