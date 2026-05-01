@@ -23,7 +23,7 @@ extension ParentPanelController {
         if modernSlider != nil {
             modernSliderLabel.alignment = .center
 
-            resetModernSliderButton.image = NSImage(systemSymbolName: "arrow.counterclockwise", accessibilityDescription: "Reset slider")
+            resetModernSliderButton.image = NSImage(systemSymbolName: "arrow.counterclockwise", accessibilityDescription: "Reset slider".localized())
 
             if let scrollView = modernSlider.superview?.superview as? NSScrollView {
                 scrollView.scrollerStyle = NSScroller.Style.overlay
@@ -50,8 +50,8 @@ extension ParentPanelController {
             resetModernSliderButton.isHidden = true
             resetModernSliderButton.alphaValue = 1.0
 
-            goBackwardsButton.toolTip = "Navigate 15 mins back"
-            goForwardButton.toolTip = "Navigate 15 mins forward"
+            goBackwardsButton.toolTip = "Navigate 15 mins back".localized()
+            goForwardButton.toolTip = "Navigate 15 mins forward".localized()
 
             modernSlider.wantsLayer = true // Required for animating reset to center
             modernSlider.enclosingScrollView?.scrollerInsets = NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)

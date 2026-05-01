@@ -2390,6 +2390,39 @@
           }
         }
       }
+    },
+    "Navigate 15 mins back": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navigate 15 mins back"
+          }
+        }
+      }
+    },
+    "Navigate 15 mins forward": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navigate 15 mins forward"
+          }
+        }
+      }
+    },
+    "Reset slider": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset slider"
+          }
+        }
+      }
     }
   }
 }

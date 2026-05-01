@@ -62,8 +62,16 @@ extension NetworkManager {
     /// - Returns: The response data
     /// - Throws: NSError if URL construction fails or the request fails
     static func data(from path: String, session: URLSession = .shared) async throws -> Data {
-        guard let encodedPath = path.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let url = URL(string: encodedPath)
+        let trimmed = path.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty,
+              trimmed.count <= 2_000,
+              !trimmed.unicodeScalars.contains(where: { $0.value < 0x20 })
+        else {
+            throw unableToGenerateURL
+        }
+
+        guard let components = URLComponents(string: trimmed),
+              let url = components.url
         else {
             throw unableToGenerateURL
         }
