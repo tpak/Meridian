@@ -71,3 +71,28 @@ public enum UserDefaultKeys {
     // Settings to the Appearance tab, and clears the flag.
     static let reopenAppearanceOnLaunch = "com.tpak.meridian.reopenAppearanceOnLaunch"
 }
+
+// Centralized timing literals. Putting them here makes the rationale for each
+// delay easy to find (and to revisit) instead of hiding them as bare numbers
+// at call sites.
+enum TimingConstants {
+    /// Delay before terminating the current process during the team-accent
+    /// restart flow. Long enough for `open -n` to register the new launch
+    /// before the old process exits — otherwise macOS treats it as a
+    /// duplicate-launch suppression and the new instance never appears.
+    static let pauseBeforeRelaunchTermination: TimeInterval = 0.2
+
+    /// Delay before opening Settings → Appearance after the team-accent
+    /// relaunch completes. Lets AppDelegate finish constructing the panel
+    /// and status item before we open Settings on top of them.
+    static let openAppearanceAfterRelaunch: TimeInterval = 0.3
+}
+
+// Centralized layout literals shared across menubar text-rendering call sites.
+// Per-file layout values that aren't shared stay where they're used.
+enum LayoutConstants {
+    /// Line-height multiple applied to monospaced status-bar text in English
+    /// locales. Slightly compresses leading so descenders (p, q, y, g) read
+    /// well in the menubar. Non-English locales use 1.0 (no compression).
+    static let englishMenubarLineHeightMultiple: CGFloat = 0.92
+}

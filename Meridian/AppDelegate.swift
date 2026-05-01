@@ -44,7 +44,7 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         UserDefaults.standard.removeObject(forKey: UserDefaultKeys.reopenAppearanceOnLaunch)
         // Brief delay so AppDelegate finishes building the panel /
         // status item before we open Settings on top.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + TimingConstants.openAppearanceAfterRelaunch) { [weak self] in
             self?.panelController.oneWindow?.openAppearancePane()
         }
     }

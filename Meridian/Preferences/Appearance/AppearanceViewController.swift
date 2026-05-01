@@ -305,7 +305,7 @@ class AppearanceViewController: ParentViewController {
         // Brief delay so the spawn has time to register before we
         // terminate; otherwise macOS may treat it as a duplicate-launch
         // suppression and the new instance never appears.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + TimingConstants.pauseBeforeRelaunchTermination) {
             NSApp.terminate(nil)
         }
     }

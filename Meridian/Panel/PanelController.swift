@@ -11,6 +11,11 @@ private enum PanelLayout {
     static let versionLabelTrailingMargin: CGFloat = 34 // 22pt button + 4pt gap + 8pt margin
     static let frameYPointOffset: CGFloat = 2
     static let minimumSpaceBetweenWindowAndScreenEdge: CGFloat = 10
+    /// How far below the status item's origin we probe to identify which
+    /// screen contains the status item. Status items sit at the very top edge
+    /// in NS coordinates (y = screen.maxY), so a probe AT the origin can land
+    /// outside any screen. 100pt down lands well inside the menubar's screen.
+    static let statusItemScreenProbeOffset: CGFloat = 100
 }
 
 private enum PanelAnimation {
@@ -269,7 +274,7 @@ class PanelController: ParentPanelController {
 
         var statusItemFrame = statusWindow.convertToScreen(statusButton.frame)
         var testPoint = statusItemFrame.origin
-        testPoint.y -= 100
+        testPoint.y -= PanelLayout.statusItemScreenProbeOffset
 
         let statusItemScreen = NSScreen.screens.first(where: { $0.frame.contains(testPoint) }) ?? NSScreen.main
         guard let resolvedScreen = statusItemScreen else { return }
