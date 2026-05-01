@@ -55,6 +55,11 @@ extension TimezoneDataSource: NSTableViewDataSource, NSTableViewDelegate {
             return NSView()
         }
 
+        guard row >= 0, row < timezones.count else {
+            Logger.debug("Row \(row) out of bounds for timezones (count: \(timezones.count))")
+            return NSView()
+        }
+
         let currentModel = timezones[row]
         let operation = TimezoneDataOperations(with: currentModel, store: dataStore)
 

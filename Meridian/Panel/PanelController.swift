@@ -63,6 +63,10 @@ class PanelController: ParentPanelController {
         )
     }
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     @objc private func accentColorDidChange() {
         // Pin button: re-apply tint via the same code path that picks the
         // floating-vs-secondary color, so a paused-mid-update tint flips
@@ -169,7 +173,7 @@ class PanelController: ParentPanelController {
             .store(in: &cancellables)
     }
 
-    func setFrameTheNewWay(_ rect: NSRect, _ maxX: CGFloat) {
+    func positionPanelRelativeToStatusItem(_ rect: NSRect, _ maxX: CGFloat) {
         // Calculate window's top left point.
         // First, center window under status item.
         let width = (window?.frame)!.width
@@ -274,7 +278,7 @@ class PanelController: ParentPanelController {
         let minY = min(statusItemFrame.origin.y, resolvedScreen.frame.maxY)
         statusItemFrame.origin.y = minY
 
-        setFrameTheNewWay(statusItemFrame, screenMaxX)
+        positionPanelRelativeToStatusItem(statusItemFrame, screenMaxX)
         PerfLogger.endMarker("Set Panel Frame")
     }
 

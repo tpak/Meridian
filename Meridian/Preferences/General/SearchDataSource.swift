@@ -82,30 +82,33 @@ class SearchDataSource: NSObject {
     private func setupTimezoneDatasource() {
         timezoneArray = []
 
-        let anywhereOnEarth = TimezoneMetadata(timezone: NSTimeZone(abbreviation: "GMT-1200")!,
-                                               tags: ["aoe", "anywhere on earth"],
-                                               formattedName: "Anywhere on Earth",
-                                               abbreviation: "AOE")
-        let utcTimezone = TimezoneMetadata(timezone: NSTimeZone(abbreviation: "GMT")!,
-                                           tags: ["utc", "gmt", "universal"],
-                                           formattedName: "UTC",
-                                           abbreviation: "GMT")
+        if let aoeTimezone = NSTimeZone(abbreviation: "GMT-1200") {
+            let anywhereOnEarth = TimezoneMetadata(timezone: aoeTimezone,
+                                                   tags: ["aoe", "anywhere on earth"],
+                                                   formattedName: "Anywhere on Earth",
+                                                   abbreviation: "AOE")
+            timezoneArray.append(anywhereOnEarth)
+        }
 
-        timezoneArray.append(anywhereOnEarth)
-        timezoneArray.append(utcTimezone)
+        if let gmtTimezone = NSTimeZone(abbreviation: "GMT") {
+            let utcTimezone = TimezoneMetadata(timezone: gmtTimezone,
+                                               tags: ["utc", "gmt", "universal"],
+                                               formattedName: "UTC",
+                                               abbreviation: "GMT")
+            timezoneArray.append(utcTimezone)
+        }
 
         for identifier in TimeZone.knownTimeZoneIdentifiers {
             guard let timezoneObject = TimeZone(identifier: identifier) else { continue }
+            guard let abbreviation = timezoneObject.abbreviation() else { continue }
 
-            // Force-cast explicitly since we get the identifier from `knownTimeZoneIdentifiers`
-            let abbreviation = timezoneObject.abbreviation()!
             let tzIdentifier = timezoneObject.identifier
             var tags: Set<String> = [abbreviation.lowercased(), tzIdentifier.lowercased()]
 
             let extraTags = timezoneMetadataDictionary[abbreviation] ?? []
             extraTags.forEach { tags.insert($0) }
 
-            let timezoneIdentifier = NSTimeZone(name: tzIdentifier)!
+            guard let timezoneIdentifier = NSTimeZone(name: tzIdentifier) else { continue }
             let timezoneMetadata = TimezoneMetadata(timezone: timezoneIdentifier,
                                                     tags: tags,
                                                     formattedName: tzIdentifier,

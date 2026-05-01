@@ -220,6 +220,9 @@ class StatusItemHandler: NSObject {
 
         let shouldDisplaySeconds = shouldDisplaySecondsInMenubar()
 
+        menubarTimer?.invalidate()
+        menubarTimer = nil
+
         menubarTimer = Timer(fire: fireDate,
                              interval: 0,
                              repeats: false,

@@ -53,7 +53,7 @@ class PreferencesViewController: ParentViewController {
     private var selectionsDataSource: PreferencesDataSource!
     // Search Results Data Source Handler
     var searchResultsDataSource: SearchDataSource!
-    private lazy var notimezoneView: NoTimezoneView? = NoTimezoneView(frame: tableview.frame)
+    private lazy var noTimezoneView: NoTimezoneView? = NoTimezoneView(frame: tableview.frame)
 
     private var timezoneAdditionHandler: TimezoneAdditionHandler!
 
@@ -146,7 +146,7 @@ class PreferencesViewController: ParentViewController {
 
         if selectedTimeZones.isEmpty == false {
             additionalSortOptions.isHidden = false
-            if tableview.subviews.count > 1, let zeroView = notimezoneView, tableview.subviews.contains(zeroView) {
+            if tableview.subviews.count > 1, let zeroView = noTimezoneView, tableview.subviews.contains(zeroView) {
                 zeroView.removeFromSuperview()
                 timezoneTableView.enclosingScrollView?.isHidden = false
             }
@@ -225,8 +225,8 @@ class PreferencesViewController: ParentViewController {
     }
 
     private func showNoTimezoneState() {
-        if let zeroView = notimezoneView {
-            notimezoneView?.wantsLayer = true
+        if let zeroView = noTimezoneView {
+            noTimezoneView?.wantsLayer = true
             tableview.addSubview(zeroView)
             Logger.debug("Showing Empty View")
         }
