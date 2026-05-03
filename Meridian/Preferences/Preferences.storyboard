@@ -586,27 +586,6 @@
                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                 </textField>
-                                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" preferredMaxLayoutWidth="175" translatesAutoresizingMaskIntoConstraints="NO" id="Utg-yF-Rso" userLabel="Menubar Mode">
-                                                    <rect key="frame" x="126" y="250" width="95" height="18"/>
-                                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Menubar Mode" id="6xJ-Vn-e39">
-                                                        <font key="font" size="13" name="Avenir-Light"/>
-                                                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                </textField>
-                                                <segmentedControl verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Mai-SZ-AEi">
-                                                    <rect key="frame" x="242" y="247" width="128" height="24"/>
-                                                    <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="selectOne" id="tbg-LS-tZH">
-                                                        <font key="font" size="12" name="Avenir-Light"/>
-                                                        <segments>
-                                                            <segment label="Compact"/>
-                                                            <segment label="Standard" selected="YES" tag="1"/>
-                                                        </segments>
-                                                    </segmentedCell>
-                                                    <connections>
-                                                        <action selector="menubarModeChanged:" target="1aL-zR-8L4" id="cKL-6S-VDw"/>
-                                                    </connections>
-                                                </segmentedControl>
                                                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Q3M-Kz-XV3">
                                                     <rect key="frame" x="214" y="403" width="112" height="22"/>
                                                     <constraints>
@@ -773,22 +752,18 @@
                                                 <constraint firstItem="8Jv-Cf-blJ" firstAttribute="trailing" secondItem="GaR-Qm-7u4" secondAttribute="trailing" id="NUW-UR-fQ1"/>
                                                 <constraint firstItem="ffU-Ce-sfU" firstAttribute="centerX" secondItem="mF4-bp-EID" secondAttribute="centerX" id="NtD-tv-DLi"/>
                                                 <constraint firstAttribute="trailing" secondItem="XeT-rJ-1io" secondAttribute="trailing" constant="-3" id="PrP-aA-Zhl"/>
-                                                <constraint firstItem="Utg-yF-Rso" firstAttribute="trailing" secondItem="bhJ-MT-NBP" secondAttribute="trailing" id="RVT-XO-vH3"/>
                                                 <constraint firstItem="pk6-co-N73" firstAttribute="centerY" secondItem="8Jv-Cf-blJ" secondAttribute="centerY" id="XeK-R2-Z7W"/>
                                                 <constraint firstItem="pZd-Wg-YPL" firstAttribute="trailing" secondItem="fTA-lS-4wJ" secondAttribute="trailing" id="ZcE-Iu-M9g"/>
                                                 <constraint firstItem="XeT-rJ-1io" firstAttribute="leading" secondItem="mF4-bp-EID" secondAttribute="leading" constant="-3" id="afb-db-nsk"/>
-                                                <constraint firstItem="Mai-SZ-AEi" firstAttribute="leading" secondItem="KeW-e2-uQE" secondAttribute="leading" id="bhh-nt-9cb"/>
                                                 <constraint firstAttribute="trailing" secondItem="Wj2-aw-ZDm" secondAttribute="trailing" id="c7U-11-oja"/>
                                                 <constraint firstItem="Axn-Tb-Cdx" firstAttribute="leading" secondItem="fTA-lS-4wJ" secondAttribute="trailing" constant="25" id="cpc-PS-JXb"/>
                                                 <constraint firstItem="Wj2-aw-ZDm" firstAttribute="bottom" secondItem="XeT-rJ-1io" secondAttribute="bottom" id="d1X-nE-5Z1"/>
-                                                <constraint firstItem="XeT-rJ-1io" firstAttribute="top" secondItem="Mai-SZ-AEi" secondAttribute="bottom" constant="14" id="dK0-pf-XzU"/>
+                                                <constraint firstItem="XeT-rJ-1io" firstAttribute="top" secondItem="bhJ-MT-NBP" secondAttribute="bottom" constant="14" id="dK0-pf-XzU"/>
                                                 <constraint firstItem="HNj-dh-8gr" firstAttribute="top" secondItem="ffU-Ce-sfU" secondAttribute="bottom" constant="12" id="e9q-JE-9cD"/>
                                                 <constraint firstItem="ffU-Ce-sfU" firstAttribute="top" secondItem="XeT-rJ-1io" secondAttribute="bottom" constant="12" id="ed3-Oa-Uso"/>
                                                 <constraint firstItem="DjV-qq-hr9" firstAttribute="centerY" secondItem="HNj-dh-8gr" secondAttribute="centerY" id="ezB-Gf-m1M"/>
                                                 <constraint firstItem="Wj2-aw-ZDm" firstAttribute="top" secondItem="mF4-bp-EID" secondAttribute="top" id="g9Z-bG-q6C"/>
-                                                <constraint firstItem="Mai-SZ-AEi" firstAttribute="centerY" secondItem="Utg-yF-Rso" secondAttribute="centerY" id="gaG-hL-cPZ"/>
                                                 <constraint firstItem="bhJ-MT-NBP" firstAttribute="trailing" secondItem="pZd-Wg-YPL" secondAttribute="trailing" id="glb-jO-783"/>
-                                                <constraint firstItem="Utg-yF-Rso" firstAttribute="top" secondItem="bhJ-MT-NBP" secondAttribute="bottom" constant="14" id="i0V-V6-4Ry"/>
                                                 <constraint firstItem="8Nx-Xq-XDU" firstAttribute="leading" secondItem="DjV-qq-hr9" secondAttribute="leading" constant="-2" id="n70-Hh-rVD"/>
                                                 <constraint firstItem="GaR-Qm-7u4" firstAttribute="trailing" secondItem="HNj-dh-8gr" secondAttribute="trailing" id="rdt-gt-K0k"/>
                                                 <constraint firstItem="8Nx-Xq-XDU" firstAttribute="centerY" secondItem="GaR-Qm-7u4" secondAttribute="centerY" id="s0m-wC-dVO"/>
@@ -797,8 +772,8 @@
                                                 <constraint firstItem="AxB-VD-lXm" firstAttribute="leading" secondItem="Axn-Tb-Cdx" secondAttribute="leading" id="x1o-YB-Aes"/>
                                                 <constraint firstItem="pk6-co-N73" firstAttribute="leading" secondItem="DjV-qq-hr9" secondAttribute="leading" id="y9n-Tk-GUK"/>
                                                 <constraint firstItem="Q3M-Kz-XV3" firstAttribute="centerX" secondItem="mF4-bp-EID" secondAttribute="centerX" id="yKZ-7i-UKv"/>
-                                                <constraint firstItem="HNj-dh-8gr" firstAttribute="trailing" secondItem="Utg-yF-Rso" secondAttribute="trailing" id="yPE-hM-Mbb"/>
-                                                <constraint firstItem="DjV-qq-hr9" firstAttribute="leading" secondItem="Mai-SZ-AEi" secondAttribute="leading" id="ykI-Ig-kwf"/>
+                                                <constraint firstItem="HNj-dh-8gr" firstAttribute="trailing" secondItem="bhJ-MT-NBP" secondAttribute="trailing" id="yPE-hM-Mbb"/>
+                                                <constraint firstItem="DjV-qq-hr9" firstAttribute="leading" secondItem="KeW-e2-uQE" secondAttribute="leading" id="ykI-Ig-kwf"/>
                                                 <constraint firstItem="floatTop-lbl-001" firstAttribute="top" secondItem="HNj-dh-8gr" secondAttribute="bottom" constant="14" id="floatTop-con-top"/>
                                                 <constraint firstItem="GaR-Qm-7u4" firstAttribute="top" secondItem="floatTop-lbl-001" secondAttribute="bottom" constant="14" id="floatTop-con-bot"/>
                                                 <constraint firstItem="floatTop-ctrl-001" firstAttribute="centerY" secondItem="floatTop-lbl-001" secondAttribute="centerY" id="floatTop-con-cy"/>
@@ -835,8 +810,6 @@
                         <outlet property="includePlaceNameControl" destination="KeW-e2-uQE" id="SeV-uy-oKg"/>
                         <outlet property="informationLabel" destination="dtb-8u-6gN" id="1Mo-hH-VNA"/>
                         <outlet property="largerTextLabel" destination="xwt-pY-1w9" id="XbF-MZ-dMx"/>
-                        <outlet property="menubarMode" destination="Mai-SZ-AEi" id="PPv-1D-lnt"/>
-                        <outlet property="menubarModeLabel" destination="Utg-yF-Rso" id="Pda-Aj-81M"/>
                         <outlet property="miscelleaneousLabel" destination="ffU-Ce-sfU" id="JbJ-IR-3IL"/>
                         <outlet property="panelTheme" destination="vrm-cg-RMn" id="yPO-LZ-Egp"/>
                         <outlet property="previewLabel" destination="ZNm-TN-RRJ" id="63F-Zc-KV3"/>

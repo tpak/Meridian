@@ -27,7 +27,6 @@ class AppearanceViewController: ParentViewController {
     @IBOutlet var informationLabel: NSTextField!
     @IBOutlet var sliderDayRangePopup: NSPopUpButton!
     @IBOutlet var visualEffectView: NSVisualEffectView!
-    @IBOutlet var menubarMode: NSSegmentedControl!
     @IBOutlet var includeDayInMenubarControl: NSSegmentedControl!
     @IBOutlet var includeDateInMenubarControl: NSSegmentedControl!
     @IBOutlet var includePlaceNameControl: NSSegmentedControl!
@@ -171,10 +170,9 @@ class AppearanceViewController: ParentViewController {
         // Issue #97 — segmented controls used to read their initial state via
         // Cocoa bindings to legacy UserDefaults keys; bindings were removed so
         // we set initial state from the typed accessors here. The convention is
-        // segment 0 = Yes/show/compact, segment 1 = No/hide/standard, matching
-        // the storyboard's segment labels.
+        // segment 0 = Yes/show, segment 1 = No/hide, matching the storyboard's
+        // segment labels.
         let store = DataStore.shared()
-        menubarMode.setSelected(true, forSegment: store.menubarMode == .compact ? 0 : 1)
         appDisplayControl.setSelected(true, forSegment: store.appPresentation == .menubarOnly ? 0 : 1)
         floatOnTopControl.setSelected(true, forSegment: store.floatOnTop ? 0 : 1)
         sunriseControl.setSelected(true, forSegment: store.showSunriseSunset ? 0 : 1)
@@ -212,7 +210,6 @@ class AppearanceViewController: ParentViewController {
     @IBOutlet var includeDayLabel: NSTextField!
     @IBOutlet var includePlaceLabel: NSTextField!
     @IBOutlet var appDisplayLabel: NSTextField!
-    @IBOutlet var menubarModeLabel: NSTextField!
     @IBOutlet var previewLabel: NSTextField!
     @IBOutlet var miscelleaneousLabel: NSTextField!
     @IBOutlet var accentColorLabel: NSTextField!
@@ -232,7 +229,6 @@ class AppearanceViewController: ParentViewController {
         includeDateLabel.stringValue = "Include Date".localized()
         includeDayLabel.stringValue = "Include Day".localized()
         includePlaceLabel.stringValue = "Include Place Name".localized()
-        menubarModeLabel.stringValue = "Menubar Mode".localized()
         previewLabel.stringValue = "Preview".localized()
         miscelleaneousLabel.stringValue = "Miscellaneous".localized()
         floatOnTopLabel.stringValue = "Float on Top".localized()
@@ -241,7 +237,7 @@ class AppearanceViewController: ParentViewController {
         [timeFormatLabel, panelTheme, accentColorLabel,
          dayDisplayOptionsLabel, showSliderLabel,
          showSunriseLabel, largerTextLabel, futureSliderRangeLabel,
-         includeDayLabel, includeDateLabel, includePlaceLabel, appDisplayLabel, menubarModeLabel,
+         includeDayLabel, includeDateLabel, includePlaceLabel, appDisplayLabel,
          previewLabel, miscelleaneousLabel, floatOnTopLabel].forEach {
             $0?.textColor = NSColor.labelColor
         }
@@ -460,29 +456,7 @@ class AppearanceViewController: ParentViewController {
         guard let statusItem = (NSApplication.shared.delegate as? AppDelegate)?.statusItemForPanel() else {
             return
         }
-
-        if dataStore.shouldDisplay(.menubarCompactMode) {
-            statusItem.setupStatusItem()
-        } else {
-            statusItem.refresh()
-        }
-    }
-
-    @IBAction func menubarModeChanged(_ sender: NSSegmentedControl) {
-        let mode: MenubarMode = sender.selectedSegment == 0 ? .compact : .standard
-        DataStore.shared().menubarMode = mode
-
-        guard let statusItem = (NSApplication.shared.delegate as? AppDelegate)?.statusItemForPanel() else {
-            return
-        }
         statusItem.setupStatusItem()
-
-        switch mode {
-        case .compact:
-            Logger.debug("Switched to Compact Mode: Context=In Appearance View")
-        case .standard:
-            Logger.debug("Switched to Standard Mode: Context=In Appearance View")
-        }
     }
 
     @IBAction func fontSliderChanged(_: Any) {

@@ -103,7 +103,6 @@ struct SettingsManager {
         static let showDateInMenubar = "showDateInMenubar"
         static let showPlaceNameInMenubar = "showPlaceNameInMenubar"
         static let floatOnTop = "floatOnTop"
-        static let menubarMode = "menubarMode"
         static let theme = "theme"
         static let relativeDateDisplay = "relativeDateDisplay"
         static let appPresentation = "appPresentation"
@@ -135,7 +134,6 @@ struct SettingsManager {
             V2Key.showDateInMenubar: store.showDateInMenubar,
             V2Key.showPlaceNameInMenubar: store.showPlaceNameInMenubar,
             V2Key.floatOnTop: store.floatOnTop,
-            V2Key.menubarMode: store.menubarMode.jsonName,
             V2Key.theme: store.theme.jsonName,
             V2Key.relativeDateDisplay: store.relativeDateDisplay.jsonName,
             V2Key.appPresentation: store.appPresentation.jsonName,
@@ -266,7 +264,9 @@ struct SettingsManager {
         if let v = prefs["defaultTheme"] as? Int { store.theme = Theme(rawValue: v) ?? .light }
         if let v = prefs["relativeDate"] as? Int { store.relativeDateDisplay = RelativeDateDisplay(rawValue: v) ?? .relative }
         if let v = prefs["com.tpak.meridian.appDisplayOptions"] as? Int { store.appPresentation = AppPresentation(rawValue: v) ?? .menubarOnly }
-        if let v = prefs["com.tpak.meridian.menubarCompactMode"] as? Int { store.menubarMode = MenubarMode(rawValue: v) ?? .standard }
+        // com.tpak.meridian.menubarCompactMode is intentionally ignored:
+        // standard mode was removed in v2.21.4 (#121); compact is the only mode now.
+        _ = prefs["com.tpak.meridian.menubarCompactMode"]
 
         // Untouched — copy raw values.
         if let v = prefs["userFontSize"] { defaults.set(v, forKey: UserDefaultKeys.userFontSizePreference) }
@@ -295,7 +295,10 @@ struct SettingsManager {
 
         // Enums — parse the case name string. Unknown names fall through to
         // existing value (typed accessor leaves the underlying key alone).
-        if let s = prefs[V2Key.menubarMode] as? String, let m = MenubarMode(jsonName: s) { store.menubarMode = m }
+        // menubarMode is intentionally ignored: standard mode was removed in
+        // v2.21.4 (#121); compact is the only mode now. Older v2 exports still
+        // include the key, so silently drop it to keep import clean.
+        _ = prefs["menubarMode"]
         if let s = prefs[V2Key.theme] as? String, let t = Theme(jsonName: s) { store.theme = t }
         if let s = prefs[V2Key.relativeDateDisplay] as? String, let r = RelativeDateDisplay(jsonName: s) { store.relativeDateDisplay = r }
         if let s = prefs[V2Key.appPresentation] as? String, let a = AppPresentation(jsonName: s) { store.appPresentation = a }

@@ -601,29 +601,6 @@ class DataStoreTypedAccessorsTests: XCTestCase {
 
     // MARK: enums
 
-    func testMenubarMode_readsCanonicalKey() {
-        defaults.set(MenubarMode.compact.rawValue, forKey: UserDefaultKeys.menubarCompactMode)
-        XCTAssertEqual(store.menubarMode, .compact)
-        defaults.set(MenubarMode.standard.rawValue, forKey: UserDefaultKeys.menubarCompactMode)
-        XCTAssertEqual(store.menubarMode, .standard)
-    }
-
-    func testMenubarMode_invalidRawFallsBackToStandard() {
-        defaults.set(99, forKey: UserDefaultKeys.menubarCompactMode)
-        XCTAssertEqual(store.menubarMode, .standard)
-    }
-
-    func testMenubarMode_missingKeyReturnsStandard() {
-        XCTAssertEqual(store.menubarMode, .standard)
-    }
-
-    func testMenubarMode_roundTrip() {
-        store.menubarMode = .compact
-        XCTAssertEqual(store.menubarMode, .compact)
-        store.menubarMode = .standard
-        XCTAssertEqual(store.menubarMode, .standard)
-    }
-
     func testTheme_allCases() {
         for theme: Theme in [.light, .dark, .system] {
             store.theme = theme
@@ -713,13 +690,6 @@ class DataStoreTypedAccessorsTests: XCTestCase {
         XCTAssertEqual(store.floatOnTop, store.shouldDisplay(.showAppInForeground))
         store.floatOnTop = false
         XCTAssertEqual(store.floatOnTop, store.shouldDisplay(.showAppInForeground))
-    }
-
-    func testParity_menubarMode() {
-        store.menubarMode = .compact
-        XCTAssertTrue(store.shouldDisplay(.menubarCompactMode))
-        store.menubarMode = .standard
-        XCTAssertFalse(store.shouldDisplay(.menubarCompactMode))
     }
 
     func testParity_appPresentation() {
@@ -858,11 +828,10 @@ class BoolSemanticsMigrationTests: XCTestCase {
 
     // MARK: untouched keys
 
-    func testUntouchedKeys_themeAndRelativeDateAndAppDisplayAndMenubarMode() {
+    func testUntouchedKeys_themeAndRelativeDateAndAppDisplay() {
         defaults.set(2, forKey: UserDefaultKeys.themeKey)
         defaults.set(3, forKey: UserDefaultKeys.relativeDateKey)
         defaults.set(1, forKey: UserDefaultKeys.appDisplayOptions)
-        defaults.set(0, forKey: UserDefaultKeys.menubarCompactMode)
 
         AppDefaults.runBoolSemanticsMigration(on: defaults)
 
@@ -870,7 +839,6 @@ class BoolSemanticsMigrationTests: XCTestCase {
         XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.themeKey), 2)
         XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.relativeDateKey), 3)
         XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.appDisplayOptions), 1)
-        XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.menubarCompactMode), 0)
     }
 
     // MARK: integration with typed accessors
@@ -884,7 +852,6 @@ class BoolSemanticsMigrationTests: XCTestCase {
         defaults.set(0, forKey: UserDefaultKeys.showPlaceInMenu)           // show
         defaults.set(1, forKey: UserDefaultKeys.showAppInForeground)       // float
         defaults.set(NSNumber(value: 4), forKey: UserDefaultKeys.selectedTimeZoneFormatKey)
-        defaults.set(0, forKey: UserDefaultKeys.menubarCompactMode)        // compact
         defaults.set(1, forKey: UserDefaultKeys.appDisplayOptions)         // dock
         defaults.set(2, forKey: UserDefaultKeys.themeKey)                  // system
         defaults.set(3, forKey: UserDefaultKeys.relativeDateKey)           // hidden
@@ -899,7 +866,6 @@ class BoolSemanticsMigrationTests: XCTestCase {
         XCTAssertTrue(store.showPlaceNameInMenubar)
         XCTAssertTrue(store.floatOnTop)
         XCTAssertEqual(store.timeFormat, .twentyFourHourWithSeconds)
-        XCTAssertEqual(store.menubarMode, .compact)
         XCTAssertEqual(store.appPresentation, .menubarAndDock)
         XCTAssertEqual(store.theme, .system)
         XCTAssertEqual(store.relativeDateDisplay, .hidden)
@@ -918,7 +884,6 @@ class SettingsManagerVersioningTests: XCTestCase {
         let showDateInMenubar: Bool
         let showPlaceNameInMenubar: Bool
         let floatOnTop: Bool
-        let menubarMode: MenubarMode
         let theme: Theme
         let relativeDateDisplay: RelativeDateDisplay
         let appPresentation: AppPresentation
@@ -937,7 +902,6 @@ class SettingsManagerVersioningTests: XCTestCase {
             showDateInMenubar: s.showDateInMenubar,
             showPlaceNameInMenubar: s.showPlaceNameInMenubar,
             floatOnTop: s.floatOnTop,
-            menubarMode: s.menubarMode,
             theme: s.theme,
             relativeDateDisplay: s.relativeDateDisplay,
             appPresentation: s.appPresentation,
@@ -953,7 +917,6 @@ class SettingsManagerVersioningTests: XCTestCase {
         s.showDateInMenubar = preserved.showDateInMenubar
         s.showPlaceNameInMenubar = preserved.showPlaceNameInMenubar
         s.floatOnTop = preserved.floatOnTop
-        s.menubarMode = preserved.menubarMode
         s.theme = preserved.theme
         s.relativeDateDisplay = preserved.relativeDateDisplay
         s.appPresentation = preserved.appPresentation
@@ -1000,7 +963,6 @@ class SettingsManagerVersioningTests: XCTestCase {
 
     func testExport_enumsAreEmittedAsNamedStrings() {
         let s = DataStore.shared()
-        s.menubarMode = .compact
         s.theme = .dark
         s.relativeDateDisplay = .actual
         s.appPresentation = .menubarAndDock
@@ -1012,11 +974,13 @@ class SettingsManagerVersioningTests: XCTestCase {
             XCTFail("export failed")
             return
         }
-        XCTAssertEqual(prefs["menubarMode"] as? String, "compact")
         XCTAssertEqual(prefs["theme"] as? String, "dark")
         XCTAssertEqual(prefs["relativeDateDisplay"] as? String, "actual")
         XCTAssertEqual(prefs["appPresentation"] as? String, "menubarAndDock")
         XCTAssertEqual(prefs["timeFormat"] as? String, "twentyFourHourWithSeconds")
+        // Standard menubar mode was removed in v2.21.4 (#121); the key is no
+        // longer emitted on export.
+        XCTAssertNil(prefs["menubarMode"], "menubarMode should not appear in v2 export")
     }
 
     // The original user complaint motivating issue #97 — exported JSON had
@@ -1041,7 +1005,6 @@ class SettingsManagerVersioningTests: XCTestCase {
         let s = DataStore.shared()
         s.showSunriseSunset = true
         s.showFutureSlider = false
-        s.menubarMode = .compact
         s.theme = .dark
         s.relativeDateDisplay = .hidden
         s.timeFormat = .twentyFourHour
@@ -1055,7 +1018,6 @@ class SettingsManagerVersioningTests: XCTestCase {
         // Mutate to confirm import actually overwrites.
         s.showSunriseSunset = false
         s.showFutureSlider = true
-        s.menubarMode = .standard
         s.theme = .light
         s.relativeDateDisplay = .relative
         s.timeFormat = .twelveHour
@@ -1065,7 +1027,6 @@ class SettingsManagerVersioningTests: XCTestCase {
 
         XCTAssertTrue(s.showSunriseSunset)
         XCTAssertFalse(s.showFutureSlider)
-        XCTAssertEqual(s.menubarMode, .compact)
         XCTAssertEqual(s.theme, .dark)
         XCTAssertEqual(s.relativeDateDisplay, .hidden)
         XCTAssertEqual(s.timeFormat, .twentyFourHour)
@@ -1126,7 +1087,6 @@ class SettingsManagerVersioningTests: XCTestCase {
         s.theme = .light
         s.relativeDateDisplay = .relative
         s.appPresentation = .menubarOnly
-        s.menubarMode = .standard
 
         try SettingsManager.applySettings(from: data)
 
@@ -1140,7 +1100,6 @@ class SettingsManagerVersioningTests: XCTestCase {
         XCTAssertEqual(s.theme, .system)
         XCTAssertEqual(s.relativeDateDisplay, .hidden)
         XCTAssertEqual(s.appPresentation, .menubarAndDock)
-        XCTAssertEqual(s.menubarMode, .compact)
         XCTAssertTrue(UserDefaults.standard.bool(forKey: UserDefaultKeys.betaUpdatesEnabled))
         UserDefaults.standard.removeObject(forKey: UserDefaultKeys.betaUpdatesEnabled)
     }
@@ -1159,10 +1118,10 @@ class SettingsManagerVersioningTests: XCTestCase {
     }
 
     func testImport_unknownEnumNameLeavesValueUnchanged() throws {
-        DataStore.shared().menubarMode = .standard
+        DataStore.shared().theme = .light
         let payload: [String: Any] = [
             "version": 2,
-            "preferences": ["menubarMode": "totallyMadeUp"],
+            "preferences": ["theme": "totallyMadeUp"],
             "timezones": [String](),
             "startAtLogin": false,
             "sparkle": [String: Any]()
@@ -1170,7 +1129,21 @@ class SettingsManagerVersioningTests: XCTestCase {
         let data = try JSONSerialization.data(withJSONObject: payload)
         try SettingsManager.applySettings(from: data)
         // Unknown enum name should not crash and should not corrupt the value.
-        XCTAssertEqual(DataStore.shared().menubarMode, .standard)
+        XCTAssertEqual(DataStore.shared().theme, .light)
+    }
+
+    // Standard menubar mode was removed in v2.21.4 (#121). Older export files
+    // still carry the menubarMode key — we accept and silently drop it.
+    func testImport_legacyMenubarModeKeyIsIgnored() throws {
+        let payload: [String: Any] = [
+            "version": 2,
+            "preferences": ["menubarMode": "standard"],
+            "timezones": [String](),
+            "startAtLogin": false,
+            "sparkle": [String: Any]()
+        ]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        XCTAssertNoThrow(try SettingsManager.applySettings(from: data))
     }
 }
 

@@ -36,7 +36,6 @@ final class LocalizationTests: XCTestCase {
         "Include Date",
         "Include Day",
         "Include Place Name",
-        "Menubar Mode",
         "Preview",
         "Miscellaneous",
         // .localized() keys (TimezoneCellView)

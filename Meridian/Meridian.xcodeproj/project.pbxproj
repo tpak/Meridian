@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3508CC942599FFEC000E3530 /* MenubarTitleProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3508CC932599FFEC000E3530 /* MenubarTitleProvider.swift */; };
 		3508CC9A259A0001000E3530 /* StatusItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3508CC99259A0001000E3530 /* StatusItemView.swift */; };
 		3508CC9F259A000E000E3530 /* StatusItemHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3508CC9E259A000E000E3530 /* StatusItemHandler.swift */; };
 		3508CCAA259A0027000E3530 /* StatusContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3508CCA9259A0027000E3530 /* StatusContainerView.swift */; };
@@ -68,7 +67,6 @@
 		E1F2A3B400TMSCRLRVMTST1 /* TimeScrollerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B400TMSCRLRVMTST2 /* TimeScrollerViewModelTests.swift */; };
 		818B546B7B8B47D88692CD80 /* GlobalShortcutMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC776853CC4796AD9A1DC6 /* GlobalShortcutMonitor.swift */; };
 		919639F9D2F3GLOBALSHRTCUT /* GlobalShortcutMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */; };
-		9A0385BB269E3434003B5E72 /* StandardMenubarHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0385BA269E3434003B5E72 /* StandardMenubarHandlerTests.swift */; };
 		9A0A1C8C20903DBD0012003B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A9E87651C1FEDC500A7A2DF /* CoreLocation.framework */; };
 		9A13BAD61CA87F08007C6CBE /* Panel.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9A13BAD81CA87F08007C6CBE /* Panel.xib */; };
 		9A13BAE01CA882FA007C6CBE /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = EE11AA0100INFOPLISTXCS1 /* InfoPlist.xcstrings */; };
@@ -98,7 +96,6 @@
 		AA000001SWIFTUI00000001 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000002SWIFTUI00000001 /* AboutView.swift */; };
 		AA00000400000002PREFSTB1 /* PreferencesStoryboardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000400000001PREFSTB2 /* PreferencesStoryboardTests.swift */; };
 		CC11AA0100TZDATAOPSTEST1 /* TimezoneDataOperationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC11AA0100TZDATAOPSTEST2 /* TimezoneDataOperationsTests.swift */; };
-		CC11AA0200MNBRTITLTEST1 /* MenubarTitleProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC11AA0200MNBRTITLTEST2 /* MenubarTitleProviderTests.swift */; };
 		DD11AA0100LOCALIZTNTEST1 /* LocalizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD11AA0100LOCALIZTNTEST2 /* LocalizationTests.swift */; };
 		AA000011MODERN00000001 /* ModernSliderViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000010MODERN00000001 /* ModernSliderViews.swift */; };
 		AA000013STARTU00000001 /* StartupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000012STARTU00000001 /* StartupManager.swift */; };
@@ -139,7 +136,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		3508CC932599FFEC000E3530 /* MenubarTitleProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarTitleProvider.swift; sourceTree = "<group>"; };
 		3508CC99259A0001000E3530 /* StatusItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemView.swift; sourceTree = "<group>"; };
 		3508CC9E259A000E000E3530 /* StatusItemHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemHandler.swift; sourceTree = "<group>"; };
 		3508CCA9259A0027000E3530 /* StatusContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusContainerView.swift; sourceTree = "<group>"; };
@@ -200,7 +196,6 @@
 		E1F2A3B400TMSCRLRVMTST2 /* TimeScrollerViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeScrollerViewModelTests.swift; sourceTree = "<group>"; };
 		527EBAA6C18049AE931DDE49 /* PanelContextMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelContextMenu.swift; sourceTree = "<group>"; };
 		919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalShortcutMonitorTests.swift; sourceTree = "<group>"; };
-		9A0385BA269E3434003B5E72 /* StandardMenubarHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardMenubarHandlerTests.swift; sourceTree = "<group>"; };
 		9A13BAD71CA87F08007C6CBE /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/Panel.xib; sourceTree = "<group>"; };
 		EE11AA0100INFOPLISTXCS1 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = InfoPlist.xcstrings; path = App/InfoPlist.xcstrings; sourceTree = "<group>"; };
 		EE11AA0100LOCALIZBLEXCS1 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = App/Localizable.xcstrings; sourceTree = "<group>"; };
@@ -236,7 +231,6 @@
 		AA000002SWIFTUI00000001 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		AA00000400000001PREFSTB2 /* PreferencesStoryboardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesStoryboardTests.swift; sourceTree = "<group>"; };
 		CC11AA0100TZDATAOPSTEST2 /* TimezoneDataOperationsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneDataOperationsTests.swift; sourceTree = "<group>"; };
-		CC11AA0200MNBRTITLTEST2 /* MenubarTitleProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarTitleProviderTests.swift; sourceTree = "<group>"; };
 		DD11AA0100LOCALIZTNTEST2 /* LocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationTests.swift; sourceTree = "<group>"; };
 		AA000010MODERN00000001 /* ModernSliderViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModernSliderViews.swift; sourceTree = "<group>"; };
 		AA000012STARTU00000001 /* StartupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupManager.swift; sourceTree = "<group>"; };
@@ -320,7 +314,6 @@
 		35C36EDF22595D9C002FA5C6 /* Menu Bar */ = {
 			isa = PBXGroup;
 			children = (
-				3508CC932599FFEC000E3530 /* MenubarTitleProvider.swift */,
 				3508CC99259A0001000E3530 /* StatusItemView.swift */,
 				3508CC9E259A000E000E3530 /* StatusItemHandler.swift */,
 				3508CCA9259A0027000E3530 /* StatusContainerView.swift */,
@@ -539,7 +532,6 @@
 			children = (
 				C20839C921515C1E00C86589 /* MeridianUnitTests.swift */,
 				C20839CB21515C1F00C86589 /* Info.plist */,
-				9A0385BA269E3434003B5E72 /* StandardMenubarHandlerTests.swift */,
 				35584D1727F0B019006E3EAD /* DateFormatterManagerTests.swift */,
 				35584D1927F0B64E006E3EAD /* AppDelegateTests.swift */,
 				BB00000100LOCCTRL00TEST2 /* LocationControllerTests.swift */,
@@ -554,7 +546,6 @@
 				E1F2A3B400TMSCRLRVMTST2 /* TimeScrollerViewModelTests.swift */,
 				AA00000400000001PREFSTB2 /* PreferencesStoryboardTests.swift */,
 				CC11AA0100TZDATAOPSTEST2 /* TimezoneDataOperationsTests.swift */,
-				CC11AA0200MNBRTITLTEST2 /* MenubarTitleProviderTests.swift */,
 				DD11AA0100LOCALIZTNTEST2 /* LocalizationTests.swift */,
 			);
 			path = MeridianUnitTests;
@@ -802,7 +793,6 @@
 			files = (
 				35584D1A27F0B64E006E3EAD /* AppDelegateTests.swift in Sources */,
 				BB00000100LOCCTRL00TEST1 /* LocationControllerTests.swift in Sources */,
-				9A0385BB269E3434003B5E72 /* StandardMenubarHandlerTests.swift in Sources */,
 				35621CFC27F66C1900926D5C /* SearchDataSourceTests.swift in Sources */,
 				35584D1827F0B019006E3EAD /* DateFormatterManagerTests.swift in Sources */,
 				C20839CA21515C1E00C86589 /* MeridianUnitTests.swift in Sources */,
@@ -816,7 +806,6 @@
 				E1F2A3B400TMSCRLRVMTST1 /* TimeScrollerViewModelTests.swift in Sources */,
 				AA00000400000002PREFSTB1 /* PreferencesStoryboardTests.swift in Sources */,
 				CC11AA0100TZDATAOPSTEST1 /* TimezoneDataOperationsTests.swift in Sources */,
-				CC11AA0200MNBRTITLTEST1 /* MenubarTitleProviderTests.swift in Sources */,
 				DD11AA0100LOCALIZTNTEST1 /* LocalizationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -852,7 +841,6 @@
 				35C36F4F2259D981002FA5C6 /* AppDefaults.swift in Sources */,
 				35C36F5D2259DD96002FA5C6 /* TimezoneDataOperations.swift in Sources */,
 				E1F2A3B400TMSCRLRVM0001 /* TimeScrollerViewModel.swift in Sources */,
-				3508CC942599FFEC000E3530 /* MenubarTitleProvider.swift in Sources */,
 				35C36F792259E1D0002FA5C6 /* String + Additions.swift in Sources */,
 				35C36F422259D892002FA5C6 /* Timer.swift in Sources */,
 				35C36F772259E1D0002FA5C6 /* AppKit + Additions.swift in Sources */,

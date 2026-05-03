@@ -98,14 +98,9 @@ class AppDelegateTests: XCTestCase {
         let subject = NSApplication.shared.delegate as? AppDelegate
         // Integration test: requires DataStore.shared() to drive the live status item handler.
         let olderTimezones = DataStore.shared().timezones()
-        let olderCompactMode = UserDefaults.standard.integer(forKey: UserDefaultKeys.menubarCompactMode)
         defer {
             DataStore.shared().setTimezones(olderTimezones)
-            UserDefaults.standard.set(olderCompactMode, forKey: UserDefaultKeys.menubarCompactMode)
         }
-
-        // Ensure compact mode is active
-        UserDefaults.standard.set(0, forKey: UserDefaultKeys.menubarCompactMode)
 
         let timezone1 = TimezoneData()
         timezone1.timezoneID = TimeZone.autoupdatingCurrent.identifier
@@ -142,37 +137,4 @@ class AppDelegateTests: XCTestCase {
                        "Beta opt-in must allow the \"beta\" channel")
     }
 
-    func testStandardModeMenubarSetup() throws {
-        // Integration test: requires DataStore.shared() to drive the live status item handler.
-        let olderTimezones = DataStore.shared().timezones()
-        let olderCompactMode = UserDefaults.standard.integer(forKey: UserDefaultKeys.menubarCompactMode)
-        defer {
-            UserDefaults.standard.set(olderCompactMode, forKey: UserDefaultKeys.menubarCompactMode)
-            DataStore.shared().setTimezones(olderTimezones)
-        }
-
-        UserDefaults.standard.set(1, forKey: UserDefaultKeys.menubarCompactMode) // Set the menubar mode to standard
-
-        let subject = NSApplication.shared.delegate as? AppDelegate
-        let statusItemHandler = subject?.statusItemForPanel()
-        subject?.setupMenubarTimer()
-
-        if olderTimezones.isEmpty {
-            XCTAssertNotNil(statusItemHandler?.statusItem.button?.image)
-        } else {
-            XCTAssertNotNil(statusItemHandler?.statusItem.button?.title)
-        }
-
-        let timezone1 = TimezoneData()
-        timezone1.timezoneID = TimeZone.autoupdatingCurrent.identifier
-        timezone1.formattedAddress = "MenubarTimezone"
-        timezone1.isFavourite = 1
-
-        let encodedTimezone = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: timezone1))
-        DataStore.shared().setTimezones([encodedTimezone])
-
-        subject?.setupMenubarTimer()
-
-        XCTAssertEqual(subject?.statusItemForPanel().statusItem.button?.subviews.isEmpty, true) // This will be nil for standard mode
-    }
 }

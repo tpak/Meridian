@@ -24,9 +24,7 @@ public enum UserDefaultKeys {
     static let truncateTextLength = "truncateTextLength"
     static let futureSliderRange = "sliderDayRange"
     static let appDisplayOptions = "com.tpak.meridian.appDisplayOptions"
-    static let longStatusBarWarningMessage = "com.tpak.meridian.longStatusBarWarning"
     static let testingLaunchArgument = "isUITesting"
-    static let menubarCompactMode = "com.tpak.meridian.menubarCompactMode"
     static let appleInterfaceStyleKey = "AppleInterfaceStyle"
     static let debugLoggingEnabled = "com.tpak.meridian.debugLoggingEnabled"
     static let betaUpdatesEnabled = "com.tpak.meridian.betaUpdatesEnabled"
@@ -41,8 +39,8 @@ public enum UserDefaultKeys {
     // the legacy keys.
     //
     // Names intentionally do NOT use the com.tpak.meridian.* prefix used by
-    // other namespaced keys (appDisplayOptions, menubarCompactMode, etc.).
-    // Two reasons: (1) NSUserDefaultsController storyboard bindings of the
+    // other namespaced keys (appDisplayOptions, etc.). Two reasons:
+    // (1) NSUserDefaultsController storyboard bindings of the
     // form values.<key> traverse dots as nested keypaths and don't work
     // cleanly for dotted keys; (2) @objc dynamic var floatOnTop on
     // UserDefaults can only emit KVO notifications for keypath \.floatOnTop
