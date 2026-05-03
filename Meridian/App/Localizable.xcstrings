@@ -2423,6 +2423,39 @@
           }
         }
       }
+    },
+    "About these colors": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About these colors"
+          }
+        }
+      }
+    },
+    "About accent colors": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About accent colors"
+          }
+        }
+      }
+    },
+    "Meridian is an independent project, built by an F1 fan, not affiliated with, sponsored by, or endorsed by Formula 1 or any of the teams listed. Team names are trademarks of their respective owners, used here only to identify the livery colors they inspire. Colors are fan approximations, not official team colors.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meridian is an independent project, built by an F1 fan, not affiliated with, sponsored by, or endorsed by Formula 1 or any of the teams listed. Team names are trademarks of their respective owners, used here only to identify the livery colors they inspire. Colors are fan approximations, not official team colors."
+          }
+        }
+      }
     }
   }
 }

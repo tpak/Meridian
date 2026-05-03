@@ -23,6 +23,7 @@ class AppearanceViewController: ParentViewController {
     @IBOutlet var timeFormat: NSPopUpButton!
     @IBOutlet var theme: NSPopUpButton!
     @IBOutlet var teamAccentPopup: NSPopUpButton!
+    @IBOutlet var accentColorInfoButton: NSButton!
     @IBOutlet var informationLabel: NSTextField!
     @IBOutlet var sliderDayRangePopup: NSPopUpButton!
     @IBOutlet var visualEffectView: NSVisualEffectView!
@@ -42,6 +43,15 @@ class AppearanceViewController: ParentViewController {
     private static let sliderDayValues = [1, 2, 3, 4, 5, 6, 7, 14, 30, 90]
 
     private var previewTimezones: [TimezoneData] = []
+
+    /// Lazy popover for the trademark / fan-attribution disclaimer shown when
+    /// the user clicks the (i) button next to the team accent picker.
+    private lazy var accentInfoPopover: NSPopover = {
+        let popover = NSPopover()
+        popover.behavior = .transient
+        popover.contentViewController = AccentColorInfoViewController()
+        return popover
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -102,6 +112,16 @@ class AppearanceViewController: ParentViewController {
         popup.target = self
         popup.action = #selector(teamAccentChanged(_:))
         popup.setAccessibilityIdentifier("TeamAccentPopover")
+
+        if let info = accentColorInfoButton {
+            info.image = NSImage(systemSymbolName: "info.circle",
+                                 accessibilityDescription: "About accent colors".localized())
+            info.contentTintColor = NSColor.secondaryLabelColor
+            info.toolTip = "About these colors".localized()
+            info.setAccessibilityLabel("About accent colors".localized())
+            info.target = self
+            info.action = #selector(showAccentColorInfo(_:))
+        }
     }
 
     private func setupTimeFormatPopup() {
@@ -263,6 +283,14 @@ class AppearanceViewController: ParentViewController {
         // app pokes them (verified across betas 2-7). Offer the user
         // the only mechanism that works: a quit+relaunch.
         promptForRestart(applying: team)
+    }
+
+    @IBAction func showAccentColorInfo(_ sender: NSButton) {
+        if accentInfoPopover.isShown {
+            accentInfoPopover.performClose(sender)
+            return
+        }
+        accentInfoPopover.show(relativeTo: sender.bounds, of: sender, preferredEdge: .maxY)
     }
 
     private func promptForRestart(applying team: TeamAccent) {
@@ -517,5 +545,51 @@ extension AppearanceViewController: NSTableViewDataSource, NSTableViewDelegate {
         }
 
         return 0
+    }
+}
+
+/// Disclaimer popover shown next to the team accent picker. The text
+/// acknowledges that the colors are fan approximations, names the teams
+/// as trademark holders of their respective owners, and disclaims any
+/// affiliation with Formula 1 — supporting a nominative-fair-use posture.
+final class AccentColorInfoViewController: NSViewController {
+    private static let popoverWidth: CGFloat = 340
+    private static let edgePadding: CGFloat = 16
+
+    static let titleText = "About these colors"
+    static let bodyText = "Meridian is an independent project, built by an F1 fan, not affiliated with, sponsored by, or endorsed by Formula 1 or any of the teams listed. Team names are trademarks of their respective owners, used here only to identify the livery colors they inspire. Colors are fan approximations, not official team colors."
+
+    override func loadView() {
+        let title = NSTextField(labelWithString: Self.titleText.localized())
+        title.font = NSFont.systemFont(ofSize: NSFont.systemFontSize, weight: .semibold)
+        title.textColor = NSColor.labelColor
+        title.translatesAutoresizingMaskIntoConstraints = false
+
+        let body = NSTextField(wrappingLabelWithString: Self.bodyText.localized())
+        body.font = NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)
+        body.textColor = NSColor.secondaryLabelColor
+        body.preferredMaxLayoutWidth = Self.popoverWidth - (Self.edgePadding * 2)
+        body.translatesAutoresizingMaskIntoConstraints = false
+
+        let stack = NSStackView(views: [title, body])
+        stack.orientation = .vertical
+        stack.alignment = .leading
+        stack.spacing = 8
+        stack.edgeInsets = NSEdgeInsets(top: Self.edgePadding,
+                                        left: Self.edgePadding,
+                                        bottom: Self.edgePadding,
+                                        right: Self.edgePadding)
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        let container = NSView()
+        container.addSubview(stack)
+        NSLayoutConstraint.activate([
+            container.widthAnchor.constraint(equalToConstant: Self.popoverWidth),
+            stack.topAnchor.constraint(equalTo: container.topAnchor),
+            stack.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            stack.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            stack.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+        ])
+        view = container
     }
 }
