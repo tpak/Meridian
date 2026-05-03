@@ -557,7 +557,12 @@ final class AccentColorInfoViewController: NSViewController {
     private static let edgePadding: CGFloat = 16
 
     static let titleText = "About these colors"
-    static let bodyText = "Meridian is an independent project, built by an F1 fan, not affiliated with, sponsored by, or endorsed by Formula 1 or any of the teams listed. Team names are trademarks of their respective owners, used here only to identify the livery colors they inspire. Colors are fan approximations, not official team colors."
+    // Concatenated at runtime; the joined string is the key looked up in
+    // Localizable.xcstrings so it must match the catalog entry exactly.
+    static let bodyText = "Meridian is an independent project, built by an F1 fan, "
+        + "not affiliated with, sponsored by, or endorsed by Formula 1 or any of the teams listed. "
+        + "Team names are trademarks of their respective owners, used here only to identify the "
+        + "livery colors they inspire. Colors are fan approximations, not official team colors."
 
     override func loadView() {
         let title = NSTextField(labelWithString: Self.titleText.localized())
