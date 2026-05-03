@@ -105,6 +105,14 @@ class StatusItemHandler: NSObject {
             // miss the add/remove. Rebuild the container to pick up the
             // new menubar timezone list.
             setupForCompactTextMode()
+        } else {
+            // Same state, icon mode. The first call from init() lands here
+            // because `currentState` defaults to `.icon` and so does the
+            // computed initial state — without an explicit setMenubarIcon
+            // the slot is created but never gets its image, so the user
+            // sees an invisible (but clickable) status item until something
+            // else triggers a state change.
+            setMenubarIcon()
         }
 
         func setSelector() {
