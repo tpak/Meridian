@@ -3,6 +3,20 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>2.21.4</title>
+            <pubDate>Sun, 03 May 2026 21:08:03 +0000</pubDate>
+            <sparkle:version>2214100</sparkle:version>
+            <sparkle:shortVersionString>2.21.4</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Menubar always uses Compact mode now; the Standard mode option was removed (#121)</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.21.4/Meridian.app.zip" length="3275484" type="application/octet-stream" sparkle:edSignature="nSRphXkYBl5BtXv/T+vqYFhCin881oWOcoozLuRHmvtG6n4o0V6EKl5KauSYQck66o5bWQiCklPltvwvpw01Bg=="/>
+        </item>
+        <item>
             <title>2.21.3</title>
             <pubDate>Sun, 03 May 2026 12:54:22 +0000</pubDate>
             <sparkle:version>2213100</sparkle:version>
