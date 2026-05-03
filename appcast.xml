@@ -3,6 +3,29 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>2.21.3</title>
+            <pubDate>Sun, 03 May 2026 12:54:22 +0000</pubDate>
+            <sparkle:version>2213100</sparkle:version>
+            <sparkle:shortVersionString>2.21.3</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Adds a small (i) info button next to the F1 team accent picker in Settings → Appearance.</li>
+                    <li>Tapping it shows a popover acknowledging Meridian as an independent project, that team names are trademarks of their respective owners, and that the colors are fan approximations rather than official livery colors.</li>
+                    <li>Supports a nominative-fair-use posture for the team-name labels in the picker.</li>
+                    <li>`Meridian/Preferences/Preferences.storyboard` — wraps the existing accent popup in a horizontal stack view and adds a borderless info button beside it (SF Symbol `info.circle`).</li>
+                    <li>`Meridian/Preferences/Appearance/AppearanceViewController.swift` — outlet, IBAction, lazy `NSPopover`, and a private `AccentColorInfoViewController` that lays out the title + body labels.</li>
+                    <li>`Meridian/App/Localizable.xcstrings` — three new English source strings (title, accessibility label, body). Other locales will populate as `state: "new"` on next translation pass.</li>
+                    <li>`scripts/validate_feature.sh` — refreshed for this feature; all 16 checks pass.</li>
+                    <li>In compact menu bar mode, only the first favorited timezone was visible — the rest were rendered into the status container but clipped by macOS's single-item default slot width.</li>
+                    <li>Toggling a favorite on/off while already in compact mode didn't update the menu bar until the user switched menubar mode or relaunched.</li>
+                    <li>Switching from compact → standard mode left the slot pinned to a narrow width, causing standard-mode text to wrap onto two lines and overlap neighboring system icons.</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v2.21.3/Meridian.app.zip" length="3286377" type="application/octet-stream" sparkle:edSignature="MHPzLAToO91DB8qGLq8GGTUE3sEgVw39IQo5zsD1Ma2mxUaYxNnmavrK+UYeXPIS1MB6eHjKtoD39g4/dHCYCQ=="/>
+        </item>
+        <item>
             <title>2.21.2</title>
             <pubDate>Fri, 01 May 2026 05:14:02 +0000</pubDate>
             <sparkle:version>2212100</sparkle:version>
