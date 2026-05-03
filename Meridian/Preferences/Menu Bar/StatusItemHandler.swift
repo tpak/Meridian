@@ -58,6 +58,15 @@ class StatusItemHandler: NSObject {
             case .compactText:
                 statusItem.button?.subviews = []
                 statusContainerView = nil
+                // constructCompactView pins `statusItem.length` to the
+                // container width so AppKit reserves the full slot for the
+                // compact subviews. The pinned length sticks across state
+                // changes, so leaving compact for icon mode without resetting
+                // it makes the icon-only slot stay as wide as the previous
+                // compact container — visually a too-wide gap around the
+                // icon. Hand the slot back to AppKit so it auto-sizes from
+                // image again.
+                statusItem.length = NSStatusItem.variableLength
             case .icon:
                 statusItem.button?.image = nil
             }
