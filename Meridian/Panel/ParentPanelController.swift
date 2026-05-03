@@ -223,13 +223,6 @@ class ParentPanelController: NSWindowController {
         parentTimer = nil
     }
 
-    private lazy var menubarTitleHandler = MenubarTitleProvider(with: dataStore)
-
-    private static let attributes: [NSAttributedString.Key: Any] = [
-        .font: NSFont.monospacedDigitSystemFont(ofSize: 13.0, weight: .regular),
-        .baselineOffset: 0.1
-    ]
-
     @IBAction func showSettingsMenu(_ sender: NSButton) {
         guard let event = NSApp.currentEvent else { return }
         let menu = PanelContextMenu.build(target: self)
@@ -302,15 +295,7 @@ extension ParentPanelController {
 
     private func updateMenubarDisplay() {
         guard let status = (NSApplication.shared.delegate as? AppDelegate)?.statusItemForPanel() else { return }
-        if dataStore.shouldDisplay(.menubarCompactMode) {
-            status.updateCompactMenubar()
-        } else {
-            let title = menubarTitleHandler.titleForMenubar()
-            status.statusItem.button?.attributedTitle = NSAttributedString(
-                string: title,
-                attributes: ParentPanelController.attributes
-            )
-        }
+        status.updateCompactMenubar()
     }
 
     @objc func updateTime() {

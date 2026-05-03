@@ -67,10 +67,9 @@ class AppDefaults {
             defaults.removeObject(forKey: UserDefaultKeys.selectedTimeZoneFormatKey)
         }
 
-        // theme, relativeDate, appDisplayOptions, menubarCompactMode keep
-        // their existing key strings — they're already namespaced and not
-        // semantically inverted. The typed accessors layer enums over them
-        // without renaming.
+        // theme, relativeDate, appDisplayOptions keep their existing key
+        // strings — they're already namespaced and not semantically inverted.
+        // The typed accessors layer enums over them without renaming.
 
         defaults.set(true, forKey: UserDefaultKeys.boolSemanticsMigrationV1)
     }
@@ -92,7 +91,6 @@ class AppDefaults {
             UserDefaultKeys.themeKey: Theme.light.rawValue,
             UserDefaultKeys.relativeDateKey: RelativeDateDisplay.relative.rawValue,
             UserDefaultKeys.appDisplayOptions: AppPresentation.menubarOnly.rawValue,
-            UserDefaultKeys.menubarCompactMode: MenubarMode.standard.rawValue,
 
             // Modernized typed keys (issue #97).
             UserDefaultKeys.showSunriseSunset: false,

@@ -7,7 +7,6 @@ import CoreModelKit
 
 private enum MenubarState {
     case compactText
-    case standardText
     case icon
 }
 
@@ -24,17 +23,7 @@ private enum MenubarTimerConstants {
     static let toleranceWithoutSeconds: TimeInterval = 20
 }
 
-private enum MenubarFontConstants {
-    static let fontSize: CGFloat = 13.0
-    static let baselineOffset: CGFloat = 0.1
-}
-
 class StatusItemHandler: NSObject {
-    private static let menubarTextAttributes: [NSAttributedString.Key: Any] = [
-        .font: NSFont.monospacedDigitSystemFont(ofSize: MenubarFontConstants.fontSize, weight: .regular),
-        .baselineOffset: MenubarFontConstants.baselineOffset
-    ]
-
     private lazy var clockIcon: NSImage? = NSImage(systemSymbolName: "clock.fill", accessibilityDescription: "Meridian")
 
     var hasActiveIcon: Bool = false
@@ -47,8 +36,6 @@ class StatusItemHandler: NSObject {
         (statusItem.button?.cell as? NSButtonCell)?.highlightsBy = NSCell.StyleMask(rawValue: 0)
         return statusItem
     }()
-
-    private lazy var menubarTitleHandler = MenubarTitleProvider(with: self.store)
 
     private var statusContainerView: StatusContainerView?
 
@@ -64,23 +51,13 @@ class StatusItemHandler: NSObject {
     // First, when StatusItemHandler() is instantiated in AppDelegate
     // Second, when AppDelegate.fetchLocalTimezone() is called triggering a customLabel didSet.
     // The debounced UserDefaults observer coalesces these into a single update.
-    private var currentState: MenubarState = .standardText {
+    private var currentState: MenubarState = .icon {
         didSet {
             // Do some cleanup
             switch oldValue {
             case .compactText:
                 statusItem.button?.subviews = []
                 statusContainerView = nil
-                // constructCompactView pins `statusItem.length` to the
-                // container width so AppKit reserves the full slot for the
-                // subviews. The pinned length sticks across state changes,
-                // so leaving compact mode without resetting it makes the
-                // standard-mode title get wrapped onto two lines (and
-                // collide with neighbouring menu-bar icons). Hand the slot
-                // back to AppKit so it auto-sizes from title/image again.
-                statusItem.length = NSStatusItem.variableLength
-            case .standardText:
-                statusItem.button?.title = UserDefaultKeys.emptyString
             case .icon:
                 statusItem.button?.image = nil
             }
@@ -89,8 +66,6 @@ class StatusItemHandler: NSObject {
             switch currentState {
             case .compactText:
                 setupForCompactTextMode()
-            case .standardText:
-                setupForStandardTextMode()
             case .icon:
                 setMenubarIcon()
             }
@@ -109,17 +84,7 @@ class StatusItemHandler: NSObject {
 
     func setupStatusItem() {
         // Let's figure out the initial menubar state
-        var menubarState = MenubarState.icon
-
-        let shouldTextBeDisplayed = store.menubarTimezones().isEmpty
-
-        if !shouldTextBeDisplayed {
-            if store.shouldDisplay(.menubarCompactMode) {
-                menubarState = .compactText
-            } else {
-                menubarState = .standardText
-            }
-        }
+        let menubarState: MenubarState = store.menubarTimezones().isEmpty ? .icon : .compactText
 
         if currentState != menubarState {
             currentState = menubarState
@@ -131,8 +96,6 @@ class StatusItemHandler: NSObject {
             // miss the add/remove. Rebuild the container to pick up the
             // new menubar timezone list.
             setupForCompactTextMode()
-        } else if menubarState != .icon {
-            refresh()
         }
 
         func setSelector() {
@@ -221,12 +184,10 @@ class StatusItemHandler: NSObject {
 
     // This is called when the Apple interface style pre-Mojave is changed.
     // In High Sierra and before, we could have a dark or light menubar and dock
-    // Our icon is template, so it changes automatically; so is our standard status bar text
-    // Only need to handle the compact mode!
+    // Our icon is template, so it changes automatically; only need to repaint
+    // the compact container.
     @objc func respondToInterfaceStyleChange() {
-        if store.shouldDisplay(.menubarCompactMode) {
-            updateCompactMenubar()
-        }
+        updateCompactMenubar()
     }
 
     @objc func setHasActiveIcon(_ value: Bool) {
@@ -312,26 +273,10 @@ class StatusItemHandler: NSObject {
         if currentState == .compactText {
             updateCompactMenubar()
             updateMenubar()
-        } else if currentState == .standardText {
-            let title = menubarTitleHandler.titleForMenubar()
-            statusItem.button?.image = nil
-            statusItem.button?.attributedTitle = NSAttributedString(string: title, attributes: StatusItemHandler.menubarTextAttributes)
-            updateMenubar()
         } else {
             setMenubarIcon()
             menubarTimer?.invalidate()
         }
-    }
-
-    private func setupForStandardTextMode() {
-        Logger.debug("Initializing menubar timer")
-
-        // Let's invalidate the previous timer
-        menubarTimer?.invalidate()
-        menubarTimer = nil
-
-        setupForStandardText()
-        updateMenubar()
     }
 
     func invalidateTimer(showIcon show: Bool, isSyncing sync: Bool) {
@@ -373,21 +318,6 @@ class StatusItemHandler: NSObject {
         statusItem.button?.image = clockIcon
         statusItem.button?.imagePosition = .imageOnly
         statusItem.button?.toolTip = "Meridian"
-    }
-
-    private func setupForStandardText() {
-        var menubarText = UserDefaultKeys.emptyString
-
-        menubarText = menubarTitleHandler.titleForMenubar()
-
-        guard !menubarText.isEmpty else {
-            setMenubarIcon()
-            return
-        }
-
-        statusItem.button?.attributedTitle = NSAttributedString(string: menubarText, attributes: StatusItemHandler.menubarTextAttributes)
-        statusItem.button?.image = nil
-        statusItem.button?.imagePosition = .imageLeft
     }
 
     private func setupForCompactTextMode() {

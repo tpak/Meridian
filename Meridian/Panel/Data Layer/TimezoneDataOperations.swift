@@ -158,56 +158,6 @@ extension TimezoneDataOperations {
         return subtitle
     }
 
-    func menuTitle() -> String {
-        var menuTitle = UserDefaultKeys.emptyString
-
-        let dataStore = store
-
-        let shouldCityBeShown = dataStore.shouldDisplay(.placeInMenubar)
-        let shouldDayBeShown = dataStore.shouldShowDayInMenubar()
-        let shouldDateBeShown = dataStore.shouldShowDateInMenubar()
-
-        if shouldCityBeShown {
-            if let address = dataObject.formattedAddress, !address.isEmpty {
-                menuTitle.append(dataObject.customLabel.flatMap { $0.isEmpty ? nil : $0 } ?? address)
-            } else {
-                menuTitle.append(dataObject.customLabel.flatMap { $0.isEmpty ? nil : $0 } ?? dataObject.timezone())
-            }
-        }
-
-        if shouldDayBeShown {
-            var substring = date(with: 0, displayType: .menu)
-
-            if substring.count > 3 {
-                let endIndex = substring.index(substring.startIndex, offsetBy: 2)
-                substring = String(substring[substring.startIndex ... endIndex])
-            }
-
-            if menuTitle.isEmpty == false {
-                menuTitle.append(" \(substring.capitalized)")
-            } else {
-                menuTitle.append(substring.capitalized)
-            }
-        }
-
-        if shouldDateBeShown {
-            let date = Date().formatter(with: "MMM d", timeZone: dataObject.timezone())
-            if menuTitle.isEmpty == false {
-                menuTitle.append(" \(date)")
-            } else {
-                menuTitle.append("\(date)")
-            }
-        }
-
-        if menuTitle.isEmpty {
-            menuTitle.append(time(with: 0))
-        } else {
-            menuTitle.append(" \(time(with: 0))")
-        }
-
-        return menuTitle
-    }
-
     private func timezoneDate(with sliderValue: Int, _ calendar: Calendar) -> Date {
         let source = timezoneDateByAdding(minutesToAdd: sliderValue, calendar)
         let sourceTimezone = TimeZone.current

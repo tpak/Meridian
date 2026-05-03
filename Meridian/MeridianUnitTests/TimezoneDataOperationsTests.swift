@@ -264,27 +264,6 @@ class TimezoneDataOperationsTests: XCTestCase {
         }
     }
 
-    // MARK: - Menu Title Tests
-
-    func testMenuTitleWithDefaults() {
-        let dataObject = TimezoneData(with: newYork)
-        let operations = TimezoneDataOperations(with: dataObject, store: mockStore)
-
-        let title = operations.menuTitle()
-        XCTAssertFalse(title.isEmpty, "Menu title should not be empty")
-    }
-
-    func testMenuTitleWithCityShown() {
-        let dataObject = TimezoneData(with: newYork)
-        mockStore.viewTypeDisplayPreferences[.placeInMenubar] = true
-        let operations = TimezoneDataOperations(with: dataObject, store: mockStore)
-
-        let title = operations.menuTitle()
-        // When placeInMenubar is true, city name should appear
-        XCTAssertTrue(title.contains("NYC") || title.contains("New York"),
-                      "Menu title should contain city name but got: \(title)")
-    }
-
     // MARK: - Compact Menu Title Tests
 
     func testCompactMenuTitle() {

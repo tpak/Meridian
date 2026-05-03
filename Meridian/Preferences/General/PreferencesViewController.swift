@@ -256,10 +256,6 @@ extension PreferencesViewController: NSTableViewDataSource, NSTableViewDelegate 
         if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
             appDelegate.setupMenubarTimer()
         }
-
-        if dataStore.menubarTimezones().count > 1 {
-            showAlertIfMoreThanOneTimezoneHasBeenAddedToTheMenubar()
-        }
     }
 
     private func _unfavourite(_ dataObject: TimezoneData) {
@@ -275,51 +271,6 @@ extension PreferencesViewController: NSTableViewDataSource, NSTableViewDelegate 
         }
     }
 
-    private func showAlertIfMoreThanOneTimezoneHasBeenAddedToTheMenubar() {
-        let isUITestRunning = ProcessInfo.processInfo.arguments.contains(UserDefaultKeys.testingLaunchArgument)
-
-        // If we have seen displayed the message before, abort!
-        let haveWeSeenThisMessageBefore = UserDefaults.standard.bool(forKey: UserDefaultKeys.longStatusBarWarningMessage)
-
-        if haveWeSeenThisMessageBefore, !isUITestRunning {
-            return
-        }
-
-        // If the user is already using the compact mode, abort.
-        if DataStore.shared().shouldDisplay(.menubarCompactMode), !isUITestRunning {
-            return
-        }
-
-        // Time to display the alert.
-        NSApplication.shared.activate(ignoringOtherApps: true)
-
-        let infoText = """
-        Multiple timezones occupy space and if macOS determines Meridian is occupying too much space, it'll hide Meridian entirely!
-        Enable Menubar Compact Mode to fit in more timezones in less space.
-        """
-
-        let alert = NSAlert()
-        alert.showsSuppressionButton = true
-        alert.messageText = "More than one location added to the menubar".localized()
-        alert.informativeText = infoText
-        alert.addButton(withTitle: "Enable Compact Mode".localized())
-        alert.addButton(withTitle: "Cancel".localized())
-
-        let response = alert.runModal()
-        guard response == .alertFirstButtonReturn else { return }
-
-        OperationQueue.main.addOperation {
-            DataStore.shared().menubarMode = .compact
-
-            if alert.suppressionButton?.state == .on {
-                UserDefaults.standard.set(true, forKey: UserDefaultKeys.longStatusBarWarningMessage)
-            }
-
-            self.updateStatusBarAppearance()
-
-            Logger.debug("Switched to Compact Mode: Context=>1 Menubar Timezone in Preferences")
-        }
-    }
 }
 
 // MARK: - IBActions forwarded to TimezoneAdditionHandler

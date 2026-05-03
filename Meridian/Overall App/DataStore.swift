@@ -13,7 +13,6 @@ enum ViewType {
     case dateInMenubar
     case placeInMenubar
     case dayInMenubar
-    case menubarCompactMode
 }
 
 protocol DataStoring: AnyObject {
@@ -167,17 +166,11 @@ class DataStore: NSObject, DataStoring {
         case .placeInMenubar:      return showPlaceNameInMenubar
         case .dayInMenubar:        return showDayInMenubar
         case .appDisplayOptions:   return appPresentation == .menubarOnly
-        case .menubarCompactMode:  return menubarMode == .compact
         }
     }
 }
 
 // MARK: - Typed preference enums (issue #97)
-
-enum MenubarMode: Int, Codable, CaseIterable {
-    case compact = 0
-    case standard = 1
-}
 
 enum Theme: Int, Codable, CaseIterable {
     case light = 0
@@ -399,7 +392,6 @@ enum TimeFormat: Int, Codable, CaseIterable {
 // JSON export ("compact" instead of 0). Names are derived from the Swift
 // case identifier — keep them stable across releases since users' export
 // files persist them.
-extension MenubarMode: JSONNameDecodable {}
 extension Theme: JSONNameDecodable {}
 extension RelativeDateDisplay: JSONNameDecodable {}
 extension AppPresentation: JSONNameDecodable {}
@@ -444,11 +436,6 @@ extension DataStore {
     }
 
     // Enums (Int-backed; raw values match the popup/segment selectedIndex).
-    var menubarMode: MenubarMode {
-        get { MenubarMode(rawValue: userDefaults.integer(forKey: UserDefaultKeys.menubarCompactMode)) ?? .standard }
-        set { userDefaults.set(newValue.rawValue, forKey: UserDefaultKeys.menubarCompactMode) }
-    }
-
     var theme: Theme {
         get { Theme(rawValue: userDefaults.integer(forKey: UserDefaultKeys.themeKey)) ?? .light }
         set { userDefaults.set(newValue.rawValue, forKey: UserDefaultKeys.themeKey) }
