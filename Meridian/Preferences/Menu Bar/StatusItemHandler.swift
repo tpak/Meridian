@@ -71,6 +71,14 @@ class StatusItemHandler: NSObject {
             case .compactText:
                 statusItem.button?.subviews = []
                 statusContainerView = nil
+                // constructCompactView pins `statusItem.length` to the
+                // container width so AppKit reserves the full slot for the
+                // subviews. The pinned length sticks across state changes,
+                // so leaving compact mode without resetting it makes the
+                // standard-mode title get wrapped onto two lines (and
+                // collide with neighbouring menu-bar icons). Hand the slot
+                // back to AppKit so it auto-sizes from title/image again.
+                statusItem.length = NSStatusItem.variableLength
             case .standardText:
                 statusItem.button?.title = UserDefaultKeys.emptyString
             case .icon:
@@ -115,6 +123,14 @@ class StatusItemHandler: NSObject {
 
         if currentState != menubarState {
             currentState = menubarState
+        } else if menubarState == .compactText {
+            // Same state, but the favorite list may have changed (toggle
+            // on/off without a mode change). The compact container's
+            // subviews are decided at construction time, so refresh() —
+            // which only re-renders time text on existing subviews — would
+            // miss the add/remove. Rebuild the container to pick up the
+            // new menubar timezone list.
+            setupForCompactTextMode()
         } else if menubarState != .icon {
             refresh()
         }
@@ -178,6 +194,16 @@ class StatusItemHandler: NSObject {
         if let containerView = statusContainerView {
             statusItem.button?.addSubview(containerView)
             statusItem.button?.frame = containerView.bounds
+            // NSStatusItem with `.variableLength` auto-sizes from its button's
+            // title/image, *not* from added subviews. Without an explicit
+            // length the system holds the visible status-bar slot at its
+            // single-item default and clips any subview past that width — so
+            // a second favourite timezone is rendered into the container but
+            // never shown. Pin the slot width to the container so every
+            // subview survives. Inherited bug from upstream Clocker; the
+            // symptom only surfaces on recent macOS versions that tightened
+            // status-bar slot sizing.
+            statusItem.length = containerView.bounds.size.width
         }
 
         // For OS < 11, we need to fix the sizing (width) on the button's window
