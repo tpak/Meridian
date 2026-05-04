@@ -387,16 +387,15 @@ class TimezoneAdditionHandler: NSObject {
             let components = timezoneID.split(separator: "/")
             if let cityComponent = components.last {
                 let cityName = cityComponent.replacingOccurrences(of: "_", with: " ")
-                guard let placemark = try? await NetworkManager.geocodeAddress(cityName),
-                      let location = placemark.location else {
+                guard let place = try? await NetworkManager.geocodeAddress(cityName, geocoder: self.geocoder) else {
                     Logger.debug("Coordinate backfill skipped for \(cityName)")
                     let operationObject = TimezoneDataOperations(with: data, store: store)
                     operationObject.saveObject()
                     self.performPostInstallCleanup()
                     return
                 }
-                data.latitude = location.coordinate.latitude
-                data.longitude = location.coordinate.longitude
+                data.latitude = place.coordinate.latitude
+                data.longitude = place.coordinate.longitude
             }
 
             let operationObject = TimezoneDataOperations(with: data, store: store)

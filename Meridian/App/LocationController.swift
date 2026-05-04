@@ -101,32 +101,3 @@ extension LocationController: CLLocationManagerDelegate {
         Logger.production("Location error: \(error.localizedDescription)")
     }
 }
-
-extension CLGeocoder {
-    /// Reverse-geocodes a location, racing against a timeout. On timeout the
-    /// in-flight geocode is cancelled (CLGeocoder.cancelGeocode), which causes
-    /// the awaited call to throw — the caller receives that error.
-    func reverseGeocodeLocation(_ location: CLLocation, timeout: TimeInterval) async throws -> [CLPlacemark] {
-        let timeoutTask = Task {
-            try? await Task.sleep(nanoseconds: UInt64(timeout * 1_000_000_000))
-            if !Task.isCancelled {
-                self.cancelGeocode()
-            }
-        }
-        defer { timeoutTask.cancel() }
-        return try await reverseGeocodeLocation(location)
-    }
-
-    /// Forward-geocodes an address string, racing against a timeout. Same
-    /// cancellation behavior as the reverse variant.
-    func geocodeAddressString(_ address: String, timeout: TimeInterval) async throws -> [CLPlacemark] {
-        let timeoutTask = Task {
-            try? await Task.sleep(nanoseconds: UInt64(timeout * 1_000_000_000))
-            if !Task.isCancelled {
-                self.cancelGeocode()
-            }
-        }
-        defer { timeoutTask.cancel() }
-        return try await geocodeAddressString(address)
-    }
-}
