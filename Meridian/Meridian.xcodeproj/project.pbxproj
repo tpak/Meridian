@@ -68,6 +68,7 @@
 		818B546B7B8B47D88692CD80 /* GlobalShortcutMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC776853CC4796AD9A1DC6 /* GlobalShortcutMonitor.swift */; };
 		919639F9D2F3GLOBALSHRTCUT /* GlobalShortcutMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */; };
 		9A0A1C8C20903DBD0012003B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A9E87651C1FEDC500A7A2DF /* CoreLocation.framework */; };
+		9AFFEE0001000000MAPKITBF /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AFFEE0002000000MAPKITFR /* MapKit.framework */; };
 		9A13BAD61CA87F08007C6CBE /* Panel.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9A13BAD81CA87F08007C6CBE /* Panel.xib */; };
 		9A13BAE01CA882FA007C6CBE /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = EE11AA0100INFOPLISTXCS1 /* InfoPlist.xcstrings */; };
 		9A13BAEA1CA88A76007C6CBE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = EE11AA0100LOCALIZBLEXCS1 /* Localizable.xcstrings */; };
@@ -211,6 +212,7 @@
 		9A9E87611C1FEDB500A7A2DF /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		9A9E87631C1FEDBD00A7A2DF /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		9A9E87651C1FEDC500A7A2DF /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		9AFFEE0002000000MAPKITFR /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		9A9E87671C1FEDD300A7A2DF /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		9A9E87691C1FEDDB00A7A2DF /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		9A9E876B1C1FEDE700A7A2DF /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
@@ -277,6 +279,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A0A1C8C20903DBD0012003B /* CoreLocation.framework in Frameworks */,
+				9AFFEE0001000000MAPKITBF /* MapKit.framework in Frameworks */,
 				9ACF469D1DCBD45200C49B51 /* Quartz.framework in Frameworks */,
 				9AC678E41C1ABAB9003B4F6B /* QuartzCore.framework in Frameworks */,
 				35B2FEF1259A2DB1005DA84D /* CoreModelKit in Frameworks */,
@@ -609,6 +612,7 @@
 				9A9E87691C1FEDDB00A7A2DF /* SystemConfiguration.framework */,
 				9A9E87671C1FEDD300A7A2DF /* Security.framework */,
 				9A9E87651C1FEDC500A7A2DF /* CoreLocation.framework */,
+				9AFFEE0002000000MAPKITFR /* MapKit.framework */,
 				9A9E87631C1FEDBD00A7A2DF /* CoreGraphics.framework */,
 				9A9E87611C1FEDB500A7A2DF /* CFNetwork.framework */,
 				9AC678E31C1ABAB9003B4F6B /* QuartzCore.framework */,
