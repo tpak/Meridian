@@ -55,20 +55,28 @@ struct MapKitGeocodingService: GeocodingServicing {
         guard let request = MKGeocodingRequest(addressString: addressString) else {
             throw GeocodingError.invalidInput
         }
-        return try await runWithTimeout(timeout: timeout, cancel: { request.cancel() }) {
-            let mapItems = try await request.mapItems
-            return mapItems.map(GeocodedPlace.init(mapItem:))
-        }
+        return try await runWithTimeout(
+            timeout: timeout,
+            cancel: { request.cancel() },
+            operation: {
+                let mapItems = try await request.mapItems
+                return mapItems.map(GeocodedPlace.init(mapItem:))
+            }
+        )
     }
 
     func reverse(location: CLLocation, timeout: TimeInterval) async throws -> [GeocodedPlace] {
         guard let request = MKReverseGeocodingRequest(location: location) else {
             throw GeocodingError.invalidInput
         }
-        return try await runWithTimeout(timeout: timeout, cancel: { request.cancel() }) {
-            let mapItems = try await request.mapItems
-            return mapItems.map(GeocodedPlace.init(mapItem:))
-        }
+        return try await runWithTimeout(
+            timeout: timeout,
+            cancel: { request.cancel() },
+            operation: {
+                let mapItems = try await request.mapItems
+                return mapItems.map(GeocodedPlace.init(mapItem:))
+            }
+        )
     }
 }
 
