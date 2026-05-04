@@ -35,6 +35,7 @@ private let searchScrollThreshold = 6
 class TimezoneAdditionHandler: NSObject {
     private weak var host: TimezoneAdditionHost?
     private let dataStore: DataStoring
+    private let geocoder: GeocodingServicing
 
     private var searchTask: Task<Void, Never>?
     private var getTimezoneTask: Task<Void, Never>?
@@ -53,9 +54,12 @@ class TimezoneAdditionHandler: NSObject {
         }
     }
 
-    init(host: TimezoneAdditionHost, dataStore: DataStoring = DataStore.shared()) {
+    init(host: TimezoneAdditionHost,
+         dataStore: DataStoring = DataStore.shared(),
+         geocoder: GeocodingServicing = MapKitGeocodingService()) {
         self.host = host
         self.dataStore = dataStore
+        self.geocoder = geocoder
     }
 
     // MARK: - Search
@@ -84,28 +88,18 @@ class TimezoneAdditionHandler: NSObject {
 
         searchTask = Task { @MainActor in
             do {
-                let placemark = try await NetworkManager.geocodeAddress(searchString)
+                let place = try await NetworkManager.geocodeAddress(searchString, geocoder: geocoder)
 
-                guard let location = placemark.location else {
-                    findLocalSearchResultsForTimezones()
-                    let noResults = host.searchResultsDataSource.timezoneFilteredArray.isEmpty
-                    host.placeholderLabel.placeholderString = noResults
-                        ? "No results! Try entering the exact name." : UserDefaultKeys.emptyString
-                    reloadSearchResults()
-                    isActivityInProgress = false
-                    return
-                }
-
-                let name = placemark.formattedAddress
-                let timezoneID = placemark.timeZone?.identifier ?? ""
+                let displayName = place.formattedAddress ?? "Unknown"
+                let timezoneID = place.timeZone?.identifier ?? ""
 
                 let timezoneData = TimezoneData.make(
                     timezoneID: timezoneID,
-                    name: name,
-                    customLabel: name,
-                    latitude: location.coordinate.latitude,
-                    longitude: location.coordinate.longitude,
-                    placeIdentifier: placemark.isoCountryCode ?? ""
+                    name: displayName,
+                    customLabel: displayName,
+                    latitude: place.coordinate.latitude,
+                    longitude: place.coordinate.longitude,
+                    placeIdentifier: place.regionCode ?? ""
                 )
                 host.searchResultsDataSource.setFilteredArrayValue([timezoneData])
 
@@ -184,11 +178,10 @@ class TimezoneAdditionHandler: NSObject {
         getTimezoneTask = Task { @MainActor in
             do {
                 let location = CLLocation(latitude: latitude, longitude: longitude)
-                let geocoder = CLGeocoder()
-                let placemarks = try await geocoder.reverseGeocodeLocation(location)
+                let places = try await geocoder.reverse(location: location)
 
-                guard let placemark = placemarks.first,
-                      let timezone = placemark.timeZone else {
+                guard let place = places.first,
+                      let timezone = place.timeZone else {
                     host.placeholderLabel.placeholderString = "No timezone found! Try entering an exact name."
                     host.searchField.placeholderString = NSLocalizedString("Search Field Placeholder",
                                                                            comment: "Search Field Placeholder")
@@ -197,7 +190,7 @@ class TimezoneAdditionHandler: NSObject {
                 }
 
                 if host.availableTimezoneTableView.selectedRow >= 0 {
-                    installTimezone(timezone, for: placemark)
+                    installTimezone(timezone)
                 }
                 updateViewState()
             } catch {
@@ -213,7 +206,7 @@ class TimezoneAdditionHandler: NSObject {
         }
     }
 
-    private func installTimezone(_ timezone: TimeZone, for placemark: CLPlacemark) {
+    private func installTimezone(_ timezone: TimeZone) {
         guard let host = host else { return }
         guard let dataObject = host.searchResultsDataSource.retrieveFilteredResultFromGoogleAPI(host.availableTimezoneTableView.selectedRow) else {
             Logger.debug("Data was unexpectedly nil")

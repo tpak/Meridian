@@ -130,13 +130,12 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
                 let components = (timezone.timezoneID ?? "").split(separator: "/")
                 guard let cityComponent = components.last else { continue }
                 let cityName = cityComponent.replacingOccurrences(of: "_", with: " ")
-                guard let placemark = try? await NetworkManager.geocodeAddress(cityName),
-                      let location = placemark.location else {
+                guard let place = try? await NetworkManager.geocodeAddress(cityName) else {
                     Logger.debug("Coordinate backfill skipped for \(cityName)")
                     continue
                 }
-                timezone.latitude = location.coordinate.latitude
-                timezone.longitude = location.coordinate.longitude
+                timezone.latitude = place.coordinate.latitude
+                timezone.longitude = place.coordinate.longitude
                 guard let encoded = NSKeyedArchiver.secureArchive(with: timezone) else { continue }
                 timezones[index] = encoded
             }

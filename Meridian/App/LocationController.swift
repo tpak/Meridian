@@ -11,9 +11,11 @@ protocol LocationControllerDelegate: AnyObject {
 
 class LocationController: NSObject {
     private let store: DataStore
+    private let geocoder: GeocodingServicing
 
-    init(withStore dataStore: DataStore) {
+    init(withStore dataStore: DataStore, geocoder: GeocodingServicing = MapKitGeocodingService()) {
         store = dataStore
+        self.geocoder = geocoder
         super.init()
     }
 
@@ -69,18 +71,17 @@ class LocationController: NSObject {
 
 extension LocationController: CLLocationManagerDelegate {
     func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard !locations.isEmpty, let coordinates = locations.first?.coordinate else { return }
+        guard let firstLocation = locations.first else { return }
+        let coordinates = firstLocation.coordinate
 
         Task { @MainActor [weak self] in
             guard let self else { return }
-            let geocoder = CLGeocoder()
             defer { self.locationManager.stopUpdatingLocation() }
 
             do {
-                let placemarks = try await geocoder.reverseGeocodeLocation(locations[0],
-                                                                            timeout: GeocodingConstants.timeout)
-                guard let customLabel = placemarks.first?.locality else { return }
-                self.updateHomeObject(with: customLabel, coordinates: coordinates)
+                let places = try await self.geocoder.reverse(location: firstLocation)
+                guard let cityName = places.first?.cityName else { return }
+                self.updateHomeObject(with: cityName, coordinates: coordinates)
             } catch {
                 Logger.production("Reverse geocode failed: \(error.localizedDescription)")
             }
