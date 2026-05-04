@@ -43,6 +43,7 @@
 		35C36F452259D892002FA5C6 /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F3D2259D892002FA5C6 /* Strings.swift */; };
 		35C36F462259D892002FA5C6 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F3E2259D892002FA5C6 /* DataStore.swift */; };
 		35C36F482259D892002FA5C6 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F402259D892002FA5C6 /* NetworkManager.swift */; };
+		9AFFEE0003000000GEOSVCBF /* GeocodingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFFEE0004000000GEOSVCFR /* GeocodingService.swift */; };
 		35C36F4B2259D971002FA5C6 /* PointingHandCursorButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F4A2259D971002FA5C6 /* PointingHandCursorButton.swift */; };
 		35C36F4E2259D981002FA5C6 /* DateFormatterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F4C2259D981002FA5C6 /* DateFormatterManager.swift */; };
 		35C36F4F2259D981002FA5C6 /* AppDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F4D2259D981002FA5C6 /* AppDefaults.swift */; };
@@ -173,6 +174,7 @@
 		35C36F3D2259D892002FA5C6 /* Strings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		35C36F3E2259D892002FA5C6 /* DataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
 		35C36F402259D892002FA5C6 /* NetworkManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
+		9AFFEE0004000000GEOSVCFR /* GeocodingService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeocodingService.swift; sourceTree = "<group>"; };
 		35C36F4A2259D971002FA5C6 /* PointingHandCursorButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PointingHandCursorButton.swift; sourceTree = "<group>"; };
 		35C36F4C2259D981002FA5C6 /* DateFormatterManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateFormatterManager.swift; sourceTree = "<group>"; };
 		35C36F4D2259D981002FA5C6 /* AppDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDefaults.swift; sourceTree = "<group>"; };
@@ -390,6 +392,7 @@
 				23D856F171624B8EBC360698 /* SettingsManager.swift */,
 				9FEC776853CC4796AD9A1DC6 /* GlobalShortcutMonitor.swift */,
 				35C36F402259D892002FA5C6 /* NetworkManager.swift */,
+				9AFFEE0004000000GEOSVCFR /* GeocodingService.swift */,
 				35C36F3D2259D892002FA5C6 /* Strings.swift */,
 				A1B2C3D4E5F60001SEARCH01 /* TimezoneSearchService.swift */,
 				35C36F3A2259D892002FA5C6 /* Timer.swift */,
@@ -887,6 +890,7 @@
 				35C36EFB2259616B002FA5C6 /* Solar.swift in Sources */,
 				35C36F592259DD8A002FA5C6 /* TimezoneCellView.swift in Sources */,
 				35C36F482259D892002FA5C6 /* NetworkManager.swift in Sources */,
+				9AFFEE0003000000GEOSVCBF /* GeocodingService.swift in Sources */,
 				A1B2C3D4E5F60002SEARCH02 /* TimezoneSearchService.swift in Sources */,
 				3579765E2680208C009DDA6E /* ParentPanelController+ModernSlider.swift in Sources */,
 				3579765F2680208C009DDA6E /* ParentPanelController+Layout.swift in Sources */,

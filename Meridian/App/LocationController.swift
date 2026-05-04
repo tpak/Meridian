@@ -101,13 +101,6 @@ extension LocationController: CLLocationManagerDelegate {
     }
 }
 
-enum GeocodingConstants {
-    /// Cap geocoding waits at 10 seconds. Apple's CLGeocoder has no built-in
-    /// timeout — without one, a stalled network during location-permission
-    /// grant or first-launch reverse geocode can hang the calling Task forever.
-    static let timeout: TimeInterval = 10
-}
-
 extension CLGeocoder {
     /// Reverse-geocodes a location, racing against a timeout. On timeout the
     /// in-flight geocode is cancelled (CLGeocoder.cancelGeocode), which causes
