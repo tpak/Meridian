@@ -164,11 +164,31 @@ public class TimezoneData: NSObject, NSCoding, NSSecureCoding {
             return TimezoneData()
         }
 
-        guard let unarchiver = try? NSKeyedUnarchiver(forReadingFrom: dataObject) else { return nil }
-        unarchiver.requiresSecureCoding = true
-        let result = unarchiver.decodeObject(of: TimezoneData.self, forKey: NSKeyedArchiveRootObjectKey)
-        unarchiver.finishDecoding()
-        return result
+        do {
+            let unarchiver = try NSKeyedUnarchiver(forReadingFrom: dataObject)
+            unarchiver.requiresSecureCoding = true
+            // Explicit multi-class allowlist. Single-class form
+            // `decodeObject(of: TimezoneData.self, ...)` only allows TimezoneData
+            // for the root, leaving the nested NSString/NSDate/NSNumber decodes
+            // inside init(coder:) to rely on the unarchiver's default class
+            // policy — which macOS 26 tightened. The explicit list keeps decoding
+            // working across SDKs.
+            let allowed: [AnyClass] = [TimezoneData.self, NSString.self, NSNumber.self, NSDate.self]
+            let any = unarchiver.decodeObject(of: allowed, forKey: NSKeyedArchiveRootObjectKey)
+            unarchiver.finishDecoding()
+            if let err = unarchiver.error {
+                Logger.production("TimezoneData decode error: \(err)")
+                return nil
+            }
+            guard let result = any as? TimezoneData else {
+                Logger.production("TimezoneData decode returned non-TimezoneData type: \(type(of: any))")
+                return nil
+            }
+            return result
+        } catch {
+            Logger.production("TimezoneData unarchiver init failed: \(error.localizedDescription)")
+            return nil
+        }
     }
 
     public func encode(with aCoder: NSCoder) {

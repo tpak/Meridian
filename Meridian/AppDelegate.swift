@@ -62,8 +62,13 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?"
         let osVersion = ProcessInfo.processInfo.operatingSystemVersionString
-        let tzCount = DataStore.shared().timezones().count
-        Logger.production("App launched v\(version)(\(build)) on macOS \(osVersion), \(tzCount) timezones")
+        let store = DataStore.shared()
+        let rawCount = store.timezones().count
+        let decodedCount = store.timezoneObjects().count
+        Logger.production("App launched v\(version)(\(build)) on macOS \(osVersion), timezones raw=\(rawCount) decoded=\(decodedCount)")
+        if rawCount != decodedCount {
+            Logger.production("WARN: \(rawCount - decodedCount) timezone blob(s) failed to decode — UI will show fewer rows than persisted")
+        }
     }
 
     // MARK: - Crash Sentinel
