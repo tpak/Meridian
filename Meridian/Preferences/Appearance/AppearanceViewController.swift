@@ -423,7 +423,7 @@ class AppearanceViewController: ParentViewController {
     }
 
     private func refresh(panel: Bool) {
-        OperationQueue.main.addOperation {
+        DispatchQueue.main.async {
             if panel {
                 guard let panelController = PanelController.panel() else { return }
 

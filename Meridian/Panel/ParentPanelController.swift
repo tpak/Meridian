@@ -188,7 +188,7 @@ class ParentPanelController: NSWindowController {
     }
 
     @objc func systemTimezoneDidChange() {
-        OperationQueue.main.addOperation {
+        DispatchQueue.main.async {
             self.updateHomeObject(with: TimeZone.autoupdatingCurrent.identifier,
                                   coordinates: nil)
         }

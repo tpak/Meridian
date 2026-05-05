@@ -372,7 +372,7 @@ class PanelController: ParentPanelController {
         Logger.debug("Start timer called")
 
         parentTimer = Repeater(interval: .seconds(1), mode: .infinite) { _ in
-            OperationQueue.main.addOperation {
+            DispatchQueue.main.async {
                 self.updateTime()
             }
         }
