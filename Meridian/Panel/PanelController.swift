@@ -60,19 +60,13 @@ class PanelController: ParentPanelController {
     }
 
     private func setupAccentColorObserver() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(accentColorDidChange),
-            name: .accentColorDidChange,
-            object: nil
-        )
+        NotificationCenter.default.publisher(for: .accentColorDidChange)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.accentColorDidChange() }
+            .store(in: &cancellables)
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-
-    @objc private func accentColorDidChange() {
+    private func accentColorDidChange() {
         // Pin button: re-apply tint via the same code path that picks the
         // floating-vs-secondary color, so a paused-mid-update tint flips
         // immediately when the user changes teams.

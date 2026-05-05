@@ -1,6 +1,7 @@
 // Copyright © 2015 Abhishek Banthia
 
 import AppKit
+import Combine
 import CoreLoggerKit
 import Foundation
 
@@ -58,10 +59,11 @@ extension ParentPanelController {
             modernSlider.enclosingScrollView?.backgroundColor = NSColor.clear
             modernSlider.setAccessibility("ModernSlider")
             modernSlider.postsBoundsChangedNotifications = true
-            NotificationCenter.default.addObserver(self,
-                                                   selector: #selector(collectionViewDidScroll(_:)),
-                                                   name: NSView.boundsDidChangeNotification,
-                                                   object: modernSlider.superview)
+            NotificationCenter.default.publisher(for: NSView.boundsDidChangeNotification, object: modernSlider.superview)
+                .sink { [weak self] notification in
+                    self?.collectionViewDidScroll(notification)
+                }
+                .store(in: &cancellables)
 
             // Wire up snap-to-grid after a drag gesture ends.
             if let clipView = modernSlider.superview as? DraggableClipView {
@@ -164,7 +166,7 @@ extension ParentPanelController {
         setResetButtonHidden(minutes == 0)
     }
 
-    @objc func collectionViewDidScroll(_ notification: NSNotification) {
+    func collectionViewDidScroll(_ notification: Notification) {
         guard let contentView = notification.object as? NSClipView else {
             return
         }
