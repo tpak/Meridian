@@ -20,7 +20,7 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         AppDefaults.initialize(with: DataStore.shared(), defaults: UserDefaults.standard)
         // Single swizzle on +controlAccentColor — covers popups,
         // segmented controls, checkboxes, sliders, focus rings.
-        NSColor.installTeamAccentSwizzle()
+        AccentColorSwizzler.install()
         logLaunch()
         sentinelTask = Task.detached(priority: .utility) {
             self.checkForPreviousUncleanExit()

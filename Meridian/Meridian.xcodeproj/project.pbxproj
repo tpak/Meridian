@@ -114,6 +114,7 @@
 		C264A0C520B897D800CCD875 /* PreferencesTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C264A0C420B897D800CCD875 /* PreferencesTest.swift */; };
 		C264A0C820B898D600CCD875 /* PanelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C264A0C720B898D600CCD875 /* PanelTests.swift */; };
 		C2CCCD8220619C4C00F2DFC2 /* LocationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2CCCD8120619C4C00F2DFC2 /* LocationController.swift */; };
+		EE11AA0100ACCENTSWIZL01 /* AccentColorSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE11AA0100ACCENTSWIZL02 /* AccentColorSwizzler.swift */; };
 		C2F7821B20B70E3700B6CD07 /* AboutUsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F7821A20B70E3700B6CD07 /* AboutUsTests.swift */; };
 		C31BD08A823D4B94BC9C69AC /* ShortcutRecorderButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0A19BB308FC4CDEA6F6878A /* ShortcutRecorderButton.swift */; };
 		C4A3D93099C54195A921944E /* PanelContextMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527EBAA6C18049AE931DDE49 /* PanelContextMenu.swift */; };
@@ -256,6 +257,7 @@
 		C2BFE3E32049F82300825BE5 /* MeridianUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeridianUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2BFE3E72049F82300825BE5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C2CCCD8120619C4C00F2DFC2 /* LocationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LocationController.swift; path = App/LocationController.swift; sourceTree = "<group>"; };
+		EE11AA0100ACCENTSWIZL02 /* AccentColorSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AccentColorSwizzler.swift; path = App/AccentColorSwizzler.swift; sourceTree = "<group>"; };
 		C2F7821A20B70E3700B6CD07 /* AboutUsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutUsTests.swift; sourceTree = "<group>"; };
 		DD4F7C0413C30F9F00825C6E /* Meridian.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Meridian.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD4F7C0813C30F9F00825C6E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -453,6 +455,7 @@
 				EE11AA0100INFOPLISTXCS1 /* InfoPlist.xcstrings */,
 				EE11AA0100LOCALIZBLEXCS1 /* Localizable.xcstrings */,
 				C2CCCD8120619C4C00F2DFC2 /* LocationController.swift */,
+				EE11AA0100ACCENTSWIZL02 /* AccentColorSwizzler.swift */,
 			);
 			name = Utilties;
 			sourceTree = "<group>";
@@ -877,6 +880,7 @@
 				3508CC9F259A000E000E3530 /* StatusItemHandler.swift in Sources */,
 				35E65125268EDD2E00E3E1E3 /* Toasty.swift in Sources */,
 				C2CCCD8220619C4C00F2DFC2 /* LocationController.swift in Sources */,
+				EE11AA0100ACCENTSWIZL01 /* AccentColorSwizzler.swift in Sources */,
 				35C36F4B2259D971002FA5C6 /* PointingHandCursorButton.swift in Sources */,
 				3595FAD0227F88BC0044A12A /* UserDefaults + KVOExtensions.swift in Sources */,
 				9AB6F1612259D1B000A44663 /* PreferencesViewController.swift in Sources */,
