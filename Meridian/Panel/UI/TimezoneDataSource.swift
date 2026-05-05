@@ -163,7 +163,7 @@ extension TimezoneDataSource: NSTableViewDataSource, NSTableViewDelegate {
         let response = alert.runModal()
         guard response == NSApplication.ModalResponse.alertFirstButtonReturn else { return }
 
-        OperationQueue.main.addOperation {
+        DispatchQueue.main.async {
             let indexSet = IndexSet(integer: row)
 
             tableView.removeRows(at: indexSet, withAnimation: NSTableView.AnimationOptions.slideUp)

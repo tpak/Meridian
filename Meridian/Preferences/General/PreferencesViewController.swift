@@ -121,13 +121,13 @@ class PreferencesViewController: ParentViewController {
     }
 
     @objc func refreshTimezoneTableView(_ shouldSelectNewlyInsertedTimezone: Bool = false) {
-        OperationQueue.main.addOperation {
+        DispatchQueue.main.async {
             self.build(shouldSelectNewlyInsertedTimezone)
         }
     }
 
     func refreshMainTable() {
-        OperationQueue.main.addOperation {
+        DispatchQueue.main.async {
             self.refresh()
         }
     }

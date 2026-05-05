@@ -1286,7 +1286,7 @@ class TeamAccentTests: XCTestCase {
     /// If this test fails, every "but the toolbar didn't update!" UAT
     /// downstream will fail too.
     func testSwizzleMakesControlAccentColorReturnTeamAccent() {
-        NSColor.installTeamAccentSwizzle()
+        AccentColorSwizzler.install()
         let savedTeam = DataStore.shared().teamAccent
         defer { DataStore.shared().teamAccent = savedTeam }
 
