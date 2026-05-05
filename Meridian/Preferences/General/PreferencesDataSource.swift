@@ -37,9 +37,7 @@ class PreferencesDataSource: NSObject {
 extension PreferencesDataSource: NSTableViewDelegate {
     func tableViewSelectionDidChange(_ notification: Notification) {
         if let tableView = notification.object as? NSTableView {
-            let noSelection = tableView.selectedRow == -1
-            Logger.production("Preferences selection: row=\(tableView.selectedRow) noSelection=\(noSelection)")
-            updateDelegate?.preferenceSelectionDataSourceTableViewSelectionDidChange(noSelection)
+            updateDelegate?.preferenceSelectionDataSourceTableViewSelectionDidChange(tableView.selectedRow == -1)
         }
     }
 

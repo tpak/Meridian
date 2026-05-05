@@ -408,7 +408,6 @@ extension PreferencesViewController: PreferenceSelectionUpdates {
     }
 
     func preferenceSelectionDataSourceTableViewSelectionDidChange(_ status: Bool) {
-        Logger.production("Preferences delete button: enabled=\(!status) (status=\(status))")
         deleteButton.isEnabled = !status
     }
 
