@@ -65,55 +65,75 @@ class TimezoneAdditionHandler: NSObject {
     // MARK: - Search
 
     @objc func search() {
-        guard let host = host else { return }
-        guard let searchString = host.searchField?.stringValue,
-              !searchString.isEmpty,
-              searchString.count <= maxSearchLength else {
+        guard validateSearchInput() else {
             searchTask?.cancel()
             resetSearchView()
             return
         }
 
         searchTask?.cancel()
+        showSearchInProgress()
 
-        if host.availableTimezoneTableView.isHidden {
-            host.availableTimezoneTableView.isHidden = false
-        }
-
-        host.placeholderLabel.isHidden = false
-        isActivityInProgress = true
-        host.placeholderLabel.placeholderString = "Searching for \(searchString)"
-
-        Logger.debug(host.placeholderLabel.placeholderString ?? "")
-
+        guard let host = host else { return }
+        let searchString = host.searchField.stringValue
         searchTask = Task { @MainActor in
             do {
                 let place = try await NetworkManager.geocodeAddress(searchString, geocoder: geocoder)
-
-                let displayName = place.formattedAddress ?? "Unknown"
-                let timezoneID = place.timeZone?.identifier ?? ""
-
-                let timezoneData = TimezoneData.make(
-                    timezoneID: timezoneID,
-                    name: displayName,
-                    customLabel: displayName,
-                    latitude: place.coordinate.latitude,
-                    longitude: place.coordinate.longitude,
-                    placeIdentifier: place.regionCode ?? ""
-                )
-                host.searchResultsDataSource.setFilteredArrayValue([timezoneData])
-
-                findLocalSearchResultsForTimezones()
-                prepareUIForPresentingResults()
+                handleSearchResults(place)
             } catch {
-                findLocalSearchResultsForTimezones()
-                if host.searchResultsDataSource.timezoneFilteredArray.isEmpty {
-                    presentError(error)
-                    return
-                }
-                prepareUIForPresentingResults()
+                handleSearchFailure(error)
             }
         }
+    }
+
+    private func validateSearchInput() -> Bool {
+        guard let host = host,
+              let searchString = host.searchField?.stringValue,
+              !searchString.isEmpty,
+              searchString.count <= maxSearchLength else {
+            return false
+        }
+        return true
+    }
+
+    private func showSearchInProgress() {
+        guard let host = host else { return }
+        if host.availableTimezoneTableView.isHidden {
+            host.availableTimezoneTableView.isHidden = false
+        }
+        host.placeholderLabel.isHidden = false
+        isActivityInProgress = true
+        host.placeholderLabel.placeholderString = "Searching for \(host.searchField.stringValue)"
+        Logger.debug(host.placeholderLabel.placeholderString ?? "")
+    }
+
+    private func handleSearchResults(_ place: GeocodedPlace) {
+        guard let host = host else { return }
+        let displayName = place.formattedAddress ?? "Unknown"
+        let timezoneID = place.timeZone?.identifier ?? ""
+
+        let timezoneData = TimezoneData.make(
+            timezoneID: timezoneID,
+            name: displayName,
+            customLabel: displayName,
+            latitude: place.coordinate.latitude,
+            longitude: place.coordinate.longitude,
+            placeIdentifier: place.regionCode ?? ""
+        )
+        host.searchResultsDataSource.setFilteredArrayValue([timezoneData])
+
+        findLocalSearchResultsForTimezones()
+        prepareUIForPresentingResults()
+    }
+
+    private func handleSearchFailure(_ error: Error) {
+        guard let host = host else { return }
+        findLocalSearchResultsForTimezones()
+        if host.searchResultsDataSource.timezoneFilteredArray.isEmpty {
+            presentError(error)
+            return
+        }
+        prepareUIForPresentingResults()
     }
 
     private func findLocalSearchResultsForTimezones() {
