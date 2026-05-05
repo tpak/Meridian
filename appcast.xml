@@ -3,6 +3,21 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>3.0.0</title>
+            <pubDate>Tue, 05 May 2026 11:02:06 +0000</pubDate>
+            <sparkle:version>3000100</sparkle:version>
+            <sparkle:shortVersionString>3.0.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>**Now requires macOS 26 (Tahoe) or later.**</li>
+                    <li>Updated geocoding to Apple's modern MapKit APIs (#117).</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v3.0.0/Meridian.app.zip" length="3281004" type="application/octet-stream" sparkle:edSignature="GOSJMsQyBzIulRfdu90GmQg+ITR8uyoFyos+BmhIuC+ytyqCAc/41IbBSC2Dn2GAsOuLILAVtOse93mBpMrCDA=="/>
+        </item>
+        <item>
             <title>2.21.4</title>
             <pubDate>Sun, 03 May 2026 21:08:03 +0000</pubDate>
             <sparkle:version>2214100</sparkle:version>
