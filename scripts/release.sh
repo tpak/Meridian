@@ -248,6 +248,18 @@ if [[ -z "$APP_PATH" ]]; then
     exit 1
 fi
 
+# Read the deployment target stamped into the freshly-built bundle.
+# Used below for the appcast's <sparkle:minimumSystemVersion> so Sparkle
+# clients on older macOS don't try to install an installer their OS
+# can't run. LSMinimumSystemVersion in Info.plist is wired to
+# ${MACOSX_DEPLOYMENT_TARGET} so it always matches the binary.
+MIN_OS="$(/usr/libexec/PlistBuddy -c "Print :LSMinimumSystemVersion" "$APP_PATH/Contents/Info.plist" 2>/dev/null)"
+if [[ -z "$MIN_OS" ]]; then
+    echo "Error: could not read LSMinimumSystemVersion from $APP_PATH/Contents/Info.plist"
+    exit 1
+fi
+echo "── Deployment target: macOS $MIN_OS"
+
 # Strip extended attributes and resource forks that create ._* files on extraction
 echo "── Stripping extended attributes..."
 xattr -rc "$APP_PATH"
@@ -359,7 +371,7 @@ NEW_ITEM="        <item>
             <pubDate>$PUB_DATE</pubDate>$CHANNEL_TAG
             <sparkle:version>$BUILD_NUMBER</sparkle:version>
             <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:minimumSystemVersion>$MIN_OS</sparkle:minimumSystemVersion>
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
             <description><![CDATA[
                 <ul>
