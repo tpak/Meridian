@@ -62,8 +62,13 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?"
         let osVersion = ProcessInfo.processInfo.operatingSystemVersionString
-        let tzCount = DataStore.shared().timezones().count
-        Logger.production("App launched v\(version)(\(build)) on macOS \(osVersion), \(tzCount) timezones")
+        let store = DataStore.shared()
+        let rawCount = store.timezones().count
+        let decodedCount = store.timezoneObjects().count
+        Logger.production("App launched v\(version)(\(build)) on macOS \(osVersion), timezones raw=\(rawCount) decoded=\(decodedCount)")
+        if rawCount != decodedCount {
+            Logger.production("WARN: \(rawCount - decodedCount) timezone blob(s) failed to decode — UI will show fewer rows than persisted")
+        }
     }
 
     // MARK: - Crash Sentinel
@@ -130,13 +135,12 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
                 let components = (timezone.timezoneID ?? "").split(separator: "/")
                 guard let cityComponent = components.last else { continue }
                 let cityName = cityComponent.replacingOccurrences(of: "_", with: " ")
-                guard let placemark = try? await NetworkManager.geocodeAddress(cityName),
-                      let location = placemark.location else {
+                guard let place = try? await NetworkManager.geocodeAddress(cityName) else {
                     Logger.debug("Coordinate backfill skipped for \(cityName)")
                     continue
                 }
-                timezone.latitude = location.coordinate.latitude
-                timezone.longitude = location.coordinate.longitude
+                timezone.latitude = place.coordinate.latitude
+                timezone.longitude = place.coordinate.longitude
                 guard let encoded = NSKeyedArchiver.secureArchive(with: timezone) else { continue }
                 timezones[index] = encoded
             }

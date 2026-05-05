@@ -1,4 +1,4 @@
-// swift-tools-version:5.7
+// swift-tools-version:6.2
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "CoreLoggerKit",
     platforms: [
-        .macOS(.v13)
+        .macOS(.v26)
     ],
     products: [
         .library(
@@ -24,5 +24,6 @@ let package = Package(
             name: "CoreLoggerKitTests",
             dependencies: ["CoreLoggerKit"]
         )
-    ]
+    ],
+    swiftLanguageModes: [.v5]
 )

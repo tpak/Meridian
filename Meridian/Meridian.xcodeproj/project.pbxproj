@@ -43,6 +43,7 @@
 		35C36F452259D892002FA5C6 /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F3D2259D892002FA5C6 /* Strings.swift */; };
 		35C36F462259D892002FA5C6 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F3E2259D892002FA5C6 /* DataStore.swift */; };
 		35C36F482259D892002FA5C6 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F402259D892002FA5C6 /* NetworkManager.swift */; };
+		9AFFEE0003000000GEOSVCBF /* GeocodingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFFEE0004000000GEOSVCFR /* GeocodingService.swift */; };
 		35C36F4B2259D971002FA5C6 /* PointingHandCursorButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F4A2259D971002FA5C6 /* PointingHandCursorButton.swift */; };
 		35C36F4E2259D981002FA5C6 /* DateFormatterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F4C2259D981002FA5C6 /* DateFormatterManager.swift */; };
 		35C36F4F2259D981002FA5C6 /* AppDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F4D2259D981002FA5C6 /* AppDefaults.swift */; };
@@ -64,10 +65,12 @@
 		35E65125268EDD2E00E3E1E3 /* Toasty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35E65124268EDD2E00E3E1E3 /* Toasty.swift */; };
 		3DEE1440C33BTZSORTINGTST /* TimezoneSortingManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DEE1440C33BTZSORTINGTST2 /* TimezoneSortingManagerTests.swift */; };
 		4726354D81E1NWMGRASYNCTS /* NetworkManagerAsyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */; };
+		9AFFEE0005000000GEOTSTBF /* GeocodingServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFFEE0006000000GEOTSTFR /* GeocodingServiceTests.swift */; };
 		E1F2A3B400TMSCRLRVMTST1 /* TimeScrollerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B400TMSCRLRVMTST2 /* TimeScrollerViewModelTests.swift */; };
 		818B546B7B8B47D88692CD80 /* GlobalShortcutMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC776853CC4796AD9A1DC6 /* GlobalShortcutMonitor.swift */; };
 		919639F9D2F3GLOBALSHRTCUT /* GlobalShortcutMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */; };
 		9A0A1C8C20903DBD0012003B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A9E87651C1FEDC500A7A2DF /* CoreLocation.framework */; };
+		9AFFEE0001000000MAPKITBF /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AFFEE0002000000MAPKITFR /* MapKit.framework */; };
 		9A13BAD61CA87F08007C6CBE /* Panel.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9A13BAD81CA87F08007C6CBE /* Panel.xib */; };
 		9A13BAE01CA882FA007C6CBE /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = EE11AA0100INFOPLISTXCS1 /* InfoPlist.xcstrings */; };
 		9A13BAEA1CA88A76007C6CBE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = EE11AA0100LOCALIZBLEXCS1 /* Localizable.xcstrings */; };
@@ -172,6 +175,7 @@
 		35C36F3D2259D892002FA5C6 /* Strings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		35C36F3E2259D892002FA5C6 /* DataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
 		35C36F402259D892002FA5C6 /* NetworkManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
+		9AFFEE0004000000GEOSVCFR /* GeocodingService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeocodingService.swift; sourceTree = "<group>"; };
 		35C36F4A2259D971002FA5C6 /* PointingHandCursorButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PointingHandCursorButton.swift; sourceTree = "<group>"; };
 		35C36F4C2259D981002FA5C6 /* DateFormatterManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateFormatterManager.swift; sourceTree = "<group>"; };
 		35C36F4D2259D981002FA5C6 /* AppDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDefaults.swift; sourceTree = "<group>"; };
@@ -193,6 +197,7 @@
 		35E65124268EDD2E00E3E1E3 /* Toasty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toasty.swift; sourceTree = "<group>"; };
 		3DEE1440C33BTZSORTINGTST2 /* TimezoneSortingManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneSortingManagerTests.swift; sourceTree = "<group>"; };
 		4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManagerAsyncTests.swift; sourceTree = "<group>"; };
+		9AFFEE0006000000GEOTSTFR /* GeocodingServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeocodingServiceTests.swift; sourceTree = "<group>"; };
 		E1F2A3B400TMSCRLRVMTST2 /* TimeScrollerViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeScrollerViewModelTests.swift; sourceTree = "<group>"; };
 		527EBAA6C18049AE931DDE49 /* PanelContextMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelContextMenu.swift; sourceTree = "<group>"; };
 		919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalShortcutMonitorTests.swift; sourceTree = "<group>"; };
@@ -211,6 +216,7 @@
 		9A9E87611C1FEDB500A7A2DF /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		9A9E87631C1FEDBD00A7A2DF /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		9A9E87651C1FEDC500A7A2DF /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		9AFFEE0002000000MAPKITFR /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		9A9E87671C1FEDD300A7A2DF /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		9A9E87691C1FEDDB00A7A2DF /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		9A9E876B1C1FEDE700A7A2DF /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
@@ -277,6 +283,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A0A1C8C20903DBD0012003B /* CoreLocation.framework in Frameworks */,
+				9AFFEE0001000000MAPKITBF /* MapKit.framework in Frameworks */,
 				9ACF469D1DCBD45200C49B51 /* Quartz.framework in Frameworks */,
 				9AC678E41C1ABAB9003B4F6B /* QuartzCore.framework in Frameworks */,
 				35B2FEF1259A2DB1005DA84D /* CoreModelKit in Frameworks */,
@@ -387,6 +394,7 @@
 				23D856F171624B8EBC360698 /* SettingsManager.swift */,
 				9FEC776853CC4796AD9A1DC6 /* GlobalShortcutMonitor.swift */,
 				35C36F402259D892002FA5C6 /* NetworkManager.swift */,
+				9AFFEE0004000000GEOSVCFR /* GeocodingService.swift */,
 				35C36F3D2259D892002FA5C6 /* Strings.swift */,
 				A1B2C3D4E5F60001SEARCH01 /* TimezoneSearchService.swift */,
 				35C36F3A2259D892002FA5C6 /* Timer.swift */,
@@ -543,6 +551,7 @@
 				3DEE1440C33BTZSORTINGTST2 /* TimezoneSortingManagerTests.swift */,
 				919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */,
 				4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */,
+				9AFFEE0006000000GEOTSTFR /* GeocodingServiceTests.swift */,
 				E1F2A3B400TMSCRLRVMTST2 /* TimeScrollerViewModelTests.swift */,
 				AA00000400000001PREFSTB2 /* PreferencesStoryboardTests.swift */,
 				CC11AA0100TZDATAOPSTEST2 /* TimezoneDataOperationsTests.swift */,
@@ -609,6 +618,7 @@
 				9A9E87691C1FEDDB00A7A2DF /* SystemConfiguration.framework */,
 				9A9E87671C1FEDD300A7A2DF /* Security.framework */,
 				9A9E87651C1FEDC500A7A2DF /* CoreLocation.framework */,
+				9AFFEE0002000000MAPKITFR /* MapKit.framework */,
 				9A9E87631C1FEDBD00A7A2DF /* CoreGraphics.framework */,
 				9A9E87611C1FEDB500A7A2DF /* CFNetwork.framework */,
 				9AC678E31C1ABAB9003B4F6B /* QuartzCore.framework */,
@@ -803,6 +813,7 @@
 				3DEE1440C33BTZSORTINGTST /* TimezoneSortingManagerTests.swift in Sources */,
 				919639F9D2F3GLOBALSHRTCUT /* GlobalShortcutMonitorTests.swift in Sources */,
 				4726354D81E1NWMGRASYNCTS /* NetworkManagerAsyncTests.swift in Sources */,
+				9AFFEE0005000000GEOTSTBF /* GeocodingServiceTests.swift in Sources */,
 				E1F2A3B400TMSCRLRVMTST1 /* TimeScrollerViewModelTests.swift in Sources */,
 				AA00000400000002PREFSTB1 /* PreferencesStoryboardTests.swift in Sources */,
 				CC11AA0100TZDATAOPSTEST1 /* TimezoneDataOperationsTests.swift in Sources */,
@@ -883,6 +894,7 @@
 				35C36EFB2259616B002FA5C6 /* Solar.swift in Sources */,
 				35C36F592259DD8A002FA5C6 /* TimezoneCellView.swift in Sources */,
 				35C36F482259D892002FA5C6 /* NetworkManager.swift in Sources */,
+				9AFFEE0003000000GEOSVCBF /* GeocodingService.swift in Sources */,
 				A1B2C3D4E5F60002SEARCH02 /* TimezoneSearchService.swift in Sources */,
 				3579765E2680208C009DDA6E /* ParentPanelController+ModernSlider.swift in Sources */,
 				3579765F2680208C009DDA6E /* ParentPanelController+Layout.swift in Sources */,
@@ -960,7 +972,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
@@ -1026,7 +1038,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 2.21.4;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
@@ -1076,7 +1088,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1124,7 +1136,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1170,7 +1182,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1362,7 +1374,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
@@ -1409,7 +1421,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
@@ -1478,7 +1490,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 2.21.4;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
@@ -1556,7 +1568,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 2.21.4;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";

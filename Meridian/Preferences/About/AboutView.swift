@@ -55,7 +55,7 @@ struct AboutView: View {
                 .toggleStyle(.checkbox)
                 .fixedSize()
                 .accessibilityIdentifier("StartAtLogin")
-                .onChange(of: startAtLogin) { newValue in
+                .onChange(of: startAtLogin) { _, newValue in
                     startupManager.toggleLogin(newValue)
                 }
 
@@ -109,9 +109,7 @@ struct AboutView: View {
         let underlined = String(text[startIndex..<endIndex])
         let after = String(text[endIndex..<text.endIndex])
 
-        return Text(before).font(font) +
-               Text(underlined).font(font).underline() +
-               Text(after).font(font)
+        return Text("\(before)\(Text(underlined).underline())\(after)").font(font)
     }
 
     private func openURL(_ urlString: String, logEvent: String, metadata: [String: Any]) {
@@ -145,7 +143,7 @@ private struct AutoUpdateToggle: View {
                 .toggleStyle(.checkbox)
                 .fixedSize()
                 .accessibilityIdentifier("AutoUpdate")
-                .onChange(of: autoUpdate) { newValue in
+                .onChange(of: autoUpdate) { _, newValue in
                     guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
                     let updater = appDelegate.updaterController.updater
                     updater.automaticallyChecksForUpdates = newValue
@@ -198,7 +196,7 @@ private struct UpdateCheckControls: View {
         }
         .labelsHidden()
         .frame(width: 100)
-        .onChange(of: selectedIndex) { newValue in
+        .onChange(of: selectedIndex) { _, newValue in
             guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
             appDelegate.updaterController.updater.updateCheckInterval = AboutView.updateIntervalValues[newValue]
         }
@@ -225,7 +223,7 @@ private struct BetaChannelToggle: View {
                 .toggleStyle(.checkbox)
                 .fixedSize()
                 .accessibilityIdentifier("ReceiveBetaReleases")
-                .onChange(of: receiveBetas) { _ in
+                .onChange(of: receiveBetas) { _, _ in
                     guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
                     appDelegate.updaterController.updater.checkForUpdateInformation()
                 }
