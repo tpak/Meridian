@@ -59,6 +59,13 @@ public enum UserDefaultKeys {
     // idempotent.
     static let boolSemanticsMigrationV1 = "com.tpak.meridian.boolSemanticsMigrationV1"
 
+    // One-time migration flag for the stuck-home-row fix. Heals stored
+    // timezone rows whose `isSystemTimezone` flag drifted from the actual
+    // system timezone (e.g. user added a row while traveling, then returned
+    // home — the old row stayed flagged and started rendering local time
+    // under its original city label). See runHomeRowMigrationV1.
+    static let homeRowMigrationV1 = "com.tpak.meridian.homeRowMigrationV1"
+
     // F1 team accent color selection. Stored as TeamAccent.rawValue (String).
     // See DataStore.swift for the enum definition and resolved NSColor.
     static let teamAccent = "com.tpak.meridian.teamAccent"

@@ -2,6 +2,7 @@
 
 import Cocoa
 import CoreLoggerKit
+import CoreModelKit
 
 private enum AppDefaultValues {
     static let defaultUserFontSize: Int = 4
@@ -26,7 +27,11 @@ class AppDefaults {
 
         defaults.register(defaults: defaultsDictionary())
 
-        store.setTimezones(timezones)
+        // Heal any rows whose isSystemTimezone flag drifted from the actual
+        // current system timezone. Runs after the row blob is read so the
+        // healed blob is what we write back.
+        let healed = runHomeRowMigrationV1(on: timezones, defaults: defaults)
+        store.setTimezones(healed)
     }
 
     /// One-time migration that converts legacy inverted-bool and int-encoded
@@ -72,6 +77,70 @@ class AppDefaults {
         // The typed accessors layer enums over them without renaming.
 
         defaults.set(true, forKey: UserDefaultKeys.boolSemanticsMigrationV1)
+    }
+
+    /// One-time migration that heals the "stuck home row" bug. Two failure
+    /// modes are corrected:
+    ///   1. Rows whose `isSystemTimezone == true` but whose persisted
+    ///      `timezoneID` no longer matches the current system timezone
+    ///      (e.g. user added "Australia/Melbourne" while traveling, then
+    ///      returned to "America/Denver"). These rows still rendered the
+    ///      local system time under the original city's label and lit up
+    ///      the home indicator — clear the flag.
+    ///   2. More than one row carries `isSystemTimezone == true`. Pick the
+    ///      one that actually matches the current system timezone (or the
+    ///      first one if none does) and clear the flag on the rest.
+    ///
+    /// Idempotent: guarded by `UserDefaultKeys.homeRowMigrationV1`. Public
+    /// for tests. Returns the (possibly rewritten) `[Data]` array; callers
+    /// must persist it via `DataStore.setTimezones`.
+    @discardableResult
+    class func runHomeRowMigrationV1(on timezones: [Data], defaults: UserDefaults) -> [Data] {
+        guard !defaults.bool(forKey: UserDefaultKeys.homeRowMigrationV1) else {
+            return timezones
+        }
+
+        let currentSystemTimezone = TimeZone.autoupdatingCurrent.identifier
+
+        // Decode once. Track each entry by its index so we can rewrite in place.
+        let decoded: [(idx: Int, model: TimezoneData?)] = timezones.enumerated().map { (i, blob) in
+            (i, TimezoneData.customObject(from: blob))
+        }
+
+        let flaggedIndices = decoded.compactMap { entry -> Int? in
+            guard let m = entry.model, m.isSystemTimezone else { return nil }
+            return entry.idx
+        }
+
+        // Decide which single row (if any) should keep the flag. Prefer a
+        // flagged row that matches the current system tz; otherwise prefer
+        // the first flagged row whose stored timezoneID matches; otherwise
+        // an unflagged row whose timezoneID matches the system tz.
+        var keepIndex: Int? = flaggedIndices.first { idx in
+            decoded[idx].model?.timezoneID == currentSystemTimezone
+        }
+
+        if keepIndex == nil {
+            keepIndex = decoded.first { entry in
+                entry.model?.timezoneID == currentSystemTimezone && entry.model?.isSystemTimezone == false
+            }?.idx
+        }
+
+        // Walk all rows and rewrite as needed.
+        var rewritten = timezones
+        for entry in decoded {
+            guard let model = entry.model else { continue }
+            let shouldBeFlagged = (entry.idx == keepIndex)
+            if model.isSystemTimezone != shouldBeFlagged {
+                model.isSystemTimezone = shouldBeFlagged
+                if let blob = NSKeyedArchiver.secureArchive(with: model) {
+                    rewritten[entry.idx] = blob
+                }
+            }
+        }
+
+        defaults.set(true, forKey: UserDefaultKeys.homeRowMigrationV1)
+        return rewritten
     }
 
     private class func migrateInvertedBool(legacy: String, target: String, in defaults: UserDefaults) {
