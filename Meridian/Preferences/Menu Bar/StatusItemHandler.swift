@@ -5,7 +5,7 @@ import Combine
 import CoreLoggerKit
 import CoreModelKit
 
-private enum MenubarState {
+internal enum MenubarState {
     case compactText
     case icon
 }
@@ -21,6 +21,38 @@ private enum MenubarTimerConstants {
     static let debounceMilliseconds: Int = 250
     static let toleranceWithSeconds: TimeInterval = 0.5
     static let toleranceWithoutSeconds: TimeInterval = 20
+}
+
+// Pure threshold logic for "is Tahoe Control Center silently blocking us?"
+// Extracted as a non-private enum so MeridianUnitTests can exercise it
+// without spinning up a real NSStatusItem. See issue #125.
+internal enum MenubarBlockDetection {
+    // Minimum button-window width below which we conclude the status item
+    // has been classified as `.ephemeral`. Icon-only mode is narrower (~22pt
+    // on average) than compact text mode (≥ ~60pt); the thresholds sit just
+    // under each mode's expected rendered width. A blocked item's window is
+    // either nil or reports a width of zero, so any non-trivial floor catches
+    // it.
+    static let iconModeMinimumWidth: CGFloat = 20
+    static let compactModeMinimumWidth: CGFloat = 40
+
+    static func isStatusItemBlocked(buttonWindowWidth: CGFloat?, isCompactMode: Bool) -> Bool {
+        guard let width = buttonWindowWidth else { return true }
+        let threshold = isCompactMode ? compactModeMinimumWidth : iconModeMinimumWidth
+        return width < threshold
+    }
+}
+
+// URL that deep-links to System Settings → Control Center → Menu Bar Only.
+// Used by both the StatusItemHandler recovery alert and the About-tab help
+// link.
+internal enum ControlCenterSettings {
+    static let urlString = "x-apple.systempreferences:com.apple.ControlCenter-Settings.extension"
+    static let url = URL(string: urlString)!
+
+    static func open() {
+        NSWorkspace.shared.open(url)
+    }
 }
 
 class StatusItemHandler: NSObject {
@@ -46,6 +78,18 @@ class StatusItemHandler: NSObject {
     private var cancellables = Set<AnyCancellable>()
 
     private let store: DataStore
+
+    // Tahoe (#125): the recovery alert is shown at most once per process so
+    // we don't pop a dialog on every UserDefaults-change-triggered
+    // setupStatusItem() invocation. The onboarding flag in UserDefaults is a
+    // separate, persistent across-launches signal — this is in-memory only.
+    private var hasShownBlockedAlertThisSession: Bool = false
+
+    // Brief delay after setupStatusItem() before checking visibility. Control
+    // Center takes a beat to position (or reject) a freshly-registered
+    // status item; querying too early reports a zero-width window even on
+    // healthy installs.
+    private let visibilityVerificationDelay: TimeInterval = 1.5
 
     // Current State might be set twice when the user first launches an app.
     // First, when StatusItemHandler() is instantiated in AppDelegate
@@ -122,6 +166,66 @@ class StatusItemHandler: NSObject {
         statusItem.button?.target = self
         statusItem.autosaveName = NSStatusItem.AutosaveName("MeridianStatusItem")
         setSelector()
+
+        scheduleVisibilityVerification()
+    }
+
+    // MARK: - Tahoe Visibility Verification (#125)
+
+    /// Schedules an asynchronous check to detect whether macOS Tahoe's
+    /// Control Center has silently classified this status item as
+    /// `.ephemeral`. Called from setupStatusItem() (initial launch, wake,
+    /// and UserDefaults-driven refresh paths) and from AppDelegate's
+    /// didBecomeActive listener after the user returns from Settings.
+    func scheduleVisibilityVerification() {
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.verifyStatusItemVisible()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + visibilityVerificationDelay,
+                                       execute: workItem)
+    }
+
+    private func verifyStatusItemVisible() {
+        // Tests instantiate AppDelegate which builds a StatusItemHandler;
+        // popping a modal NSAlert would hang the test runner. Skip the
+        // dialog branch entirely when running under XCTest.
+        guard NSClassFromString("XCTestCase") == nil else { return }
+
+        // Once-per-session — the underlying defaults-change observer can
+        // re-enter setupStatusItem() many times during normal use.
+        guard !hasShownBlockedAlertThisSession else { return }
+
+        let width = statusItem.button?.window?.frame.size.width
+        let isCompactMode = currentState == .compactText
+        guard MenubarBlockDetection.isStatusItemBlocked(buttonWindowWidth: width,
+                                                       isCompactMode: isCompactMode) else {
+            return
+        }
+
+        Logger.production("Status item appears blocked by Control Center (width=\(width ?? -1), compact=\(isCompactMode)) — surfacing recovery dialog")
+        hasShownBlockedAlertThisSession = true
+        showBlockedRecoveryDialog()
+    }
+
+    private func showBlockedRecoveryDialog() {
+        let body = "macOS appears to be blocking Meridian's menu bar icon. "
+            + "Open System Settings → Control Center, scroll to the third-party apps section, and turn on Meridian."
+        let alert = NSAlert()
+        alert.messageText = "Meridian isn't visible in your menu bar".localized()
+        alert.informativeText = body.localized()
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "Open Control Center Settings".localized())
+        alert.addButton(withTitle: "Quit Meridian".localized())
+
+        let response = alert.runModal()
+        switch response {
+        case .alertFirstButtonReturn:
+            ControlCenterSettings.open()
+        case .alertSecondButtonReturn:
+            NSApp.terminate(nil)
+        default:
+            break
+        }
     }
 
     private func setupNotificationObservers() {

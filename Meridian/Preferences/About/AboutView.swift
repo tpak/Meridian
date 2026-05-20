@@ -50,6 +50,19 @@ struct AboutView: View {
                         metadata: ["Country": Locale.autoupdatingCurrent.region?.identifier ?? ""])
             }
 
+            // Tahoe (#125) recovery link — permanent escape hatch for users
+            // who dismissed the first-launch onboarding alert and later find
+            // themselves wondering where the menu bar icon went.
+            linkButton(
+                title: "Can't see Meridian in your menu bar?".localized(),
+                underlineRange: 0..<min(36, "Can't see Meridian in your menu bar?".localized().count),
+                font: .custom("Avenir-Light", size: 13),
+                accessibilityID: "MenubarTroubleshooting"
+            ) {
+                ControlCenterSettings.open()
+                Logger.debug("Opened Control Center Settings from About tab")
+            }
+
             Toggle(String(localized: "Start at Login"), isOn: $startAtLogin)
                 .font(.custom("Avenir-Book", size: 13))
                 .toggleStyle(.checkbox)

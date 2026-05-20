@@ -68,6 +68,12 @@ public enum UserDefaultKeys {
     // checks this on the next applicationDidFinishLaunching, opens
     // Settings to the Appearance tab, and clears the flag.
     static let reopenAppearanceOnLaunch = "com.tpak.meridian.reopenAppearanceOnLaunch"
+
+    // Tahoe (macOS 26+) silently classifies a third-party NSStatusItem as
+    // `.ephemeral` until the user enables the app in Control Center → Menu
+    // Bar Only. Set to true after the first-launch onboarding NSAlert has
+    // been shown so we don't re-prompt on every launch. See issue #125.
+    static let tahoeOnboardingShown = "com.tpak.meridian.tahoeOnboardingShown"
 }
 
 // Centralized timing literals. Putting them here makes the rationale for each
