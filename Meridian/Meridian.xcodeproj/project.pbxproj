@@ -108,6 +108,7 @@
 		C2C2D3E40002000000VCTFC1 /* VerticallyCenteredTextFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C2D3E40001000000VCTFC2 /* VerticallyCenteredTextFieldCell.swift */; };
 		B730E37E4596MOCKDATASTORE /* MockDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B730E37E4596MOCKDATASTO2 /* MockDataStore.swift */; };
 		FF11AA0100TESTFIXTURES01 /* TestFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF11AA0100TESTFIXTURES02 /* TestFixtures.swift */; };
+		AC11AA0100MBDTESTS00001 /* MenubarBlockDetectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC11AA0100MBDTESTS00002 /* MenubarBlockDetectionTests.swift */; };
 		BB00000100LOCCTRL00TEST1 /* LocationControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100LOCCTRL00TEST2 /* LocationControllerTests.swift */; };
 		C20839CA21515C1E00C86589 /* MeridianUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20839C921515C1E00C86589 /* MeridianUnitTests.swift */; };
 		C22F3D802107778A0001D5E1 /* ShortcutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22F3D7F2107778A0001D5E1 /* ShortcutTests.swift */; };
@@ -247,6 +248,7 @@
 		C2C2D3E40001000000VCTFC2 /* VerticallyCenteredTextFieldCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticallyCenteredTextFieldCell.swift; sourceTree = "<group>"; };
 		B730E37E4596MOCKDATASTO2 /* MockDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDataStore.swift; sourceTree = "<group>"; };
 		FF11AA0100TESTFIXTURES02 /* TestFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFixtures.swift; sourceTree = "<group>"; };
+		AC11AA0100MBDTESTS00002 /* MenubarBlockDetectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarBlockDetectionTests.swift; sourceTree = "<group>"; };
 		BB00000100LOCCTRL00TEST2 /* LocationControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationControllerTests.swift; sourceTree = "<group>"; };
 		C20839C721515C1E00C86589 /* MeridianUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeridianUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C20839C921515C1E00C86589 /* MeridianUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeridianUnitTests.swift; sourceTree = "<group>"; };
@@ -551,6 +553,7 @@
 				A1B2C3D400000004NWTEST02 /* NetworkManagerTests.swift */,
 				B730E37E4596MOCKDATASTO2 /* MockDataStore.swift */,
 				FF11AA0100TESTFIXTURES02 /* TestFixtures.swift */,
+				AC11AA0100MBDTESTS00002 /* MenubarBlockDetectionTests.swift */,
 				3DEE1440C33BTZSORTINGTST2 /* TimezoneSortingManagerTests.swift */,
 				919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */,
 				4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */,
@@ -813,6 +816,7 @@
 				A1B2C3D400000003NWTEST01 /* NetworkManagerTests.swift in Sources */,
 				B730E37E4596MOCKDATASTORE /* MockDataStore.swift in Sources */,
 				FF11AA0100TESTFIXTURES01 /* TestFixtures.swift in Sources */,
+				AC11AA0100MBDTESTS00001 /* MenubarBlockDetectionTests.swift in Sources */,
 				3DEE1440C33BTZSORTINGTST /* TimezoneSortingManagerTests.swift in Sources */,
 				919639F9D2F3GLOBALSHRTCUT /* GlobalShortcutMonitorTests.swift in Sources */,
 				4726354D81E1NWMGRASYNCTS /* NetworkManagerAsyncTests.swift in Sources */,

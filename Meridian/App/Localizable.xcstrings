@@ -2360,6 +2360,174 @@
           }
         }
       }
+    },
+    "One quick setup step": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": { "stringUnit": { "state": "translated", "value": "خطوة إعداد سريعة" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Ein kurzer Einrichtungsschritt" } },
+        "en": { "stringUnit": { "state": "translated", "value": "One quick setup step" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Un paso rápido de configuración" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Une étape de configuration rapide" } },
+        "hi": { "stringUnit": { "state": "translated", "value": "एक त्वरित सेटअप चरण" } },
+        "hr": { "stringUnit": { "state": "translated", "value": "Jedan brzi korak postavljanja" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "簡単なセットアップが必要です" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "간단한 설정 한 단계" } },
+        "pl": { "stringUnit": { "state": "translated", "value": "Jeden szybki krok konfiguracji" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Uma etapa rápida de configuração" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Один быстрый шаг настройки" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Hızlı bir kurulum adımı" } },
+        "uk": { "stringUnit": { "state": "translated", "value": "Один швидкий крок налаштування" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "一个简单的设置步骤" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "一個簡單的設定步驟" } }
+      }
+    },
+    "macOS Tahoe requires you to explicitly allow apps to put icons in the menu bar. Open System Settings → Control Center, scroll to the third-party apps section, and turn on Meridian.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": { "stringUnit": { "state": "translated", "value": "تتطلب macOS Tahoe السماح صراحةً للتطبيقات بوضع أيقونات في شريط القوائم. افتح إعدادات النظام ← مركز التحكم، ومرّر إلى قسم تطبيقات الجهات الخارجية، ثم قم بتشغيل Meridian." } },
+        "de": { "stringUnit": { "state": "translated", "value": "macOS Tahoe verlangt, dass du Apps ausdrücklich erlaubst, Symbole in der Menüleiste anzuzeigen. Öffne Systemeinstellungen → Kontrollzentrum, scrolle zum Bereich für Drittanbieter-Apps und aktiviere Meridian." } },
+        "en": { "stringUnit": { "state": "translated", "value": "macOS Tahoe requires you to explicitly allow apps to put icons in the menu bar. Open System Settings → Control Center, scroll to the third-party apps section, and turn on Meridian." } },
+        "es": { "stringUnit": { "state": "translated", "value": "macOS Tahoe requiere que permitas explícitamente a las apps colocar iconos en la barra de menús. Abre Ajustes del Sistema → Centro de control, desplázate hasta la sección de apps de terceros y activa Meridian." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "macOS Tahoe vous demande d'autoriser explicitement les apps à placer des icônes dans la barre de menus. Ouvrez Réglages Système → Centre de contrôle, faites défiler jusqu'à la section des apps tierces et activez Meridian." } },
+        "hi": { "stringUnit": { "state": "translated", "value": "macOS Tahoe को मेनू बार में आइकन जोड़ने के लिए ऐप्स को स्पष्ट रूप से अनुमति देनी होती है. सिस्टम सेटिंग्स → कंट्रोल सेंटर खोलें, थर्ड-पार्टी ऐप्स अनुभाग तक स्क्रॉल करें और Meridian को चालू करें." } },
+        "hr": { "stringUnit": { "state": "translated", "value": "macOS Tahoe zahtijeva da izričito dopustite aplikacijama postavljanje ikona u traku izbornika. Otvorite Postavke sustava → Kontrolni centar, dođite do odjeljka aplikacija trećih strana i uključite Meridian." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "macOS Tahoe では、メニューバーにアイコンを表示するアプリを明示的に許可する必要があります。「システム設定 → コントロールセンター」を開き、サードパーティ製アプリのセクションまでスクロールして Meridian をオンにしてください。" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "macOS Tahoe에서는 메뉴 막대에 아이콘을 추가하는 앱을 명시적으로 허용해야 합니다. 시스템 설정 → 제어 센터를 열고 타사 앱 섹션까지 스크롤한 후 Meridian을 켜세요." } },
+        "pl": { "stringUnit": { "state": "translated", "value": "System macOS Tahoe wymaga wyraźnego zezwolenia aplikacjom na umieszczanie ikon na pasku menu. Otwórz Ustawienia systemu → Centrum sterowania, przewiń do sekcji aplikacji innych firm i włącz Meridian." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "O macOS Tahoe exige que você permita explicitamente que apps coloquem ícones na barra de menus. Abra Ajustes do Sistema → Central de Controle, role até a seção de apps de terceiros e ative o Meridian." } },
+        "ru": { "stringUnit": { "state": "translated", "value": "macOS Tahoe требует явно разрешать приложениям отображать значки в строке меню. Откройте Системные настройки → Пункт управления, прокрутите до раздела сторонних приложений и включите Meridian." } },
+        "tr": { "stringUnit": { "state": "translated", "value": "macOS Tahoe, uygulamaların menü çubuğuna simge eklemesine açıkça izin vermenizi gerektirir. Sistem Ayarları → Denetim Merkezi'ni açın, üçüncü taraf uygulamalar bölümüne ilerleyin ve Meridian'ı açın." } },
+        "uk": { "stringUnit": { "state": "translated", "value": "macOS Tahoe вимагає явно дозволити програмам додавати значки на смузі меню. Відкрийте Налаштування системи → Центр керування, прокрутіть до розділу сторонніх програм і ввімкніть Meridian." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "macOS Tahoe 要求你明确允许应用在菜单栏中显示图标。打开系统设置 → 控制中心,滚动到第三方应用部分,然后打开 Meridian。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "macOS Tahoe 要求你明確允許 App 在選單列中顯示圖示。打開系統設定 → 控制中心,捲動至第三方 App 區段,然後開啟 Meridian。" } }
+      }
+    },
+    "I've already done this": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": { "stringUnit": { "state": "translated", "value": "لقد فعلت ذلك بالفعل" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Habe ich bereits getan" } },
+        "en": { "stringUnit": { "state": "translated", "value": "I've already done this" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ya lo he hecho" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Je l'ai déjà fait" } },
+        "hi": { "stringUnit": { "state": "translated", "value": "मैंने यह पहले से किया है" } },
+        "hr": { "stringUnit": { "state": "translated", "value": "Već sam to učinio" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "設定済み" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "이미 했습니다" } },
+        "pl": { "stringUnit": { "state": "translated", "value": "Już to zrobiłem" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Já fiz isso" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Я уже это сделал" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Bunu zaten yaptım" } },
+        "uk": { "stringUnit": { "state": "translated", "value": "Я вже це зробив" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "我已经完成了" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "我已經完成了" } }
+      }
+    },
+    "Meridian isn't visible in your menu bar": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": { "stringUnit": { "state": "translated", "value": "Meridian غير ظاهر في شريط القوائم" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Meridian wird nicht in der Menüleiste angezeigt" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Meridian isn't visible in your menu bar" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Meridian no está visible en la barra de menús" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Meridian n'apparaît pas dans la barre de menus" } },
+        "hi": { "stringUnit": { "state": "translated", "value": "Meridian आपके मेनू बार में दिखाई नहीं दे रहा है" } },
+        "hr": { "stringUnit": { "state": "translated", "value": "Meridian nije vidljiv u traci izbornika" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Meridian がメニューバーに表示されていません" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Meridian이 메뉴 막대에 표시되지 않습니다" } },
+        "pl": { "stringUnit": { "state": "translated", "value": "Meridian nie jest widoczny na pasku menu" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "O Meridian não está visível na sua barra de menus" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Meridian не отображается в строке меню" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Meridian menü çubuğunuzda görünmüyor" } },
+        "uk": { "stringUnit": { "state": "translated", "value": "Meridian не відображається на смузі меню" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Meridian 在菜单栏中不可见" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "Meridian 在選單列中不可見" } }
+      }
+    },
+    "macOS appears to be blocking Meridian's menu bar icon. Open System Settings → Control Center, scroll to the third-party apps section, and turn on Meridian.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": { "stringUnit": { "state": "translated", "value": "يبدو أن macOS يحظر أيقونة Meridian في شريط القوائم. افتح إعدادات النظام ← مركز التحكم، ومرّر إلى قسم تطبيقات الجهات الخارجية، ثم قم بتشغيل Meridian." } },
+        "de": { "stringUnit": { "state": "translated", "value": "macOS scheint das Menüleistensymbol von Meridian zu blockieren. Öffne Systemeinstellungen → Kontrollzentrum, scrolle zum Bereich für Drittanbieter-Apps und aktiviere Meridian." } },
+        "en": { "stringUnit": { "state": "translated", "value": "macOS appears to be blocking Meridian's menu bar icon. Open System Settings → Control Center, scroll to the third-party apps section, and turn on Meridian." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Parece que macOS está bloqueando el icono de Meridian en la barra de menús. Abre Ajustes del Sistema → Centro de control, desplázate hasta la sección de apps de terceros y activa Meridian." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "macOS semble bloquer l'icône de Meridian dans la barre de menus. Ouvrez Réglages Système → Centre de contrôle, faites défiler jusqu'à la section des apps tierces et activez Meridian." } },
+        "hi": { "stringUnit": { "state": "translated", "value": "ऐसा लगता है कि macOS Meridian के मेनू बार आइकन को ब्लॉक कर रहा है. सिस्टम सेटिंग्स → कंट्रोल सेंटर खोलें, थर्ड-पार्टी ऐप्स अनुभाग तक स्क्रॉल करें और Meridian को चालू करें." } },
+        "hr": { "stringUnit": { "state": "translated", "value": "Čini se da macOS blokira ikonu Meridian u traci izbornika. Otvorite Postavke sustava → Kontrolni centar, dođite do odjeljka aplikacija trećih strana i uključite Meridian." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "macOS が Meridian のメニューバーアイコンをブロックしているようです。「システム設定 → コントロールセンター」を開き、サードパーティ製アプリのセクションまでスクロールして Meridian をオンにしてください。" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "macOS가 Meridian의 메뉴 막대 아이콘을 차단하고 있는 것 같습니다. 시스템 설정 → 제어 센터를 열고 타사 앱 섹션까지 스크롤한 후 Meridian을 켜세요." } },
+        "pl": { "stringUnit": { "state": "translated", "value": "Wygląda na to, że system macOS blokuje ikonę Meridian na pasku menu. Otwórz Ustawienia systemu → Centrum sterowania, przewiń do sekcji aplikacji innych firm i włącz Meridian." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "O macOS parece estar bloqueando o ícone do Meridian na barra de menus. Abra Ajustes do Sistema → Central de Controle, role até a seção de apps de terceiros e ative o Meridian." } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Похоже, macOS блокирует значок Meridian в строке меню. Откройте Системные настройки → Пункт управления, прокрутите до раздела сторонних приложений и включите Meridian." } },
+        "tr": { "stringUnit": { "state": "translated", "value": "macOS, Meridian'ın menü çubuğu simgesini engelliyor gibi görünüyor. Sistem Ayarları → Denetim Merkezi'ni açın, üçüncü taraf uygulamalar bölümüne ilerleyin ve Meridian'ı açın." } },
+        "uk": { "stringUnit": { "state": "translated", "value": "Схоже, macOS блокує значок Meridian на смузі меню. Відкрийте Налаштування системи → Центр керування, прокрутіть до розділу сторонніх програм і ввімкніть Meridian." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "macOS 似乎正在阻止 Meridian 的菜单栏图标。打开系统设置 → 控制中心,滚动到第三方应用部分,然后打开 Meridian。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "macOS 似乎正在阻止 Meridian 的選單列圖示。打開系統設定 → 控制中心,捲動至第三方 App 區段,然後開啟 Meridian。" } }
+      }
+    },
+    "Open Control Center Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": { "stringUnit": { "state": "translated", "value": "فتح إعدادات مركز التحكم" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Kontrollzentrum-Einstellungen öffnen" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Open Control Center Settings" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Abrir ajustes del Centro de Control" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ouvrir les réglages du Centre de contrôle" } },
+        "hi": { "stringUnit": { "state": "translated", "value": "कंट्रोल सेंटर सेटिंग्स खोलें" } },
+        "hr": { "stringUnit": { "state": "translated", "value": "Otvori postavke kontrolnog centra" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "コントロールセンターの設定を開く" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "제어 센터 설정 열기" } },
+        "pl": { "stringUnit": { "state": "translated", "value": "Otwórz ustawienia Centrum sterowania" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Abrir ajustes da Central de Controle" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Открыть настройки Пункта управления" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Denetim Merkezi Ayarlarını Aç" } },
+        "uk": { "stringUnit": { "state": "translated", "value": "Відкрити налаштування Центру керування" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "打开控制中心设置" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "開啟控制中心設定" } }
+      }
+    },
+    "Quit Meridian": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": { "stringUnit": { "state": "translated", "value": "إنهاء Meridian" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Meridian beenden" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Quit Meridian" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Salir de Meridian" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Quitter Meridian" } },
+        "hi": { "stringUnit": { "state": "translated", "value": "Meridian से बाहर निकलें" } },
+        "hr": { "stringUnit": { "state": "translated", "value": "Zatvori Meridian" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Meridian を終了" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Meridian 종료" } },
+        "pl": { "stringUnit": { "state": "translated", "value": "Zakończ działanie Meridian" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Encerrar Meridian" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Выйти из Meridian" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Meridian'dan Çık" } },
+        "uk": { "stringUnit": { "state": "translated", "value": "Вийти з Meridian" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "退出 Meridian" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "結束 Meridian" } }
+      }
+    },
+    "Can't see Meridian in your menu bar?": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": { "stringUnit": { "state": "translated", "value": "لا ترى Meridian في شريط القوائم؟" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Meridian nicht in der Menüleiste zu sehen?" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Can't see Meridian in your menu bar?" } },
+        "es": { "stringUnit": { "state": "translated", "value": "¿No ves Meridian en la barra de menús?" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Vous ne voyez pas Meridian dans la barre de menus ?" } },
+        "hi": { "stringUnit": { "state": "translated", "value": "क्या Meridian आपके मेनू बार में नहीं दिख रहा?" } },
+        "hr": { "stringUnit": { "state": "translated", "value": "Ne vidite Meridian u traci izbornika?" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "メニューバーに Meridian が見えませんか?" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "메뉴 막대에 Meridian이 보이지 않나요?" } },
+        "pl": { "stringUnit": { "state": "translated", "value": "Nie widzisz Meridian na pasku menu?" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Não está vendo o Meridian na barra de menus?" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Не видно Meridian в строке меню?" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Meridian menü çubuğunuzda görünmüyor mu?" } },
+        "uk": { "stringUnit": { "state": "translated", "value": "Не бачите Meridian на смузі меню?" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "在菜单栏中看不到 Meridian?" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "在選單列中看不到 Meridian?" } }
+      }
     }
   }
 }

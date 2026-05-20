@@ -1,11 +1,14 @@
 #!/bin/bash
-# Validates the accent color trademark disclaimer popover (feature/accent-color-disclaimer).
+# Validates the Tahoe menubar-block detection & recovery feature (issue #125).
 # Run from repo root. Exits non-zero if any check fails.
 #
-# Three groups of checks:
-#   1. Storyboard wiring (info button, action selector, outlet)
-#   2. Swift wiring (outlet, action, popover view controller, SF Symbol)
-#   3. Localization + compilation
+# Layers checked:
+#   1. StatusItemHandler wiring (detection hook + pure helper + deep link)
+#   2. Strings / AppDefaults (tahoeOnboardingShown key + default)
+#   3. AppDelegate (onboarding alert + didBecomeActive re-check)
+#   4. About tab (permanent help link)
+#   5. Localization: all 8 new keys translated into 15 supported languages
+#   6. Build (Debug, no code signing)
 set -u
 cd "$(dirname "$0")/.."
 
@@ -15,84 +18,120 @@ ok()      { echo "  OK:   $1"; PASS=$((PASS+1)); }
 bad()     { echo "  FAIL: $1" >&2; FAIL=$((FAIL+1)); }
 section() { echo ""; echo "── $1"; }
 
-# ── 1. Storyboard ─────────────────────────────────────────────────────
+# ── 1. StatusItemHandler ──────────────────────────────────────────────
 
-section "Storyboard: info button + outlet + action"
-SB="Meridian/Preferences/Preferences.storyboard"
+section "StatusItemHandler: detection hook + helper + deep link"
+SIH="Meridian/Preferences/Menu Bar/StatusItemHandler.swift"
 
-grep -q 'id="Acc-Bt-Inf"' "$SB" \
-    && ok "info button (Acc-Bt-Inf) present" \
-    || bad "info button (Acc-Bt-Inf) missing from storyboard"
+grep -q "func scheduleVisibilityVerification" "$SIH" \
+    && ok "scheduleVisibilityVerification declared" \
+    || bad "scheduleVisibilityVerification missing"
 
-grep -q 'selector="showAccentColorInfo:"' "$SB" \
-    && ok "showAccentColorInfo: action wired" \
-    || bad "showAccentColorInfo: action not wired"
+grep -q "verifyStatusItemVisible" "$SIH" \
+    && ok "verifyStatusItemVisible declared" \
+    || bad "verifyStatusItemVisible missing"
 
-grep -q 'property="accentColorInfoButton"' "$SB" \
-    && ok "accentColorInfoButton outlet wired" \
-    || bad "accentColorInfoButton outlet missing"
+grep -q "showBlockedRecoveryDialog" "$SIH" \
+    && ok "showBlockedRecoveryDialog declared" \
+    || bad "showBlockedRecoveryDialog missing"
 
-# Popup must still be present and wired (regression guard for the
-# stackView restructure of the gridCell).
-grep -q 'property="teamAccentPopup"' "$SB" \
-    && ok "teamAccentPopup outlet preserved" \
-    || bad "teamAccentPopup outlet was removed"
+grep -q "enum MenubarBlockDetection" "$SIH" \
+    && ok "MenubarBlockDetection enum declared" \
+    || bad "MenubarBlockDetection enum missing"
 
-grep -q 'selector="teamAccentChanged:"' "$SB" \
-    && ok "teamAccentChanged: action preserved" \
-    || bad "teamAccentChanged: action was removed"
+grep -q "func isStatusItemBlocked" "$SIH" \
+    && ok "isStatusItemBlocked pure helper declared" \
+    || bad "isStatusItemBlocked pure helper missing"
 
-# ── 2. Swift ──────────────────────────────────────────────────────────
+grep -q "x-apple.systempreferences:com.apple.ControlCenter-Settings.extension" "$SIH" \
+    && ok "Control Center deep-link URL present" \
+    || bad "Control Center deep-link URL missing"
 
-section "Swift: outlet, action, view controller, SF Symbol"
-APPEAR="Meridian/Preferences/Appearance/AppearanceViewController.swift"
+# ── 2. Strings / AppDefaults ──────────────────────────────────────────
 
-grep -q '@IBOutlet var accentColorInfoButton: NSButton!' "$APPEAR" \
-    && ok "@IBOutlet accentColorInfoButton declared" \
-    || bad "@IBOutlet accentColorInfoButton missing"
+section "Defaults: tahoeOnboardingShown key declared + registered"
 
-grep -q '@IBAction func showAccentColorInfo' "$APPEAR" \
-    && ok "@IBAction showAccentColorInfo declared" \
-    || bad "@IBAction showAccentColorInfo missing"
+grep -q "tahoeOnboardingShown" "Meridian/Overall App/Strings.swift" \
+    && ok "tahoeOnboardingShown declared in Strings.swift" \
+    || bad "tahoeOnboardingShown not declared"
 
-grep -q 'class AccentColorInfoViewController' "$APPEAR" \
-    && ok "AccentColorInfoViewController declared" \
-    || bad "AccentColorInfoViewController missing"
+grep -q "tahoeOnboardingShown" "Meridian/Overall App/AppDefaults.swift" \
+    && ok "tahoeOnboardingShown registered in AppDefaults.swift" \
+    || bad "tahoeOnboardingShown not registered with default value"
 
-grep -q 'systemSymbolName: "info.circle"' "$APPEAR" \
-    && ok "info.circle SF Symbol assigned to button" \
-    || bad "info.circle SF Symbol not assigned"
+# ── 3. AppDelegate ────────────────────────────────────────────────────
 
-grep -q 'NSPopover' "$APPEAR" \
-    && ok "NSPopover used for the disclaimer" \
-    || bad "NSPopover not used"
+section "AppDelegate: onboarding hook + activation re-check"
 
-# ── 3. Localization ──────────────────────────────────────────────────
+grep -q "showTahoeOnboardingIfNeeded" "Meridian/AppDelegate.swift" \
+    && ok "showTahoeOnboardingIfNeeded called in applicationDidFinishLaunching" \
+    || bad "showTahoeOnboardingIfNeeded missing"
 
-section "Localization: disclaimer strings present in xcstrings"
-XCS="Meridian/App/Localizable.xcstrings"
+grep -q "presentTahoeOnboardingAlert" "Meridian/AppDelegate.swift" \
+    && ok "presentTahoeOnboardingAlert declared" \
+    || bad "presentTahoeOnboardingAlert missing"
 
-grep -q '"About these colors"' "$XCS" \
-    && ok "title string present" \
-    || bad "title string missing"
+grep -q "didBecomeActiveNotification" "Meridian/AppDelegate.swift" \
+    && ok "didBecomeActiveNotification observer wired for re-check" \
+    || bad "didBecomeActiveNotification observer missing"
 
-grep -q '"About accent colors"' "$XCS" \
-    && ok "accessibility label string present" \
-    || bad "accessibility label string missing"
+# ── 4. About tab ──────────────────────────────────────────────────────
 
-grep -q "Meridian is an independent project, built by an F1 fan" "$XCS" \
-    && ok "body disclaimer present" \
-    || bad "body disclaimer missing"
+section "About tab: permanent menubar troubleshooting link"
 
-grep -q "Team names are trademarks of their respective owners" "$XCS" \
-    && ok "trademark attribution present" \
-    || bad "trademark attribution missing"
+grep -q "Can't see Meridian in your menu bar" "Meridian/Preferences/About/AboutView.swift" \
+    && ok "help link present in AboutView" \
+    || bad "help link missing from AboutView"
 
-grep -q "Colors are fan approximations" "$XCS" \
-    && ok "fan-approximation acknowledgement present" \
-    || bad "fan-approximation acknowledgement missing"
+grep -q "ControlCenterSettings.open" "Meridian/Preferences/About/AboutView.swift" \
+    && ok "help link invokes ControlCenterSettings.open" \
+    || bad "help link does not open Control Center settings"
 
-# ── 4. Build ─────────────────────────────────────────────────────────
+# ── 5. Localization ───────────────────────────────────────────────────
+
+section "Localization: 8 new keys × 16 locales"
+if python3 - <<'PY'
+import json, sys
+required_langs = ["ar","de","en","es","fr","hi","hr","ja","ko","pl","pt-BR","ru","tr","uk","zh-Hans","zh-Hant"]
+new_keys = [
+    "One quick setup step",
+    "macOS Tahoe requires you to explicitly allow apps to put icons in the menu bar. Open System Settings → Control Center, scroll to the third-party apps section, and turn on Meridian.",
+    "I've already done this",
+    "Meridian isn't visible in your menu bar",
+    "macOS appears to be blocking Meridian's menu bar icon. Open System Settings → Control Center, scroll to the third-party apps section, and turn on Meridian.",
+    "Open Control Center Settings",
+    "Quit Meridian",
+    "Can't see Meridian in your menu bar?",
+]
+with open("Meridian/App/Localizable.xcstrings") as f:
+    data = json.load(f)
+strings = data.get("strings", {})
+missing = []
+for key in new_keys:
+    entry = strings.get(key)
+    if entry is None:
+        missing.append((key, "KEY MISSING"))
+        continue
+    locs = entry.get("localizations", {})
+    for lang in required_langs:
+        unit = locs.get(lang, {}).get("stringUnit", {})
+        value = unit.get("value", "")
+        if not value:
+            missing.append((key, f"missing {lang}"))
+if missing:
+    print(f"  FAIL: {len(missing)} localization gap(s):", file=sys.stderr)
+    for k, why in missing[:10]:
+        print(f"    - {k[:60]}… -> {why}", file=sys.stderr)
+    sys.exit(1)
+print(f"  OK:   all 8 new keys translated to {len(required_langs)} locales each")
+PY
+then
+    PASS=$((PASS+1))
+else
+    FAIL=$((FAIL+1))
+fi
+
+# ── 6. Build ──────────────────────────────────────────────────────────
 
 section "Build: xcodebuild Debug (no code signing)"
 if xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug build \

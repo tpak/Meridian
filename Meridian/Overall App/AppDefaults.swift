@@ -109,7 +109,11 @@ class AppDefaults {
 
             // F1 team accent. Default preserves the Aston Martin look that
             // was hardcoded in the asset catalog before this feature shipped.
-            UserDefaultKeys.teamAccent: TeamAccent.default.rawValue
+            UserDefaultKeys.teamAccent: TeamAccent.default.rawValue,
+
+            // Tahoe (macOS 26+) menubar block onboarding flag. False until
+            // the first-launch dialog has been shown. See issue #125.
+            UserDefaultKeys.tahoeOnboardingShown: false
         ]
     }
 }

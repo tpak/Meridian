@@ -31,6 +31,65 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         continueUsually()
         setupMemoryPressureMonitoring()
         reopenAppearanceIfRelaunchedForTeamAccent()
+        showTahoeOnboardingIfNeeded()
+        observeAppActivationForVisibilityRecheck()
+    }
+
+    // MARK: - Tahoe Menubar Onboarding (#125)
+
+    /// First time Meridian runs on a machine, surface a one-shot dialog
+    /// explaining that macOS Tahoe requires the user to explicitly enable
+    /// third-party menubar items in Control Center. The flag is persisted
+    /// so this never re-prompts. The reactive heuristic in
+    /// StatusItemHandler.verifyStatusItemVisible() handles the case where
+    /// the user dismissed onboarding without flipping the toggle.
+    private func showTahoeOnboardingIfNeeded() {
+        // Skip during XCTest runs so the modal alert never hangs the test
+        // host. Tests that need to exercise this path can drive it directly
+        // through the helper used here, not via the launch sequence.
+        guard NSClassFromString("XCTestCase") == nil else { return }
+        guard !UserDefaults.standard.bool(forKey: UserDefaultKeys.tahoeOnboardingShown) else { return }
+
+        // The dialog must come after the status item has actually been
+        // constructed (continueUsually() materialised the lazy var) so the
+        // user sees their icon — if it shows up — at the same moment.
+        DispatchQueue.main.async { [weak self] in
+            self?.presentTahoeOnboardingAlert()
+        }
+    }
+
+    private func presentTahoeOnboardingAlert() {
+        let body = "macOS Tahoe requires you to explicitly allow apps to put icons in the menu bar. "
+            + "Open System Settings → Control Center, scroll to the third-party apps section, and turn on Meridian."
+        let alert = NSAlert()
+        alert.messageText = "One quick setup step".localized()
+        alert.informativeText = body.localized()
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "Open Control Center Settings".localized())
+        alert.addButton(withTitle: "I've already done this".localized())
+
+        let response = alert.runModal()
+        UserDefaults.standard.set(true, forKey: UserDefaultKeys.tahoeOnboardingShown)
+
+        if response == .alertFirstButtonReturn {
+            ControlCenterSettings.open()
+        }
+    }
+
+    /// After the user visits Settings to flip the Control Center toggle,
+    /// they'll return focus to Meridian (usually via the menubar icon, the
+    /// dock if `appPresentation == .both`, or the global shortcut). Catch
+    /// that activation and re-run the visibility heuristic so a successful
+    /// fix is reflected without requiring a relaunch — and so a still-broken
+    /// state re-surfaces the recovery dialog on the next session.
+    private func observeAppActivationForVisibilityRecheck() {
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.statusBarHandler.scheduleVisibilityVerification()
+        }
     }
 
     /// If we were just relaunched by the user picking a new accent color
