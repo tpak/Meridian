@@ -11,16 +11,9 @@
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
             <description><![CDATA[
                 <ul>
-                    <li>**Layer 1 — First-launch onboarding** (`AppDelegate.swift`): One-shot `NSAlert` explaining the requirement, with [Open Control Center Settings] / [I've already done this]. Gated by a persistent `tahoeOnboardingShown` UserDefault so it never re-prompts.</li>
-                    <li>**Layer 2 — Heuristic detection** (`StatusItemHandler.swift`): After `setupStatusItem()` (initial launch, wake-from-sleep) and after `NSApplication.didBecomeActiveNotification`, check `statusItem.button?.window?.frame.size.width` against thresholds (icon mode ≥ 20pt, compact mode ≥ 40pt). On a likely-blocked state surface a recovery `NSAlert` with [Open Control Center Settings] / [Quit Meridian]. Fires at most once per process to avoid pop-up spam from the debounced UserDefaults observer.</li>
-                    <li>**Permanent help link** (`AboutView.swift`): "Can't see Meridian in your menu bar?" link in the About tab that opens the same Control Center deep-link, for users who dismissed onboarding and later wonder where the icon went.</li>
-                    <li>**Threshold logic extracted to a pure helper** (`MenubarBlockDetection.isStatusItemBlocked(buttonWindowWidth:isCompactMode:)`) so it's unit-testable without spinning up a real `NSStatusItem`. 14 new tests cover threshold edges, onboarding flag default, and the Control Center URL.</li>
-                    <li>**Localization** — 8 new strings translated across all 15 supported languages (ar, de, es, fr, hi, hr, ja, ko, pl, pt-BR, ru, tr, uk, zh-Hans, zh-Hant).</li>
-                    <li>**`scripts/validate_feature.sh`** rewrite — 15 checks across wiring, defaults registration, localization parity, and a Debug build.</li>
-                    <li>Control Center stores third-party item visibility as `NSStatusItem Visible Item-N` under `com.apple.controlcenter`'s defaults, but:</li>
-                    <li>  - The `Item-N` slot index is opaque to the app — no documented bundle-ID-to-slot mapping.</li>
-                    <li>  - A sandboxed app can't write to `com.apple.controlcenter`'s persistent domain.</li>
-                    <li>No documented ScriptingBridge surface or Tahoe entitlement exposes the toggle.</li>
+                    <li>Fix Meridian's icon not appearing in the menu bar on macOS Tahoe (#125)</li>
+                    <li>Add a first-launch tip on macOS Tahoe pointing to Control Center, where the icon must be enabled</li>
+                    <li>Add a "Can't see Meridian in your menu bar?" link in the About tab to reopen Control Center if the icon ever goes missing</li>
                 </ul>
             ]]></description>
             <enclosure url="https://github.com/tpak/Meridian/releases/download/v3.0.2/Meridian.app.zip" length="3295015" type="application/octet-stream" sparkle:edSignature="009d0eek3EnrwsmMCFc5pobwGo+azdBTmS+mslt1OjPUCqvMCztauoFVC1PIPQTHmFpjA4hMBMiPxPZTD5YADQ=="/>
