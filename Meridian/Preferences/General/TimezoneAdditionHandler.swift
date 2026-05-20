@@ -397,7 +397,11 @@ class TimezoneAdditionHandler: NSObject {
         data.setLabel(defaultLabel)
         data.formattedAddress = metaInfo.1.formattedName
         data.selectionType = .timezone
-        data.isSystemTimezone = metaInfo.0.name == NSTimeZone.system.identifier
+        let shouldBeSystem = metaInfo.0.name == NSTimeZone.system.identifier
+        data.isSystemTimezone = shouldBeSystem
+        if shouldBeSystem {
+            clearStaleSystemTimezoneFlags()
+        }
 
         // Geocode coordinates before saving so sunrise/sunset works immediately
         let timezoneID = metaInfo.0.name
@@ -421,6 +425,27 @@ class TimezoneAdditionHandler: NSObject {
             let operationObject = TimezoneDataOperations(with: data, store: store)
             operationObject.saveObject()
             self.performPostInstallCleanup()
+        }
+    }
+
+    /// Single-home invariant: when a newly-added row claims to be the system
+    /// timezone, clear that flag from any other stored row. Without this, a
+    /// row added while the Mac was on a different timezone keeps the flag and
+    /// continues lighting up the home indicator forever.
+    private func clearStaleSystemTimezoneFlags() {
+        let existing = dataStore.timezones()
+        var rewritten = existing
+        for (idx, blob) in existing.enumerated() {
+            guard let model = TimezoneData.customObject(from: blob), model.isSystemTimezone else {
+                continue
+            }
+            model.isSystemTimezone = false
+            if let updated = NSKeyedArchiver.secureArchive(with: model) {
+                rewritten[idx] = updated
+            }
+        }
+        if rewritten != existing {
+            dataStore.setTimezones(rewritten)
         }
     }
 

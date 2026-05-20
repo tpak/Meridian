@@ -55,11 +55,17 @@ class LocationController: NSObject {
         }
     }
 
-    private func updateHomeObject(with customLabel: String, coordinates: CLLocationCoordinate2D?) {
+    private func updateHomeObject(with _: String, coordinates: CLLocationCoordinate2D?) {
+        // Refresh sunrise/sunset coordinates on the current home row only.
+        // When `coordinates` is nil (authorization revoked) the row's lat/
+        // long are cleared so sunrise/sunset stop computing against stale
+        // values. The label parameter is preserved for call-site
+        // compatibility but intentionally NOT applied — letting reverse
+        // geocoding overwrite a user-chosen customLabel like "Home" or
+        // "Melbourne" is hostile.
         let updated: [Data] = store.timezones().compactMap { data in
             guard let model = TimezoneData.customObject(from: data) else { return data }
             if model.isSystemTimezone {
-                model.setLabel(customLabel)
                 model.latitude = coordinates?.latitude
                 model.longitude = coordinates?.longitude
             }

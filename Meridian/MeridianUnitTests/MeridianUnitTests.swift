@@ -316,6 +316,122 @@ class MeridianUnitTests: XCTestCase {
         XCTAssertEqual(dataObject.timezone(), autoupdatingTimezone)
     }
 
+    /// Regression: `timezone()` must not mutate `timezoneID` or
+    /// `formattedAddress` when `isSystemTimezone == true`. The previous
+    /// implementation silently overwrote both with `TimeZone.autoupdating
+    /// Current.identifier`, which destroyed the row's real identity
+    /// whenever the user travelled and was the root cause of the "stuck
+    /// home row" bug (Melbourne row rendering Denver's time).
+    func testTimezoneAccessorIsPure() {
+        let dataObject = TimezoneData(with: mumbai)
+        dataObject.timezoneID = "Australia/Melbourne"
+        dataObject.formattedAddress = "Melbourne"
+        dataObject.isSystemTimezone = true
+
+        // Calling timezone() must NOT clobber stored fields.
+        _ = dataObject.timezone()
+        _ = dataObject.timezone()
+
+        XCTAssertEqual(dataObject.timezoneID, "Australia/Melbourne",
+                       "timezone() must not overwrite timezoneID")
+        XCTAssertEqual(dataObject.formattedAddress, "Melbourne",
+                       "timezone() must not overwrite formattedAddress")
+    }
+
+    func testHomeRowMigrationClearsStaleFlag() throws {
+        // Two rows persisted: a stale-flagged Melbourne row (user added it
+        // while travelling) and an unflagged Denver row (the user's real
+        // current home). After migration, exactly the Denver row should
+        // carry the flag.
+        let defaults = UserDefaults(suiteName: "HomeRowMigrationTest_Stale")!
+        defaults.removePersistentDomain(forName: "HomeRowMigrationTest_Stale")
+
+        let stale = TimezoneData()
+        stale.timezoneID = "Australia/Melbourne"
+        stale.formattedAddress = "Melbourne"
+        stale.setLabel("Melbourne")
+        stale.isSystemTimezone = true
+
+        let actualHome = TimezoneData()
+        actualHome.timezoneID = TimeZone.autoupdatingCurrent.identifier
+        actualHome.formattedAddress = "Home"
+        actualHome.setLabel("Denver")
+        actualHome.isSystemTimezone = false
+
+        let staleBlob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: stale))
+        let homeBlob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: actualHome))
+
+        let healed = AppDefaults.runHomeRowMigrationV1(on: [staleBlob, homeBlob], defaults: defaults)
+
+        let healedStale = try XCTUnwrap(TimezoneData.customObject(from: healed[0]))
+        let healedHome = try XCTUnwrap(TimezoneData.customObject(from: healed[1]))
+
+        XCTAssertFalse(healedStale.isSystemTimezone, "stale Melbourne row should be unflagged")
+        XCTAssertEqual(healedStale.customLabel, "Melbourne", "user's label must survive migration")
+        XCTAssertTrue(healedHome.isSystemTimezone, "matching Denver row should pick up the flag")
+
+        defaults.removePersistentDomain(forName: "HomeRowMigrationTest_Stale")
+    }
+
+    func testHomeRowMigrationIsIdempotent() throws {
+        let defaults = UserDefaults(suiteName: "HomeRowMigrationTest_Idempotent")!
+        defaults.removePersistentDomain(forName: "HomeRowMigrationTest_Idempotent")
+
+        let row = TimezoneData()
+        row.timezoneID = TimeZone.autoupdatingCurrent.identifier
+        row.isSystemTimezone = true
+        let blob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: row))
+
+        let first = AppDefaults.runHomeRowMigrationV1(on: [blob], defaults: defaults)
+        let second = AppDefaults.runHomeRowMigrationV1(on: first, defaults: defaults)
+
+        XCTAssertEqual(first.count, second.count)
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.homeRowMigrationV1),
+                      "migration flag should be set after first run")
+
+        // Second invocation must be a no-op because the guard short-circuits.
+        XCTAssertEqual(first, second)
+
+        defaults.removePersistentDomain(forName: "HomeRowMigrationTest_Idempotent")
+    }
+
+    /// Regression: the empty-state "+" button in Panel.xib dispatches
+    /// `openPreferences:` up the responder chain. ParentPanelController is
+    /// in that chain and must implement the selector — otherwise the
+    /// button is silently dead, which leaves a freshly-installed app with
+    /// no way to add the first timezone.
+    func testParentPanelControllerRespondsToOpenPreferencesAction() {
+        let selector = NSSelectorFromString("openPreferences:")
+        XCTAssertTrue(ParentPanelController.instancesRespond(to: selector),
+                      "ParentPanelController must respond to openPreferences: so the empty-state + button works")
+    }
+
+    func testHomeRowMigrationDeduplicatesMultipleFlaggedRows() throws {
+        let defaults = UserDefaults(suiteName: "HomeRowMigrationTest_Dedup")!
+        defaults.removePersistentDomain(forName: "HomeRowMigrationTest_Dedup")
+
+        // Both rows flagged — but only one matches the actual system tz.
+        let matching = TimezoneData()
+        matching.timezoneID = TimeZone.autoupdatingCurrent.identifier
+        matching.isSystemTimezone = true
+
+        let stale = TimezoneData()
+        stale.timezoneID = "Asia/Tokyo"
+        stale.isSystemTimezone = true
+
+        let matchingBlob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: matching))
+        let staleBlob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: stale))
+
+        let healed = AppDefaults.runHomeRowMigrationV1(on: [staleBlob, matchingBlob], defaults: defaults)
+        let healedStale = try XCTUnwrap(TimezoneData.customObject(from: healed[0]))
+        let healedMatching = try XCTUnwrap(TimezoneData.customObject(from: healed[1]))
+
+        XCTAssertFalse(healedStale.isSystemTimezone)
+        XCTAssertTrue(healedMatching.isSystemTimezone)
+
+        defaults.removePersistentDomain(forName: "HomeRowMigrationTest_Dedup")
+    }
+
     func testFormattedLabel() {
         let dataObject = TimezoneData(with: mumbai)
         XCTAssertEqual(dataObject.formattedTimezoneLabel(), "Ghar", "Incorrect custom label returned by model \(dataObject.formattedTimezoneLabel())")

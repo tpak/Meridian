@@ -10,6 +10,16 @@ extension ParentPanelController {
         oneWindow?.openGeneralPane()
     }
 
+    /// Sender-taking overload reached via the responder chain. The empty-
+    /// state "+" button in Panel.xib (AddTableViewCell) sends
+    /// `openPreferences:` to the First Responder. Without this method, the
+    /// selector dispatches nowhere and the button is silently dead — which
+    /// is the only way to add the first timezone after a fresh install or
+    /// a full remove, so the app was unusable from an empty state.
+    @objc func openPreferences(_: Any?) {
+        openPreferencesWindow()
+    }
+
     func minutes(from date: Date, other: Date) -> Int {
         return Calendar.current.dateComponents([.minute], from: date, to: other).minute ?? 0
     }

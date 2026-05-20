@@ -266,13 +266,18 @@ public class TimezoneData: NSObject, NSCoding, NSSecureCoding {
     }
 
     public func timezone() -> String {
+        // Pure accessor. Previously this method silently overwrote
+        // `timezoneID` and `formattedAddress` when `isSystemTimezone` was
+        // true. That clobbered the row's real identity (e.g. "Australia/
+        // Melbourne" → "America/Denver" after the user moved Macs/locations),
+        // so the cached state stopped matching the displayed customLabel.
+        // Keeping this read-only means a stale `isSystemTimezone` flag stays
+        // recoverable — the migration in AppDefaults can heal it on launch.
         if isSystemTimezone {
-            timezoneID = TimeZone.autoupdatingCurrent.identifier
-            formattedAddress = TimeZone.autoupdatingCurrent.identifier
             return TimeZone.autoupdatingCurrent.identifier
         }
 
-        if let timezone = timezoneID {
+        if let timezone = timezoneID, !timezone.isEmpty {
             return timezone
         }
 

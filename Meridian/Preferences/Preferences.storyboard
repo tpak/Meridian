@@ -31,7 +31,7 @@
         <!--Centered Tab View Controller-->
         <scene sceneID="efi-cu-phe">
             <objects>
-                <tabViewController selectedTabViewItemIndex="0" tabStyle="toolbar" id="SH5-GG-x4O" customClass="CenteredTabViewController" customModule="Meridian" customModuleProvider="target" sceneMemberID="viewController">
+                <tabViewController selectedTabViewItemIndex="0" tabStyle="segmentedControlOnTop" id="SH5-GG-x4O" customClass="CenteredTabViewController" customModule="Meridian" customModuleProvider="target" sceneMemberID="viewController">
                     <tabViewItems>
                         <tabViewItem label="Time Zones" identifier="Preferences Tab" image="NSPreferencesGeneral" id="KX2-eQ-kpC"/>
                         <tabViewItem label=" General " identifier="Appearance Tab" image="Appearance Dynamic" id="UFb-Xx-XzY"/>

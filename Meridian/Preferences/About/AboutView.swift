@@ -18,6 +18,18 @@ struct AboutView: View {
     fileprivate static let updateIntervalLabels = ["Daily", "Weekly", "Monthly"]
 
     var body: some View {
+        // ScrollView keeps the bottom rows (Export Log, especially) visible
+        // when Debug Logging is toggled on. The About tab lives in a
+        // fixed-size NSTabViewController window, so without scroll the
+        // newly-revealed button gets clipped past the bottom edge.
+        ScrollView {
+            aboutContent
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    @ViewBuilder
+    private var aboutContent: some View {
         VStack(spacing: 15) {
             Text(versionString)
                 .font(.custom("Avenir-Light", size: 28))
@@ -87,7 +99,7 @@ struct AboutView: View {
             DebugLoggingSection()
         }
         .padding(20)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity)
     }
 
     @ViewBuilder

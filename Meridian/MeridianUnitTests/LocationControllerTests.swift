@@ -69,15 +69,17 @@ class LocationControllerTests: XCTestCase {
         XCTAssertNil(updated.longitude)
     }
 
-    func testDidChangeAuthorizationDeniedSetsLabelToCurrentTimezone() throws {
+    func testDidChangeAuthorizationDeniedPreservesUserLabel() throws {
+        // Revoking location permission must not overwrite the row's
+        // user-chosen label. Only the geocoded coordinates are cleared.
         let timezone = makeSystemTimezone(latitude: 37.7749, longitude: -122.4194)
-        timezone.setLabel("Old Label")
+        timezone.setLabel("Home")
         store.addTimezone(timezone)
 
         controller.locationManager(CLLocationManager(), didChangeAuthorization: .denied)
 
         let updated = try XCTUnwrap(TimezoneData.customObject(from: store.timezones()[0]))
-        XCTAssertEqual(updated.customLabel, TimeZone.autoupdatingCurrent.identifier)
+        XCTAssertEqual(updated.customLabel, "Home")
     }
 
     func testDidChangeAuthorizationPreservesNonSystemTimezones() throws {

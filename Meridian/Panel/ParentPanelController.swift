@@ -194,13 +194,25 @@ class ParentPanelController: NSWindowController {
         }
     }
 
-    private func updateHomeObject(with customLabel: String, coordinates: CLLocationCoordinate2D?) {
+    private func updateHomeObject(with _: String, coordinates: CLLocationCoordinate2D?) {
+        // Maintain the single-home invariant: the row whose persisted
+        // `timezoneID` matches the current system timezone is the home
+        // row; everything else must have the flag cleared. Previously this
+        // method blindly rewrote `customLabel` and `formattedAddress` on
+        // every row already flagged — which destroyed a user-chosen label
+        // like "Melbourne" and replaced it with "America/Denver" when the
+        // user moved Macs. The legacy `customLabel` parameter is kept for
+        // call-site compatibility but no longer applied; the row keeps the
+        // label the user chose at install time.
         let objects = dataStore.timezoneObjects()
+        let systemIdentifier = TimeZone.autoupdatingCurrent.identifier
 
-        for object in objects where object.isSystemTimezone {
-            object.setLabel(customLabel)
-            object.formattedAddress = customLabel
-            if let latlong = coordinates {
+        for object in objects {
+            let matches = object.timezoneID == systemIdentifier
+            if object.isSystemTimezone != matches {
+                object.isSystemTimezone = matches
+            }
+            if matches, let latlong = coordinates {
                 object.longitude = latlong.longitude
                 object.latitude = latlong.latitude
             }
