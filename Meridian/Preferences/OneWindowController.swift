@@ -80,28 +80,34 @@ class OneWindowController: NSWindowController {
             return
         }
 
-        let teamColor = DataStore.shared().teamAccent.accentColor
-        let paletteConfig = NSImage.SymbolConfiguration(paletteColors: [teamColor])
-
-        func tintedSymbol(_ name: String) -> NSImage? {
+        // Use template-mode SF symbols. The segmented control then tints
+        // the icon for contrast against the segment fill: standard label
+        // color on unselected segments, contrast color (white) on the
+        // selected segment whose background is the team accent. With the
+        // previous palette-baked team-color tint, the selected segment's
+        // orange icon disappeared into its orange background.
+        func templateSymbol(_ name: String) -> NSImage? {
             guard let base = NSImage(systemSymbolName: name, accessibilityDescription: nil) else { return nil }
-            return base.withSymbolConfiguration(paletteConfig)
+            base.isTemplate = true
+            return base
         }
 
-        // Model layer.
+        // Model layer — drives the segmented control render.
         tabViewController.tabViewItems.forEach { tabViewItem in
             let identity = (tabViewItem.identifier as? String) ?? ""
             if let symbol = Self.identifierToSymbol[identity] {
-                tabViewItem.image = tintedSymbol(symbol)
+                tabViewItem.image = templateSymbol(symbol)
             }
         }
 
-        // Rendering layer.
+        // Rendering layer — present only when a toolbar exists (e.g. if
+        // a future tabStyle change brings the toolbar back). Same template
+        // semantics apply.
         if let toolbar = window?.toolbar {
             for item in toolbar.items {
                 if let symbol = Self.identifierToSymbol[item.itemIdentifier.rawValue] {
                     item.image = nil
-                    item.image = tintedSymbol(symbol)
+                    item.image = templateSymbol(symbol)
                 }
             }
         }
