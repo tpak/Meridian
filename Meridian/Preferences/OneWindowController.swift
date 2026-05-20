@@ -4,10 +4,6 @@ import Cocoa
 import CoreLoggerKit
 
 class CenteredTabViewController: NSTabViewController {
-    /// Posted after `tabView(_:didSelect:)` so the window controller can
-    /// refresh the custom toolbar item views' selection state.
-    static let didChangeSelectionNotification = Notification.Name("com.tpak.meridian.settingsTabSelectionDidChange")
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -18,19 +14,9 @@ class CenteredTabViewController: NSTabViewController {
             }
         }
     }
-
-    override func tabView(_ tabView: NSTabView, didSelect tabViewItem: NSTabViewItem?) {
-        super.tabView(tabView, didSelect: tabViewItem)
-        NotificationCenter.default.post(name: Self.didChangeSelectionNotification, object: self)
-    }
 }
 
 class OneWindowController: NSWindowController {
-    /// Custom views we install into each tab NSToolbarItem so AppKit
-    /// can't tint the selected tab's label with the team accent (Tahoe
-    /// regression — see SettingsTabToolbarItemView for the full story).
-    private var customTabItemViews: [String: SettingsTabToolbarItemView] = [:]
-
     override func windowDidLoad() {
         super.windowDidLoad()
         setup()
@@ -38,12 +24,6 @@ class OneWindowController: NSWindowController {
             self,
             selector: #selector(refreshToolbarForAccentChange),
             name: .accentColorDidChange,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(refreshTabSelectionState),
-            name: CenteredTabViewController.didChangeSelectionNotification,
             object: nil
         )
     }
@@ -54,7 +34,6 @@ class OneWindowController: NSWindowController {
 
     private func setup() {
         setupWindow()
-        installCustomTabItemViews()
         setupToolbarImages()
     }
 
@@ -126,73 +105,12 @@ class OneWindowController: NSWindowController {
                 }
             }
         }
-
-        // Push the freshly-tinted icon into our custom item views so the
-        // team color change is reflected in the live UI without waiting
-        // for the next view rebuild.
-        for (identity, view) in customTabItemViews {
-            if let symbol = Self.identifierToSymbol[identity] {
-                view.setImage(tintedSymbol(symbol))
-            }
-        }
     }
 
     @objc private func refreshToolbarForAccentChange() {
         let team = DataStore.shared().teamAccent.displayName
         Logger.production("[Accent] refreshToolbar fired: team=\(team)")
         setupToolbarImages()
-    }
-
-    /// Install a `SettingsTabToolbarItemView` as `item.view` for each
-    /// tab toolbar item. Routing clicks back through
-    /// `selectedTabViewItemIndex` preserves the standard tab semantics
-    /// while letting us render the icon, label, and selection state
-    /// with explicit colors AppKit can't override.
-    private func installCustomTabItemViews() {
-        guard let toolbar = window?.toolbar,
-              let tabViewController = contentViewController as? CenteredTabViewController else {
-            return
-        }
-
-        let teamColor = DataStore.shared().teamAccent.accentColor
-        let paletteConfig = NSImage.SymbolConfiguration(paletteColors: [teamColor])
-
-        customTabItemViews.removeAll(keepingCapacity: true)
-
-        for item in toolbar.items {
-            let identity = item.itemIdentifier.rawValue
-            guard let symbolName = Self.identifierToSymbol[identity] else { continue }
-
-            let tabIndex = tabViewController.tabViewItems.firstIndex {
-                ($0.identifier as? String) == identity
-            }
-            guard let tabIndex else { continue }
-
-            let title = tabViewController.tabViewItems[tabIndex].label
-            let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)?
-                .withSymbolConfiguration(paletteConfig)
-
-            let view = SettingsTabToolbarItemView(image: image, title: title)
-            view.isSelected = (tabViewController.selectedTabViewItemIndex == tabIndex)
-            view.onClick = { [weak tabViewController] in
-                tabViewController?.selectedTabViewItemIndex = tabIndex
-            }
-
-            item.view = view
-            customTabItemViews[identity] = view
-        }
-    }
-
-    @objc private func refreshTabSelectionState() {
-        guard let tabViewController = contentViewController as? CenteredTabViewController else {
-            return
-        }
-        for (identity, view) in customTabItemViews {
-            let matchingIndex = tabViewController.tabViewItems.firstIndex {
-                ($0.identifier as? String) == identity
-            }
-            view.isSelected = (matchingIndex == tabViewController.selectedTabViewItemIndex)
-        }
     }
 
     // MARK: Public
