@@ -395,6 +395,17 @@ class MeridianUnitTests: XCTestCase {
         defaults.removePersistentDomain(forName: "HomeRowMigrationTest_Idempotent")
     }
 
+    /// Regression: the empty-state "+" button in Panel.xib dispatches
+    /// `openPreferences:` up the responder chain. ParentPanelController is
+    /// in that chain and must implement the selector — otherwise the
+    /// button is silently dead, which leaves a freshly-installed app with
+    /// no way to add the first timezone.
+    func testParentPanelControllerRespondsToOpenPreferencesAction() {
+        let selector = NSSelectorFromString("openPreferences:")
+        XCTAssertTrue(ParentPanelController.instancesRespond(to: selector),
+                      "ParentPanelController must respond to openPreferences: so the empty-state + button works")
+    }
+
     func testHomeRowMigrationDeduplicatesMultipleFlaggedRows() throws {
         let defaults = UserDefaults(suiteName: "HomeRowMigrationTest_Dedup")!
         defaults.removePersistentDomain(forName: "HomeRowMigrationTest_Dedup")
