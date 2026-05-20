@@ -34,6 +34,7 @@
 		35C36F19225961DA002FA5C6 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F09225961DA002FA5C6 /* Enums.swift */; };
 		35C36F1A225961DA002FA5C6 /* Date+Manipulations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F0A225961DA002FA5C6 /* Date+Manipulations.swift */; };
 		35C36F2022596253002FA5C6 /* OneWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F1E22596253002FA5C6 /* OneWindowController.swift */; };
+		BETA0001202605200000B4F1 /* SettingsTabToolbarItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BETA0001202605200000B4F2 /* SettingsTabToolbarItemView.swift */; };
 		35C36F2122596253002FA5C6 /* AppearanceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F1F22596253002FA5C6 /* AppearanceViewController.swift */; };
 		35C36F2B2259D6FA002FA5C6 /* ParentPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F272259D6FA002FA5C6 /* ParentPanelController.swift */; };
 		35C36F2C2259D6FA002FA5C6 /* PanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F282259D6FA002FA5C6 /* PanelController.swift */; };
@@ -168,6 +169,7 @@
 		35C36F09225961DA002FA5C6 /* Enums.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
 		35C36F0A225961DA002FA5C6 /* Date+Manipulations.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Date+Manipulations.swift"; sourceTree = "<group>"; };
 		35C36F1E22596253002FA5C6 /* OneWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OneWindowController.swift; sourceTree = "<group>"; };
+		BETA0001202605200000B4F2 /* SettingsTabToolbarItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsTabToolbarItemView.swift; sourceTree = "<group>"; };
 		35C36F1F22596253002FA5C6 /* AppearanceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppearanceViewController.swift; sourceTree = "<group>"; };
 		35C36F272259D6FA002FA5C6 /* ParentPanelController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParentPanelController.swift; sourceTree = "<group>"; };
 		35C36F282259D6FA002FA5C6 /* PanelController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanelController.swift; sourceTree = "<group>"; };
@@ -359,6 +361,7 @@
 				9AB6F1522259CEF400A44663 /* Appearance */,
 				9AB6F1512259CEE300A44663 /* Calendar */,
 				35C36F1E22596253002FA5C6 /* OneWindowController.swift */,
+				BETA0001202605200000B4F2 /* SettingsTabToolbarItemView.swift */,
 				9AB6F1632259D1B800A44663 /* ParentViewController.swift */,
 				35C36F902259EAF4002FA5C6 /* Preferences.storyboard */,
 				35C36EDF22595D9C002FA5C6 /* Menu Bar */,
@@ -895,6 +898,7 @@
 				C1C2D3E40002000000CHKBX1 /* CenteredCheckboxCell.swift in Sources */,
 				C2C2D3E40002000000VCTFC1 /* VerticallyCenteredTextFieldCell.swift in Sources */,
 				35C36F2022596253002FA5C6 /* OneWindowController.swift in Sources */,
+				BETA0001202605200000B4F1 /* SettingsTabToolbarItemView.swift in Sources */,
 				35C36F0E225961DA002FA5C6 /* Date+Bundle.swift in Sources */,
 				9AB6F1642259D1B900A44663 /* ParentViewController.swift in Sources */,
 				3508CCAA259A0027000E3530 /* StatusContainerView.swift in Sources */,
