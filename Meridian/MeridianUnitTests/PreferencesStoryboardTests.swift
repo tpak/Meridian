@@ -87,12 +87,16 @@ class PreferencesStoryboardTests: XCTestCase {
         XCTAssertNotNil(tabVC?.view, "Tab view controller's view should load")
     }
 
-    func testWindowHasToolbarAfterShow() {
+    func testTabStyleIsSegmentedControlOnTop() {
+        // The Settings UI uses NSTabViewController in segmentedControlOnTop
+        // style — a single segmented control above the content. On macOS
+        // Tahoe the prior .toolbar style rendered the selected tab's label
+        // in the team accent color over an accent-tinted pill, which
+        // collapsed contrast and made the label unreadable.
         let storyboard = NSStoryboard(name: "Preferences", bundle: Bundle(for: OneWindowController.self))
         let wc = storyboard.instantiateInitialController() as? OneWindowController
-        // Trigger window loading
-        wc?.loadWindow()
-        _ = wc?.contentViewController?.view
-        XCTAssertNotNil(wc?.window?.toolbar, "Window should have a toolbar after content loads")
+        let tabVC = wc?.contentViewController as? CenteredTabViewController
+        XCTAssertEqual(tabVC?.tabStyle, .segmentedControlOnTop,
+                       "Settings must use segmentedControlOnTop — the toolbar style has unreadable labels on Tahoe")
     }
 }
