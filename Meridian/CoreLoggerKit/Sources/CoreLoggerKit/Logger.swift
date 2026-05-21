@@ -24,8 +24,11 @@ public enum Logger {
     }
 
     /// Export recent log entries to a file for sharing. Uses OSLogStore.
+    /// .currentProcessIdentifier (not .system) so the sandboxed app can read
+    /// its own entries without the com.apple.logd.admin mach-lookup that the
+    /// .system scope requires — we never wanted other processes' logs anyway.
     public static func exportLog(to url: URL) throws {
-        let store = try OSLogStore(scope: .system)
+        let store = try OSLogStore(scope: .currentProcessIdentifier)
         let cutoff = store.position(date: Date().addingTimeInterval(-7 * 24 * 3600))
         let entries = try store.getEntries(at: cutoff, matching: NSPredicate(format: "subsystem == 'com.tpak.Meridian'"))
         let lines = entries.compactMap { entry -> String? in

@@ -6,7 +6,14 @@
 	<true/>
 	<key>com.apple.security.network.client</key>
 	<true/>
-<key>com.apple.security.temporary-exception.mach-lookup.global-name</key>
+	<!-- Required for NSSavePanel/NSOpenPanel.runModal() to display under sandbox.
+	     Without this, macOS Tahoe silently refuses to show the panel (logs
+	     "Unable to display save panel: missing User Selected File Read/Write
+	     app sandbox entitlement" in Console). Powers Settings → About →
+	     Export Settings / Import Settings. -->
+	<key>com.apple.security.files.user-selected.read-write</key>
+	<true/>
+	<key>com.apple.security.temporary-exception.mach-lookup.global-name</key>
 	<array>
 		<string>com.tpak.Meridian-spks</string>
 		<string>com.tpak.Meridian-spki</string>
