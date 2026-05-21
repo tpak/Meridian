@@ -30,3 +30,16 @@ Usage: `/release VERSION` (e.g. `/release 2.16.0`)
 2. If any CI run fails, investigate immediately — do NOT ignore failures
 3. Verify the GitHub release exists: `gh release view vVERSION`
 4. Confirm the release notes are user-facing and concise; edit with `gh release edit` if needed
+
+## Post-release cleanup
+
+After the release is live, switch the user back to the released app and remove any local UAT beta so they aren't accidentally testing an older or differently-signed build:
+
+1. Quit any running Meridian (beta or prod): `osascript -e 'tell application "Meridian" to quit'; sleep 2`
+2. Remove the local UAT beta if present: `rm -rf ~/Applications/Meridian-beta.app`
+3. Confirm `/Applications/Meridian.app` reports the version we just released (Sparkle should have already updated it after the appcast push; if not, prompt the user to apply the update):
+   ```bash
+   /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" /Applications/Meridian.app/Contents/Info.plist
+   ```
+4. Launch the released app: `open /Applications/Meridian.app && sleep 2 && pgrep -lf "/Applications/Meridian.app"`
+5. Prune the merged feature branch (local + remote) per CLAUDE.md.
