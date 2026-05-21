@@ -3,6 +3,20 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>3.1.1</title>
+            <pubDate>Thu, 21 May 2026 22:04:07 +0000</pubDate>
+            <sparkle:version>3011100</sparkle:version>
+            <sparkle:shortVersionString>3.1.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Fix Export Settings, Import Settings, and Export Log buttons in the About tab</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v3.1.1/Meridian.app.zip" length="3298870" type="application/octet-stream" sparkle:edSignature="Wu9C/BU5RyN6eN3LPrvcq01e4b3Bwdan6ESqZxxeclkPk87Ymw/y/B5eX9eTG5iUIv6mujp26flEpxKxBzXbCQ=="/>
+        </item>
+        <item>
             <title>3.1.0</title>
             <pubDate>Wed, 20 May 2026 18:51:43 +0000</pubDate>
             <sparkle:version>3010100</sparkle:version>
