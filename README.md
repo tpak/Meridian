@@ -8,7 +8,6 @@
   <a href="https://github.com/tpak/Meridian/actions/workflows/ci.yml"><img src="https://github.com/tpak/Meridian/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
   <a href="https://github.com/tpak/Meridian/actions/workflows/codeql.yml"><img src="https://github.com/tpak/Meridian/actions/workflows/codeql.yml/badge.svg?branch=main" alt="CodeQL"></a>
   <a href="https://github.com/tpak/Meridian/blob/main/.swiftlint.yml"><img src="https://img.shields.io/badge/SwiftLint-configured-brightgreen" alt="SwiftLint"></a>
-  <a href="https://github.com/tpak/Meridian/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
   <a href="https://github.com/tpak/Meridian/releases/latest"><img src="https://img.shields.io/github/v/release/tpak/Meridian?display_name=tag&sort=semver" alt="Latest release"></a>
 </p>
 
