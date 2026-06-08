@@ -80,6 +80,16 @@ The release script (`scripts/release.sh`) handles everything:
 
 **Post-release cleanup** (do this after every release):
 ```bash
+# 1. Switch the user back to the released prod app and remove any local UAT beta
+#    so they aren't accidentally testing an older or differently-signed build.
+osascript -e 'tell application "Meridian" to quit' ; sleep 2
+rm -rf ~/Applications/Meridian-beta.app
+# Confirm /Applications/Meridian.app is the version we just released
+# (Sparkle should have updated it after the appcast push; if not, apply the update)
+/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" /Applications/Meridian.app/Contents/Info.plist
+open /Applications/Meridian.app
+
+# 2. Prune merged branches
 git fetch --prune origin                              # prune stale remote refs
 git branch --merged main | grep -v '^\*\|  main$'     # list local branches fully merged into main
 # For each merged branch:
