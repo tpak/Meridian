@@ -5,10 +5,10 @@
 <h1 align="center">Meridian</h1>
 
 <p align="center">
-  <a href="https://github.com/tpak/Meridian/actions/workflows/ci.yml"><img src="https://github.com/tpak/Meridian/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://github.com/tpak/Meridian/actions/workflows/codeql.yml"><img src="https://github.com/tpak/Meridian/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
+  <a href="https://github.com/tpak/Meridian/actions/workflows/ci.yml"><img src="https://github.com/tpak/Meridian/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
+  <a href="https://github.com/tpak/Meridian/actions/workflows/codeql.yml"><img src="https://github.com/tpak/Meridian/actions/workflows/codeql.yml/badge.svg?branch=main" alt="CodeQL"></a>
   <a href="https://github.com/tpak/Meridian/blob/main/.swiftlint.yml"><img src="https://img.shields.io/badge/SwiftLint-configured-brightgreen" alt="SwiftLint"></a>
-  <a href="https://github.com/tpak/Meridian/blob/main/LICENSE"><img src="https://img.shields.io/github/license/tpak/Meridian" alt="License"></a>
+  <a href="https://github.com/tpak/Meridian/releases/latest"><img src="https://img.shields.io/github/v/release/tpak/Meridian?display_name=tag&sort=semver" alt="Latest release"></a>
 </p>
 
 A macOS menu bar world clock. Track time across zones for your team, friends, and family.
