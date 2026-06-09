@@ -11,6 +11,7 @@ jobs:
     runs-on: macos-26
     permissions:
       security-events: write
+      issues: write  # Allow the failure-notification step to open/comment an issue
     env:
       NSUnbufferedIO: "YES"
     steps:
@@ -18,6 +19,43 @@ jobs:
 
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      # Cache the resolved Swift packages (incl. Sparkle's prebuilt binary
+      # zip, extracted under .spm-cache/artifacts) keyed on Package.resolved.
+      # On a cache hit the build never touches GitHub Releases, so the weekly
+      # scheduled run can't be killed by a transient 504 on the Sparkle
+      # download. restore-keys lets an older cache seed a partial set when
+      # Package.resolved changes — safe here because these are dependency
+      # source checkouts, not compiled modules.
+      - name: Cache Swift packages
+        uses: actions/cache@v5
+        with:
+          path: .spm-cache
+          key: spm-${{ runner.os }}-${{ hashFiles('Meridian/Meridian.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: |
+            spm-${{ runner.os }}-
+
+      # Resolve packages in their own step with retry/backoff. A cache-miss
+      # week still has to download Sparkle's binary from GitHub Releases,
+      # which intermittently returns 504. Retrying recovers automatically
+      # instead of failing the whole CodeQL run (the previous failure mode).
+      - name: Resolve Swift package dependencies (with retry)
+        run: |
+          set -u
+          for attempt in 1 2 3 4 5; do
+            if xcodebuild -project Meridian/Meridian.xcodeproj \
+                 -scheme Meridian \
+                 -clonedSourcePackagesDirPath .spm-cache \
+                 -resolvePackageDependencies; then
+              echo "Package resolution succeeded on attempt ${attempt}."
+              exit 0
+            fi
+            wait=$((attempt * 15))
+            echo "::warning::Package resolution failed (attempt ${attempt}/5). Retrying in ${wait}s..."
+            sleep "${wait}"
+          done
+          echo "::error::Package resolution failed after 5 attempts."
+          exit 1
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
@@ -28,7 +66,32 @@ jobs:
         run: |
           xcodebuild -project Meridian/Meridian.xcodeproj \
             -scheme Meridian -configuration Debug build \
+            -clonedSourcePackagesDirPath .spm-cache \
             CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
+
+      # The flaky 504 is now handled above, so a failure here means a real
+      # problem (a genuine CodeQL alert or a true build break) on a silent
+      # scheduled run. Open a tracking issue — or comment on the existing
+      # one — so it surfaces in the repo even when no one is watching CI.
+      - name: Open issue on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          existing=$(gh issue list --state open \
+            --search 'CodeQL workflow failing in:title' \
+            --json number --jq '.[0].number')
+          if [ -n "${existing}" ]; then
+            gh issue comment "${existing}" \
+              --body "CodeQL workflow failed again. Run: ${run_url}"
+          else
+            gh issue create \
+              --title "CodeQL workflow failing" \
+              --body "The scheduled CodeQL analysis failed. Most recent run: ${run_url}
+
+          If this is the Sparkle SPM download 504, re-running usually clears it; the workflow already caches packages and retries resolution, so a persistent failure here likely indicates a real CodeQL alert or build break. Close this issue once CodeQL is green again."
+          fi
