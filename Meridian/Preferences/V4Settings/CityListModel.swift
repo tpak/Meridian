@@ -268,7 +268,10 @@ final class CityListModel: ObservableObject {
         }
         store.addTimezone(data)
         clearSearch()
-        reload()
+        // Re-sort by the user's chosen order so the new city lands in its proper place instead of
+        // at the end. applySort sorts the stored order (so the popover matches too) and reloads;
+        // for Time-diff that means by offset, for Name/Label alphabetically.
+        applySort()
     }
 
     /// Apply the chosen sort to the STORED order so the popover reflects it too (not just the
