@@ -106,7 +106,9 @@ private extension CitiesPane {
 
     var homeBinding: Binding<String> {
         Binding(
-            get: { model.homeTimezoneID ?? model.rows.first?.timezoneID ?? "" },
+            // effectiveHomeID matches the row's isHome computation, so the picker selection and the
+            // ⌂ badge always agree (even before a home is explicitly persisted).
+            get: { model.effectiveHomeID },
             set: { model.setHome(timezoneID: $0) }
         )
     }
@@ -258,7 +260,8 @@ private extension CitiesPane {
 
 // MARK: - Form row
 
-/// A design form row: a right-aligned ~150px label column, then trailing controls.
+/// The Locations-card form row: a right-aligned 86px label column (spec uses a tighter column
+/// inside the card than the full-pane 150px rows), then trailing controls.
 private struct FormRow<Content: View>: View {
     let label: String
     @ViewBuilder let content: Content
@@ -268,7 +271,7 @@ private struct FormRow<Content: View>: View {
             Text(label)
                 .font(.system(size: 12.5))
                 .foregroundStyle(.secondary)
-                .frame(width: 150, alignment: .trailing)
+                .frame(width: 86, alignment: .trailing)
             content
             Spacer(minLength: 0)
         }

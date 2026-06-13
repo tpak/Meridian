@@ -13,6 +13,10 @@
 
 import Foundation
 
+// Terse single-letter names and RGB tuples are intentional in this math-only port of the design's
+// reference logic — they mirror the spec/prototype and read clearly in context.
+// swiftlint:disable identifier_name large_tuple
+
 /// Day/night phase of a city. Drives every visual: glyph (sun/moon), hero sky gradient,
 /// row tint, scrubber handle. README §B.
 enum DayPhase: String, Equatable {
@@ -151,9 +155,9 @@ enum DaybreakEngine {
 
     // MARK: - Time parser (README §E)
 
-    /// Compiled once: `^(\d{1,2})(:(\d{2}))?\s*([ap]\.?m?\.?)?$`. Force-try is safe — a broken
-    /// compile-time literal is a programmer error, not a runtime condition.
-    private static let timeRegex = try! NSRegularExpression(
+    /// Compiled once: `^(\d{1,2})(:(\d{2}))?\s*([ap]\.?m?\.?)?$` (optional — `try?` keeps us clear of
+    /// the project's force_try ban; a compile-time-constant pattern won't actually fail).
+    private static let timeRegex = try? NSRegularExpression(
         pattern: "^([0-9]{1,2})(?::([0-9]{2}))?\\s*([ap]\\.?m?\\.?)?$", options: []
     )
 
@@ -165,7 +169,8 @@ enum DaybreakEngine {
         if s.isEmpty { return nil }
 
         let range = NSRange(s.startIndex..<s.endIndex, in: s)
-        guard let match = timeRegex.firstMatch(in: s, options: [], range: range) else { return nil }
+        guard let regex = timeRegex,
+              let match = regex.firstMatch(in: s, options: [], range: range) else { return nil }
 
         func group(_ i: Int) -> String? {
             let r = match.range(at: i)

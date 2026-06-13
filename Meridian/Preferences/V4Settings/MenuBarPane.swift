@@ -21,19 +21,19 @@ private struct MenuBarPreset: Identifiable {
 
 private let menuBarPresets: [MenuBarPreset] = [
     MenuBarPreset(
-        id: "compact", label: "Compact", sample: "● IST 7:47 AM",
+        id: "compact", label: "Compact", sample: "IST 7:47 AM",
         place: true, day: false, date: false, twentyFourHour: false, dots: true
     ),
     MenuBarPreset(
-        id: "withday", label: "With day", sample: "● IST Mon 7:47 AM",
+        id: "withday", label: "With day", sample: "IST Mon 7:47 AM",
         place: true, day: true, date: false, twentyFourHour: false, dots: true
     ),
     MenuBarPreset(
-        id: "dense24", label: "Dense · 24h", sample: "● IST 07:47",
+        id: "dense24", label: "Dense · 24h", sample: "IST 07:47",
         place: true, day: false, date: false, twentyFourHour: true, dots: true
     ),
     MenuBarPreset(
-        id: "withdate", label: "With date", sample: "● IST 7:47 AM 13 Jun",
+        id: "withdate", label: "With date", sample: "IST 7:47 AM 13 Jun",
         place: true, day: false, date: true, twentyFourHour: false, dots: true
     ),
     MenuBarPreset(

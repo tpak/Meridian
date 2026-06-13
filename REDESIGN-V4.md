@@ -23,7 +23,13 @@ Claude Code during the autonomous build so the state of the work is legible at a
 - [ ] **Phase 0 — Foundation:** design tokens (Swift), pure logic port (phase engine, offset,
       time parser, sky ramp) + unit tests, codebase API inventory.
 - [x] **Phase 1 — Daybreak popover:** hero, city cards, scrubber, editable times. *(builds; 260 tests green; adversarial review done + fixes applied; **4.0.0-beta1 installed & running** at ~/Applications/Meridian-beta.app for UAT)* → UAT beta 1 ✅
-- [~] **Phase 3 — Settings window:** shell + 5 panes authored (parallel agents); integration/build/fix in progress.
+- [x] **Phase 3 — Settings window:** NavigationSplitView shell + 5 panes (Cities/Menu Bar/Appearance/Time Travel/General), wired to Daybreak footer + ⌘, behind `useV4Settings`. *(builds; 260 tests green; adversarial review in progress)* → folds into UAT beta 2
+- [ ] **Phase 2 — Menu-bar density presets:** single-line "● NAME TIME" + color dots (flag-gated; `StatusItemView` rendering). → UAT beta
+- [ ] **Phase 4 — Integration, regression, localization, polish, final beta.**
+
+## Flags (all default to the v4 path on this branch; flip for instant fallback)
+- `AppDelegate.useDaybreakPanel` — v4 popover vs legacy `PanelController`.
+- `AppDelegate.useV4Settings` — v4 Settings window vs legacy storyboard Preferences.
 - [ ] **Phase 2 — Menu-bar density presets.** → UAT beta 2
 - [ ] **Phase 3 — Settings window** (5 panes). → UAT beta 3
 - [ ] **Phase 4 — Integration, regression, localization, polish.** → UAT beta 4 → GA 4.0.0

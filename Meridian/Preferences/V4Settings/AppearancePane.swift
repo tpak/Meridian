@@ -14,7 +14,7 @@ struct AppearancePane: View {
     @AppStorage("com.tpak.meridian.teamAccent") private var teamAccent: TeamAccent = .astonMartin
     @AppStorage("timeFormat") private var timeFormat: TimeFormat = .twelveHour
     @AppStorage("relativeDate") private var dayDisplay: RelativeDateDisplay = .relative
-    @AppStorage("showSunriseSunset") private var showSunriseSunset = true
+    @AppStorage("showSunriseSunset") private var showSunriseSunset = false // matches AppDefaults
     @AppStorage("com.tpak.meridian.v4.textScale") private var textScale = 1.0
 
     var body: some View {
@@ -51,14 +51,10 @@ struct AppearancePane: View {
     // MARK: Header
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text("Appearance")
-                .font(.system(size: 20, weight: .bold))
-            Text("Theme, livery accent, and how times read at a glance.")
-                .font(.system(size: 12.5))
-                .foregroundStyle(.secondary)
-        }
-        .padding(.bottom, 18)
+        // Spec: Appearance heading has no subtitle paragraph, just the 18pt bottom margin.
+        Text("Appearance")
+            .font(.system(size: 20, weight: .bold))
+            .padding(.bottom, 18)
     }
 
     // MARK: Segments

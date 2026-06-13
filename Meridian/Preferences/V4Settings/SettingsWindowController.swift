@@ -22,7 +22,8 @@ final class SettingsWindowController: NSWindowController {
         window.isReleasedWhenClosed = false
         window.identifier = NSUserInterfaceItemIdentifier("MeridianV4Settings")
         window.setFrameAutosaveName("MeridianV4Settings")
-        window.contentView = NSHostingView(rootView: SettingsRootView())
+        // Host via NSHostingController so the controller owns sizing/first-responder.
+        window.contentViewController = NSHostingController(rootView: SettingsRootView())
         window.center()
         self.init(window: window)
     }

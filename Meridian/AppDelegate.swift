@@ -272,7 +272,8 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openPreferencesWindow() {
-        panelController.openPreferencesWindow()
+        // Dock-menu "Settings" routes through the v4 flag too (not just the Daybreak footer).
+        openSettingsRouted()
     }
 
     @objc func hideFromDock() {

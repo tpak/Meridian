@@ -43,14 +43,10 @@ struct GeneralPane: View {
 
 private struct Header: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("General")
-                .font(.system(size: 20, weight: .bold))
-            Text("Logins, updates, and diagnostics.")
-                .font(.system(size: 12.5))
-                .foregroundStyle(.secondary)
-        }
-        .padding(.bottom, 18)
+        // Spec: General heading has no subtitle paragraph, just the 18pt bottom margin.
+        Text("General")
+            .font(.system(size: 20, weight: .bold))
+            .padding(.bottom, 18)
     }
 }
 
@@ -131,9 +127,10 @@ private struct AutoUpdateRow: View {
         ToggleRow(label: "Auto-install updates", accent: accent, isOn: $autoUpdate)
             .accessibilityIdentifier("AutoUpdate")
             .onChange(of: autoUpdate) { _, newValue in
-                guard let updater = Self.updater else { return }
-                updater.automaticallyChecksForUpdates = newValue
-                updater.automaticallyDownloadsUpdates = newValue
+                // Auto-install controls ONLY auto-download; whether Sparkle *checks* on a schedule is
+                // owned by UpdateFrequencyRow. Writing automaticallyChecksForUpdates here would
+                // silently disable scheduled checks while the frequency segment still showed Daily.
+                Self.updater?.automaticallyDownloadsUpdates = newValue
             }
             .onAppear {
                 if let updater = Self.updater {
@@ -220,6 +217,10 @@ private struct UpdateFrequencyRow: View {
                     updater.updateCheckInterval = interval
                 }
             }
+            .onAppear { syncSelection() }
+            .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
+                syncSelection() // reflect a settings import / external change
+            }
 
             Button("Check Now") {
                 guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
@@ -227,6 +228,17 @@ private struct UpdateFrequencyRow: View {
             }
             .font(.system(size: 12))
         }
+    }
+
+    private static var updater: SPUUpdater? {
+        (NSApplication.shared.delegate as? AppDelegate)?.updaterController.updater
+    }
+
+    private func syncSelection() {
+        guard let updater = Self.updater else { return }
+        // "Manually" whenever scheduled checks are off, regardless of the stored interval.
+        guard updater.automaticallyChecksForUpdates else { selectedIndex = 0; return }
+        selectedIndex = Self.intervals.firstIndex(of: updater.updateCheckInterval) ?? 2
     }
 }
 

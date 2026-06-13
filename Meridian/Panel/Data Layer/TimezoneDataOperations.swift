@@ -158,6 +158,24 @@ extension TimezoneDataOperations {
         return subtitle
     }
 
+    /// v4 single-line menu-bar string: "[name] [day] time [date]" composed from the menubar toggles
+    /// (README §G density presets). The colored dot, when enabled, is drawn separately by the status
+    /// item view. The legacy two-line `compactMenuTitle`/`Subtitle` are unchanged.
+    func compactMenuOneLine() -> String {
+        var parts: [String] = []
+        if store.shouldDisplay(.placeInMenubar) {
+            parts.append(dataObject.formattedTimezoneLabel())
+        }
+        if store.shouldShowDayInMenubar() {
+            parts.append(date(with: 0, displayType: .menu)) // short weekday, e.g. "Mon"
+        }
+        parts.append(time(with: 0))
+        if store.shouldShowDateInMenubar() {
+            parts.append(Date().formatter(with: "d MMM", timeZone: dataObject.timezone()))
+        }
+        return parts.joined(separator: " ")
+    }
+
     private func timezoneDate(with sliderValue: Int, _ calendar: Calendar) -> Date {
         let source = timezoneDateByAdding(minutesToAdd: sliderValue, calendar)
         let sourceTimezone = TimeZone.current

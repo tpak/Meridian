@@ -38,6 +38,7 @@ final class CityListModel: ObservableObject {
     }
 
     @Published private(set) var rows: [SettingsCityRow] = []
+    @Published private(set) var effectiveHomeID: String = ""
     @Published var sort: SortMode = .timeDiff { didSet { reload() } }
 
     private let store = DataStore.shared()
@@ -45,8 +46,10 @@ final class CityListModel: ObservableObject {
 
     init() {
         reload()
+        // Debounced: didChangeNotification fires for ANY process-wide write. reload() also diffs
+        // before publishing, so unrelated writes don't churn the SwiftUI list.
         NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
-            .receive(on: RunLoop.main)
+            .debounce(for: .milliseconds(250), scheduler: RunLoop.main)
             .sink { [weak self] _ in self?.reload() }
             .store(in: &cancellables)
     }
@@ -54,6 +57,15 @@ final class CityListModel: ObservableObject {
     // MARK: Derived state
 
     var homeTimezoneID: String? { DaybreakDefaults.homeTimezoneID }
+
+    /// The home timezone the UI should reflect: the user's choice, or the current location when
+    /// unset (DaybreakDefaults documents nil-home as "tracks the current location").
+    private func resolvedHome(_ objects: [TimezoneData]) -> String {
+        if let id = DaybreakDefaults.homeTimezoneID { return id }
+        let currentID = TimeZone.current.identifier
+        let match = objects.first { $0.isSystemTimezone } ?? objects.first { $0.timezone() == currentID }
+        return match?.timezone() ?? currentID
+    }
 
     private func currentLocationIdentity(_ objects: [TimezoneData]) -> String? {
         let currentID = TimeZone.current.identifier
@@ -72,7 +84,7 @@ final class CityListModel: ObservableObject {
     func reload() {
         let objects = store.timezoneObjects()
         let currentIdentity = currentLocationIdentity(objects)
-        let homeID = DaybreakDefaults.homeTimezoneID
+        let homeID = resolvedHome(objects)
         let now = Date()
         let currentTZ = TimeZone.current
 
@@ -95,9 +107,14 @@ final class CityListModel: ObservableObject {
             )
         }
 
+        // Stable, numeric-aware ordering with an id tiebreaker so equal keys don't shuffle on reload.
+        func less(_ lhsKey: String, _ lhsID: String, _ rhsKey: String, _ rhsID: String) -> Bool {
+            let c = lhsKey.localizedStandardCompare(rhsKey)
+            return c == .orderedSame ? lhsID < rhsID : c == .orderedAscending
+        }
         switch sort {
-        case .name: built.sort { $0.region.localizedCompare($1.region) == .orderedAscending }
-        case .label: built.sort { $0.label.localizedCompare($1.label) == .orderedAscending }
+        case .name: built.sort { less($0.region, $0.id, $1.region, $1.id) }
+        case .label: built.sort { less($0.label, $0.id, $1.label, $1.id) }
         case .timeDiff: break // keep stored order (already time-ordered by user)
         }
 
@@ -107,7 +124,8 @@ final class CityListModel: ObservableObject {
             built.insert(row, at: 0)
         }
 
-        rows = built
+        effectiveHomeID = homeID
+        if built != rows { rows = built } // diff so identical rebuilds don't churn the list
     }
 
     // MARK: Mutations
@@ -138,8 +156,14 @@ final class CityListModel: ObservableObject {
         NotificationCenter.default.post(name: .customLabelChanged, object: nil)
     }
 
+    /// Reordering is only honored in manual (time-diff) order with pin-to-top OFF, because pinning
+    /// makes the displayed order diverge from the stored order — applying display offsets to the
+    /// stored array would corrupt it. `CitiesPane` only offers the drag affordance under the same
+    /// condition (see `canReorder`).
+    var canReorder: Bool { sort == .timeDiff && !DaybreakDefaults.pinCurrentToTop }
+
     func move(fromOffsets: IndexSet, toOffset: Int) {
-        guard sort == .timeDiff else { return } // reordering only meaningful in manual order
+        guard canReorder else { return }
         var objects = store.timezoneObjects()
         objects.move(fromOffsets: fromOffsets, toOffset: toOffset)
         persist(objects)
@@ -148,6 +172,8 @@ final class CityListModel: ObservableObject {
     /// Add a timezone by IANA identifier (local, no geocoding). Geocoded city search is a follow-up.
     func addTimezone(identifier: String) {
         guard TimeZone(identifier: identifier) != nil else { return }
+        // Don't add a duplicate of a timezone already tracked.
+        guard !store.timezoneObjects().contains(where: { $0.timezone() == identifier }) else { return }
         let name = identifier.split(separator: "/").last.map(String.init)?
             .replacingOccurrences(of: "_", with: " ") ?? identifier
         // Coordinates 0/0 mark "unknown" (Daybreak falls back to a default sun window); a unique
@@ -158,12 +184,13 @@ final class CityListModel: ObservableObject {
         reload()
     }
 
-    /// Candidate IANA identifiers matching a query (for the add field).
+    /// Candidate IANA identifiers matching a query (for the add field), excluding already-tracked ones.
     func searchTimezones(_ query: String) -> [String] {
         let q = query.trimmingCharacters(in: .whitespaces).lowercased()
         guard !q.isEmpty else { return [] }
+        let existing = Set(store.timezoneObjects().map { $0.timezone() })
         return TimeZone.knownTimeZoneIdentifiers
-            .filter { $0.lowercased().contains(q) }
+            .filter { $0.lowercased().contains(q) && !existing.contains($0) }
             .prefix(20)
             .map { $0 }
     }
