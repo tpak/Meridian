@@ -63,13 +63,18 @@ private extension CitiesPane {
 
     var homeRow: some View {
         FormRow(label: "Home") {
-            Picker("", selection: homeBinding) {
+            // Custom-styled Menu (not a native Picker, which hugs its content and won't honor a
+            // fixed width) so it's the exact same box as "Currently in" and they align.
+            Menu {
                 ForEach(uniqueLocations) { option in
-                    Text(option.label).tag(option.id)
+                    Button(option.label) { model.setHome(timezoneID: option.id) }
                 }
+            } label: {
+                locationBox(homeLabel, showsChevron: true)
             }
-            .labelsHidden()
-            .frame(width: Self.locationControlWidth)
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize()
             Text("Always marked with the house")
                 .font(.system(size: 11))
                 .foregroundStyle(.tertiary)
@@ -78,24 +83,33 @@ private extension CitiesPane {
 
     var currentRow: some View {
         FormRow(label: "Currently in") {
-            Text(currentLocationLabel)
-                .font(.system(size: 12.5))
-                .lineLimit(1)
-                .padding(.horizontal, 11)
-                .padding(.vertical, 6)
-                .frame(width: Self.locationControlWidth, height: 24, alignment: .leading)
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.primary.opacity(0.05))
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.primary.opacity(0.08), lineWidth: 1)
-                )
+            locationBox(currentLocationLabel, showsChevron: false)
             Text("Auto-detected when you travel")
                 .font(.system(size: 11))
                 .foregroundStyle(.tertiary)
         }
+    }
+
+    /// Shared 200×26 control box used by both Home and Currently-in so they align exactly.
+    func locationBox(_ text: String, showsChevron: Bool) -> some View {
+        HStack(spacing: 6) {
+            Text(text).font(.system(size: 12.5)).lineLimit(1).foregroundStyle(.primary)
+            Spacer(minLength: 0)
+            if showsChevron {
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.horizontal, 11)
+        .frame(width: Self.locationControlWidth, height: 26, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.05)))
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.primary.opacity(0.08), lineWidth: 1))
+        .contentShape(Rectangle())
+    }
+
+    var homeLabel: String {
+        uniqueLocations.first(where: { $0.id == model.effectiveHomeID })?.label ?? "—"
     }
 
     /// Unique options for the Home picker — display the friendly label, and avoid duplicate tags
