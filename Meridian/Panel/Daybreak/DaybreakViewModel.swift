@@ -173,14 +173,19 @@ final class DaybreakViewModel: ObservableObject {
     }
 
     private func observeExternalChanges() {
+        // Debounced: UserDefaults.didChangeNotification fires for ANY process-wide write; coalesce
+        // bursts. recompute() is also self-guarded (only publishes when the snapshot actually changes).
         NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
-            .receive(on: RunLoop.main)
+            .debounce(for: .milliseconds(200), scheduler: RunLoop.main)
             .sink { [weak self] _ in self?.recompute() }
             .store(in: &cancellables)
 
         NotificationCenter.default.publisher(for: NSNotification.Name("NSSystemTimeZoneDidChangeNotification"))
             .receive(on: RunLoop.main)
-            .sink { [weak self] _ in self?.refresh() }
+            .sink { [weak self] _ in
+                DaybreakComputation.invalidate() // sunrise/sunset windows depend on the system zone
+                self?.refresh()
+            }
             .store(in: &cancellables)
     }
 
@@ -297,24 +302,29 @@ final class DaybreakViewModel: ObservableObject {
                                              currentLocalMinutes: heroLocalMinutes,
                                              weekdayShort: string(shortWeekday, referenceDate(), heroTZ))
 
-        // Local midnights of the current location within the travel range.
-        let nowLocal = DaybreakComputation.localMinutes(reference: now, timeZone: heroTZ)
-        let firstMidnightDelta = (1440 - nowLocal) % 1440
+        // Walk *true* local midnights of the current location within the travel range. Stepping a
+        // fixed 1440 minutes would drift on DST-transition days (23/25h); `Calendar` advances days
+        // correctly, so markers and labels stay pinned to real midnights.
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = heroTZ
+        let rangeStart = now.addingTimeInterval(TimeInterval(range.lowerBound * 60))
+        let rangeEnd = now.addingTimeInterval(TimeInterval(range.upperBound * 60))
+        var midnight = calendar.startOfDay(for: rangeStart)
+        if midnight < rangeStart {
+            midnight = calendar.date(byAdding: .day, value: 1, to: midnight) ?? rangeEnd.addingTimeInterval(1)
+        }
         var markers: [DaybreakDayMarker] = []
-        var k = Int((Double(range.lowerBound - firstMidnightDelta) / 1440).rounded(.down))
-        while true {
-            let delta = firstMidnightDelta + k * 1440
-            k += 1
-            if delta < range.lowerBound { continue }
-            if delta > range.upperBound { break }
-            let date = now.addingTimeInterval(TimeInterval(delta * 60))
-            let ordinal = DaybreakComputation.dayOrdinal(reference: date, timeZone: heroTZ)
+        while midnight <= rangeEnd {
+            let delta = Int((midnight.timeIntervalSince(now) / 60).rounded())
+            let ordinal = DaybreakComputation.dayOrdinal(reference: midnight, timeZone: heroTZ)
             markers.append(DaybreakDayMarker(
                 id: delta,
                 fraction: Double(delta - range.lowerBound) / Double(span),
-                label: string(markerDate, date, heroTZ),
+                label: string(markerDate, midnight, heroTZ),
                 isToday: ordinal == heroOrdinal
             ))
+            guard let next = calendar.date(byAdding: .day, value: 1, to: midnight) else { break }
+            midnight = next
         }
 
         return DaybreakScrubberData(

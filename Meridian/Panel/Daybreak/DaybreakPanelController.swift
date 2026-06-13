@@ -22,7 +22,7 @@ final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
     convenience init() {
         let panel = DaybreakPanel(
             contentRect: NSRect(x: 0, y: 0, width: 458, height: 520),
-            styleMask: [.borderless, .nonactivatingPanel],
+            styleMask: [.borderless],
             backing: .buffered,
             defer: false
         )
@@ -82,6 +82,7 @@ final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
 
     func hidePanel() {
         viewModel.stopTicking()
+        anchorButton?.state = .off // keep the menu-bar highlight in sync on every dismiss path
         window?.orderOut(nil)
     }
 
@@ -97,10 +98,7 @@ final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
 
     private func position(_ panel: NSPanel, under button: NSStatusBarButton) {
         guard let buttonWindow = button.window else {
-            if let screen = NSScreen.main {
-                panel.center()
-                _ = screen
-            }
+            panel.center()
             return
         }
         let buttonRect = buttonWindow.convertToScreen(button.convert(button.bounds, to: nil))
@@ -110,7 +108,7 @@ final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
         // Center the 378px body (inset by bodyInsetX) under the status item.
         var left = buttonRect.midX - (bodyInsetX + bodyWidth / 2)
         if let visible = screen?.visibleFrame {
-            left = max(visible.minX + 4, min(left, visible.maxX - width + 4))
+            left = max(visible.minX + 4, min(left, visible.maxX - width - 4))
         }
         // Align the body's top to just under the menu-bar item (the transparent top inset overlaps
         // the bar harmlessly).

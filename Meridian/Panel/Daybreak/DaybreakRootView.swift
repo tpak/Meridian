@@ -17,6 +17,7 @@ struct DaybreakRootView: View {
     @State private var editingID: String?
     @State private var editText: String = ""
     @State private var paletteTick = 0
+    @State private var lastThemeRaw = DataStore.shared().theme.rawValue
 
     private var palette: DaybreakPalette {
         _ = paletteTick // re-resolve when prefs change
@@ -73,7 +74,13 @@ struct DaybreakRootView: View {
         .padding(.bottom, 44)
         .preferredColorScheme(themeOverride)
         .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
-            paletteTick &+= 1
+            // Only re-resolve the palette when the Theme preference actually changed (system
+            // light/dark is already handled by @Environment). Avoids churning on unrelated writes.
+            let raw = DataStore.shared().theme.rawValue
+            if raw != lastThemeRaw {
+                lastThemeRaw = raw
+                paletteTick &+= 1
+            }
         }
     }
 

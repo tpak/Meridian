@@ -55,7 +55,9 @@ enum DaybreakComputation {
         guard let lat = latitude, let lon = longitude, !(lat == 0 && lon == 0) else { return nil }
 
         let ordinal = dayOrdinal(reference: reference, timeZone: timeZone)
-        let key = "\(timezoneID)#\(ordinal)"
+        // Key includes coordinates (rounded for stability): two cities can share a timezone
+        // (e.g. New York + Atlanta) but have materially different sunrise/sunset.
+        let key = "\(timezoneID)#\(ordinal)#\(round(lat * 1000))#\(round(lon * 1000))"
         if let cached = solarCache[key] { return cached } // value may itself be nil (cached miss)
 
         let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lon)
@@ -65,6 +67,7 @@ enum DaybreakComputation {
             window = SunWindow(sunrise: localMinutes(reference: sunrise, timeZone: timeZone),
                                sunset: localMinutes(reference: sunset, timeZone: timeZone))
         }
+        if solarCache.count > 512 { solarCache.removeAll() } // bound growth across many days/cities
         solarCache[key] = window
         return window
     }

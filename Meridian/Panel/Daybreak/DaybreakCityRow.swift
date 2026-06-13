@@ -26,7 +26,7 @@ struct DaybreakCityRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(city.name)
-                        .font(.system(size: 14.5, weight: .semibold))
+                        .font(DaybreakFont.text(14.5, 580))
                         .foregroundStyle(palette.text)
                         .lineLimit(1)
                     if city.isHome {
@@ -78,12 +78,13 @@ struct DaybreakCityRow: View {
                 .overlay(RoundedRectangle(cornerRadius: 7).stroke(palette.editFieldBorder, lineWidth: 1))
                 .onSubmit(onCommit)
                 .onExitCommand(perform: onCancel)
+                .onChange(of: focused) { _, isFocused in if !isFocused { onCommit() } }
                 .onAppear { focused = true }
         } else {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text(city.time)
-                    .font(.system(size: 20, weight: .semibold))
-                    .monospacedDigit()
+                    .font(DaybreakFont.digit(20, 600))
+                    .tracking(20 * -0.02)
                     .foregroundStyle(palette.text)
                 if !city.period.isEmpty {
                     Text(city.period)

@@ -151,6 +151,12 @@ enum DaybreakEngine {
 
     // MARK: - Time parser (README §E)
 
+    /// Compiled once: `^(\d{1,2})(:(\d{2}))?\s*([ap]\.?m?\.?)?$`. Force-try is safe — a broken
+    /// compile-time literal is a programmer error, not a runtime condition.
+    private static let timeRegex = try! NSRegularExpression(
+        pattern: "^([0-9]{1,2})(?::([0-9]{2}))?\\s*([ap]\\.?m?\\.?)?$", options: []
+    )
+
     /// Parse a user-entered time into minutes since midnight, or `nil` if unparseable.
     /// Accepts `3:30 PM`, `15:30`, `3pm`, `3`, `12:00 AM`, etc. (README §E lists 24h support, so
     /// this is intentionally a touch more lenient than the prototype regex, which required am/pm).
@@ -158,11 +164,8 @@ enum DaybreakEngine {
         let s = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if s.isEmpty { return nil }
 
-        // ^(\d{1,2})(:(\d{2}))?\s*([ap]\.?m?\.?)?$
-        let pattern = "^([0-9]{1,2})(?::([0-9]{2}))?\\s*([ap]\\.?m?\\.?)?$"
-        guard let re = try? NSRegularExpression(pattern: pattern, options: []) else { return nil }
         let range = NSRange(s.startIndex..<s.endIndex, in: s)
-        guard let match = re.firstMatch(in: s, options: [], range: range) else { return nil }
+        guard let match = timeRegex.firstMatch(in: s, options: [], range: range) else { return nil }
 
         func group(_ i: Int) -> String? {
             let r = match.range(at: i)

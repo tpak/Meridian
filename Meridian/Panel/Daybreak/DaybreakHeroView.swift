@@ -64,12 +64,13 @@ struct DaybreakHeroView: View {
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.white.opacity(0.4), lineWidth: 1))
                 .onSubmit(onCommit)
                 .onExitCommand(perform: onCancel)
+                .onChange(of: focused) { _, isFocused in if !isFocused { onCommit() } }
                 .onAppear { focused = true }
         } else {
             HStack(alignment: .firstTextBaseline, spacing: 5) {
                 Text(hero.time)
-                    .font(.system(size: 47, weight: .bold))
-                    .monospacedDigit()
+                    .font(DaybreakFont.digit(47, 640))
+                    .tracking(47 * -0.03)
                     .foregroundStyle(.white)
                 if !hero.period.isEmpty {
                     Text(hero.period)

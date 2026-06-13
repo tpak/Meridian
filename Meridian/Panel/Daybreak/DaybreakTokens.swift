@@ -13,6 +13,40 @@
 // livery is reserved for the Settings window.
 
 import SwiftUI
+import AppKit
+
+/// Precise font weights + tabular digits matching the design's CSS weights (e.g. 640, 580), which
+/// don't map onto SwiftUI's named `Font.Weight` cases. Bridges through `NSFont` so we also get true
+/// monospaced (tabular) digits for the times.
+enum DaybreakFont {
+    /// Map a CSS font-weight (100–900) to an `NSFont.Weight` by interpolating standard anchors.
+    static func nsWeight(_ css: Double) -> NSFont.Weight {
+        let anchors: [(css: Double, w: CGFloat)] = [
+            (100, -0.8), (200, -0.6), (300, -0.4), (400, 0), (500, 0.23),
+            (600, 0.3), (700, 0.4), (800, 0.56), (900, 0.62)
+        ]
+        if css <= anchors.first!.css { return NSFont.Weight(anchors.first!.w) }
+        if css >= anchors.last!.css { return NSFont.Weight(anchors.last!.w) }
+        for i in 0..<(anchors.count - 1) {
+            let lo = anchors[i], hi = anchors[i + 1]
+            if css >= lo.css && css <= hi.css {
+                let f = CGFloat((css - lo.css) / (hi.css - lo.css))
+                return NSFont.Weight(lo.w + (hi.w - lo.w) * f)
+            }
+        }
+        return .regular
+    }
+
+    /// Tabular-figure font at an exact CSS weight (for times).
+    static func digit(_ size: CGFloat, _ css: Double) -> Font {
+        Font(NSFont.monospacedDigitSystemFont(ofSize: size, weight: nsWeight(css)))
+    }
+
+    /// Proportional system font at an exact CSS weight (for names/labels).
+    static func text(_ size: CGFloat, _ css: Double) -> Font {
+        Font(NSFont.systemFont(ofSize: size, weight: nsWeight(css)))
+    }
+}
 
 /// 0–255 RGB(A) → SwiftUI sRGB Color. Local helper to avoid colliding with any app-wide hex init.
 private func rgb(_ r: Double, _ g: Double, _ b: Double, _ a: Double = 1) -> Color {
