@@ -258,7 +258,7 @@ final class DaybreakViewModel: ObservableObject {
         return DaybreakHeroData(
             eyebrow: eyebrow,
             time: time, period: period,
-            subline: "\(eventString) · \(dateString)",
+            subline: showSunriseSunset ? "\(eventString) · \(dateString)" : dateString,
             hoverSubline: "\(utcLabel(timeZone, reference)) · \(dateString)",
             phase: phase, localMinutes: localMinutes
         )
@@ -280,6 +280,7 @@ final class DaybreakViewModel: ObservableObject {
         }
 
         let event = DaybreakEngine.nextSunEvent(localMinutes: local, sunrise: window.sunrise, sunset: window.sunset)
+        let hover = "\(utcLabel(tz, reference)) · \(string(hoverDate, reference, tz))"
 
         return DaybreakCityData(
             id: cityIdentity(city),
@@ -288,8 +289,8 @@ final class DaybreakViewModel: ObservableObject {
             phase: phase,
             time: time, period: period,
             offsetLabel: offsetLabel,
-            nextEventLabel: eventLabel(event),
-            hoverLabel: "\(utcLabel(tz, reference)) · \(string(hoverDate, reference, tz))",
+            nextEventLabel: showSunriseSunset ? eventLabel(event) : hover,
+            hoverLabel: hover,
             localMinutes: local
         )
     }
@@ -346,6 +347,10 @@ final class DaybreakViewModel: ObservableObject {
                                              timeZone: timeZone,
                                              timezoneID: timeZone.identifier) ?? DaybreakComputation.fallbackSunWindow
     }
+
+    /// Settings → Appearance → "Sunrise / sunset". When off, the next-sun-event sub-labels are
+    /// suppressed (rows fall back to the UTC line; the hero subline shows just the date).
+    private var showSunriseSunset: Bool { store.showSunriseSunset }
 
     private func formatTime(_ minutes: Int) -> (time: String, period: String) {
         switch store.timeFormat {

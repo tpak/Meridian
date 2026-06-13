@@ -67,6 +67,10 @@ entitlements unchanged ✅.
   locally; wiring the existing CLGeocoder path for "Denver, CO"-style city search is a follow-up.
 - **Visual fine-tuning** — popover notch offset, menu-bar dot baseline, and exact paddings couldn't be
   eyeballed headlessly; expect small tweaks after your visual pass.
+- **"Day display" pref → Daybreak** — the Appearance "Day display" segment (Relative/Actual/Date/Hide)
+  isn't yet read by the popover, which uses its own day-tag scheme (`+2d`/`tmrw`). Needs a design
+  decision on how the four modes map to the v4 row sub-label before wiring (or hide the control in v4).
+  *(Sunrise/sunset toggle, Text size, and Show Time Scroller are now wired.)*
 
 **Ship path:** UAT → sign off → either cut a Sparkle `4.0.0-betaN` to widen testing, or `make release
 VERSION=4.0.0` for GA (after localization). The redesign lives only on `feature/v4-redesign`; `main` is

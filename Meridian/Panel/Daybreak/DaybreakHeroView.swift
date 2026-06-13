@@ -9,6 +9,7 @@ import SwiftUI
 struct DaybreakHeroView: View {
     let hero: DaybreakHeroData
     let palette: DaybreakPalette
+    var scale: CGFloat = 1
     let isEditing: Bool
     @Binding var editText: String
     var onBeginEdit: () -> Void
@@ -21,22 +22,22 @@ struct DaybreakHeroView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(hero.eyebrow)
-                .font(.system(size: 11, weight: .semibold))
-                .tracking(1.0)
+                .font(.system(size: 11 * scale, weight: .semibold))
+                .tracking(1.0 * scale)
                 .textCase(.uppercase)
                 .foregroundStyle(DaybreakHeroText.eyebrow)
                 .lineLimit(1)
 
             timeRow
-                .frame(height: 50, alignment: .center)
+                .frame(height: 50 * scale, alignment: .center)
                 .padding(.top, 5)
 
             Text(hovering ? hero.hoverSubline : hero.subline)
-                .font(.system(size: 12.5))
+                .font(.system(size: 12.5 * scale))
                 .foregroundStyle(DaybreakHeroText.subline)
                 .padding(.top, 7)
                 .lineLimit(1)
-                .frame(minHeight: 16, alignment: .leading)
+                .frame(minHeight: 16 * scale, alignment: .leading)
         }
         .padding(EdgeInsets(top: 18, leading: 21, bottom: 20, trailing: 21))
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -53,7 +54,7 @@ struct DaybreakHeroView: View {
         if isEditing {
             TextField("", text: $editText)
                 .textFieldStyle(.plain)
-                .font(.system(size: 34, weight: .bold))
+                .font(.system(size: 34 * scale, weight: .bold))
                 .monospacedDigit()
                 .foregroundStyle(.white)
                 .focused($focused)
@@ -69,12 +70,12 @@ struct DaybreakHeroView: View {
         } else {
             HStack(alignment: .firstTextBaseline, spacing: 5) {
                 Text(hero.time)
-                    .font(DaybreakFont.digit(47, 640))
-                    .tracking(47 * -0.03)
+                    .font(DaybreakFont.digit(47 * scale, 640))
+                    .tracking(47 * scale * -0.03)
                     .foregroundStyle(.white)
                 if !hero.period.isEmpty {
                     Text(hero.period)
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(.system(size: 18 * scale, weight: .semibold))
                         .foregroundStyle(DaybreakHeroText.period)
                 }
             }

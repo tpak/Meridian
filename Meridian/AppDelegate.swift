@@ -25,6 +25,17 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
             panelController.openPreferencesWindow()
         }
     }
+
+    /// The app menu's "Preferences… ⌘," item ships from MainMenu.xib with no action connected, so the
+    /// shortcut was dead. Connect it to the routed Settings opener (works in both menubar-only and
+    /// dock activation modes).
+    private func wirePreferencesMenuItem() {
+        guard let appMenu = NSApp.mainMenu?.items.first?.submenu else { return }
+        for item in appMenu.items where item.keyEquivalent == "," && item.action == nil {
+            item.target = self
+            item.action = #selector(openSettingsRouted)
+        }
+    }
     private lazy var statusBarHandler: StatusItemHandler = StatusItemHandler(with: DataStore.shared())
     lazy var updaterController: SPUStandardUpdaterController = {
         SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: self, userDriverDelegate: nil)
@@ -45,6 +56,7 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         }
         enableAutoUpdateByDefault()
         backfillMissingCoordinates()
+        wirePreferencesMenuItem()
         continueUsually()
         setupMemoryPressureMonitoring()
         reopenAppearanceIfRelaunchedForTeamAccent()

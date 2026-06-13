@@ -18,6 +18,8 @@ struct DaybreakRootView: View {
     @State private var editText: String = ""
     @State private var paletteTick = 0
     @State private var lastThemeRaw = DataStore.shared().theme.rawValue
+    @AppStorage("com.tpak.meridian.v4.textScale") private var textScale = 1.0
+    @AppStorage("showFutureSlider") private var showScrubber = true
 
     private var palette: DaybreakPalette {
         _ = paletteTick // re-resolve when prefs change
@@ -44,6 +46,7 @@ struct DaybreakRootView: View {
             DaybreakHeroView(
                 hero: snapshot.hero,
                 palette: palette,
+                scale: CGFloat(textScale),
                 isEditing: editingID == "hero",
                 editText: $editText,
                 onBeginEdit: { beginEdit(id: "hero", time: snapshot.hero.time, period: snapshot.hero.period) },
@@ -53,13 +56,15 @@ struct DaybreakRootView: View {
 
             cityCards(snapshot)
 
-            DaybreakScrubber(
-                data: snapshot.scrubber,
-                palette: palette,
-                onScrubFraction: { viewModel.setOffsetFromFraction($0) },
-                onNudge: { viewModel.nudge(forward: $0) },
-                onReset: { viewModel.reset() }
-            )
+            if showScrubber {
+                DaybreakScrubber(
+                    data: snapshot.scrubber,
+                    palette: palette,
+                    onScrubFraction: { viewModel.setOffsetFromFraction($0) },
+                    onNudge: { viewModel.nudge(forward: $0) },
+                    onReset: { viewModel.reset() }
+                )
+            }
 
             footer(snapshot)
         }
@@ -98,6 +103,7 @@ struct DaybreakRootView: View {
                     DaybreakCityRow(
                         city: city,
                         palette: palette,
+                        scale: CGFloat(textScale),
                         isEditing: editingID == city.id,
                         editText: $editText,
                         onBeginEdit: { beginEdit(id: city.id, time: city.time, period: city.period) },

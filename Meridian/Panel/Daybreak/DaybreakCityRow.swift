@@ -9,6 +9,7 @@ import SwiftUI
 struct DaybreakCityRow: View {
     let city: DaybreakCityData
     let palette: DaybreakPalette
+    var scale: CGFloat = 1
     let isEditing: Bool
     @Binding var editText: String
     var onBeginEdit: () -> Void
@@ -26,12 +27,12 @@ struct DaybreakCityRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(city.name)
-                        .font(DaybreakFont.text(14.5, 580))
+                        .font(DaybreakFont.text(14.5 * scale, 580))
                         .foregroundStyle(palette.text)
                         .lineLimit(1)
                     if city.isHome {
                         Text("⌂")
-                            .font(.system(size: 11))
+                            .font(.system(size: 11 * scale))
                             .foregroundStyle(palette.textTertiary)
                             .padding(.horizontal, 5)
                             .overlay(RoundedRectangle(cornerRadius: 5).stroke(palette.hairline, lineWidth: 1))
@@ -39,7 +40,7 @@ struct DaybreakCityRow: View {
                     }
                 }
                 Text(hovering ? city.hoverLabel : city.nextEventLabel)
-                    .font(.system(size: 11.5))
+                    .font(.system(size: 11.5 * scale))
                     .foregroundStyle(hovering ? palette.accent : palette.textSecondary)
                     .lineLimit(1)
             }
@@ -49,7 +50,7 @@ struct DaybreakCityRow: View {
             VStack(alignment: .trailing, spacing: 1) {
                 timeView
                 Text(city.offsetLabel)
-                    .font(.system(size: 11))
+                    .font(.system(size: 11 * scale))
                     .monospacedDigit()
                     .foregroundStyle(palette.textTertiary)
                     .lineLimit(1)
@@ -67,7 +68,7 @@ struct DaybreakCityRow: View {
             TextField("", text: $editText)
                 .textFieldStyle(.plain)
                 .multilineTextAlignment(.trailing)
-                .font(.system(size: 17, weight: .semibold))
+                .font(.system(size: 17 * scale, weight: .semibold))
                 .monospacedDigit()
                 .foregroundStyle(palette.text)
                 .focused($focused)
@@ -83,12 +84,12 @@ struct DaybreakCityRow: View {
         } else {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text(city.time)
-                    .font(DaybreakFont.digit(20, 600))
-                    .tracking(20 * -0.02)
+                    .font(DaybreakFont.digit(20 * scale, 600))
+                    .tracking(20 * scale * -0.02)
                     .foregroundStyle(palette.text)
                 if !city.period.isEmpty {
                     Text(city.period)
-                        .font(.system(size: 11))
+                        .font(.system(size: 11 * scale))
                         .foregroundStyle(palette.textSecondary)
                 }
             }

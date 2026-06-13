@@ -176,10 +176,12 @@ final class CityListModel: ObservableObject {
         guard !store.timezoneObjects().contains(where: { $0.timezone() == identifier }) else { return }
         let name = identifier.split(separator: "/").last.map(String.init)?
             .replacingOccurrences(of: "_", with: " ") ?? identifier
-        // Coordinates 0/0 mark "unknown" (Daybreak falls back to a default sun window); a unique
-        // placeID keeps TimezoneData equality stable.
         let data = TimezoneData.make(timezoneID: identifier, name: name, customLabel: "",
                                      latitude: 0, longitude: 0, placeIdentifier: UUID().uuidString)
+        // Leave coordinates nil (not 0/0) so AppDelegate.backfillMissingCoordinates geocodes this
+        // city on next launch and Daybreak gets real sunrise/sunset instead of the fallback window.
+        data.latitude = nil
+        data.longitude = nil
         store.addTimezone(data)
         reload()
     }
