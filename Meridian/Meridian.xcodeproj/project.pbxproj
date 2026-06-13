@@ -68,6 +68,7 @@
 		818B546B7B8B47D88692CD80 /* GlobalShortcutMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC776853CC4796AD9A1DC6 /* GlobalShortcutMonitor.swift */; };
 		85D71A359BCFE2E9E34B935E /* DaybreakComputation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521A64985874687A5A3FA691 /* DaybreakComputation.swift */; };
 		919639F9D2F3GLOBALSHRTCUT /* GlobalShortcutMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */; };
+		9218AD8C74DEC9F8B61FDE0D /* DaybreakCityRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B267A5521577F184518ED6A /* DaybreakCityRow.swift */; };
 		9A0A1C8C20903DBD0012003B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A9E87651C1FEDC500A7A2DF /* CoreLocation.framework */; };
 		9A13BAD61CA87F08007C6CBE /* Panel.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9A13BAD81CA87F08007C6CBE /* Panel.xib */; };
 		9A13BAE01CA882FA007C6CBE /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = EE11AA0100INFOPLISTXCS1 /* InfoPlist.xcstrings */; };
@@ -98,6 +99,7 @@
 		A1B2C3D400000003NWTEST01 /* NetworkManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D400000004NWTEST02 /* NetworkManagerTests.swift */; };
 		A1B2C3D4E5F60002SEARCH02 /* TimezoneSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60001SEARCH01 /* TimezoneSearchService.swift */; };
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* PanelDragHandleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F3 /* PanelDragHandleView.swift */; };
+		A3F8F2E857A598EBE486E0BF /* SunMoonDisc.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30F79A6035950B04509CDBC /* SunMoonDisc.swift */; };
 		A57187E72A5C9354E98EDD04 /* DaybreakEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE32A2F3B4B0AACCC2B86DB /* DaybreakEngineTests.swift */; };
 		AA000001SWIFTUI00000001 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000002SWIFTUI00000001 /* AboutView.swift */; };
 		AA00000400000002PREFSTB1 /* PreferencesStoryboardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000400000001PREFSTB2 /* PreferencesStoryboardTests.swift */; };
@@ -106,6 +108,7 @@
 		AA1B2C3D0002000000000001 /* TimezoneSortingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D0001000000000001 /* TimezoneSortingManager.swift */; };
 		AC11AA0100MBDTESTS00001 /* MenubarBlockDetectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC11AA0100MBDTESTS00002 /* MenubarBlockDetectionTests.swift */; };
 		B1C2D3E40002000000TZADD1 /* TimezoneAdditionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E40001000000TZADD2 /* TimezoneAdditionHandler.swift */; };
+		B4C63196324AE1E678CCDE91 /* DaybreakScrubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39808930164A8404E6C52BE9 /* DaybreakScrubber.swift */; };
 		B730E37E4596MOCKDATASTORE /* MockDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B730E37E4596MOCKDATASTO2 /* MockDataStore.swift */; };
 		BB00000100LOCCTRL00TEST1 /* LocationControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100LOCCTRL00TEST2 /* LocationControllerTests.swift */; };
 		C1C2D3E40002000000CHKBX1 /* CenteredCheckboxCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C2D3E40001000000CHKBX2 /* CenteredCheckboxCell.swift */; };
@@ -120,11 +123,15 @@
 		C4A3D93099C54195A921944E /* PanelContextMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527EBAA6C18049AE931DDE49 /* PanelContextMenu.swift */; };
 		CC11AA0100TZDATAOPSTEST1 /* TimezoneDataOperationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC11AA0100TZDATAOPSTEST2 /* TimezoneDataOperationsTests.swift */; };
 		D20426773C34F2E92954A92A /* DaybreakEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E678C0F403D43F32D0A8C97 /* DaybreakEngine.swift */; };
+		DCA05AB8E0247A612ED37AD7 /* DaybreakRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9037417AB982CA723B24BFC /* DaybreakRootView.swift */; };
 		DD11AA0100LOCALIZTNTEST1 /* LocalizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD11AA0100LOCALIZTNTEST2 /* LocalizationTests.swift */; };
 		DD4F7C0913C30F9F00825C6E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD4F7C0813C30F9F00825C6E /* Cocoa.framework */; };
+		DDADCE5AAC06C9C49B95437D /* DaybreakPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69CEC060FCB1C9A401226751 /* DaybreakPanelController.swift */; };
 		E1F2A3B400TMSCRLRVM0001 /* TimeScrollerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B400TMSCRLRVM0002 /* TimeScrollerViewModel.swift */; };
 		E1F2A3B400TMSCRLRVMTST1 /* TimeScrollerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B400TMSCRLRVMTST2 /* TimeScrollerViewModelTests.swift */; };
 		EE11AA0100ACCENTSWIZL01 /* AccentColorSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE11AA0100ACCENTSWIZL02 /* AccentColorSwizzler.swift */; };
+		EE689CC81F44B7AF616E49AF /* DaybreakHeroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B012D2C492832014C31EC314 /* DaybreakHeroView.swift */; };
+		FBD8146AD6CC37F20D053FA0 /* DaybreakPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19CC54BCDCA334EED4FE2B6D /* DaybreakPanel.swift */; };
 		FF11AA0100TESTFIXTURES01 /* TestFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF11AA0100TESTFIXTURES02 /* TestFixtures.swift */; };
 		SP000001SPARKLE00000001 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = SP000002SPARKLE00000002 /* Sparkle */; };
 /* End PBXBuildFile section */
@@ -147,6 +154,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0B267A5521577F184518ED6A /* DaybreakCityRow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakCityRow.swift; sourceTree = "<group>"; };
+		19CC54BCDCA334EED4FE2B6D /* DaybreakPanel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakPanel.swift; sourceTree = "<group>"; };
 		23D856F171624B8EBC360698 /* SettingsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		3508CC99259A0001000E3530 /* StatusItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemView.swift; sourceTree = "<group>"; };
 		3508CC9E259A000E000E3530 /* StatusItemHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemHandler.swift; sourceTree = "<group>"; };
@@ -200,10 +209,12 @@
 		35C36F902259EAF4002FA5C6 /* Preferences.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Preferences.storyboard; sourceTree = "<group>"; };
 		35C36FA32259EEC2002FA5C6 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = SOURCE_ROOT; };
 		35E65124268EDD2E00E3E1E3 /* Toasty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toasty.swift; sourceTree = "<group>"; };
+		39808930164A8404E6C52BE9 /* DaybreakScrubber.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakScrubber.swift; sourceTree = "<group>"; };
 		3DEE1440C33BTZSORTINGTST2 /* TimezoneSortingManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneSortingManagerTests.swift; sourceTree = "<group>"; };
 		4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManagerAsyncTests.swift; sourceTree = "<group>"; };
 		521A64985874687A5A3FA691 /* DaybreakComputation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakComputation.swift; sourceTree = "<group>"; };
 		527EBAA6C18049AE931DDE49 /* PanelContextMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelContextMenu.swift; sourceTree = "<group>"; };
+		69CEC060FCB1C9A401226751 /* DaybreakPanelController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakPanelController.swift; sourceTree = "<group>"; };
 		8A198021445E6EAE46061FEC /* DaybreakTokens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakTokens.swift; sourceTree = "<group>"; };
 		8CE32A2F3B4B0AACCC2B86DB /* DaybreakEngineTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakEngineTests.swift; sourceTree = "<group>"; };
 		8F07E77F40B9B35D281AB17B /* DaybreakViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakViewModel.swift; sourceTree = "<group>"; };
@@ -250,7 +261,9 @@
 		AA1B2C3D0001000000000001 /* TimezoneSortingManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimezoneSortingManager.swift; sourceTree = "<group>"; };
 		ABCC6DFEB0759DC6C7274F3D /* DaybreakDefaults.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakDefaults.swift; sourceTree = "<group>"; };
 		AC11AA0100MBDTESTS00002 /* MenubarBlockDetectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarBlockDetectionTests.swift; sourceTree = "<group>"; };
+		B012D2C492832014C31EC314 /* DaybreakHeroView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakHeroView.swift; sourceTree = "<group>"; };
 		B1C2D3E40001000000TZADD2 /* TimezoneAdditionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneAdditionHandler.swift; sourceTree = "<group>"; };
+		B30F79A6035950B04509CDBC /* SunMoonDisc.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SunMoonDisc.swift; sourceTree = "<group>"; };
 		B730E37E4596MOCKDATASTO2 /* MockDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDataStore.swift; sourceTree = "<group>"; };
 		BB00000100LOCCTRL00TEST2 /* LocationControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationControllerTests.swift; sourceTree = "<group>"; };
 		C1C2D3E40001000000CHKBX2 /* CenteredCheckboxCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CenteredCheckboxCell.swift; sourceTree = "<group>"; };
@@ -276,6 +289,7 @@
 		EE11AA0100ACCENTSWIZL02 /* AccentColorSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AccentColorSwizzler.swift; path = App/AccentColorSwizzler.swift; sourceTree = "<group>"; };
 		EE11AA0100INFOPLISTXCS1 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = InfoPlist.xcstrings; path = App/InfoPlist.xcstrings; sourceTree = "<group>"; };
 		EE11AA0100LOCALIZBLEXCS1 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = App/Localizable.xcstrings; sourceTree = "<group>"; };
+		F9037417AB982CA723B24BFC /* DaybreakRootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakRootView.swift; sourceTree = "<group>"; };
 		FF11AA0100TESTFIXTURES02 /* TestFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFixtures.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -471,6 +485,13 @@
 				521A64985874687A5A3FA691 /* DaybreakComputation.swift */,
 				ABCC6DFEB0759DC6C7274F3D /* DaybreakDefaults.swift */,
 				8F07E77F40B9B35D281AB17B /* DaybreakViewModel.swift */,
+				B30F79A6035950B04509CDBC /* SunMoonDisc.swift */,
+				B012D2C492832014C31EC314 /* DaybreakHeroView.swift */,
+				0B267A5521577F184518ED6A /* DaybreakCityRow.swift */,
+				39808930164A8404E6C52BE9 /* DaybreakScrubber.swift */,
+				F9037417AB982CA723B24BFC /* DaybreakRootView.swift */,
+				19CC54BCDCA334EED4FE2B6D /* DaybreakPanel.swift */,
+				69CEC060FCB1C9A401226751 /* DaybreakPanelController.swift */,
 			);
 			name = Daybreak;
 			path = Daybreak;
@@ -943,6 +964,13 @@
 				85D71A359BCFE2E9E34B935E /* DaybreakComputation.swift in Sources */,
 				5873E7194D70351E2442A779 /* DaybreakDefaults.swift in Sources */,
 				7D358619731E5E0BB57F42FD /* DaybreakViewModel.swift in Sources */,
+				A3F8F2E857A598EBE486E0BF /* SunMoonDisc.swift in Sources */,
+				EE689CC81F44B7AF616E49AF /* DaybreakHeroView.swift in Sources */,
+				9218AD8C74DEC9F8B61FDE0D /* DaybreakCityRow.swift in Sources */,
+				B4C63196324AE1E678CCDE91 /* DaybreakScrubber.swift in Sources */,
+				DCA05AB8E0247A612ED37AD7 /* DaybreakRootView.swift in Sources */,
+				FBD8146AD6CC37F20D053FA0 /* DaybreakPanel.swift in Sources */,
+				DDADCE5AAC06C9C49B95437D /* DaybreakPanelController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

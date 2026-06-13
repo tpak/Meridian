@@ -74,6 +74,8 @@ final class DaybreakViewModel: ObservableObject {
 
     @Published private(set) var snapshot: DaybreakSnapshot
     private(set) var travelOffsetMinutes: Int = 0
+    /// IANA id of the current-location (hero) timezone; used to resolve the hero's inline time edit.
+    private(set) var heroTimeZoneIdentifier: String = TimeZone.current.identifier
 
     private let store: DataStore
     private var now: Date
@@ -188,6 +190,7 @@ final class DaybreakViewModel: ObservableObject {
     }
 
     private func timeZoneForCity(id: String) -> TimeZone? {
+        if id == "hero" { return TimeZone(identifier: heroTimeZoneIdentifier) }
         let cities = store.timezoneObjects()
         if let match = cities.first(where: { cityIdentity($0) == id }) {
             return TimeZone(identifier: match.timezone())
@@ -208,6 +211,7 @@ final class DaybreakViewModel: ObservableObject {
         // ---- Current location (hero) ----
         let currentCity = currentLocationCity(in: cities)
         let heroTZID = currentCity?.timezone() ?? TimeZone.current.identifier
+        heroTimeZoneIdentifier = heroTZID
         let heroTZ = TimeZone(identifier: heroTZID) ?? .current
         let heroName = currentCity?.formattedTimezoneLabel() ?? Self.friendlyName(heroTZID)
         let heroWindow = sunWindow(for: currentCity, timeZone: heroTZ, reference: reference)

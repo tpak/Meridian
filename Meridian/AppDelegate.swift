@@ -8,6 +8,10 @@ import Sparkle
 @main
 open class AppDelegate: NSObject, NSApplicationDelegate {
     internal lazy var panelController = PanelController(windowNibName: .panel)
+    /// v4 "Daybreak" SwiftUI popover. When `useDaybreakPanel` is true the status-item click routes
+    /// here instead of the legacy `panelController`; flip the flag to fall back instantly.
+    internal lazy var daybreakPanelController = DaybreakPanelController()
+    private let useDaybreakPanel = true
     private lazy var statusBarHandler: StatusItemHandler = StatusItemHandler(with: DataStore.shared())
     lazy var updaterController: SPUStandardUpdaterController = {
         SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: self, userDriverDelegate: nil)
@@ -315,6 +319,11 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @IBAction open func togglePanel(_ sender: NSButton) {
+        if useDaybreakPanel, let button = sender as? NSStatusBarButton {
+            daybreakPanelController.toggle(relativeTo: button)
+            button.state = (daybreakPanelController.window?.isVisible == true) ? .on : .off
+            return
+        }
         panelController.showWindow(nil)
         panelController.setActivePanel(newValue: sender.state == .on)
         NSApp.activate(ignoringOtherApps: true)
