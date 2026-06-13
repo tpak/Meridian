@@ -37,6 +37,35 @@ class AppDefaults {
         // healed blob is what we write back.
         let healed = runHomeRowMigrationV1(on: timezones, defaults: defaults)
         store.setTimezones(healed)
+
+        // First launch with an empty list: seed the current timezone so the app isn't blank.
+        seedCurrentTimezoneIfFirstRun(store: store, defaults: defaults)
+    }
+
+    /// On the first launch that finds an empty timezone list, add the current system timezone as a
+    /// tracked city and mark it the current location (`isSystemTimezone`) — so "Currently in" and
+    /// the Daybreak hero are populated out of the box. It is deliberately NOT set as Home: the user
+    /// may be travelling when they first install, so Home stays unset for them to choose. Guarded by
+    /// a one-time flag so a list the user later empties on purpose is not re-seeded. Public for tests.
+    class func seedCurrentTimezoneIfFirstRun(store: DataStore, defaults: UserDefaults) {
+        guard !defaults.bool(forKey: UserDefaultKeys.firstRunTimezoneSeedV1) else { return }
+        guard store.timezones().isEmpty else { return }
+
+        let identifier = TimeZone.autoupdatingCurrent.identifier
+        let friendlyName = identifier.split(separator: "/").last
+            .map { $0.replacingOccurrences(of: "_", with: " ") } ?? identifier
+
+        let seeded = TimezoneData.make(timezoneID: identifier, name: friendlyName, customLabel: "",
+                                       latitude: 0, longitude: 0, placeIdentifier: UUID().uuidString)
+        seeded.isSystemTimezone = true
+        // Leave coordinates nil so AppDelegate.backfillMissingCoordinates (and LocationController,
+        // once location permission is granted) fill in real ones for sunrise/sunset.
+        seeded.latitude = nil
+        seeded.longitude = nil
+        store.addTimezone(seeded)
+
+        defaults.set(true, forKey: UserDefaultKeys.firstRunTimezoneSeedV1)
+        Logger.production("Seeded current timezone \(identifier) on first run")
     }
 
     /// One-time migration that converts legacy inverted-bool and int-encoded

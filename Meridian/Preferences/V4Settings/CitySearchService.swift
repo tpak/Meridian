@@ -21,6 +21,13 @@ struct CitySearchResult: Identifiable, Equatable {
     let kind: Kind
     let latitude: Double?
     let longitude: Double?
+
+    /// A copy carrying a different stored label — used to relabel an alias hit with the city the
+    /// user actually searched for (e.g. "Bangalore" instead of the zone's default "Calcutta").
+    func relabeled(_ newLabel: String) -> CitySearchResult {
+        CitySearchResult(id: id, title: title, timezoneID: timezoneID, label: newLabel,
+                         kind: kind, latitude: latitude, longitude: longitude)
+    }
 }
 
 enum CitySearchService {
@@ -37,6 +44,8 @@ enum CitySearchService {
     /// A token-level (or better) match against the timezone's own city name. Below this threshold
     /// the only hit was via a parent region or an alias keyword, so a geocode is worthwhile.
     private static let strongScore = 700
+    /// At or below this score the match came from an alias keyword, not the zone's own name.
+    private static let aliasScoreCeiling = 400
 
     /// Ranked local results for `query`, omitting any timezone already in `installed`.
     static func search(_ query: String, excluding installed: Set<String>) -> LocalResult {
@@ -44,20 +53,36 @@ enum CitySearchService {
         let tokens = normalized.split(separator: " ").map(String.init).filter { !$0.isEmpty }
         guard !tokens.isEmpty else { return LocalResult(results: [], hasStrongMatch: false) }
 
-        var scored: [(score: Int, entry: IndexEntry)] = []
+        var scored: [(score: Int, result: CitySearchResult)] = []
         for entry in index where !installed.contains(entry.result.timezoneID) {
             let value = score(entry, query: normalized, tokens: tokens)
-            if value > 0 { scored.append((value, entry)) }
+            guard value > 0 else { continue }
+            // An alias-tier hit means the user typed a city that ISN'T the zone's own name
+            // (e.g. "bangalore" → Asia/Calcutta). Relabel it with the matched alias so installing it
+            // is consistent with the geocoded path, instead of the zone's default city ("Calcutta").
+            if value <= aliasScoreCeiling, let alias = bestAlias(entry.aliasList, query: normalized, tokens: tokens) {
+                scored.append((value, entry.result.relabeled(alias)))
+            } else {
+                scored.append((value, entry.result))
+            }
         }
         scored.sort { lhs, rhs in
             lhs.score != rhs.score
                 ? lhs.score > rhs.score
-                : lhs.entry.result.title.localizedStandardCompare(rhs.entry.result.title) == .orderedAscending
+                : lhs.result.title.localizedStandardCompare(rhs.result.title) == .orderedAscending
         }
 
         let best = scored.first?.score ?? 0
-        let results = scored.prefix(maxResults).map { $0.entry.result }
+        let results = scored.prefix(maxResults).map { $0.result }
         return LocalResult(results: Array(results), hasStrongMatch: best >= strongScore)
+    }
+
+    /// The alias keyword that the query matched, Title-Cased for use as a label ("san francisco" →
+    /// "San Francisco"). Prefers a whole-query hit, then an all-tokens hit.
+    private static func bestAlias(_ aliases: [String], query: String, tokens: [String]) -> String? {
+        let match = aliases.first { $0.contains(query) }
+            ?? aliases.first { alias in tokens.allSatisfy { alias.contains($0) } }
+        return match?.capitalized
     }
 
     // MARK: - Scoring
@@ -84,7 +109,8 @@ enum CitySearchService {
         let result: CitySearchResult
         let cityName: String   // lowercased friendly last path component ("new york")
         let fullPath: String   // lowercased friendly full identifier ("america new york")
-        let aliases: String    // lowercased space-joined alias keywords
+        let aliases: String    // lowercased space-joined alias keywords (for scoring)
+        let aliasList: [String] // the same aliases, kept separate so a match can become a label
     }
 
     private static let index: [IndexEntry] = buildIndex()
@@ -99,7 +125,8 @@ enum CitySearchService {
                                      label: "UTC", kind: .timezone, latitude: nil, longitude: nil),
             cityName: "utc",
             fullPath: "utc",
-            aliases: "utc gmt universal coordinated zulu"
+            aliases: "utc gmt universal coordinated zulu",
+            aliasList: ["universal", "coordinated", "zulu"]
         ))
 
         for identifier in TimeZone.knownTimeZoneIdentifiers {
@@ -113,12 +140,14 @@ enum CitySearchService {
                 .replacingOccurrences(of: "/", with: " ")
                 .lowercased()
 
+            let aliasList = aliasMap[identifier] ?? []
             entries.append(IndexEntry(
                 result: CitySearchResult(id: identifier, title: title, timezoneID: identifier,
                                          label: label, kind: .timezone, latitude: nil, longitude: nil),
                 cityName: cityName,
                 fullPath: fullPath,
-                aliases: (aliasMap[identifier] ?? []).joined(separator: " ")
+                aliases: aliasList.joined(separator: " "),
+                aliasList: aliasList
             ))
         }
         return entries

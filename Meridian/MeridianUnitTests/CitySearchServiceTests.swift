@@ -12,6 +12,10 @@ final class CitySearchServiceTests: XCTestCase {
         CitySearchService.search(query, excluding: excluding).results.map { $0.timezoneID }
     }
 
+    private func label(_ query: String, forZone tz: String) -> String? {
+        CitySearchService.search(query, excluding: []).results.first { $0.timezoneID == tz }?.label
+    }
+
     // Bug 1: searching "UTC" returned nothing because "UTC" isn't in knownTimeZoneIdentifiers.
     func testFindsUTC() {
         XCTAssertEqual(ids("utc").first, "UTC")
@@ -66,5 +70,26 @@ final class CitySearchServiceTests: XCTestCase {
 
     func testResultCountIsCapped() {
         XCTAssertLessThanOrEqual(ids("america").count, CitySearchService.maxResults)
+    }
+
+    // Consistency: an alias hit must be labelled with the city the user typed, not the zone's
+    // default name — so adding "Bangalore" doesn't surprise the user with "Calcutta".
+    func testAliasMatchLabelsWithSearchedCity() {
+        XCTAssertEqual(label("bangalore", forZone: "Asia/Calcutta"), "Bangalore")
+        XCTAssertEqual(label("pune", forZone: "Asia/Calcutta"), "Pune")
+        XCTAssertEqual(label("seattle", forZone: "America/Los_Angeles"), "Seattle")
+    }
+
+    // A direct city-name hit keeps the zone's own city, not the (possibly partial) query.
+    func testNameMatchKeepsZoneCityLabel() {
+        XCTAssertEqual(label("san", forZone: "America/Argentina/San_Juan"), "San Juan")
+        XCTAssertEqual(label("new york", forZone: "America/New_York"), "New York")
+    }
+
+    // Guards Issue C: "new y" is a strong prefix of New York, so it must NOT trigger a geocode
+    // (which fuzzed into New Haven). hasStrongMatch == true is what suppresses the lookup.
+    func testPartialOfKnownCityIsStrongMatch() {
+        XCTAssertEqual(ids("new y").first, "America/New_York")
+        XCTAssertTrue(CitySearchService.search("new y", excluding: []).hasStrongMatch)
     }
 }

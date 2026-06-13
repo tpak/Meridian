@@ -193,9 +193,11 @@ final class CityListModel: ObservableObject {
         let local = CitySearchService.search(trimmed, excluding: installed)
         searchResults = local.results
 
-        // Fire the geocoder only when it can add value: a multi-word place query, or one the local
-        // index couldn't match by name. Debounced so we don't geocode on every keystroke.
-        guard trimmed.count >= 3, trimmed.contains(" ") || !local.hasStrongMatch else { return }
+        // Fire the geocoder only when the local index didn't already nail the city by name. That
+        // both avoids redundant lookups for direct hits AND prevents partial-word garbage: "new y"
+        // is a strong prefix of New York, so we keep the local result instead of geocoding "new y"
+        // into something unrelated like New Haven. Debounced so we don't geocode on every keystroke.
+        guard trimmed.count >= 3, !local.hasStrongMatch else { return }
         searchTask = Task { [weak self] in
             try? await Task.sleep(nanoseconds: 350_000_000)
             guard !Task.isCancelled else { return }
@@ -207,7 +209,8 @@ final class CityListModel: ObservableObject {
         guard let place = try? await NetworkManager.geocodeAddress(query),
               let timezone = place.timeZone,
               currentQuery == query,                       // a newer keystroke superseded us
-              !installed.contains(timezone.identifier)
+              !installed.contains(timezone.identifier),
+              Self.geocodeMatchesQuery(place, query: query)
         else { return }
 
         let label = place.cityName ?? place.formattedAddress ?? timezone.identifier
@@ -225,6 +228,17 @@ final class CityListModel: ObservableObject {
         var merged = searchResults.filter { $0.timezoneID != timezone.identifier }
         merged.insert(result, at: 0)
         searchResults = Array(merged.prefix(CitySearchService.maxResults))
+    }
+
+    /// Accept a geocode hit only if it actually starts with what the user typed. MapKit will happily
+    /// fuzz a partial query into a tangent ("new y" → New Haven, CT); this keeps those out so a
+    /// debounced lookup never replaces the right local result with an unrelated city.
+    private static func geocodeMatchesQuery(_ place: GeocodedPlace, query: String) -> Bool {
+        let needle = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !needle.isEmpty else { return false }
+        let city = (place.cityName ?? "").lowercased()
+        let address = (place.formattedAddress ?? "").lowercased()
+        return city.hasPrefix(needle) || address.hasPrefix(needle) || needle.hasPrefix(city) && !city.isEmpty
     }
 
     func clearSearch() {

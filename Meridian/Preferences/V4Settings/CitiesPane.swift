@@ -108,7 +108,10 @@ private extension CitiesPane {
     }
 
     var homeLabel: String {
-        uniqueLocations.first(where: { $0.id == model.effectiveHomeID })?.label ?? "—"
+        // Until the user explicitly picks a home, show "—" rather than silently treating the
+        // current location as home — they may be travelling (see first-run seeding).
+        guard model.homeTimezoneID != nil else { return "—" }
+        return uniqueLocations.first(where: { $0.id == model.effectiveHomeID })?.label ?? "—"
     }
 
     /// Unique options for the Home picker — display the friendly label, and avoid duplicate tags
