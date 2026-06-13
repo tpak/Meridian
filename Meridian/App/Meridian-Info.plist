@@ -27,7 +27,7 @@
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2026 Chris Tpak. Originally by Abhishek Banthia.</string>
+	<string>Copyright © 2026 Chris Tirpak. Originally by Abhishek Banthia.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Meridian can be more useful when it can use your location to determine your current timezone.</string>
 	<key>NSLocationUsageDescription</key>
