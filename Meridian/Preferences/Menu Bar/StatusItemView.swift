@@ -23,6 +23,15 @@ let defaultParagraphStyle: NSMutableParagraphStyle = {
 
 let compactModeTimeFont: NSFont = NSFont.monospacedDigitSystemFont(ofSize: 10, weight: .regular)
 
+/// v4 menu bar: render each favourite as a single line "● NAME TIME" with a per-city color dot,
+/// instead of the legacy two-line (place over time) item. Flip to false to restore the old layout.
+let kMenubarV4SingleLine = true
+
+/// Whether the leading color dot is shown (Settings → Menu Bar → Color dots; default on).
+var menubarColorDotsEnabled: Bool {
+    UserDefaults.standard.object(forKey: "com.tpak.meridian.v4.menubarColorDots") as? Bool ?? true
+}
+
 extension NSView {
     var hasDarkAppearance: Bool {
         switch effectiveAppearance.name {
@@ -103,6 +112,18 @@ class StatusItemView: NSView {
 
         timeView.disableWrapping()
 
+        if kMenubarV4SingleLine {
+            // A single line fills the full height; the location line is unused.
+            locationView.isHidden = true
+            NSLayoutConstraint.activate([
+                timeView.leadingAnchor.constraint(equalTo: leadingAnchor),
+                timeView.trailingAnchor.constraint(equalTo: trailingAnchor),
+                timeView.topAnchor.constraint(equalTo: topAnchor),
+                timeView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            ])
+            return
+        }
+
         let topAnchorConstant: CGFloat = 0.0
 
         NSLayoutConstraint.activate([
@@ -120,6 +141,37 @@ class StatusItemView: NSView {
         ])
     }
 
+    /// Identity used to look up this row's color dot.
+    private var dotIdentity: String {
+        if let pid = dataObject.placeID, !pid.isEmpty { return pid }
+        if let tid = dataObject.timezoneID, !tid.isEmpty { return tid }
+        return dataObject.timezone()
+    }
+
+    /// v4 single-line attributed string: optional color dot + "NAME [day] TIME [date]".
+    private func oneLineAttributedString() -> NSAttributedString {
+        let result = NSMutableAttributedString()
+        if menubarColorDotsEnabled {
+            result.append(NSAttributedString(string: "\u{25CF} ", attributes: [
+                .font: NSFont.systemFont(ofSize: 9),
+                .foregroundColor: CityColorStore.nsColor(for: dotIdentity),
+                .paragraphStyle: paragraphStyle
+            ]))
+        }
+        result.append(NSAttributedString(string: operationsObject.compactMenuOneLine(), attributes: timeAttributes))
+        return result
+    }
+
+    /// Apply the current content to the views, honoring the single-line vs two-line mode.
+    private func applyContent() {
+        if kMenubarV4SingleLine {
+            timeView.attributedStringValue = oneLineAttributedString()
+            return
+        }
+        locationView.attributedStringValue = NSAttributedString(string: operationsObject.compactMenuTitle(), attributes: textFontAttributes)
+        timeView.attributedStringValue = NSAttributedString(string: operationsObject.compactMenuSubtitle(), attributes: timeAttributes)
+    }
+
     override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
         // Invalidate appearance-dependent attribute caches so they are rebuilt for the new appearance.
@@ -129,8 +181,7 @@ class StatusItemView: NSView {
     }
 
     private func initialSetup() {
-        locationView.attributedStringValue = NSAttributedString(string: operationsObject.compactMenuTitle(), attributes: textFontAttributes)
-        timeView.attributedStringValue = NSAttributedString(string: operationsObject.compactMenuSubtitle(), attributes: timeAttributes)
+        applyContent()
     }
 
     @available(*, unavailable)
@@ -141,8 +192,7 @@ class StatusItemView: NSView {
 
 extension StatusItemView: StatusItemViewConforming {
     func statusItemViewSetNeedsDisplay() {
-        locationView.attributedStringValue = NSAttributedString(string: operationsObject.compactMenuTitle(), attributes: textFontAttributes)
-        timeView.attributedStringValue = NSAttributedString(string: operationsObject.compactMenuSubtitle(), attributes: timeAttributes)
+        applyContent()
     }
 
     func statusItemViewIdentifier() -> String {

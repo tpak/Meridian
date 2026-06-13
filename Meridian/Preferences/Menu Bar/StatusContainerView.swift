@@ -85,8 +85,16 @@ class StatusContainerView: NSView {
 
         func containerWidth(for timezones: [TimezoneData]) -> CGFloat {
             let compressedWidth = timezones.reduce(0.0) { result, timezoneObject -> CGFloat in
-                let precalculatedWidth = Double(compactWidth(for: timezoneObject, with: store))
                 let operationObject = TimezoneDataOperations(with: timezoneObject, store: store)
+                if kMenubarV4SingleLine {
+                    // Measure the actual single line ("● NAME TIME"); a generous width avoids
+                    // truncating the measurement itself.
+                    let lineSize = compactModeTimeFont.size(for: operationObject.compactMenuOneLine(),
+                                                            width: 1000, attributes: timeBasedAttributes)
+                    let dotPad: CGFloat = menubarColorDotsEnabled ? 14 : 0
+                    return result + lineSize.width + dotPad + bufferWidth
+                }
+                let precalculatedWidth = Double(compactWidth(for: timezoneObject, with: store))
                 let calculatedSubtitleSize = compactModeTimeFont.size(for: operationObject.compactMenuSubtitle(),
                                                                       width: precalculatedWidth,
                                                                       attributes: timeBasedAttributes)
@@ -98,9 +106,9 @@ class StatusContainerView: NSView {
                 return result + max(calculatedTitleSize.width, calculatedSubtitleSize.width) + bufferWidth + secondsBuffer
             }
 
-            let calculatedWidth = min(compressedWidth,
-                                      CGFloat(timezones.count * bufferContainerWidth))
-            return calculatedWidth
+            // The single-line width is measured directly, so don't clamp to the two-line cap.
+            if kMenubarV4SingleLine { return compressedWidth }
+            return min(compressedWidth, CGFloat(timezones.count * bufferContainerWidth))
         }
 
         let statusItemWidth = containerWidth(for: timezones)
@@ -143,14 +151,21 @@ class StatusContainerView: NSView {
         ]
 
         let operation = TimezoneDataOperations(with: timezone, store: store)
-        let bestSize = compactModeTimeFont.size(for: operation.compactMenuSubtitle(),
-                                                width: Double(compactWidth(for: timezone, with: store)),
-                                                attributes: timeBasedAttributes)
-        let bestTitleSize = compactModeTimeFont.size(for: operation.compactMenuTitle(),
-                                                     width: Double(compactWidth(for: timezone, with: store)),
-                                                     attributes: timeBasedAttributes)
-
-        let result = Int(max(bestSize.width, bestTitleSize.width) + bufferWidth)
+        let result: Int
+        if kMenubarV4SingleLine {
+            let lineSize = compactModeTimeFont.size(for: operation.compactMenuOneLine(),
+                                                    width: 1000, attributes: timeBasedAttributes)
+            let dotPad: CGFloat = menubarColorDotsEnabled ? 14 : 0
+            result = Int(lineSize.width + dotPad + bufferWidth)
+        } else {
+            let bestSize = compactModeTimeFont.size(for: operation.compactMenuSubtitle(),
+                                                    width: Double(compactWidth(for: timezone, with: store)),
+                                                    attributes: timeBasedAttributes)
+            let bestTitleSize = compactModeTimeFont.size(for: operation.compactMenuTitle(),
+                                                         width: Double(compactWidth(for: timezone, with: store)),
+                                                         attributes: timeBasedAttributes)
+            result = Int(max(bestSize.width, bestTitleSize.width) + bufferWidth)
+        }
         cachedBestWidth[cacheKey] = result
         return result
     }
