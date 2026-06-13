@@ -440,45 +440,44 @@ class MeridianUnitTests: XCTestCase {
         defaults.removePersistentDomain(forName: "HomeRowMigrationTest_Dedup")
     }
 
-    func testFirstRunSeedsCurrentTimezoneAsCurrentLocationNotHome() {
-        let suite = "FirstRunSeedTest_Seeds"
+    func testSeedsCurrentTimezoneAsCurrentLocationWhenEmpty() {
+        let suite = "SeedTest_Empty"
         let defaults = UserDefaults(suiteName: suite)!
         defaults.removePersistentDomain(forName: suite)
         let store = DataStore(with: defaults)
         XCTAssertTrue(store.timezoneObjects().isEmpty)
 
-        AppDefaults.seedCurrentTimezoneIfFirstRun(store: store, defaults: defaults)
+        AppDefaults.seedCurrentTimezoneIfEmpty(store: store)
 
         let rows = store.timezoneObjects()
-        XCTAssertEqual(rows.count, 1, "first run should seed exactly one city")
+        XCTAssertEqual(rows.count, 1, "an empty list should be seeded with one city")
         XCTAssertEqual(rows.first?.timezone(), TimeZone.autoupdatingCurrent.identifier)
         XCTAssertTrue(rows.first?.isSystemTimezone ?? false, "seeded row is the current location")
         // Home is left unset (the seed never writes homeTimezoneID) so the user can choose it.
-        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.firstRunTimezoneSeedV1))
 
         defaults.removePersistentDomain(forName: suite)
     }
 
-    func testFirstRunSeedIsIdempotentAndDoesNotReseedAfterFlag() {
-        let suite = "FirstRunSeedTest_Idempotent"
+    func testSeedDoesNotDuplicateButReseedsAfterEmptying() {
+        let suite = "SeedTest_Reseed"
         let defaults = UserDefaults(suiteName: suite)!
         defaults.removePersistentDomain(forName: suite)
         let store = DataStore(with: defaults)
 
-        AppDefaults.seedCurrentTimezoneIfFirstRun(store: store, defaults: defaults)
-        AppDefaults.seedCurrentTimezoneIfFirstRun(store: store, defaults: defaults)
-        XCTAssertEqual(store.timezoneObjects().count, 1, "must not seed twice")
+        AppDefaults.seedCurrentTimezoneIfEmpty(store: store)
+        AppDefaults.seedCurrentTimezoneIfEmpty(store: store)
+        XCTAssertEqual(store.timezoneObjects().count, 1, "must not seed on top of an existing list")
 
-        // Once the flag is set, a list the user later empties is not re-seeded.
+        // Self-heal: a list that gets emptied (import, reset) is re-seeded on the next launch.
         store.setTimezones([])
-        AppDefaults.seedCurrentTimezoneIfFirstRun(store: store, defaults: defaults)
-        XCTAssertTrue(store.timezoneObjects().isEmpty, "a deliberately-emptied list stays empty")
+        AppDefaults.seedCurrentTimezoneIfEmpty(store: store)
+        XCTAssertEqual(store.timezoneObjects().count, 1, "an emptied list is re-seeded, not left blank")
 
         defaults.removePersistentDomain(forName: suite)
     }
 
-    func testFirstRunSeedSkippedWhenListNotEmpty() {
-        let suite = "FirstRunSeedTest_NotEmpty"
+    func testSeedSkippedWhenListNotEmpty() {
+        let suite = "SeedTest_NotEmpty"
         let defaults = UserDefaults(suiteName: suite)!
         defaults.removePersistentDomain(forName: suite)
         let store = DataStore(with: defaults)
@@ -486,7 +485,7 @@ class MeridianUnitTests: XCTestCase {
         existing.timezoneID = "Asia/Tokyo"
         store.addTimezone(existing)
 
-        AppDefaults.seedCurrentTimezoneIfFirstRun(store: store, defaults: defaults)
+        AppDefaults.seedCurrentTimezoneIfEmpty(store: store)
 
         XCTAssertEqual(store.timezoneObjects().count, 1, "an existing list is left untouched")
         XCTAssertEqual(store.timezoneObjects().first?.timezone(), "Asia/Tokyo")

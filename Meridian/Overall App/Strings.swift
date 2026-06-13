@@ -73,13 +73,6 @@ public enum UserDefaultKeys {
     // runLegacyArtifactCleanupV1.
     static let legacyArtifactCleanupV1 = "com.tpak.meridian.legacyArtifactCleanupV1"
 
-    // One-time flag for first-run timezone seeding. The first time the app launches
-    // with an empty list, it seeds the current system timezone as a tracked city
-    // (marked current location, NOT home, since the user may be travelling). After
-    // it fires once it never re-seeds, so a deliberately-emptied list stays empty.
-    // See seedCurrentTimezoneIfFirstRun.
-    static let firstRunTimezoneSeedV1 = "com.tpak.meridian.firstRunTimezoneSeedV1"
-
     // F1 team accent color selection. Stored as TeamAccent.rawValue (String).
     // See DataStore.swift for the enum definition and resolved NSColor.
     static let teamAccent = "com.tpak.meridian.teamAccent"

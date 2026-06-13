@@ -38,18 +38,19 @@ class AppDefaults {
         let healed = runHomeRowMigrationV1(on: timezones, defaults: defaults)
         store.setTimezones(healed)
 
-        // First launch with an empty list: seed the current timezone so the app isn't blank.
-        seedCurrentTimezoneIfFirstRun(store: store, defaults: defaults)
+        // Never present an empty app: if no timezones are tracked, seed the current one.
+        seedCurrentTimezoneIfEmpty(store: store)
     }
 
-    /// On the first launch that finds an empty timezone list, add the current system timezone as a
-    /// tracked city and mark it the current location (`isSystemTimezone`) — so "Currently in" and
-    /// the Daybreak hero are populated out of the box. It is deliberately NOT set as Home: the user
-    /// may be travelling when they first install, so Home stays unset for them to choose. Guarded by
-    /// a one-time flag so a list the user later empties on purpose is not re-seeded. Public for tests.
-    class func seedCurrentTimezoneIfFirstRun(store: DataStore, defaults: UserDefaults) {
-        guard !defaults.bool(forKey: UserDefaultKeys.firstRunTimezoneSeedV1) else { return }
-        guard store.timezones().isEmpty else { return }
+    /// Ensure the app is never blank: when no timezones are tracked, seed the current system
+    /// timezone as the current location (`isSystemTimezone`) so "Currently in" and the Daybreak hero
+    /// are populated. It is deliberately NOT set as Home — the user may be travelling — so Home stays
+    /// unset for them to choose. The current-location row is non-removable in the UI, so in normal
+    /// use this only fires on a genuinely fresh install; running it on every empty launch (rather
+    /// than gating on a one-time flag) means a list that gets emptied — e.g. by an import or reset —
+    /// self-heals instead of leaving the user stuck with a blank app. Public for tests.
+    class func seedCurrentTimezoneIfEmpty(store: DataStore) {
+        guard store.timezoneObjects().isEmpty else { return }
 
         let identifier = TimeZone.autoupdatingCurrent.identifier
         let friendlyName = identifier.split(separator: "/").last
@@ -64,8 +65,7 @@ class AppDefaults {
         seeded.longitude = nil
         store.addTimezone(seeded)
 
-        defaults.set(true, forKey: UserDefaultKeys.firstRunTimezoneSeedV1)
-        Logger.production("Seeded current timezone \(identifier) on first run")
+        Logger.production("Seeded current timezone \(identifier) into empty list")
     }
 
     /// One-time migration that converts legacy inverted-bool and int-encoded
