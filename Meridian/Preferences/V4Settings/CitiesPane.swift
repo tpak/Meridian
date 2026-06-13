@@ -240,7 +240,11 @@ private extension CitiesPane {
 
 private extension CitiesPane {
     var cityList: some View {
-        List {
+        // Plain VStack (not a List): rows take their natural height so they never clip, and the
+        // outer Settings scroll view scrolls only when the whole pane exceeds the window — so ~5-6
+        // cities show before a scrollbar appears. (Drag-reorder, which needs a List, is inactive;
+        // Sort handles ordering.)
+        VStack(spacing: 8) {
             ForEach(model.rows) { row in
                 CityRowView(
                     row: row,
@@ -255,23 +259,8 @@ private extension CitiesPane {
                     onCommitLabel: { text in model.setLabel(row.id, text) },
                     onRemove: { model.remove(row.id) }
                 )
-                .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 3, trailing: 0))
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
             }
-            .onMove(perform: model.move)
         }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
-        .frame(height: listHeight)
-    }
-
-    /// Show up to 6 rows full-height; beyond that the List scrolls internally (its own scrollbar).
-    var listHeight: CGFloat {
-        let rowHeight: CGFloat = 58
-        let visible = min(model.rows.count, 6)
-        let pickerExtra: CGFloat = colorPickFor == nil ? 0 : 40
-        return max(CGFloat(visible) * rowHeight + pickerExtra, rowHeight)
     }
 
     func togglePicker(_ id: String) {
@@ -335,9 +324,6 @@ private struct CityRowView: View {
 
     private var mainRow: some View {
         HStack(spacing: 10) {
-            Image(systemName: "line.3.horizontal")
-                .font(.system(size: 12))
-                .foregroundStyle(.tertiary)
             favouriteButton
             colorDotButton
             details
