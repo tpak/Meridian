@@ -208,10 +208,13 @@ enum TestTimezones {
 
 // MARK: - DataStore Factory
 
-/// Creates a test DataStore with isolated UserDefaults
-/// - Parameter suiteName: Optional suite name for UserDefaults. If nil, generates a unique name.
+/// Creates a test DataStore with isolated UserDefaults.
+/// - Parameter suiteName: Suite name for UserDefaults. Defaults to a fixed name so the backing
+///   plist is reused rather than accumulating a new file per call (a per-run UUID name leaks a
+///   stray plist each time). Pass a distinct name for an isolated suite; callers should
+///   removePersistentDomain on the returned UserDefaults when finished.
 /// - Returns: Tuple of (DataStore, UserDefaults) for cleanup
-func makeTestDataStore(suiteName: String = "TestSuite-\(UUID().uuidString)") -> (DataStore, UserDefaults) {
+func makeTestDataStore(suiteName: String = "com.tpak.meridian.tests.Fixture") -> (DataStore, UserDefaults) {
     let defaults = UserDefaults(suiteName: suiteName)!
     let store = DataStore(with: defaults)
     return (store, defaults)

@@ -339,23 +339,31 @@ class MeridianUnitTests: XCTestCase {
     }
 
     func testHomeRowMigrationClearsStaleFlag() throws {
-        // Two rows persisted: a stale-flagged Melbourne row (user added it
-        // while travelling) and an unflagged Denver row (the user's real
-        // current home). After migration, exactly the Denver row should
-        // carry the flag.
+        // Two rows persisted: a stale-flagged row (user added it while
+        // travelling) and an unflagged row for the machine's actual current
+        // timezone (the user's real home). After migration, exactly the
+        // current-timezone row should carry the flag.
+        //
+        // The stale zone is chosen to differ from the machine's current zone so
+        // the test stays hermetic even when run on a machine physically located
+        // in the otherwise-hardcoded stale zone (e.g. a developer in Melbourne).
+        // Otherwise both rows share a timezoneID and the flag can't move.
         let defaults = UserDefaults(suiteName: "HomeRowMigrationTest_Stale")!
         defaults.removePersistentDomain(forName: "HomeRowMigrationTest_Stale")
 
+        let systemTimezoneID = TimeZone.autoupdatingCurrent.identifier
+        let staleTimezoneID = systemTimezoneID == "Australia/Melbourne" ? "America/Denver" : "Australia/Melbourne"
+
         let stale = TimezoneData()
-        stale.timezoneID = "Australia/Melbourne"
-        stale.formattedAddress = "Melbourne"
-        stale.setLabel("Melbourne")
+        stale.timezoneID = staleTimezoneID
+        stale.formattedAddress = "Travelling"
+        stale.setLabel("Stale Row")
         stale.isSystemTimezone = true
 
         let actualHome = TimezoneData()
-        actualHome.timezoneID = TimeZone.autoupdatingCurrent.identifier
+        actualHome.timezoneID = systemTimezoneID
         actualHome.formattedAddress = "Home"
-        actualHome.setLabel("Denver")
+        actualHome.setLabel("Home Row")
         actualHome.isSystemTimezone = false
 
         let staleBlob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: stale))
@@ -366,9 +374,9 @@ class MeridianUnitTests: XCTestCase {
         let healedStale = try XCTUnwrap(TimezoneData.customObject(from: healed[0]))
         let healedHome = try XCTUnwrap(TimezoneData.customObject(from: healed[1]))
 
-        XCTAssertFalse(healedStale.isSystemTimezone, "stale Melbourne row should be unflagged")
-        XCTAssertEqual(healedStale.customLabel, "Melbourne", "user's label must survive migration")
-        XCTAssertTrue(healedHome.isSystemTimezone, "matching Denver row should pick up the flag")
+        XCTAssertFalse(healedStale.isSystemTimezone, "stale row should be unflagged")
+        XCTAssertEqual(healedStale.customLabel, "Stale Row", "user's label must survive migration")
+        XCTAssertTrue(healedHome.isSystemTimezone, "matching home row should pick up the flag")
 
         defaults.removePersistentDomain(forName: "HomeRowMigrationTest_Stale")
     }
@@ -632,8 +640,12 @@ class DataStoreTypedAccessorsTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        suiteName = "com.tpak.meridian.tests.\(UUID().uuidString)"
+        // Fixed suite name so the backing plist is reused, not accumulated. A per-run
+        // UUID name leaks one stray plist per test (removePersistentDomain clears the
+        // suite's contents but does not delete its file). Clear at start for isolation.
+        suiteName = "com.tpak.meridian.tests.DataStoreTypedAccessors"
         defaults = UserDefaults(suiteName: suiteName)
+        defaults.removePersistentDomain(forName: suiteName)
         store = DataStore(with: defaults)
     }
 
@@ -824,8 +836,12 @@ class BoolSemanticsMigrationTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        suiteName = "com.tpak.meridian.migration.\(UUID().uuidString)"
+        // Fixed suite name so the backing plist is reused, not accumulated. A per-run
+        // UUID name leaks one stray plist per test (removePersistentDomain clears the
+        // suite's contents but does not delete its file). Clear at start for isolation.
+        suiteName = "com.tpak.meridian.migration.BoolSemantics"
         defaults = UserDefaults(suiteName: suiteName)
+        defaults.removePersistentDomain(forName: suiteName)
     }
 
     override func tearDown() {
@@ -1272,8 +1288,12 @@ class TeamAccentTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        suiteName = "com.tpak.meridian.tests.\(UUID().uuidString)"
+        // Fixed suite name so the backing plist is reused, not accumulated. A per-run
+        // UUID name leaks one stray plist per test (removePersistentDomain clears the
+        // suite's contents but does not delete its file). Clear at start for isolation.
+        suiteName = "com.tpak.meridian.tests.TeamAccent"
         defaults = UserDefaults(suiteName: suiteName)
+        defaults.removePersistentDomain(forName: suiteName)
         store = DataStore(with: defaults)
     }
 

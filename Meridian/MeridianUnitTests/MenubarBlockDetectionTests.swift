@@ -85,8 +85,14 @@ final class MenubarBlockDetectionTests: XCTestCase {
     /// AppDefaults registration and the simple read/write semantics, which
     /// together back the "show once and only once" guarantee.
     func testTahoeOnboardingShownDefaultsToFalse() {
-        let defaults = UserDefaults(suiteName: "TahoeOnboardingDefaults-\(UUID().uuidString)")!
-        defaults.removePersistentDomain(forName: defaults.dictionaryRepresentation().keys.first ?? "")
+        // Use a fixed suite name (not a per-run UUID) so the backing plist in
+        // ~/Library/Preferences is reused and overwritten instead of accumulating a new
+        // file every run. removePersistentDomain clears a suite's contents but does not
+        // delete its plist file, so a UUID-based name leaks one stray plist per test run.
+        let suiteName = "com.tpak.meridian.tests.TahoeOnboardingDefaults"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defaults.removePersistentDomain(forName: suiteName)
+        defer { defaults.removePersistentDomain(forName: suiteName) }
 
         AppDefaults.initialize(with: DataStore.shared(), defaults: defaults)
 
@@ -95,10 +101,13 @@ final class MenubarBlockDetectionTests: XCTestCase {
     }
 
     func testTahoeOnboardingShownRoundTrips() {
-        let defaults = UserDefaults(suiteName: "TahoeOnboardingRoundTrip-\(UUID().uuidString)")!
+        let suiteName = "com.tpak.meridian.tests.TahoeOnboardingRoundTrip"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defaults.removePersistentDomain(forName: suiteName)
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
         defaults.set(true, forKey: UserDefaultKeys.tahoeOnboardingShown)
         XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.tahoeOnboardingShown))
-        defaults.removeObject(forKey: UserDefaultKeys.tahoeOnboardingShown)
     }
 
     // MARK: - Control Center deep link
