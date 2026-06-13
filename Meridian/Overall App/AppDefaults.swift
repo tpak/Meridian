@@ -25,6 +25,11 @@ class AppDefaults {
         // out of the migration's read path.
         runBoolSemanticsMigration(on: defaults)
 
+        // Drop leftover keys from the original Clocker codebase / early Meridian
+        // builds. Runs before register(defaults:) for consistency with the other
+        // migrations; it only touches legacy keys, so order is not critical.
+        runLegacyArtifactCleanupV1(on: defaults)
+
         defaults.register(defaults: defaultsDictionary())
 
         // Heal any rows whose isSystemTimezone flag drifted from the actual
@@ -77,6 +82,36 @@ class AppDefaults {
         // The typed accessors layer enums over them without renaming.
 
         defaults.set(true, forKey: UserDefaultKeys.boolSemanticsMigrationV1)
+    }
+
+    /// One-time cleanup of artifacts left in the app's UserDefaults by the
+    /// original Clocker codebase and very early Meridian builds: keys under the
+    /// previous author's `com.abhishek.` namespace (e.g.
+    /// `com.abhishek.appDisplayOptions`) and legacy `Clocker` AppKit autosave
+    /// entries (e.g. `NSStatusItem Preferred Position ClockerStatusItem`).
+    /// Current code never writes these, so fresh installs are unaffected — this
+    /// only tidies machines upgrading from those builds.
+    ///
+    /// Idempotent: guarded by `UserDefaultKeys.legacyArtifactCleanupV1`. Public
+    /// for tests.
+    class func runLegacyArtifactCleanupV1(on defaults: UserDefaults) {
+        guard !defaults.bool(forKey: UserDefaultKeys.legacyArtifactCleanupV1) else {
+            return
+        }
+
+        for key in defaults.dictionaryRepresentation().keys where isLegacyArtifactKey(key) {
+            defaults.removeObject(forKey: key)
+        }
+
+        defaults.set(true, forKey: UserDefaultKeys.legacyArtifactCleanupV1)
+    }
+
+    /// True for UserDefaults keys that are leftovers from Clocker / the previous
+    /// author's namespace and are no longer written by Meridian. Meridian's own
+    /// keys live under `com.tpak.meridian.` and use the `Meridian…` autosave
+    /// names, so neither pattern collides with current state.
+    static func isLegacyArtifactKey(_ key: String) -> Bool {
+        key.hasPrefix("com.abhishek.") || key.contains("Clocker")
     }
 
     /// One-time migration that heals the "stuck home row" bug. Two failure
