@@ -1004,6 +1004,64 @@ class BoolSemanticsMigrationTests: XCTestCase {
     }
 }
 
+// MARK: - LegacyArtifactCleanup tests (previous-author defaults)
+
+class LegacyArtifactCleanupTests: XCTestCase {
+    private var defaults: UserDefaults!
+    private let suiteName = "com.tpak.meridian.tests.LegacyArtifactCleanup"
+
+    override func setUp() {
+        super.setUp()
+        defaults = UserDefaults(suiteName: suiteName)
+        defaults.removePersistentDomain(forName: suiteName)
+    }
+
+    override func tearDown() {
+        defaults.removePersistentDomain(forName: suiteName)
+        defaults = nil
+        super.tearDown()
+    }
+
+    func testRemovesPreviousAuthorAndClockerKeys() {
+        defaults.set(0, forKey: "com.abhishek.appDisplayOptions")
+        defaults.set(0, forKey: "com.abhishek.menubarCompactMode")
+        defaults.set(514, forKey: "NSStatusItem Preferred Position ClockerStatusItem")
+        defaults.set("frame", forKey: "NSWindow Frame ClockerFloatingPanel")
+        // A current Meridian key that must survive.
+        defaults.set(1, forKey: UserDefaultKeys.appDisplayOptions)
+
+        AppDefaults.runLegacyArtifactCleanupV1(on: defaults)
+
+        XCTAssertNil(defaults.object(forKey: "com.abhishek.appDisplayOptions"))
+        XCTAssertNil(defaults.object(forKey: "com.abhishek.menubarCompactMode"))
+        XCTAssertNil(defaults.object(forKey: "NSStatusItem Preferred Position ClockerStatusItem"))
+        XCTAssertNil(defaults.object(forKey: "NSWindow Frame ClockerFloatingPanel"))
+        XCTAssertEqual(defaults.integer(forKey: UserDefaultKeys.appDisplayOptions), 1,
+                       "current com.tpak.meridian.* keys must be preserved")
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.legacyArtifactCleanupV1),
+                      "migration must set its guard flag")
+    }
+
+    func testIsIdempotentAndDoesNotTouchLaterArtifacts() {
+        AppDefaults.runLegacyArtifactCleanupV1(on: defaults)
+
+        // Guard is set, so a key added afterward (e.g. from a re-imported old
+        // settings file) is left alone until a future migration version.
+        defaults.set(0, forKey: "com.abhishek.appDisplayOptions")
+        AppDefaults.runLegacyArtifactCleanupV1(on: defaults)
+
+        XCTAssertNotNil(defaults.object(forKey: "com.abhishek.appDisplayOptions"),
+                        "second run is a no-op once the guard flag is set")
+    }
+
+    func testKeyClassifier() {
+        XCTAssertTrue(AppDefaults.isLegacyArtifactKey("com.abhishek.appDisplayOptions"))
+        XCTAssertTrue(AppDefaults.isLegacyArtifactKey("NSStatusItem Preferred Position ClockerStatusItem"))
+        XCTAssertFalse(AppDefaults.isLegacyArtifactKey("com.tpak.meridian.appDisplayOptions"))
+        XCTAssertFalse(AppDefaults.isLegacyArtifactKey("NSStatusItem Preferred Position MeridianStatusItem"))
+    }
+}
+
 // MARK: - SettingsManager v1/v2 schema tests (issue #97)
 
 class SettingsManagerVersioningTests: XCTestCase {

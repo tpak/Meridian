@@ -66,6 +66,13 @@ public enum UserDefaultKeys {
     // under its original city label). See runHomeRowMigrationV1.
     static let homeRowMigrationV1 = "com.tpak.meridian.homeRowMigrationV1"
 
+    // One-time cleanup flag for artifacts left in the app's UserDefaults by the
+    // original Clocker codebase and very early Meridian builds: keys under the
+    // previous author's `com.abhishek.` namespace and legacy `Clocker` AppKit
+    // autosave entries. Current code never writes these. See
+    // runLegacyArtifactCleanupV1.
+    static let legacyArtifactCleanupV1 = "com.tpak.meridian.legacyArtifactCleanupV1"
+
     // F1 team accent color selection. Stored as TeamAccent.rawValue (String).
     // See DataStore.swift for the enum definition and resolved NSColor.
     static let teamAccent = "com.tpak.meridian.teamAccent"
