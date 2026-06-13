@@ -31,3 +31,12 @@ Claude Code during the autonomous build so the state of the work is legible at a
 
 - Worktree + branch created from `main` @ d076bc22.
 - Design handoff committed as canonical spec.
+- Tooling: `scripts/xcodeproj_add.rb` (idempotent file→pbxproj registration; project is objectVersion 54, no synchronized groups, so new files must be registered).
+- Recon: 8 subsystem API cheatsheets under `design_handoff_meridian_v4/recon/`.
+- **Phase 0 foundation (GREEN):**
+  - `DaybreakEngine.swift` — pure port of design logic (phase, sun events, offsets, time parser, sky ramp, scrubber math). 33 unit tests pass.
+  - `DaybreakTokens.swift` — SwiftUI design tokens (surfaces, hero sky, sun/moon discs, row tints, gold accent).
+  - `DaybreakComputation.swift` — Foundation/Solar → integer primitives (local minutes, day ordinal, sunrise/sunset window; scrub-aware cache).
+  - `DaybreakDefaults.swift` — additive v4 prefs (home tz, travel back-days, snap step).
+  - `DaybreakViewModel.swift` — assembles hero + city rows + scrubber snapshot; 1s tick + change observation.
+  - App target builds; reuses existing `TeamAccent`/`Theme`/`TimeFormat`/`DataStore` rather than reinventing.
