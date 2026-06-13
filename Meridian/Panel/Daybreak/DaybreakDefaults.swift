@@ -20,6 +20,8 @@ enum DaybreakDefaults {
         static let travelPastDays = "com.tpak.meridian.v4.travelPastDays"
         /// Scrubber snap + arrow-nudge step in minutes: 5 / 15 / 30 / 60 (README §F; default 15).
         static let snapStep = "com.tpak.meridian.v4.snapStep"
+        /// Pin the current-location row to the top of the list (Settings → Cities; default on).
+        static let pinCurrentToTop = "com.tpak.meridian.v4.pinCurrentToTop"
     }
 
     private static var standard: UserDefaults { .standard }
@@ -46,6 +48,12 @@ enum DaybreakDefaults {
             return clampDays(value ?? 2, min: 0, max: 7)
         }
         set { standard.set(clampDays(newValue, min: 0, max: 7), forKey: Keys.travelPastDays) }
+    }
+
+    /// Pin the current-location row to the top of the city list (default true).
+    static var pinCurrentToTop: Bool {
+        get { standard.object(forKey: Keys.pinCurrentToTop) as? Bool ?? true }
+        set { standard.set(newValue, forKey: Keys.pinCurrentToTop) }
     }
 
     /// Scrubber snap/nudge step in minutes (5/15/30/60).

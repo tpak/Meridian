@@ -22,7 +22,8 @@ Claude Code during the autonomous build so the state of the work is legible at a
 
 - [ ] **Phase 0 — Foundation:** design tokens (Swift), pure logic port (phase engine, offset,
       time parser, sky ramp) + unit tests, codebase API inventory.
-- [ ] **Phase 1 — Daybreak popover:** hero, city cards, scrubber, editable times. → UAT beta 1
+- [x] **Phase 1 — Daybreak popover:** hero, city cards, scrubber, editable times. *(builds; 260 tests green; adversarial review done + fixes applied; **4.0.0-beta1 installed & running** at ~/Applications/Meridian-beta.app for UAT)* → UAT beta 1 ✅
+- [~] **Phase 3 — Settings window:** shell + 5 panes authored (parallel agents); integration/build/fix in progress.
 - [ ] **Phase 2 — Menu-bar density presets.** → UAT beta 2
 - [ ] **Phase 3 — Settings window** (5 panes). → UAT beta 3
 - [ ] **Phase 4 — Integration, regression, localization, polish.** → UAT beta 4 → GA 4.0.0
