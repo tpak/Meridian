@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## App Identity
 
-**Meridian** (formerly Clocker) — macOS menu bar world clock app. ~9.9K lines of Swift across 66 source files (~14K including tests). Bundle ID: `com.tpak.Meridian`. Forked from [Clocker](https://github.com/n0shake/Clocker) by Abhishek Banthia.
+**Meridian** (formerly Clocker) — macOS menu bar world clock app. ~9.9K lines of Swift across 60 source files (~14K including tests). Bundle ID: `com.tpak.Meridian`. Forked from [Clocker](https://github.com/n0shake/Clocker) by Abhishek Banthia.
 
 GitHub repository: [`tpak/Meridian`](https://github.com/tpak/Meridian) — always use this URL for issues, PRs, and releases. The old Clocker repo is upstream and unrelated.
 
@@ -356,7 +356,7 @@ New SwiftUI strings should use `String(localized:)`.
 
 ### Preferences & Settings JSON
 
-- `AppDefaults` registers default values and runs the v1 bool-semantics migration (issue #97). New code should read/write through the typed accessors and enums it exposes — avoid raw `UserDefaults` reads/writes.
+- `AppDefaults` registers default values and runs one-time, idempotent migrations on launch: the v1 bool-semantics migration (issue #97), the stuck-home-row fix, and a cleanup of legacy Clocker / previous-author (`com.abhishek.*`) defaults keys. New code should read/write through the typed accessors and enums it exposes — avoid raw `UserDefaults` reads/writes.
 - `UserDefaults + KVOExtensions.swift` adds typed getters keyed off `UserDefaultKeys` (string constants live in `Strings.swift`).
 - `SettingsManager` exports/imports a JSON document to `~/.meridian/meridian_settings.json` (or any chosen location, or the clipboard). Schema is **v2** with full **v1 back-compat** for older exports. `startAtLogin` is exported but applied via `StartupManager` on import so the system actually registers/unregisters the login item.
 
@@ -385,14 +385,14 @@ All in `Meridian/Dependencies/`.
 | `Preferences/About/AboutView.swift` | SwiftUI About tab (version, debug logging, beta opt-in) |
 | `Preferences/Menu Bar/StatusItemHandler.swift` | NSStatusBar item + menubar timer |
 | `Overall App/DataStore.swift` | Singleton state hub (protocol `DataStoring` for DI) |
-| `Overall App/AppDefaults.swift` | Default registration + bool-semantics migration |
+| `Overall App/AppDefaults.swift` | Default registration + one-time migrations (bool-semantics, home-row, legacy-defaults cleanup) |
 | `Overall App/SettingsManager.swift` | Settings export/import (JSON v2 with v1 back-compat) |
 | `Overall App/Strings.swift` | `UserDefaultKeys` constants |
 | `AppDelegate.swift` | App entry point (`@main`), global shortcut, startup, Sparkle channels |
 
 ## Test Notes
 
-- Unit tests in `Meridian/MeridianUnitTests/` (204 tests)
+- Unit tests in `Meridian/MeridianUnitTests/` (227 tests)
 - `MockDataStore` available for DI; `MockURLProtocol` for network mocking
 - UI tests in `Meridian/MeridianUITests/` (panel interactions)
 - `@testable import Meridian` (module follows PRODUCT_NAME)
