@@ -35,6 +35,43 @@ Claude Code during the autonomous build so the state of the work is legible at a
 - [ ] **Phase 3 — Settings window** (5 panes). → UAT beta 3
 - [ ] **Phase 4 — Integration, regression, localization, polish.** → UAT beta 4 → GA 4.0.0
 
+## UAT guide (read this first when you're back)
+
+**Installed & running:** `4.0.0-beta3` at `~/Applications/Meridian-beta.app` (shares your real
+timezones/prefs via `com.tpak.Meridian`). Your production `/Applications/Meridian.app` was quit so only
+the beta runs. CI gates all green locally: build ✅, 260 unit tests ✅, SwiftLint 0 serious ✅,
+entitlements unchanged ✅.
+
+**What to UAT (all three surfaces are live):**
+1. **Daybreak popover** — click the menu-bar item. Check: hero sky color matches time of day; city
+   cards show sun/moon + offset relative to your current location; drag the scrubber (snaps 15 min) and
+   watch times/day-tags recompute; double-click any time to edit it; ‹ › nudge; ↺ Back to now.
+2. **Settings** — footer "Settings" / ⌘, / dock menu. Five panes: Cities (add/star/color/label/reorder/
+   home), Menu Bar (5 presets + fine-tune + dots), Appearance (theme, F1 livery accents + disclaimer,
+   day display, text size), Time Travel (forward/back days, snap), General (login/updates/beta/debug/
+   export/import).
+3. **Menu bar** — favourites now render single-line "● NAME TIME" with per-city color dots.
+
+**Instant fallback if anything's wrong** (flip a flag, rebuild a beta):
+- `AppDelegate.useDaybreakPanel = false` → legacy popover.
+- `AppDelegate.useV4Settings = false` → legacy storyboard Preferences.
+- `kMenubarV4SingleLine = false` (StatusItemView.swift) → legacy two-line menu bar.
+
+**Switch back to production:** `osascript -e 'tell application "Meridian" to quit'` then
+`open /Applications/Meridian.app` (or `rm -rf ~/Applications/Meridian-beta.app` first).
+
+**Known follow-ups (not blockers; deferred for GA):**
+- **Localization** — new SwiftUI strings are English literals; need `String(localized:)` + `.xcstrings`
+  entries before GA to keep the 15-language coverage.
+- **Geocoded city search** — Settings → Cities "add" currently searches IANA timezone identifiers
+  locally; wiring the existing CLGeocoder path for "Denver, CO"-style city search is a follow-up.
+- **Visual fine-tuning** — popover notch offset, menu-bar dot baseline, and exact paddings couldn't be
+  eyeballed headlessly; expect small tweaks after your visual pass.
+
+**Ship path:** UAT → sign off → either cut a Sparkle `4.0.0-betaN` to widen testing, or `make release
+VERSION=4.0.0` for GA (after localization). The redesign lives only on `feature/v4-redesign`; `main` is
+untouched.
+
 ## Build log
 
 - Worktree + branch created from `main` @ d076bc22.
@@ -48,3 +85,8 @@ Claude Code during the autonomous build so the state of the work is legible at a
   - `DaybreakDefaults.swift` — additive v4 prefs (home tz, travel back-days, snap step).
   - `DaybreakViewModel.swift` — assembles hero + city rows + scrubber snapshot; 1s tick + change observation.
   - App target builds; reuses existing `TeamAccent`/`Theme`/`TimeFormat`/`DataStore` rather than reinventing.
+- **Phase 1 (Daybreak):** SwiftUI popover hosted in a fresh `DaybreakPanel`; adversarial review fixed 3 HIGH bugs (DST marker drift, Solar cache collision, commit-on-blur). → `4.0.0-beta1`.
+- **Phase 3 (Settings):** 5 SwiftUI panes (parallel agents) over a locked backbone; adversarial review fixed a drag-reorder corruption + a Sparkle auto-update desync + home-picker consistency. → folded into `4.0.0-beta2`.
+- **Phase 2 (menu bar):** flag-gated single-line item + per-city dots; width measured from the real string. → folded into `4.0.0-beta3`.
+- **Phase 4 (verify):** full build + 260 tests + SwiftLint 0-serious + entitlements-unchanged; final security/integration review run. UAT guide above.
+- Reviews were run as parallel multi-agent workflows (recon → engine/views → settings → final), each adversarially verifying findings before fixes were applied.
