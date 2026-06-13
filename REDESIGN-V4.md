@@ -37,10 +37,11 @@ Claude Code during the autonomous build so the state of the work is legible at a
 
 ## UAT guide (read this first when you're back)
 
-**Installed & running:** `4.0.0-beta3` at `~/Applications/Meridian-beta.app` (shares your real
+**Installed & running:** `4.0.0-beta4` at `~/Applications/Meridian-beta.app` (shares your real
 timezones/prefs via `com.tpak.Meridian`). Your production `/Applications/Meridian.app` was quit so only
 the beta runs. CI gates all green locally: build ✅, 260 unit tests ✅, SwiftLint 0 serious ✅,
-entitlements unchanged ✅.
+entitlements unchanged ✅. Four adversarial review rounds (engine/views → settings → final
+security+integration); all HIGH/MEDIUM findings fixed.
 
 **What to UAT (all three surfaces are live):**
 1. **Daybreak popover** — click the menu-bar item. Check: hero sky color matches time of day; city
