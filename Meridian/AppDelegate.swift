@@ -12,6 +12,19 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
     /// here instead of the legacy `panelController`; flip the flag to fall back instantly.
     internal lazy var daybreakPanelController = DaybreakPanelController()
     private let useDaybreakPanel = true
+    /// v4 SwiftUI Settings window. When `useV4Settings` is true, the Daybreak footer + ⌘, open this
+    /// instead of the legacy storyboard Preferences; flip the flag to fall back.
+    internal lazy var settingsWindowController = SettingsWindowController()
+    private let useV4Settings = true
+
+    /// Open Settings, routing to the v4 window or the legacy Preferences per the flag.
+    @objc func openSettingsRouted() {
+        if useV4Settings {
+            settingsWindowController.show()
+        } else {
+            panelController.openPreferencesWindow()
+        }
+    }
     private lazy var statusBarHandler: StatusItemHandler = StatusItemHandler(with: DataStore.shared())
     lazy var updaterController: SPUStandardUpdaterController = {
         SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: self, userDriverDelegate: nil)

@@ -120,8 +120,8 @@ final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
     // MARK: Footer / shortcut actions
 
     func openSettings() {
-        // Reuse the existing Preferences window until the v4 Settings ships (Phase 3).
-        (NSApp.delegate as? AppDelegate)?.panelController.openPreferencesWindow()
+        hidePanel() // dismiss the popover so the Settings window takes focus cleanly
+        (NSApp.delegate as? AppDelegate)?.openSettingsRouted()
     }
 
     func togglePin() {

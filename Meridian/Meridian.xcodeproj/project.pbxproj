@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B22BBF58EC6EFE2F5159679 /* AppearancePane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 785C05BDFEF43ED0FDCDB4AB /* AppearancePane.swift */; };
 		2C730CF80B07B133FA8FD8E7 /* DaybreakTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A198021445E6EAE46061FEC /* DaybreakTokens.swift */; };
 		3508CC9A259A0001000E3530 /* StatusItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3508CC99259A0001000E3530 /* StatusItemView.swift */; };
 		3508CC9F259A000E000E3530 /* StatusItemHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3508CC9E259A000E000E3530 /* StatusItemHandler.swift */; };
@@ -64,9 +65,13 @@
 		4726354D81E1NWMGRASYNCTS /* NetworkManagerAsyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */; };
 		5873E7194D70351E2442A779 /* DaybreakDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCC6DFEB0759DC6C7274F3D /* DaybreakDefaults.swift */; };
 		5ADE02988FD148209EA2A70A /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23D856F171624B8EBC360698 /* SettingsManager.swift */; };
+		65DA7585D285375EF297710E /* CitiesPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF07C2896C1B59A4DA2A71D /* CitiesPane.swift */; };
+		6A497829581D74BC67D8E0B0 /* CityListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7CA7A6FFF7E03E263EDAAB2 /* CityListModel.swift */; };
 		7D358619731E5E0BB57F42FD /* DaybreakViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F07E77F40B9B35D281AB17B /* DaybreakViewModel.swift */; };
 		818B546B7B8B47D88692CD80 /* GlobalShortcutMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC776853CC4796AD9A1DC6 /* GlobalShortcutMonitor.swift */; };
+		81CAA956E231D400EC97576D /* CityColorStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10AF7A99015A586B55C933CE /* CityColorStore.swift */; };
 		85D71A359BCFE2E9E34B935E /* DaybreakComputation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521A64985874687A5A3FA691 /* DaybreakComputation.swift */; };
+		8AE1304D6D583A9645A16731 /* SettingsRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C052AF35543FF951E8E0703 /* SettingsRootView.swift */; };
 		919639F9D2F3GLOBALSHRTCUT /* GlobalShortcutMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */; };
 		9218AD8C74DEC9F8B61FDE0D /* DaybreakCityRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B267A5521577F184518ED6A /* DaybreakCityRow.swift */; };
 		9A0A1C8C20903DBD0012003B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A9E87651C1FEDC500A7A2DF /* CoreLocation.framework */; };
@@ -121,16 +126,20 @@
 		C2F7821B20B70E3700B6CD07 /* AboutUsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F7821A20B70E3700B6CD07 /* AboutUsTests.swift */; };
 		C31BD08A823D4B94BC9C69AC /* ShortcutRecorderButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0A19BB308FC4CDEA6F6878A /* ShortcutRecorderButton.swift */; };
 		C4A3D93099C54195A921944E /* PanelContextMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527EBAA6C18049AE931DDE49 /* PanelContextMenu.swift */; };
+		C4D1C9B97D359CF25B20A80D /* TimeTravelPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 170C4F75A6E553A4D3A5A788 /* TimeTravelPane.swift */; };
 		CC11AA0100TZDATAOPSTEST1 /* TimezoneDataOperationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC11AA0100TZDATAOPSTEST2 /* TimezoneDataOperationsTests.swift */; };
 		D20426773C34F2E92954A92A /* DaybreakEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E678C0F403D43F32D0A8C97 /* DaybreakEngine.swift */; };
 		DCA05AB8E0247A612ED37AD7 /* DaybreakRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9037417AB982CA723B24BFC /* DaybreakRootView.swift */; };
 		DD11AA0100LOCALIZTNTEST1 /* LocalizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD11AA0100LOCALIZTNTEST2 /* LocalizationTests.swift */; };
 		DD4F7C0913C30F9F00825C6E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD4F7C0813C30F9F00825C6E /* Cocoa.framework */; };
 		DDADCE5AAC06C9C49B95437D /* DaybreakPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69CEC060FCB1C9A401226751 /* DaybreakPanelController.swift */; };
+		E0FFE8F0A401DAE3DBC1157D /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59724D2CB4F4C39995843DE /* SettingsWindowController.swift */; };
 		E1F2A3B400TMSCRLRVM0001 /* TimeScrollerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B400TMSCRLRVM0002 /* TimeScrollerViewModel.swift */; };
 		E1F2A3B400TMSCRLRVMTST1 /* TimeScrollerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B400TMSCRLRVMTST2 /* TimeScrollerViewModelTests.swift */; };
+		EB152B4C7DFFC31A76D5A837 /* MenuBarPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B003FDDEFA58885064478B2 /* MenuBarPane.swift */; };
 		EE11AA0100ACCENTSWIZL01 /* AccentColorSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE11AA0100ACCENTSWIZL02 /* AccentColorSwizzler.swift */; };
 		EE689CC81F44B7AF616E49AF /* DaybreakHeroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B012D2C492832014C31EC314 /* DaybreakHeroView.swift */; };
+		F732F2590122C6FC0ED5FC2E /* GeneralPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D5CD384414D1E2250F108B /* GeneralPane.swift */; };
 		FBD8146AD6CC37F20D053FA0 /* DaybreakPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19CC54BCDCA334EED4FE2B6D /* DaybreakPanel.swift */; };
 		FF11AA0100TESTFIXTURES01 /* TestFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF11AA0100TESTFIXTURES02 /* TestFixtures.swift */; };
 		SP000001SPARKLE00000001 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = SP000002SPARKLE00000002 /* Sparkle */; };
@@ -155,7 +164,10 @@
 
 /* Begin PBXFileReference section */
 		0B267A5521577F184518ED6A /* DaybreakCityRow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakCityRow.swift; sourceTree = "<group>"; };
+		10AF7A99015A586B55C933CE /* CityColorStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CityColorStore.swift; sourceTree = "<group>"; };
+		170C4F75A6E553A4D3A5A788 /* TimeTravelPane.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TimeTravelPane.swift; sourceTree = "<group>"; };
 		19CC54BCDCA334EED4FE2B6D /* DaybreakPanel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakPanel.swift; sourceTree = "<group>"; };
+		1C052AF35543FF951E8E0703 /* SettingsRootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsRootView.swift; sourceTree = "<group>"; };
 		23D856F171624B8EBC360698 /* SettingsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		3508CC99259A0001000E3530 /* StatusItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemView.swift; sourceTree = "<group>"; };
 		3508CC9E259A000E000E3530 /* StatusItemHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemHandler.swift; sourceTree = "<group>"; };
@@ -212,9 +224,11 @@
 		39808930164A8404E6C52BE9 /* DaybreakScrubber.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakScrubber.swift; sourceTree = "<group>"; };
 		3DEE1440C33BTZSORTINGTST2 /* TimezoneSortingManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneSortingManagerTests.swift; sourceTree = "<group>"; };
 		4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManagerAsyncTests.swift; sourceTree = "<group>"; };
+		4B003FDDEFA58885064478B2 /* MenuBarPane.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MenuBarPane.swift; sourceTree = "<group>"; };
 		521A64985874687A5A3FA691 /* DaybreakComputation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakComputation.swift; sourceTree = "<group>"; };
 		527EBAA6C18049AE931DDE49 /* PanelContextMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelContextMenu.swift; sourceTree = "<group>"; };
 		69CEC060FCB1C9A401226751 /* DaybreakPanelController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakPanelController.swift; sourceTree = "<group>"; };
+		785C05BDFEF43ED0FDCDB4AB /* AppearancePane.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppearancePane.swift; sourceTree = "<group>"; };
 		8A198021445E6EAE46061FEC /* DaybreakTokens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakTokens.swift; sourceTree = "<group>"; };
 		8CE32A2F3B4B0AACCC2B86DB /* DaybreakEngineTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakEngineTests.swift; sourceTree = "<group>"; };
 		8F07E77F40B9B35D281AB17B /* DaybreakViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakViewModel.swift; sourceTree = "<group>"; };
@@ -260,10 +274,12 @@
 		AA000012STARTU00000001 /* StartupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupManager.swift; sourceTree = "<group>"; };
 		AA1B2C3D0001000000000001 /* TimezoneSortingManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimezoneSortingManager.swift; sourceTree = "<group>"; };
 		ABCC6DFEB0759DC6C7274F3D /* DaybreakDefaults.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakDefaults.swift; sourceTree = "<group>"; };
+		ABF07C2896C1B59A4DA2A71D /* CitiesPane.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CitiesPane.swift; sourceTree = "<group>"; };
 		AC11AA0100MBDTESTS00002 /* MenubarBlockDetectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarBlockDetectionTests.swift; sourceTree = "<group>"; };
 		B012D2C492832014C31EC314 /* DaybreakHeroView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakHeroView.swift; sourceTree = "<group>"; };
 		B1C2D3E40001000000TZADD2 /* TimezoneAdditionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneAdditionHandler.swift; sourceTree = "<group>"; };
 		B30F79A6035950B04509CDBC /* SunMoonDisc.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SunMoonDisc.swift; sourceTree = "<group>"; };
+		B59724D2CB4F4C39995843DE /* SettingsWindowController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
 		B730E37E4596MOCKDATASTO2 /* MockDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDataStore.swift; sourceTree = "<group>"; };
 		BB00000100LOCCTRL00TEST2 /* LocationControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationControllerTests.swift; sourceTree = "<group>"; };
 		C1C2D3E40001000000CHKBX2 /* CenteredCheckboxCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CenteredCheckboxCell.swift; sourceTree = "<group>"; };
@@ -278,6 +294,7 @@
 		C2C2D3E40001000000VCTFC2 /* VerticallyCenteredTextFieldCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticallyCenteredTextFieldCell.swift; sourceTree = "<group>"; };
 		C2CCCD8120619C4C00F2DFC2 /* LocationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LocationController.swift; path = App/LocationController.swift; sourceTree = "<group>"; };
 		C2F7821A20B70E3700B6CD07 /* AboutUsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutUsTests.swift; sourceTree = "<group>"; };
+		C3D5CD384414D1E2250F108B /* GeneralPane.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GeneralPane.swift; sourceTree = "<group>"; };
 		CC11AA0100TZDATAOPSTEST2 /* TimezoneDataOperationsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneDataOperationsTests.swift; sourceTree = "<group>"; };
 		DD11AA0100LOCALIZTNTEST2 /* LocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationTests.swift; sourceTree = "<group>"; };
 		DD4F7C0413C30F9F00825C6E /* Meridian.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Meridian.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -286,6 +303,7 @@
 		E0A19BB308FC4CDEA6F6878A /* ShortcutRecorderButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcutRecorderButton.swift; sourceTree = "<group>"; };
 		E1F2A3B400TMSCRLRVM0002 /* TimeScrollerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeScrollerViewModel.swift; sourceTree = "<group>"; };
 		E1F2A3B400TMSCRLRVMTST2 /* TimeScrollerViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeScrollerViewModelTests.swift; sourceTree = "<group>"; };
+		E7CA7A6FFF7E03E263EDAAB2 /* CityListModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CityListModel.swift; sourceTree = "<group>"; };
 		EE11AA0100ACCENTSWIZL02 /* AccentColorSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AccentColorSwizzler.swift; path = App/AccentColorSwizzler.swift; sourceTree = "<group>"; };
 		EE11AA0100INFOPLISTXCS1 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = InfoPlist.xcstrings; path = App/InfoPlist.xcstrings; sourceTree = "<group>"; };
 		EE11AA0100LOCALIZBLEXCS1 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = App/Localizable.xcstrings; sourceTree = "<group>"; };
@@ -389,6 +407,7 @@
 				35C36F902259EAF4002FA5C6 /* Preferences.storyboard */,
 				35C36EDF22595D9C002FA5C6 /* Menu Bar */,
 				AA000012STARTU00000001 /* StartupManager.swift */,
+				BAC94748EBD100EB552FBB12 /* V4Settings */,
 			);
 			path = Preferences;
 			sourceTree = "<group>";
@@ -492,6 +511,7 @@
 				F9037417AB982CA723B24BFC /* DaybreakRootView.swift */,
 				19CC54BCDCA334EED4FE2B6D /* DaybreakPanel.swift */,
 				69CEC060FCB1C9A401226751 /* DaybreakPanelController.swift */,
+				10AF7A99015A586B55C933CE /* CityColorStore.swift */,
 			);
 			name = Daybreak;
 			path = Daybreak;
@@ -585,6 +605,22 @@
 			children = (
 			);
 			path = Frameworks;
+			sourceTree = "<group>";
+		};
+		BAC94748EBD100EB552FBB12 /* V4Settings */ = {
+			isa = PBXGroup;
+			children = (
+				E7CA7A6FFF7E03E263EDAAB2 /* CityListModel.swift */,
+				1C052AF35543FF951E8E0703 /* SettingsRootView.swift */,
+				B59724D2CB4F4C39995843DE /* SettingsWindowController.swift */,
+				ABF07C2896C1B59A4DA2A71D /* CitiesPane.swift */,
+				4B003FDDEFA58885064478B2 /* MenuBarPane.swift */,
+				785C05BDFEF43ED0FDCDB4AB /* AppearancePane.swift */,
+				170C4F75A6E553A4D3A5A788 /* TimeTravelPane.swift */,
+				C3D5CD384414D1E2250F108B /* GeneralPane.swift */,
+			);
+			name = V4Settings;
+			path = V4Settings;
 			sourceTree = "<group>";
 		};
 		C20839C821515C1E00C86589 /* MeridianUnitTests */ = {
@@ -971,6 +1007,15 @@
 				DCA05AB8E0247A612ED37AD7 /* DaybreakRootView.swift in Sources */,
 				FBD8146AD6CC37F20D053FA0 /* DaybreakPanel.swift in Sources */,
 				DDADCE5AAC06C9C49B95437D /* DaybreakPanelController.swift in Sources */,
+				81CAA956E231D400EC97576D /* CityColorStore.swift in Sources */,
+				6A497829581D74BC67D8E0B0 /* CityListModel.swift in Sources */,
+				8AE1304D6D583A9645A16731 /* SettingsRootView.swift in Sources */,
+				E0FFE8F0A401DAE3DBC1157D /* SettingsWindowController.swift in Sources */,
+				65DA7585D285375EF297710E /* CitiesPane.swift in Sources */,
+				EB152B4C7DFFC31A76D5A837 /* MenuBarPane.swift in Sources */,
+				2B22BBF58EC6EFE2F5159679 /* AppearancePane.swift in Sources */,
+				C4D1C9B97D359CF25B20A80D /* TimeTravelPane.swift in Sources */,
+				F732F2590122C6FC0ED5FC2E /* GeneralPane.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
