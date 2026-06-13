@@ -48,6 +48,14 @@ struct DaybreakDayMarker: Identifiable, Equatable {
     var isToday: Bool
 }
 
+/// A single ruler tick on the scrubber track. Hour-aligned; `isMajor` marks the 6-hourly emphasis
+/// ticks (06:00/12:00/18:00) that are taller and more opaque than the plain hour ticks between them.
+struct DaybreakTick: Identifiable, Equatable {
+    var id: Int                  // delta minutes (stable)
+    var fraction: Double         // 0…1 across the track
+    var isMajor: Bool
+}
+
 /// The scrubber's rendered state. README §F.
 struct DaybreakScrubberData: Equatable {
     var readout: String          // "Now · 8:17 PM"
@@ -55,6 +63,7 @@ struct DaybreakScrubberData: Equatable {
     var handleFraction: Double
     var handleIsNight: Bool
     var days: [DaybreakDayMarker]
+    var ticks: [DaybreakTick]
 }
 
 /// A full render of the popover, published atomically.
@@ -131,9 +140,7 @@ final class DaybreakViewModel: ObservableObject {
     }
 
     func setOffsetFromFraction(_ fraction: Double) {
-        let f = min(1, max(0, fraction))
-        let raw = travelRange.lowerBound + Int((Double(travelRange.count - 1) * f).rounded())
-        setOffset(raw)
+        setOffset(DaybreakEngine.offsetMinutes(fraction: fraction, range: travelRange))
     }
 
     func nudge(forward: Bool) {
@@ -299,8 +306,7 @@ final class DaybreakViewModel: ObservableObject {
 
     private func makeScrubber(heroTZ: TimeZone, heroLocalMinutes: Int, heroPhase: DayPhase, heroOrdinal: Int) -> DaybreakScrubberData {
         let range = travelRange
-        let span = max(1, range.upperBound - range.lowerBound)
-        let fraction = Double(travelOffsetMinutes - range.lowerBound) / Double(span)
+        let fraction = DaybreakEngine.handleFraction(offsetMinutes: travelOffsetMinutes, range: range)
         let readout = DaybreakEngine.readout(deltaMinutes: travelOffsetMinutes,
                                              currentLocalMinutes: heroLocalMinutes,
                                              weekdayShort: string(shortWeekday, referenceDate(), heroTZ))
@@ -322,7 +328,7 @@ final class DaybreakViewModel: ObservableObject {
             let ordinal = DaybreakComputation.dayOrdinal(reference: midnight, timeZone: heroTZ)
             markers.append(DaybreakDayMarker(
                 id: delta,
-                fraction: Double(delta - range.lowerBound) / Double(span),
+                fraction: DaybreakEngine.handleFraction(offsetMinutes: delta, range: range),
                 label: string(markerDate, midnight, heroTZ),
                 isToday: ordinal == heroOrdinal
             ))
@@ -333,10 +339,36 @@ final class DaybreakViewModel: ObservableObject {
         return DaybreakScrubberData(
             readout: readout,
             traveling: travelOffsetMinutes != 0,
-            handleFraction: min(1, max(0, fraction)),
+            handleFraction: fraction,
             handleIsNight: heroPhase.isNight,
-            days: markers
+            days: markers,
+            ticks: hourTicks(calendar: calendar, rangeStart: rangeStart, rangeEnd: rangeEnd, range: range)
         )
+    }
+
+    /// Hour ruler: one tick per local clock hour, with 6-hourly ticks (06/12/18) emphasised. Midnight
+    /// is skipped — the taller, labelled day marker already stands there.
+    private func hourTicks(calendar: Calendar, rangeStart: Date, rangeEnd: Date,
+                           range: ClosedRange<Int>) -> [DaybreakTick] {
+        var ticks: [DaybreakTick] = []
+        var hourMark = calendar.dateInterval(of: .hour, for: rangeStart)?.start ?? rangeStart
+        if hourMark < rangeStart {
+            hourMark = calendar.date(byAdding: .hour, value: 1, to: hourMark) ?? rangeEnd.addingTimeInterval(1)
+        }
+        while hourMark <= rangeEnd {
+            let hourOfDay = calendar.component(.hour, from: hourMark)
+            if hourOfDay != 0 {
+                let delta = Int((hourMark.timeIntervalSince(now) / 60).rounded())
+                ticks.append(DaybreakTick(
+                    id: delta,
+                    fraction: DaybreakEngine.handleFraction(offsetMinutes: delta, range: range),
+                    isMajor: hourOfDay % 6 == 0
+                ))
+            }
+            guard let next = calendar.date(byAdding: .hour, value: 1, to: hourMark) else { break }
+            hourMark = next
+        }
+        return ticks
     }
 
     // MARK: Helpers
@@ -407,8 +439,8 @@ final class DaybreakViewModel: ObservableObject {
             hero: DaybreakHeroData(eyebrow: "", time: "", period: "", subline: "", hoverSubline: "",
                                    phase: .day, localMinutes: 0),
             cities: [],
-            scrubber: DaybreakScrubberData(readout: "Now", traveling: false, handleFraction: 0,
-                                           handleIsNight: false, days: []),
+            scrubber: DaybreakScrubberData(readout: "Now", traveling: false, handleFraction: 0.5,
+                                           handleIsNight: false, days: [], ticks: []),
             locationTraveling: false,
             versionText: versionText()
         )

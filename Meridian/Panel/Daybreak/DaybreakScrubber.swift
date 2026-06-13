@@ -80,18 +80,16 @@ struct DaybreakScrubber: View {
                     .frame(width: w, height: 1)
                     .offset(y: baselineY)
 
-                // Hour ticks.
-                Canvas { context, size in
-                    let segments = 32
-                    for i in 0...segments {
-                        let x = size.width * Double(i) / Double(segments)
-                        var path = Path()
-                        path.move(to: CGPoint(x: x, y: 15))
-                        path.addLine(to: CGPoint(x: x, y: 25))
-                        context.stroke(path, with: .color(palette.tick), lineWidth: 1)
-                    }
+                // Hour-aligned ruler ticks. Plain hour ticks are short and faint; the 6-hourly ticks
+                // (06:00/12:00/18:00) are taller and more opaque, so the ruler reads as a ruler
+                // instead of a wall of identical marks. Midnight is left to the taller day marker.
+                ForEach(data.ticks) { tick in
+                    let tickHeight: CGFloat = tick.isMajor ? 10 : 5
+                    Rectangle().fill(palette.tick)
+                        .frame(width: 1, height: tickHeight)
+                        .opacity(tick.isMajor ? 0.9 : 0.4)
+                        .offset(x: tick.fraction * w, y: baselineY - tickHeight / 2)
                 }
-                .frame(width: w, height: trackHeight)
 
                 // Day-boundary markers + labels.
                 ForEach(data.days) { day in

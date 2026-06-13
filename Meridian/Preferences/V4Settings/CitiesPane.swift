@@ -231,17 +231,43 @@ private extension CitiesPane {
             Text("Sort")
                 .font(.system(size: 11.5))
                 .foregroundStyle(.tertiary)
-            Picker("", selection: $model.sort) {
+            // Custom segmented control (not a Picker) so tapping the already-selected segment is
+            // detectable — that's what reverses the sort direction.
+            HStack(spacing: 2) {
                 ForEach(CityListModel.SortMode.allCases) { mode in
-                    Text(mode.title).tag(mode)
+                    sortSegment(mode)
                 }
             }
-            .labelsHidden()
-            .pickerStyle(.segmented)
+            .padding(2)
             .frame(width: 240)
+            .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.06)))
             Spacer()
         }
         .padding(.bottom, 12)
+    }
+
+    func sortSegment(_ mode: CityListModel.SortMode) -> some View {
+        let active = model.sort == mode
+        return Button {
+            model.selectSort(mode)
+        } label: {
+            HStack(spacing: 3) {
+                Text(mode.title)
+                    .font(.system(size: 11.5, weight: active ? .semibold : .regular))
+                if active {
+                    // Caret flips to show the current direction; tap again to reverse.
+                    Image(systemName: model.sortReversed ? "chevron.down" : "chevron.up")
+                        .font(.system(size: 8, weight: .bold))
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 4)
+            .foregroundStyle(active ? Color.white : Color.secondary)
+            .background(RoundedRectangle(cornerRadius: 6).fill(active ? accent : Color.clear))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(active ? "Tap again to reverse" : "Sort by \(mode.title.lowercased())")
     }
 }
 

@@ -40,7 +40,10 @@ final class CityListModel: ObservableObject {
 
     @Published private(set) var rows: [SettingsCityRow] = []
     @Published private(set) var effectiveHomeID: String = ""
-    @Published var sort: SortMode = .timeDiff { didSet { if oldValue != sort { applySort() } } }
+    @Published private(set) var sort: SortMode = .timeDiff
+    /// When true the active sort runs in reverse (Z→A, ascending time-diff, …). Re-tapping the
+    /// active sort segment flips this; choosing a different sort resets it to the default direction.
+    @Published private(set) var sortReversed = false
 
     /// Ranked results for the "add a city" field. Local hits appear instantly; a precise geocoded
     /// city is merged in on top a moment later (see `updateSearch`).
@@ -119,10 +122,13 @@ final class CityListModel: ObservableObject {
             let c = lhsKey.localizedStandardCompare(rhsKey)
             return c == .orderedSame ? lhsID < rhsID : c == .orderedAscending
         }
+        let rev = sortReversed
         switch sort {
-        case .name: built.sort { less($0.region, $0.id, $1.region, $1.id) }
-        case .label: built.sort { less($0.label, $0.id, $1.label, $1.id) }
-        case .timeDiff: break // keep stored order (already time-ordered by user)
+        case .name:
+            built.sort { rev ? less($1.region, $1.id, $0.region, $0.id) : less($0.region, $0.id, $1.region, $1.id) }
+        case .label:
+            built.sort { rev ? less($1.label, $1.id, $0.label, $0.id) : less($0.label, $0.id, $1.label, $1.id) }
+        case .timeDiff: break // keep stored order (already time-ordered by applySort, incl. reversal)
         }
 
         // Pin current location to top (README/Settings "Pin to top").
@@ -274,8 +280,20 @@ final class CityListModel: ObservableObject {
         applySort()
     }
 
-    /// Apply the chosen sort to the STORED order so the popover reflects it too (not just the
-    /// Settings view), then reload.
+    /// Handle a tap on a sort segment: choosing a different sort switches to it in its default
+    /// direction; re-tapping the active sort reverses it (alphabetical ⇄ reverse-alphabetical, etc.).
+    func selectSort(_ mode: SortMode) {
+        if sort == mode {
+            sortReversed.toggle()
+        } else {
+            sort = mode
+            sortReversed = false
+        }
+        applySort()
+    }
+
+    /// Apply the chosen sort (and reversal) to the STORED order so the popover reflects it too (not
+    /// just the Settings view), then reload.
     private func applySort() {
         var objects = store.timezoneObjects()
         let now = Date()
@@ -283,11 +301,16 @@ final class CityListModel: ObservableObject {
         func offsetMinutes(_ city: TimezoneData) -> Int {
             ((TimeZone(identifier: city.timezone()) ?? .current).secondsFromGMT(for: now) - currentSecs) / 60
         }
+        let rev = sortReversed
         switch sort {
-        case .timeDiff: objects.sort { offsetMinutes($0) > offsetMinutes($1) }
-        case .name: objects.sort { sortLess($0.timezone(), identity($0), $1.timezone(), identity($1)) }
-        case .label: objects.sort { sortLess($0.formattedTimezoneLabel(), identity($0),
-                                             $1.formattedTimezoneLabel(), identity($1)) }
+        case .timeDiff:
+            objects.sort { rev ? offsetMinutes($0) < offsetMinutes($1) : offsetMinutes($0) > offsetMinutes($1) }
+        case .name:
+            objects.sort { rev ? sortLess($1.timezone(), identity($1), $0.timezone(), identity($0))
+                               : sortLess($0.timezone(), identity($0), $1.timezone(), identity($1)) }
+        case .label:
+            objects.sort { rev ? sortLess($1.formattedTimezoneLabel(), identity($1), $0.formattedTimezoneLabel(), identity($0))
+                               : sortLess($0.formattedTimezoneLabel(), identity($0), $1.formattedTimezoneLabel(), identity($1)) }
         }
         persist(objects)
     }
