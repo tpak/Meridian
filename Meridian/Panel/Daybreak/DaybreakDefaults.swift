@@ -65,11 +65,11 @@ enum DaybreakDefaults {
         set { standard.set(newValue, forKey: Keys.snapStep, forKeyIfValid: [5, 15, 30, 60]) }
     }
 
-    /// The scrubber's allowed travel range, in minutes, derived from the day prefs.
+    /// The scrubber's travel window, in minutes. A tight, legible span (2h back / 12h forward) — a
+    /// multi-day range crams the day-boundary labels into illegible mush. The Time Travel pane's
+    /// day sliders will be reworked to hour-scale to drive this; for now the window is fixed.
     static var travelRangeMinutes: ClosedRange<Int> {
-        let back = -travelBackDays * 24 * 60
-        let forward = travelForwardDays * 24 * 60
-        return back...forward
+        return (-2 * 60)...(12 * 60)
     }
 
     private static func clampDays(_ value: Int, min lo: Int, max hi: Int) -> Int {

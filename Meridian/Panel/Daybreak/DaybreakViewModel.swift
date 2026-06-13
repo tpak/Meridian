@@ -231,8 +231,10 @@ final class DaybreakViewModel: ObservableObject {
                             reference: reference, localMinutes: heroLocal, window: heroWindow, phase: heroPhase)
 
         // ---- City rows (everything except the current-location city) ----
+        // Never duplicate the hero: exclude EVERY tracked city in the current location's timezone
+        // (covers a redundant system-timezone entry + an explicitly-added same-zone city).
         let rows: [DaybreakCityData] = cities.compactMap { city in
-            if let current = currentCity, city == current { return nil }
+            if city.timezone() == heroTZID { return nil }
             return makeRow(city: city, reference: reference, heroTZ: heroTZ,
                            heroOrdinal: heroOrdinal, homeID: homeID)
         }

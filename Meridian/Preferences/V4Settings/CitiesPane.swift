@@ -7,11 +7,17 @@
 
 import SwiftUI
 
+struct CityLocationOption: Identifiable {
+    let id: String
+    let label: String
+}
+
 struct CitiesPane: View {
     @ObservedObject var model: CityListModel
     let accent: Color
 
     @AppStorage("com.tpak.meridian.v4.pinCurrentToTop") private var pinCurrentToTop = true
+    static let locationControlWidth: CGFloat = 200
 
     @State private var query = ""
     @State private var searchResults: [String] = []
@@ -58,12 +64,12 @@ private extension CitiesPane {
     var homeRow: some View {
         FormRow(label: "Home") {
             Picker("", selection: homeBinding) {
-                ForEach(model.rows) { row in
-                    Text("⌂ \(row.label)").tag(row.timezoneID)
+                ForEach(uniqueLocations) { option in
+                    Text(option.label).tag(option.id)
                 }
             }
             .labelsHidden()
-            .frame(width: 200)
+            .frame(width: Self.locationControlWidth)
             Text("Always marked with the house")
                 .font(.system(size: 11))
                 .foregroundStyle(.tertiary)
@@ -74,9 +80,10 @@ private extension CitiesPane {
         FormRow(label: "Currently in") {
             Text(currentLocationLabel)
                 .font(.system(size: 12.5))
+                .lineLimit(1)
                 .padding(.horizontal, 11)
-                .padding(.vertical, 7)
-                .frame(width: 200, alignment: .leading)
+                .padding(.vertical, 6)
+                .frame(width: Self.locationControlWidth, height: 24, alignment: .leading)
                 .background(
                     RoundedRectangle(cornerRadius: 8)
                         .fill(Color.primary.opacity(0.05))
@@ -89,6 +96,18 @@ private extension CitiesPane {
                 .font(.system(size: 11))
                 .foregroundStyle(.tertiary)
         }
+    }
+
+    /// Unique options for the Home picker — display the friendly label, and avoid duplicate tags
+    /// when the list has two rows sharing a timezone.
+    var uniqueLocations: [CityLocationOption] {
+        var seen = Set<String>()
+        var result: [CityLocationOption] = []
+        for row in model.rows where !seen.contains(row.timezoneID) {
+            seen.insert(row.timezoneID)
+            result.append(CityLocationOption(id: row.timezoneID, label: row.label))
+        }
+        return result
     }
 
     var pinRow: some View {
@@ -114,10 +133,7 @@ private extension CitiesPane {
     }
 
     var currentLocationLabel: String {
-        if let current = model.rows.first(where: { $0.isCurrent }) {
-            return "\(current.label) · \(current.region)"
-        }
-        return "—"
+        model.rows.first(where: { $0.isCurrent })?.label ?? "—"
     }
 }
 
@@ -233,15 +249,15 @@ private extension CitiesPane {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
-        .scrollDisabled(true)
-        .frame(height: rowsHeight)
+        .frame(height: listHeight)
     }
 
-    var rowsHeight: CGFloat {
-        // List lives inside the parent ScrollView; give it room for every row (+ open picker).
-        let base = CGFloat(model.rows.count) * 58
+    /// Show up to 6 rows full-height; beyond that the List scrolls internally (its own scrollbar).
+    var listHeight: CGFloat {
+        let rowHeight: CGFloat = 58
+        let visible = min(model.rows.count, 6)
         let pickerExtra: CGFloat = colorPickFor == nil ? 0 : 40
-        return max(base + pickerExtra, 58)
+        return max(CGFloat(visible) * rowHeight + pickerExtra, rowHeight)
     }
 
     func togglePicker(_ id: String) {
@@ -345,8 +361,10 @@ private struct CityRowView: View {
                 Text(row.region)
                     .font(.system(size: 13.5, weight: .medium))
                     .lineLimit(1)
-                if row.isHome { homeBadge }
-                if row.isCurrent { hereBadge }
+                    .layoutPriority(1)
+                // One badge per row: "Here" for the current location, "⌂ Home" only when home is
+                // elsewhere (avoids a redundant double badge that squeezed the name).
+                if row.isCurrent { hereBadge } else if row.isHome { homeBadge }
             }
             Text("\(row.time) · \(row.offset)")
                 .font(.system(size: 11))
@@ -354,6 +372,7 @@ private struct CityRowView: View {
                 .monospacedDigit()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .layoutPriority(1)
     }
 
     private var homeBadge: some View {
@@ -381,7 +400,7 @@ private struct CityRowView: View {
         TextField("Label", text: $labelText, onCommit: { onCommitLabel(labelText) })
             .textFieldStyle(.plain)
             .font(.system(size: 12.5))
-            .frame(width: 116)
+            .frame(width: 92)
             .padding(.horizontal, 9)
             .padding(.vertical, 5)
             .background(
@@ -395,7 +414,9 @@ private struct CityRowView: View {
     }
 
     @ViewBuilder private var removeButton: some View {
-        if row.isHome {
+        if row.isCurrent {
+            // Only the auto-detected current-location row is non-removable; everything else
+            // (including a duplicate or a home-while-traveling row) can be removed.
             Color.clear.frame(width: 20, height: 20)
         } else {
             Button(action: onRemove) {

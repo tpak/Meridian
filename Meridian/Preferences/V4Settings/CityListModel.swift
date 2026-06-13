@@ -39,7 +39,7 @@ final class CityListModel: ObservableObject {
 
     @Published private(set) var rows: [SettingsCityRow] = []
     @Published private(set) var effectiveHomeID: String = ""
-    @Published var sort: SortMode = .timeDiff { didSet { reload() } }
+    @Published var sort: SortMode = .timeDiff { didSet { if oldValue != sort { applySort() } } }
 
     private let store = DataStore.shared()
     private var cancellables = Set<AnyCancellable>()
@@ -195,6 +195,29 @@ final class CityListModel: ObservableObject {
             .filter { $0.lowercased().contains(q) && !existing.contains($0) }
             .prefix(20)
             .map { $0 }
+    }
+
+    /// Apply the chosen sort to the STORED order so the popover reflects it too (not just the
+    /// Settings view), then reload.
+    private func applySort() {
+        var objects = store.timezoneObjects()
+        let now = Date()
+        let currentSecs = TimeZone.current.secondsFromGMT(for: now)
+        func offsetMinutes(_ city: TimezoneData) -> Int {
+            ((TimeZone(identifier: city.timezone()) ?? .current).secondsFromGMT(for: now) - currentSecs) / 60
+        }
+        switch sort {
+        case .timeDiff: objects.sort { offsetMinutes($0) > offsetMinutes($1) }
+        case .name: objects.sort { sortLess($0.timezone(), identity($0), $1.timezone(), identity($1)) }
+        case .label: objects.sort { sortLess($0.formattedTimezoneLabel(), identity($0),
+                                             $1.formattedTimezoneLabel(), identity($1)) }
+        }
+        persist(objects)
+    }
+
+    private func sortLess(_ lhsKey: String, _ lhsID: String, _ rhsKey: String, _ rhsID: String) -> Bool {
+        let comparison = lhsKey.localizedStandardCompare(rhsKey)
+        return comparison == .orderedSame ? lhsID < rhsID : comparison == .orderedAscending
     }
 
     // MARK: Persistence helpers
