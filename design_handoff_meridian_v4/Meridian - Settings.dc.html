@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:system-ui,-apple-system,"SF Pro Text","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  input.mr-i{font-family:inherit}
+  input.mr-i:focus{outline:none}
+  input[type=range].mr-range{-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;cursor:pointer}
+  input[type=range].mr-range::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);cursor:pointer}
+  .mr-content::-webkit-scrollbar{width:9px}
+  .mr-content::-webkit-scrollbar-thumb{background:rgba(128,128,128,.32);border-radius:5px}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;background:linear-gradient(135deg,#3a3f4a,#23262e)">
+  <div style="width:748px;height:744px;background:{{ t.win }};border:1px solid {{ t.winBorder }};border-radius:13px;box-shadow:0 40px 100px rgba(0,0,0,.5);overflow:hidden;display:flex;flex-direction:column;color:{{ t.text }}">
+
+    <div style="height:40px;display:flex;align-items:center;padding:0 14px;border-bottom:1px solid {{ t.div }};background:{{ t.bar }};position:relative;flex:none">
+      <div style="display:flex;gap:8px">
+        <span style="width:12px;height:12px;border-radius:50%;background:#ff5f57"></span>
+        <span style="width:12px;height:12px;border-radius:50%;background:#febc2e"></span>
+        <span style="width:12px;height:12px;border-radius:50%;background:#28c840"></span>
+      </div>
+      <span style="position:absolute;left:0;right:0;text-align:center;font-size:13px;font-weight:600;color:{{ t.sub }};pointer-events:none">Settings</span>
+    </div>
+
+    <div style="flex:1;display:flex;min-height:0">
+      <!-- sidebar -->
+      <div style="width:198px;flex:none;border-right:1px solid {{ t.div }};background:{{ t.side }};padding:12px 10px;display:flex;flex-direction:column;gap:3px">
+        <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+          <div onClick="{{ n.onClick }}" style="{{ n.style }}">
+            <span style="width:24px;height:24px;border-radius:6px;background:{{ n.iconBg }};display:flex;align-items:center;justify-content:center;font-size:12px;color:{{ n.iconColor }};flex:none">{{ n.glyph }}</span>
+            <span style="font-size:13px;font-weight:500">{{ n.label }}</span>
+          </div>
+        </sc-for>
+        <div style="flex:1"></div>
+        <div style="font-size:10.5px;color:{{ t.sub2 }};padding:0 8px 4px">Meridian 4.0</div>
+      </div>
+
+      <!-- content -->
+      <div class="mr-content" style="flex:1;overflow-y:auto;padding:24px 28px">
+
+        <!-- CITIES -->
+        <sc-if value="{{ isCities }}" hint-placeholder-val="{{ true }}">
+          <h2 style="font-size:20px;font-weight:660;letter-spacing:-.02em;margin:0 0 4px">Cities</h2>
+          <p style="font-size:12.5px;color:{{ t.sub }};margin:0 0 16px">Track timezones, star the ones for your menu bar, set a color and a short label.</p>
+
+          <div style="background:{{ t.card }};border:1px solid {{ t.cardBorder }};border-radius:12px;padding:14px 16px;margin-bottom:14px">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:11px">
+              <div style="width:86px;text-align:right;font-size:12.5px;color:{{ t.sub }};flex:none">Home</div>
+              <div style="position:relative">
+                <button onClick="{{ homeDD.toggle }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:178px;background:{{ t.inputBg }};border:1px solid {{ t.cardBorder }};border-radius:8px;padding:7px 11px;cursor:pointer;color:{{ t.text }};font-size:12.5px"><span>⌂ {{ homeDD.label }}</span><span style="color:{{ t.sub2 }};font-size:10px">▾</span></button>
+                <sc-if value="{{ homeDD.open }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;top:39px;left:0;z-index:6;background:{{ t.card }};border:1px solid {{ t.cardBorder }};border-radius:9px;box-shadow:0 14px 34px rgba(0,0,0,.35);padding:4px;min-width:206px">
+                    <sc-for list="{{ homeDD.options }}" as="o" hint-placeholder-count="4"><div onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</div></sc-for>
+                  </div>
+                </sc-if>
+              </div>
+              <span style="font-size:11px;color:{{ t.sub2 }}">Always marked with the house</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:11px">
+              <div style="width:86px;text-align:right;font-size:12.5px;color:{{ t.sub }};flex:none">Currently in</div>
+              <div style="position:relative">
+                <button onClick="{{ currentDD.toggle }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:178px;background:{{ t.inputBg }};border:1px solid {{ t.cardBorder }};border-radius:8px;padding:7px 11px;cursor:pointer;color:{{ t.text }};font-size:12.5px"><span>{{ currentDD.label }}</span><span style="color:{{ t.sub2 }};font-size:10px">▾</span></button>
+                <sc-if value="{{ currentDD.open }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;top:39px;left:0;z-index:6;background:{{ t.card }};border:1px solid {{ t.cardBorder }};border-radius:9px;box-shadow:0 14px 34px rgba(0,0,0,.35);padding:4px;min-width:206px">
+                    <sc-for list="{{ currentDD.options }}" as="o" hint-placeholder-count="4"><div onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</div></sc-for>
+                  </div>
+                </sc-if>
+              </div>
+              <span style="font-size:11px;color:{{ t.sub2 }}">Auto-detected when you travel</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px">
+              <div style="width:86px;text-align:right;font-size:12.5px;color:{{ t.sub }};flex:none">Pin to top</div>
+              <div onClick="{{ pinSw.toggle }}" style="width:38px;height:22px;border-radius:11px;background:{{ pinSw.bg }};position:relative;cursor:pointer;transition:background .2s;flex:none"><div style="position:absolute;top:2px;left:{{ pinSw.left }};width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.3);transition:left .18s"></div></div>
+              <span style="font-size:11px;color:{{ t.sub2 }}">Show your current timezone first in Meridian</span>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:8px;background:{{ t.inputBg }};border:1px solid {{ t.cardBorder }};border-radius:9px;padding:8px 12px;margin-bottom:14px">
+            <span style="font-size:13px;color:{{ t.sub2 }}">⌕</span>
+            <input class="mr-i" placeholder="Add a city or timezone…" style="flex:1;background:transparent;border:none;color:{{ t.text }};font-size:13px" />
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <span style="font-size:11.5px;color:{{ t.sub2 }}">Sort</span>
+            <div style="display:inline-flex;gap:2px;padding:2px;border-radius:8px;background:{{ t.segBg }}">
+              <sc-for list="{{ sortSeg }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button></sc-for>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <sc-for list="{{ cityRows }}" as="c" hint-placeholder-count="4">
+              <div style="background:{{ t.card }};border:1px solid {{ t.cardBorder }};border-radius:11px;overflow:hidden">
+                <div style="display:flex;align-items:center;gap:10px;padding:10px 12px">
+                  <span style="font-size:14px;color:{{ t.sub2 }};cursor:grab;flex:none;letter-spacing:-2px">⠿</span>
+                  <button onClick="{{ c.toggleFav }}" title="Show in menu bar" style="border:none;background:transparent;cursor:pointer;font-size:15px;line-height:1;padding:0;color:{{ c.starColor }};flex:none;width:17px">{{ c.star }}</button>
+                  <button onClick="{{ c.pick }}" title="Set color" style="width:14px;height:14px;border-radius:50%;background:{{ c.color }};border:2px solid {{ t.win }};box-shadow:0 0 0 1px {{ c.color }};cursor:pointer;flex:none;padding:0"></button>
+                  <div style="flex:1;min-width:0">
+                    <div style="display:flex;align-items:center;gap:7px">
+                      <span style="font-size:13.5px;font-weight:550">{{ c.tz }}</span>
+                      <sc-if value="{{ c.isHome }}" hint-placeholder-val="{{ false }}"><span style="{{ c.homeBadgeStyle }}">⌂ Home</span></sc-if>
+                      <sc-if value="{{ c.isCurrent }}" hint-placeholder-val="{{ false }}"><span style="{{ c.hereBadgeStyle }}">Here</span></sc-if>
+                    </div>
+                    <div style="font-size:11px;color:{{ t.sub2 }};font-variant-numeric:tabular-nums;margin-top:2px">{{ c.time }} · {{ c.off }}</div>
+                  </div>
+                  <input class="mr-i" value="{{ c.label }}" style="width:116px;background:{{ t.inputBg }};border:1px solid {{ t.cardBorder }};border-radius:7px;color:{{ t.text }};font-size:12.5px;padding:5px 9px" />
+                  <button onClick="{{ c.remove }}" title="Remove" style="border:none;background:transparent;color:{{ t.sub2 }};font-size:17px;cursor:pointer;flex:none;width:20px;line-height:1">{{ c.removeGlyph }}</button>
+                </div>
+                <sc-if value="{{ c.picking }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;gap:8px;padding:4px 14px 12px 53px;flex-wrap:wrap">
+                    <sc-for list="{{ c.swatches }}" as="s" hint-placeholder-count="8"><button onClick="{{ s.onClick }}" style="{{ s.style }}"></button></sc-for>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- MENU BAR -->
+        <sc-if value="{{ isMenubar }}" hint-placeholder-val="{{ false }}">
+          <h2 style="font-size:20px;font-weight:660;letter-spacing:-.02em;margin:0 0 4px">Menu Bar</h2>
+          <p style="font-size:12.5px;color:{{ t.sub }};margin:0 0 16px">How your starred cities appear up top. No app name or clock — macOS shows those.</p>
+          <div style="display:flex;justify-content:flex-end;align-items:center;height:34px;border-radius:9px;background:rgba(20,22,30,.96);border:1px solid rgba(255,255,255,.08);padding:0 14px;margin-bottom:22px">
+            <sc-for list="{{ favPreview }}" as="f" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;gap:5px;margin-left:16px">
+                <sc-if value="{{ f.showDot }}" hint-placeholder-val="{{ true }}"><span style="width:5px;height:5px;border-radius:50%;background:{{ f.dot }};flex:none"></span></sc-if>
+                <span style="font-size:12px;font-weight:550;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.01em">{{ f.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:{{ t.sub2 }};margin:0 0 11px">Preset</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px">
+            <sc-for list="{{ presets }}" as="p" hint-placeholder-count="4">
+              <div onClick="{{ p.onClick }}" style="{{ p.style }}">
+                <div style="font-size:12.5px;font-weight:600;margin-bottom:2px;color:{{ t.text }}">{{ p.label }}</div>
+                <div style="font-size:11px;color:{{ t.sub2 }};font-variant-numeric:tabular-nums">{{ p.sample }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:{{ t.sub2 }};margin:0 0 14px">Fine-tune</div>
+          <sc-for list="{{ mbToggles }}" as="r" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
+              <div style="width:150px;text-align:right;font-size:12.5px;color:{{ t.sub }};flex:none">{{ r.label }}</div>
+              <div onClick="{{ r.toggle }}" style="width:38px;height:22px;border-radius:11px;background:{{ r.bg }};position:relative;cursor:pointer;transition:background .2s;flex:none"><div style="position:absolute;top:2px;left:{{ r.left }};width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.3);transition:left .18s"></div></div>
+            </div>
+          </sc-for>
+          <div style="display:flex;align-items:center;gap:16px;margin-top:4px">
+            <div style="width:150px;text-align:right;font-size:12.5px;color:{{ t.sub }};flex:none">Show Meridian in</div>
+            <div style="display:inline-flex;gap:2px;padding:2px;border-radius:8px;background:{{ t.segBg }}"><sc-for list="{{ showInSeg }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button></sc-for></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;margin-top:14px">
+            <div style="width:150px;text-align:right;font-size:12.5px;color:{{ t.sub }};flex:none">Float on top</div>
+            <div onClick="{{ sw.floatTop.toggle }}" style="width:38px;height:22px;border-radius:11px;background:{{ sw.floatTop.bg }};position:relative;cursor:pointer;transition:background .2s;flex:none"><div style="position:absolute;top:2px;left:{{ sw.floatTop.left }};width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.3);transition:left .18s"></div></div>
+            <span style="font-size:11px;color:{{ t.sub2 }}">Keep the popover open</span>
+          </div>
+        </sc-if>
+
+        <!-- APPEARANCE -->
+        <sc-if value="{{ isAppearance }}" hint-placeholder-val="{{ false }}">
+          <h2 style="font-size:20px;font-weight:660;letter-spacing:-.02em;margin:0 0 18px">Appearance</h2>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+            <div style="width:150px;text-align:right;font-size:12.5px;color:{{ t.sub }};flex:none">Theme</div>
+            <div style="display:inline-flex;gap:2px;padding:2px;border-radius:8px;background:{{ t.segBg }}"><sc-for list="{{ themeSeg }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button></sc-for></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:18px">
+            <div style="width:150px;text-align:right;font-size:12.5px;color:{{ t.sub }};flex:none;padding-top:5px">Accent color</div>
+            <div style="flex:1">
+              <div style="display:flex;gap:9px;flex-wrap:wrap">
+                <sc-for list="{{ accentSwatches }}" as="a" hint-placeholder-count="8"><button onClick="{{ a.onClick }}" title="{{ a.name }}" style="{{ a.style }}"></button></sc-for>
+              </div>
+              <div style="font-size:11.5px;color:{{ t.sub2 }};margin-top:8px">{{ accentName }} · livery palette</div>
+              <div style="display:flex;align-items:flex-start;gap:7px;margin-top:9px;max-width:360px">
+                <span style="font-size:12px;color:{{ t.sub2 }};flex:none;line-height:1.4">ⓘ</span>
+                <span style="font-size:10.5px;line-height:1.5;color:{{ t.sub2 }}">Palette names &amp; colors are stylized tributes for personalization only. Team names and liveries are trademarks of their respective Formula&nbsp;1 teams — all rights reserved. Meridian is not affiliated with or endorsed by them.</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+            <div style="width:150px;text-align:right;font-size:12.5px;color:{{ t.sub }};flex:none">Time format</div>
+            <div style="display:inline-flex;gap:2px;padding:2px;border-radius:8px;background:{{ t.segBg }}"><sc-for list="{{ fmtSeg }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button></sc-for></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+            <div style="width:150px;text-align:right;font-size:12.5px;color:{{ t.sub }};flex:none">Day display</div>
+            <div style="display:inline-flex;gap:2px;padding:2px;border-radius:8px;background:{{ t.segBg }}"><sc-for list="{{ daySeg }}" as="o" hint-placeholder-count="4"><button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button></sc-for></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+            <div style="width:150px;text-align:right;font-size:12.5px;color:{{ t.sub }};flex:none">Sunrise / sunset</div>
+            <div onClick="{{ sw.showSun.toggle }}" style="width:38px;height:22px;border-radius:11px;background:{{ sw.showSun.bg }};position:relative;cursor:pointer;transition:background .2s;flex:none"><div style="position:absolute;top:2px;left:{{ sw.showSun.left }};width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.3);transition:left .18s"></div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:22px">
+            <div style="width:150px;text-align:right;font-size:12.5px;color:{{ t.sub }};flex:none">Text size</div>
+            <input type="range" class="mr-range" min="0.85" max="1.3" step="0.05" value="{{ textScale }}" onChange="{{ onTextScale }}" style="flex:1;background:{{ t.segBg }}" />
+          </div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:{{ t.sub2 }};margin:0 0 10px">Preview</div>
+          <div style="background:{{ prev.bg }};border:1px solid {{ t.cardBorder }};border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:11px">
+              <span style="width:11px;height:11px;border-radius:50%;background:{{ prev.dot }};flex:none"></span>
+              <div><div style="font-weight:580;color:{{ t.text }};font-size:{{ prev.nameSize }}">Denver</div><div style="font-size:{{ prev.subSize }};color:{{ t.sub }};margin-top:2px">{{ prev.sub }}</div></div>
+            </div>
+            <div style="text-align:right"><div style="font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:-.02em;color:{{ t.text }};font-size:{{ prev.timeSize }}">{{ prev.time }}</div><div style="font-size:{{ prev.subSize }};color:{{ t.accent }};margin-top:2px">{{ prev.sun }}</div></div>
+          </div>
+        </sc-if>
+
+        <!-- TIME TRAVEL -->
+        <sc-if value="{{ isTravel }}" hint-placeholder-val="{{ false }}">
+          <h2 style="font-size:20px;font-weight:660;letter-spacing:-.02em;margin:0 0 4px">Time Travel</h2>
+          <p style="font-size:12.5px;color:{{ t.sub }};margin:0 0 20px">Limits and feel of the scrubber in the popover.</p>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px">
+            <div style="width:150px;text-align:right;font-size:12.5px;color:{{ t.sub }};flex:none">Travel forward</div>
+            <input type="range" class="mr-range" min="1" max="30" step="1" value="{{ futureDays }}" onChange="{{ onFuture }}" style="flex:1;background:{{ t.segBg }}" />
+            <div style="width:64px;font-size:12.5px;color:{{ t.text }};font-variant-numeric:tabular-nums;flex:none">{{ futureLabel }}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px">
+            <div style="width:150px;text-align:right;font-size:12.5px;color:{{ t.sub }};flex:none">Travel back</div>
+            <input type="range" class="mr-range" min="0" max="7" step="1" value="{{ pastDays }}" onChange="{{ onPast }}" style="flex:1;background:{{ t.segBg }}" />
+            <div style="width:64px;font-size:12.5px;color:{{ t.text }};font-variant-numeric:tabular-nums;flex:none">{{ pastLabel }}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+            <div style="width:150px;text-align:right;font-size:12.5px;color:{{ t.sub }};flex:none">Arrow / snap step</div>
+            <div style="display:inline-flex;gap:2px;padding:2px;border-radius:8px;background:{{ t.segBg }}"><sc-for list="{{ snapSeg }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button></sc-for></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px">
+            <div style="width:150px;text-align:right;font-size:12.5px;color:{{ t.sub }};flex:none">Show Time Scroller</div>
+            <div onClick="{{ sw.showScroller.toggle }}" style="width:38px;height:22px;border-radius:11px;background:{{ sw.showScroller.bg }};position:relative;cursor:pointer;transition:background .2s;flex:none"><div style="position:absolute;top:2px;left:{{ sw.showScroller.left }};width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.3);transition:left .18s"></div></div>
+          </div>
+        </sc-if>
+
+        <!-- GENERAL -->
+        <sc-if value="{{ isGeneral }}" hint-placeholder-val="{{ false }}">
+          <h2 style="font-size:20px;font-weight:660;letter-spacing:-.02em;margin:0 0 18px">General</h2>
+          <sc-for list="{{ genToggles }}" as="r" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
+              <div style="width:150px;text-align:right;flex:none"><div style="font-size:12.5px;color:{{ t.sub }}">{{ r.label }}</div></div>
+              <div onClick="{{ r.toggle }}" style="width:38px;height:22px;border-radius:11px;background:{{ r.bg }};position:relative;cursor:pointer;transition:background .2s;flex:none"><div style="position:absolute;top:2px;left:{{ r.left }};width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.3);transition:left .18s"></div></div>
+              <div style="font-size:11px;color:{{ t.sub2 }}">{{ r.note }}</div>
+            </div>
+          </sc-for>
+          <div style="display:flex;align-items:center;gap:16px;margin:18px 0">
+            <div style="width:150px;text-align:right;font-size:12.5px;color:{{ t.sub }};flex:none">Check for updates</div>
+            <div style="display:inline-flex;gap:2px;padding:2px;border-radius:8px;background:{{ t.segBg }}"><sc-for list="{{ freqSeg }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button></sc-for></div>
+            <button style="font-size:12px;font-weight:550;color:{{ t.text }};background:{{ t.card }};border:1px solid {{ t.cardBorder }};border-radius:7px;padding:6px 12px;cursor:pointer">Check Now</button>
+          </div>
+          <div style="border-top:1px solid {{ t.div }};margin:18px 0;padding-top:18px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+            <button style="font-size:12px;font-weight:550;color:{{ t.text }};background:{{ t.card }};border:1px solid {{ t.cardBorder }};border-radius:7px;padding:7px 13px;cursor:pointer">Export Settings…</button>
+            <button style="font-size:12px;font-weight:550;color:{{ t.text }};background:{{ t.card }};border:1px solid {{ t.cardBorder }};border-radius:7px;padding:7px 13px;cursor:pointer">Import Settings…</button>
+            <button style="font-size:12px;font-weight:550;color:{{ t.text }};background:{{ t.card }};border:1px solid {{ t.cardBorder }};border-radius:7px;padding:7px 13px;cursor:pointer">Export Log</button>
+          </div>
+          <div style="border-top:1px solid {{ t.div }};margin-top:18px;padding-top:18px;text-align:center">
+            <div style="font-size:15px;font-weight:640;letter-spacing:-.01em">Meridian 4.0</div>
+            <div style="font-size:11.5px;color:{{ t.sub2 }};margin-top:3px">Last checked 6/13/26, 1:47 PM</div>
+            <div style="display:flex;gap:18px;justify-content:center;margin-top:10px">
+              <span style="font-size:12px;color:{{ t.accent }};cursor:pointer">Open an issue</span>
+              <span style="font-size:12px;color:{{ t.accent }};cursor:pointer">View source</span>
+              <span style="font-size:12px;color:{{ t.accent }};cursor:pointer">Can't see it in your menu bar?</span>
+            </div>
+          </div>
+        </sc-if>
+
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    pane:'cities', theme:'dark',
+    accent:'#FF7A00', accentName:'McLaren',
+    sort:'diff',
+    mbPreset:'compact', mbPlace:true, mbDay:false, mbDate:false, mb24:false, mbDots:true, showIn:'menubar',
+    timeFormat:'12', dayDisplay:'actual', showSun:true, textScale:1,
+    futureDays:14, pastDays:2, showScroller:true, snap:15,
+    startLogin:true, floatTop:false, autoUpdate:true, beta:true, checkFreq:'daily', debug:false,
+    favs:{ Melbourne:false, IST:true, UTC:false, Denver:true },
+    colors:{ Melbourne:'#e0a236', IST:'#00A19C', UTC:'#6366F1', Denver:'#E8002D' },
+    colorPickFor:null,
+    home:'Melbourne', current:'Denver', pinCurrent:true, openDD:null
+  };
+
+  PALETTE = ['#FF7A00','#E8002D','#00A19C','#1E41FF','#37BEDD','#FF5FA2','#7C8493','#6366F1'];
+  ACCENTS = [
+    {name:'McLaren',c:'#FF7A00'},{name:'Ferrari',c:'#E8002D'},{name:'Mercedes',c:'#00A19C'},
+    {name:'Red Bull',c:'#1E41FF'},{name:'Williams',c:'#37BEDD'},{name:'Alpine',c:'#FF5FA2'},
+    {name:'Graphite',c:'#7C8493'},{name:'Indigo',c:'#6366F1'}
+  ];
+  CITIES = [
+    {id:'Melbourne', tz:'Australia/Melbourne', label:'Melbourne', time:'12:17 PM', off:'home', diff:0, ph:'day', home:true},
+    {id:'IST', tz:'Bengaluru', label:'IST', time:'7:47 AM', off:'\u22124:30', diff:-270, ph:'day'},
+    {id:'UTC', tz:'UTC', label:'UTC', time:'2:17 AM', off:'\u221210:00', diff:-600, ph:'night'},
+    {id:'Denver', tz:'America/Denver', label:'Denver', time:'8:17 PM', off:'\u221216:00', diff:-960, ph:'day'}
+  ];
+  FAVDATA = {
+    IST:    {name:'IST',    day:'Mon', t12:'7:47', ap:'AM', t24:'07:47', date:'13 Jun'},
+    Denver: {name:'Denver', day:'Sun', t12:'8:17', ap:'PM', t24:'20:17', date:'12 Jun'}
+  };
+
+  set(k,v){ this.setState({ [k]:v }); }
+  renderVals(){
+    const self=this, S=this.state;
+    const dark = S.theme !== 'light';
+    const accent = S.accent;
+    const t = dark ? {
+      win:'#1e2024', bar:'#26282d', side:'#191b1f', winBorder:'rgba(255,255,255,.09)', div:'rgba(255,255,255,.08)',
+      text:'#f1f1f5', sub:'rgba(235,235,245,.62)', sub2:'rgba(235,235,245,.4)', card:'#26282d', cardBorder:'rgba(255,255,255,.08)',
+      segBg:'rgba(255,255,255,.07)', inputBg:'rgba(255,255,255,.05)', swTrack:'rgba(255,255,255,.16)', accent
+    } : {
+      win:'#ececef', bar:'#e3e3e7', side:'#e7e7ea', winBorder:'rgba(0,0,0,.1)', div:'rgba(0,0,0,.08)',
+      text:'#1a1b20', sub:'rgba(60,60,67,.62)', sub2:'rgba(60,60,67,.45)', card:'#fbfbfd', cardBorder:'rgba(0,0,0,.08)',
+      segBg:'rgba(0,0,0,.06)', inputBg:'#ffffff', swTrack:'rgba(0,0,0,.16)', accent
+    };
+
+    // nav
+    const navDef = [['cities','Cities','\u25ce'],['menubar','Menu Bar','\u25a4'],['appearance','Appearance','\u25d0'],['travel','Time Travel','\u25f7'],['general','General','\u2295']];
+    const nav = navDef.map(([k,label,glyph])=>{
+      const active = S.pane===k;
+      return { label, glyph,
+        onClick:()=>this.set('pane',k),
+        style:'display:flex;align-items:center;gap:10px;padding:7px 9px;border-radius:8px;cursor:pointer;transition:background .15s;'+(active?`background:${accent};color:#fff;`:`color:${t.text};`),
+        iconBg: active?'rgba(255,255,255,.22)':t.segBg, iconColor: active?'#fff':t.sub };
+    });
+
+    const segBtn='font-size:12px;font-weight:550;padding:5px 12px;border-radius:7px;border:none;cursor:pointer;white-space:nowrap;transition:all .15s;';
+    const mkSeg=(key, opts)=>opts.map(o=>({ label:o.label, onClick:()=>this.set(key,o.v),
+      style: segBtn + (S[key]===o.v ? `background:${accent};color:#fff;` : `background:transparent;color:${t.sub};`) }));
+    const mkSw=(key, after)=>({ bg: S[key]?accent:t.swTrack, left: S[key]?'18px':'2px',
+      toggle:()=>{ const u={ [key]:!S[key] }; if(after) Object.assign(u, after()); this.setState(u); } });
+
+    // ---- cities ----
+    let list = this.CITIES.slice();
+    if(S.sort==='name') list.sort((a,b)=>a.tz.localeCompare(b.tz));
+    else if(S.sort==='label') list.sort((a,b)=>a.label.localeCompare(b.label));
+    else list.sort((a,b)=> b.diff-a.diff);
+    if(S.pinCurrent && S.current){ const i=list.findIndex(c=>c.id===S.current); if(i>0){ const cur=list.splice(i,1)[0]; list.unshift(cur); } }
+    const cityRows = list.map(c=>{
+      const isHome=c.id===S.home, isCurrent=c.id===S.current;
+      return {
+      tz:c.tz, label:c.label, time:c.time, off:c.off, isHome, isCurrent,
+      star: S.favs[c.id]?'\u2605':'\u2606', starColor: S.favs[c.id]?accent:t.sub2,
+      color: S.colors[c.id], dot: S.colors[c.id],
+      homeBadgeStyle:`font-size:10px;font-weight:600;color:${t.sub};border:1px solid ${t.cardBorder};border-radius:5px;padding:1px 6px;flex:none`,
+      hereBadgeStyle:`font-size:10px;font-weight:600;color:#fff;background:${accent};border-radius:5px;padding:1px 6px;flex:none`,
+      removeGlyph: isHome?'':'\u00d7',
+      picking: S.colorPickFor===c.id,
+      toggleFav: ()=>this.setState({ favs:{...S.favs, [c.id]:!S.favs[c.id]} }),
+      pick: ()=>this.set('colorPickFor', S.colorPickFor===c.id?null:c.id),
+      remove: ()=>{},
+      swatches: this.PALETTE.map(col=>({ onClick:()=>this.setState({ colors:{...S.colors,[c.id]:col}, colorPickFor:null }),
+        style:`width:20px;height:20px;border-radius:50%;background:${col};cursor:pointer;padding:0;border:2px solid ${t.card};box-shadow:0 0 0 ${col===S.colors[c.id]?'2px '+accent:'1px '+t.cardBorder};` }))
+    }; });
+    const sortSeg = mkSeg('sort',[{v:'diff',label:'Time diff'},{v:'name',label:'Name'},{v:'label',label:'Label'}]);
+    const labelFor=(id)=>{ const c=this.CITIES.find(x=>x.id===id); return c?c.label:'\u2014'; };
+    const ddOpt=(c,selKey)=>({ label:c.tz+' \u00b7 '+c.label, onClick:()=>this.setState({[selKey]:c.id, openDD:null}),
+      style:`padding:7px 10px;border-radius:6px;cursor:pointer;font-size:12.5px;color:${S[selKey]===c.id?accent:t.text};font-weight:${S[selKey]===c.id?'600':'400'};` });
+    const homeDD = { label:labelFor(S.home), open:S.openDD==='home', toggle:()=>this.set('openDD', S.openDD==='home'?null:'home'), options:this.CITIES.map(c=>ddOpt(c,'home')) };
+    const currentDD = { label:labelFor(S.current), open:S.openDD==='current', toggle:()=>this.set('openDD', S.openDD==='current'?null:'current'), options:this.CITIES.map(c=>ddOpt(c,'current')) };
+    const pinSw = mkSw('pinCurrent');
+
+    // ---- menu bar ----
+    const favIds = this.CITIES.filter(c=>S.favs[c.id] && !c.home).map(c=>c.id);
+    const favLabel=(d)=>{ const p=[]; if(S.mbPlace)p.push(d.name); if(S.mbDay)p.push(d.day); p.push(S.mb24?d.t24:(d.t12+' '+d.ap)); if(S.mbDate)p.push(d.date); return p.join(' '); };
+    const favPreview = favIds.map(id=>({ label: favLabel(this.FAVDATA[id]), dot: S.colors[id], showDot: S.mbDots }));
+    const presetDefs=[
+      {key:'compact',label:'Compact',set:{mbPlace:true,mbDay:false,mbDate:false,mb24:false,mbDots:true},sample:'IST 7:47 AM'},
+      {key:'withday',label:'With day',set:{mbPlace:true,mbDay:true,mbDate:false,mb24:false,mbDots:true},sample:'IST Mon 7:47 AM'},
+      {key:'dense24',label:'Dense · 24h',set:{mbPlace:true,mbDay:false,mbDate:false,mb24:true,mbDots:true},sample:'IST 07:47'},
+      {key:'withdate',label:'With date',set:{mbPlace:true,mbDay:false,mbDate:true,mb24:false,mbDots:true},sample:'IST 7:47 AM 13 Jun'},
+      {key:'mono',label:'Mono · no dots',set:{mbPlace:true,mbDay:false,mbDate:false,mb24:false,mbDots:false},sample:'IST 7:47 AM'}
+    ];
+    const presets = presetDefs.map(p=>{ const active=S.mbPreset===p.key;
+      return { label:p.label, sample:p.sample, onClick:()=>this.setState({...p.set, mbPreset:p.key}),
+        style:`padding:11px 13px;border-radius:11px;cursor:pointer;transition:all .15s;background:${active?(dark?'rgba(255,122,0,.12)':'rgba(255,122,0,.1)'):t.card};border:1.5px solid ${active?accent:t.cardBorder};` }; });
+    const setCustom=()=>({mbPreset:'custom'});
+    const mbToggles=[
+      {label:'Place name', ...mkSw('mbPlace',setCustom)},
+      {label:'Day of week', ...mkSw('mbDay',setCustom)},
+      {label:'Date', ...mkSw('mbDate',setCustom)},
+      {label:'24-hour time', ...mkSw('mb24',setCustom)},
+      {label:'Color dots', ...mkSw('mbDots',setCustom)}
+    ];
+    const showInSeg = mkSeg('showIn',[{v:'menubar',label:'Menu Bar only'},{v:'both',label:'Dock & Menu Bar'}]);
+
+    // ---- appearance ----
+    const themeSeg = mkSeg('theme',[{v:'auto',label:'Auto'},{v:'light',label:'Light'},{v:'dark',label:'Dark'}]);
+    const accentSwatches = this.ACCENTS.map(a=>({ name:a.name, onClick:()=>this.setState({accent:a.c, accentName:a.name}),
+      style:`width:26px;height:26px;border-radius:50%;background:${a.c};cursor:pointer;padding:0;border:2px solid ${t.win};box-shadow:0 0 0 ${a.c===S.accent?'2px '+a.c:'1px '+t.cardBorder};transition:box-shadow .15s;` }));
+    const fmtSeg = mkSeg('timeFormat',[{v:'12',label:'12-hour'},{v:'24',label:'24-hour'}]);
+    const daySeg = mkSeg('dayDisplay',[{v:'relative',label:'Relative'},{v:'actual',label:'Actual'},{v:'date',label:'Date'},{v:'hide',label:'Hide'}]);
+    const sw = { showSun:mkSw('showSun'), showScroller:mkSw('showScroller'), floatTop:mkSw('floatTop') };
+    const sc=S.textScale;
+    const prevSub = S.dayDisplay==='relative'?'\u221216h · yesterday' : S.dayDisplay==='actual'?'Sun 8:17 PM' : S.dayDisplay==='date'?'Sun 12 Jun' : '';
+    const prev = {
+      bg: dark?'linear-gradient(135deg,rgba(255,190,90,.10),rgba(255,150,70,.04))':'linear-gradient(135deg,rgba(255,180,60,.12),rgba(255,150,70,.05))',
+      dot: S.colors.Denver, accent,
+      time: S.timeFormat==='24'?'20:17':'8:17 PM',
+      sub: prevSub, sun: S.showSun?'\u2193 Sunset 8:28 PM':'',
+      nameSize:(15*sc).toFixed(1)+'px', subSize:(11.5*sc).toFixed(1)+'px', timeSize:(21*sc).toFixed(1)+'px'
+    };
+
+    // ---- time travel ----
+    const futureLabel = S.futureDays+(S.futureDays===1?' day':' days');
+    const pastLabel = S.pastDays===0?'Off':(S.pastDays+(S.pastDays===1?' day':' days'));
+    const snapSeg = mkSeg('snap',[{v:5,label:'5 min'},{v:15,label:'15 min'},{v:30,label:'30 min'},{v:60,label:'60 min'}]);
+
+    // ---- general ----
+    const genToggles=[
+      {label:'Start at login', note:'', ...mkSw('startLogin')},
+      {label:'Auto-install updates', note:'', ...mkSw('autoUpdate')},
+      {label:'Receive beta releases', note:'May have bugs', ...mkSw('beta')},
+      {label:'Debug logging', note:'', ...mkSw('debug')}
+    ];
+    const freqSeg = mkSeg('checkFreq',[{v:'manual',label:'Manually'},{v:'daily',label:'Daily'},{v:'weekly',label:'Weekly'}]);
+
+    return { t,
+      isCities:S.pane==='cities', isMenubar:S.pane==='menubar', isAppearance:S.pane==='appearance', isTravel:S.pane==='travel', isGeneral:S.pane==='general',
+      nav, cityRows, sortSeg, homeDD, currentDD, pinSw,
+      favPreview, presets, mbToggles, showInSeg,
+      themeSeg, accentSwatches, accentName:S.accentName, fmtSeg, daySeg, sw, textScale:S.textScale, onTextScale:(e)=>this.set('textScale',parseFloat(e.target.value)), prev,
+      futureDays:S.futureDays, pastDays:S.pastDays, futureLabel, pastLabel, snapSeg, onFuture:(e)=>this.set('futureDays',parseInt(e.target.value)), onPast:(e)=>this.set('pastDays',parseInt(e.target.value)),
+      genToggles, freqSeg };
+  }
+}
+</script>
+</body>
+</html>
