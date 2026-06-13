@@ -87,7 +87,10 @@ struct SettingsRootView: View {
                 case .general: GeneralPane(accent: accent)
                 }
             }
-            .padding(EdgeInsets(top: 24, leading: 28, bottom: 28, trailing: 28))
+            // Top inset clears the transparent, full-size-content-view titlebar where the window's
+            // "Settings" title is drawn — otherwise the first pane header (e.g. "Cities") collides
+            // with it, and on overscroll the two visibly swish together.
+            .padding(EdgeInsets(top: 44, leading: 28, bottom: 28, trailing: 28))
         }
     }
 

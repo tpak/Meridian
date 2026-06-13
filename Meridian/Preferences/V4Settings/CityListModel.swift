@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import CoreLocation
 import CoreModelKit
 
 struct SettingsCityRow: Identifiable, Equatable {
@@ -41,8 +42,14 @@ final class CityListModel: ObservableObject {
     @Published private(set) var effectiveHomeID: String = ""
     @Published var sort: SortMode = .timeDiff { didSet { if oldValue != sort { applySort() } } }
 
+    /// Ranked results for the "add a city" field. Local hits appear instantly; a precise geocoded
+    /// city is merged in on top a moment later (see `updateSearch`).
+    @Published private(set) var searchResults: [CitySearchResult] = []
+
     private let store = DataStore.shared()
     private var cancellables = Set<AnyCancellable>()
+    private var searchTask: Task<Void, Never>?
+    private var currentQuery = ""
 
     init() {
         reload()
@@ -169,32 +176,85 @@ final class CityListModel: ObservableObject {
         persist(objects)
     }
 
-    /// Add a timezone by IANA identifier (local, no geocoding). Geocoded city search is a follow-up.
-    func addTimezone(identifier: String) {
-        guard TimeZone(identifier: identifier) != nil else { return }
-        // Don't add a duplicate of a timezone already tracked.
-        guard !store.timezoneObjects().contains(where: { $0.timezone() == identifier }) else { return }
-        let name = identifier.split(separator: "/").last.map(String.init)?
-            .replacingOccurrences(of: "_", with: " ") ?? identifier
-        let data = TimezoneData.make(timezoneID: identifier, name: name, customLabel: "",
-                                     latitude: 0, longitude: 0, placeIdentifier: UUID().uuidString)
-        // Leave coordinates nil (not 0/0) so AppDelegate.backfillMissingCoordinates geocodes this
-        // city on next launch and Daybreak gets real sunrise/sunset instead of the fallback window.
-        data.latitude = nil
-        data.longitude = nil
-        store.addTimezone(data)
-        reload()
+    // MARK: Search
+
+    /// Drive the "add a city" results. Local matches are computed synchronously and published
+    /// immediately (no UserDefaults read — the installed set comes from the in-memory rows, which is
+    /// what fixed the per-keystroke lag). When the local index didn't already nail the city by name,
+    /// a debounced geocode fetches the precise place (correct coordinates → real sunrise/sunset) and
+    /// merges it on top.
+    func updateSearch(_ query: String) {
+        searchTask?.cancel()
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        currentQuery = trimmed
+        guard !trimmed.isEmpty else { searchResults = []; return }
+
+        let installed = Set(rows.map { $0.timezoneID })
+        let local = CitySearchService.search(trimmed, excluding: installed)
+        searchResults = local.results
+
+        // Fire the geocoder only when it can add value: a multi-word place query, or one the local
+        // index couldn't match by name. Debounced so we don't geocode on every keystroke.
+        guard trimmed.count >= 3, trimmed.contains(" ") || !local.hasStrongMatch else { return }
+        searchTask = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 350_000_000)
+            guard !Task.isCancelled else { return }
+            await self?.geocode(trimmed, installed: installed)
+        }
     }
 
-    /// Candidate IANA identifiers matching a query (for the add field), excluding already-tracked ones.
-    func searchTimezones(_ query: String) -> [String] {
-        let q = query.trimmingCharacters(in: .whitespaces).lowercased()
-        guard !q.isEmpty else { return [] }
-        let existing = Set(store.timezoneObjects().map { $0.timezone() })
-        return TimeZone.knownTimeZoneIdentifiers
-            .filter { $0.lowercased().contains(q) && !existing.contains($0) }
-            .prefix(20)
-            .map { $0 }
+    private func geocode(_ query: String, installed: Set<String>) async {
+        guard let place = try? await NetworkManager.geocodeAddress(query),
+              let timezone = place.timeZone,
+              currentQuery == query,                       // a newer keystroke superseded us
+              !installed.contains(timezone.identifier)
+        else { return }
+
+        let label = place.cityName ?? place.formattedAddress ?? timezone.identifier
+        let result = CitySearchResult(
+            id: "city:\(timezone.identifier):\(place.coordinate.latitude),\(place.coordinate.longitude)",
+            title: place.formattedAddress ?? label,
+            timezoneID: timezone.identifier,
+            label: label,
+            kind: .city,
+            latitude: place.coordinate.latitude,
+            longitude: place.coordinate.longitude
+        )
+        // Precise city on top; drop any local row that resolved to the same zone so it isn't listed
+        // twice.
+        var merged = searchResults.filter { $0.timezoneID != timezone.identifier }
+        merged.insert(result, at: 0)
+        searchResults = Array(merged.prefix(CitySearchService.maxResults))
+    }
+
+    func clearSearch() {
+        searchTask?.cancel()
+        currentQuery = ""
+        searchResults = []
+    }
+
+    /// Install a chosen search result. Geocoded cities carry real coordinates and a friendly label;
+    /// plain timezone/UTC results leave coordinates nil so `AppDelegate.backfillMissingCoordinates`
+    /// resolves them on next launch (Daybreak then gets real sunrise/sunset instead of the fallback).
+    func add(_ result: CitySearchResult) {
+        guard TimeZone(identifier: result.timezoneID) != nil else { return }
+        guard !store.timezoneObjects().contains(where: { $0.timezone() == result.timezoneID }) else { return }
+
+        let data = TimezoneData.make(
+            timezoneID: result.timezoneID,
+            name: result.kind == .city ? result.title : result.label,
+            customLabel: result.kind == .city ? result.label : "",
+            latitude: result.latitude ?? 0,
+            longitude: result.longitude ?? 0,
+            placeIdentifier: UUID().uuidString
+        )
+        if result.latitude == nil || result.longitude == nil {
+            data.latitude = nil
+            data.longitude = nil
+        }
+        store.addTimezone(data)
+        clearSearch()
+        reload()
     }
 
     /// Apply the chosen sort to the STORED order so the popover reflects it too (not just the

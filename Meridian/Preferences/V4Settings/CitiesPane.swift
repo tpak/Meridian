@@ -20,7 +20,6 @@ struct CitiesPane: View {
     static let locationControlWidth: CGFloat = 200
 
     @State private var query = ""
-    @State private var searchResults: [String] = []
     @State private var colorPickFor: String?
 
     var body: some View {
@@ -164,7 +163,7 @@ private extension CitiesPane {
                     .textFieldStyle(.plain)
                     .font(.system(size: 13))
                     .onChange(of: query) { _, newValue in
-                        searchResults = model.searchTimezones(newValue)
+                        model.updateSearch(newValue)
                     }
             }
             .padding(.horizontal, 12)
@@ -178,7 +177,7 @@ private extension CitiesPane {
                     .stroke(Color.primary.opacity(0.08), lineWidth: 1)
             )
 
-            if !searchResults.isEmpty {
+            if !model.searchResults.isEmpty {
                 searchResultsList
             }
         }
@@ -187,16 +186,24 @@ private extension CitiesPane {
 
     var searchResultsList: some View {
         VStack(alignment: .leading, spacing: 1) {
-            ForEach(searchResults, id: \.self) { identifier in
+            ForEach(model.searchResults) { result in
                 Button {
-                    addResult(identifier)
+                    addResult(result)
                 } label: {
-                    Text(identifier.replacingOccurrences(of: "_", with: " "))
-                        .font(.system(size: 12.5))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .contentShape(Rectangle())
+                    HStack(spacing: 6) {
+                        Image(systemName: result.kind == .city ? "mappin.and.ellipse" : "globe")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.tertiary)
+                            .frame(width: 16)
+                        Text(result.title)
+                            .font(.system(size: 12.5))
+                            .lineLimit(1)
+                        Spacer(minLength: 0)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
@@ -207,10 +214,9 @@ private extension CitiesPane {
         .padding(.top, 4)
     }
 
-    func addResult(_ identifier: String) {
-        model.addTimezone(identifier: identifier)
+    func addResult(_ result: CitySearchResult) {
+        model.add(result)
         query = ""
-        searchResults = []
     }
 }
 
