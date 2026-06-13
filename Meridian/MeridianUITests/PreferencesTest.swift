@@ -1,4 +1,4 @@
-// Copyright © 2015 Abhishek Banthia
+// Copyright © 2015 Abhishek Banthia, © 2026 Chris Tirpak
 
 // NOTE: These UI tests require a real macOS session with menu bar access.
 // They are not run in CI (GitHub Actions lacks NSStatusItem accessibility).

@@ -1,4 +1,4 @@
-// Copyright © 2015 Abhishek Banthia
+// Copyright © 2015 Abhishek Banthia, © 2026 Chris Tirpak
 
 import Cocoa
 import Combine
