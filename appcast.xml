@@ -3,6 +3,21 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>4.0.0-beta22</title>
+            <pubDate>Sun, 14 Jun 2026 21:26:15 +0000</pubDate>
+            <sparkle:channel>beta</sparkle:channel>
+            <sparkle:version>4000022</sparkle:version>
+            <sparkle:shortVersionString>4.0.0-beta22</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>The redesigned Daybreak interface is now ready for translation into all supported languages</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v4.0.0-beta22/Meridian.app.zip" length="3826378" type="application/octet-stream" sparkle:edSignature="BXikW80Dm2Grh8DhWDWz+8SYH/6H7vbqBCx8sQ018rI+O75LfNwapBNbPcPqlW1kF2oIGOxAqvizEJaAjjNNAw=="/>
+        </item>
+        <item>
             <title>4.0.0-beta21</title>
             <pubDate>Sun, 14 Jun 2026 15:29:30 +0000</pubDate>
             <sparkle:channel>beta</sparkle:channel>
