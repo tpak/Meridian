@@ -1,9 +1,10 @@
 // Copyright © 2026 Chris Tirpak
 //
 // DaybreakScrubber — the time-travel control (README §F). A readout pill, ‹ › nudge buttons, and a
-// tick ruler with day-boundary markers and a draggable sun/moon handle. The handle's glyph reflects
-// the current location's phase; dragging sets the travel offset (snapped via the view model). The
-// decorative rainbow band from the prototype is intentionally dropped — the ruler + handle remain.
+// ruler of major + minor hashes with a draggable sun/moon handle. The handle's glyph reflects the
+// current location's phase; dragging sets the travel offset (snapped via the view model). The
+// decorative rainbow band and the dated day labels from the prototype are intentionally dropped —
+// the ruler is a plain major/minor hash scale and only the handle carries position.
 
 import SwiftUI
 
@@ -14,9 +15,14 @@ struct DaybreakScrubber: View {
     var onNudge: (_ forward: Bool) -> Void
     var onReset: () -> Void
 
-    private let trackHeight: CGFloat = 40
+    /// Ruler band height. The chevrons are the same height, so the HStack centres them on the ruler.
+    private let trackHeight: CGFloat = 30
     private let handleDiameter: CGFloat = 21
-    private let baselineY: CGFloat = 20
+    /// Vertical centre of the ruler within `trackHeight`; everything (line, hashes, handle) sits on it.
+    private var baselineY: CGFloat { trackHeight / 2 }
+    /// Minor-hash count across the ruler (design comb ≈ 32 divisions). Every 8th, offset by 4, is a
+    /// taller/brighter major hash → 4 evenly inset majors (12.5 / 37.5 / 62.5 / 87.5%), like the design.
+    private let combDivisions = 32
 
     var body: some View {
         VStack(spacing: 0) {
@@ -30,6 +36,9 @@ struct DaybreakScrubber: View {
             }
             .frame(maxWidth: .infinity)
 
+            // The reset link appears ONLY while traveling. It pushes the footer down and the popover
+            // grows downward to make room — the panel controller re-fits the window anchored at its
+            // top edge, so the hero never reflows. README §F.
             if data.traveling {
                 Button(action: onReset) {
                     Text("↺ Back to now")
@@ -67,7 +76,10 @@ struct DaybreakScrubber: View {
         .help(forward ? "Forward \(stepDescription)" : "Back \(stepDescription)")
     }
 
-    private var stepDescription: String { "15 minutes" }
+    private var stepDescription: String {
+        let step = data.stepMinutes
+        return step % 60 == 0 ? "\(step / 60) hour\(step == 60 ? "" : "s")" : "\(step) minutes"
+    }
 
     private var track: some View {
         GeometryReader { geo in
@@ -80,39 +92,28 @@ struct DaybreakScrubber: View {
                     .frame(width: w, height: 1)
                     .offset(y: baselineY)
 
-                // Hour-aligned ruler ticks. Plain hour ticks are short and faint; the 6-hourly ticks
-                // (06:00/12:00/18:00) are taller and more opaque, so the ruler reads as a ruler
-                // instead of a wall of identical marks. Midnight is left to the taller day marker.
-                ForEach(data.ticks) { tick in
-                    let tickHeight: CGFloat = tick.isMajor ? 10 : 5
-                    Rectangle().fill(palette.tick)
-                        .frame(width: 1, height: tickHeight)
-                        .opacity(tick.isMajor ? 0.9 : 0.4)
-                        .offset(x: tick.fraction * w, y: baselineY - tickHeight / 2)
+                // Ruler hashes: a fine comb of MINOR ticks with taller, brighter MAJOR ticks at even
+                // intervals — the design's "major + minor hash" scale. Decorative (no day labels);
+                // only the handle carries position. Every hash is centred on the baseline.
+                ForEach(0..<combDivisions, id: \.self) { i in
+                    let isMajor = i % 8 == 4
+                    Rectangle().fill(isMajor ? palette.dayTick : palette.tick)
+                        .frame(width: 1, height: isMajor ? 14 : 10)
+                        .offset(x: CGFloat(i) / CGFloat(combDivisions) * w, y: baselineY - (isMajor ? 7 : 5))
                 }
 
-                // Day-boundary markers + labels.
-                ForEach(data.days) { day in
-                    let x = day.fraction * w
-                    Rectangle().fill(palette.dayTick)
-                        .frame(width: 1, height: 14)
-                        .offset(x: x, y: 13)
-                    Text(day.label)
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundStyle(day.isToday ? palette.accent : palette.textTertiary)
-                        .fixedSize()
-                        .offset(x: x + 3, y: 28)
-                }
-
-                // Handle stem + disc.
+                // Handle stem + disc, centred on the baseline.
                 Rectangle().fill(palette.accent).opacity(0.45)
                     .frame(width: 2, height: 16)
-                    .offset(x: handleX - 1, y: 12)
+                    .offset(x: handleX - 1, y: baselineY - 8)
                 SunMoonDisc(isNight: data.handleIsNight, diameter: handleDiameter, context: .handle, isDark: palette.isDark)
                     .overlay(Circle().stroke(handleRing, lineWidth: 2))
                     .offset(x: handleX - handleDiameter / 2, y: baselineY - handleDiameter / 2)
             }
-            .frame(width: w, height: trackHeight)
+            // Pin the ruler content to the top of the band so `baselineY` is measured from y=0 (true
+            // centre). Without `.topLeading` the frame centres the content block (≈ the 21pt disc) and
+            // the whole ruler drifts down ~5pt, leaving the chevrons sitting visibly ABOVE the line.
+            .frame(width: w, height: trackHeight, alignment: .topLeading)
             .contentShape(Rectangle())
             .gesture(
                 // Require a real drag (not a bare tap/click) to scrub. With minimumDistance 0 a stray

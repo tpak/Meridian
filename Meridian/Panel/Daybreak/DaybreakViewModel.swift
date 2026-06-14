@@ -40,30 +40,14 @@ struct DaybreakCityData: Identifiable, Equatable {
     var isNight: Bool { phase.isNight }
 }
 
-/// A day-boundary marker under the scrubber ruler. README §F.
-struct DaybreakDayMarker: Identifiable, Equatable {
-    var id: Int                  // delta minutes (stable)
-    var fraction: Double         // 0…1 across the track
-    var label: String            // "Sun 12"
-    var isToday: Bool
-}
-
-/// A single ruler tick on the scrubber track. Hour-aligned; `isMajor` marks the 6-hourly emphasis
-/// ticks (06:00/12:00/18:00) that are taller and more opaque than the plain hour ticks between them.
-struct DaybreakTick: Identifiable, Equatable {
-    var id: Int                  // delta minutes (stable)
-    var fraction: Double         // 0…1 across the track
-    var isMajor: Bool
-}
-
-/// The scrubber's rendered state. README §F.
+/// The scrubber's rendered state. README §F. The ruler hashes are decorative (drawn in the view), so
+/// the only positional data here is the handle fraction.
 struct DaybreakScrubberData: Equatable {
     var readout: String          // "Now · 8:17 PM"
     var traveling: Bool
     var handleFraction: Double
     var handleIsNight: Bool
-    var days: [DaybreakDayMarker]
-    var ticks: [DaybreakTick]
+    var stepMinutes: Int         // nudge/snap step (5/15/30/60) — drives the ‹ › tooltips
 }
 
 /// A full render of the popover, published atomically.
@@ -83,6 +67,11 @@ final class DaybreakViewModel: ObservableObject {
 
     @Published private(set) var snapshot: DaybreakSnapshot
     private(set) var travelOffsetMinutes: Int = 0
+    /// A grid-aligned reference instant, frozen when time-travel begins, so traveled times land on a
+    /// clean :00/:15/:30/:45 boundary instead of inheriting the wall-clock's odd current minute
+    /// (e.g. 1:46). `nil` when not traveling → the hero tracks the live `now` exactly. Recreates the
+    /// legacy slider's quarter-hour base (`findClosestQuarterTimeApproximation`).
+    private var travelAnchor: Date?
     /// IANA id of the current-location (hero) timezone; used to resolve the hero's inline time edit.
     private(set) var heroTimeZoneIdentifier: String = TimeZone.current.identifier
 
@@ -93,7 +82,6 @@ final class DaybreakViewModel: ObservableObject {
 
     // Owned formatters (main-thread; avoids the non-thread-safe shared DateFormatterManager).
     private let fullDate = DaybreakViewModel.makeFormatter("EEEE d MMMM")
-    private let markerDate = DaybreakViewModel.makeFormatter("EEE d")
     private let shortWeekday = DaybreakViewModel.makeFormatter("EEE")
     private let hoverDate = DaybreakViewModel.makeFormatter("EEE d MMM")
 
@@ -117,6 +105,7 @@ final class DaybreakViewModel: ObservableObject {
         // Always open at the present moment: the hero (current location) must match the system clock.
         // Time travel is a transient, per-session exploration — it never carries over to a new open.
         travelOffsetMinutes = 0
+        travelAnchor = nil
         recompute()
         ticker?.invalidate()
         let timer = Timer(timeInterval: 1.0, repeats: true) { [weak self] _ in
@@ -138,8 +127,7 @@ final class DaybreakViewModel: ObservableObject {
     func setOffset(_ minutes: Int) {
         let clamped = DaybreakEngine.clampAndSnap(minutes, range: travelRange, snapStep: snapStep)
         guard clamped != travelOffsetMinutes else { return }
-        travelOffsetMinutes = clamped
-        recompute()
+        applyTravel(offset: clamped)
     }
 
     func setOffsetFromFraction(_ fraction: Double) {
@@ -152,8 +140,32 @@ final class DaybreakViewModel: ObservableObject {
 
     func reset() {
         guard travelOffsetMinutes != 0 else { return }
+        travelAnchor = nil
         travelOffsetMinutes = 0
         recompute()
+    }
+
+    /// Apply an already clamped + snapped travel offset, managing the frozen grid anchor: capture a
+    /// snapped reference the instant travel begins, release it on the return to now. Freezing (rather
+    /// than re-snapping each tick) keeps the traveled time from jumping a step every snap-step minutes
+    /// of real time while the user lingers in travel mode.
+    private func applyTravel(offset: Int) {
+        if offset == 0 {
+            travelAnchor = nil
+        } else if travelOffsetMinutes == 0 || travelAnchor == nil {
+            travelAnchor = snappedNow()
+        }
+        travelOffsetMinutes = offset
+        recompute()
+    }
+
+    /// `now` rounded to the nearest snap-step boundary. Rounding the absolute instant is enough: every
+    /// real IANA zone is a whole number of 15-minute steps from UTC, so a 15-minute grid resolves to
+    /// clean local :00/:15/:30/:45 marks everywhere.
+    private func snappedNow() -> Date {
+        let stepSeconds = Double(max(1, snapStep) * 60)
+        let seconds = now.timeIntervalSinceReferenceDate
+        return Date(timeIntervalSinceReferenceDate: (seconds / stepSeconds).rounded() * stepSeconds)
     }
 
     /// Commit an inline-edited time for a city (or the hero). README §E.
@@ -167,8 +179,7 @@ final class DaybreakViewModel: ObservableObject {
                                                            cityCurrentLocalMinutes: cityCurrent,
                                                            range: travelRange,
                                                            snapStep: snapStep)
-        travelOffsetMinutes = newOffset
-        recompute()
+        applyTravel(offset: newOffset)
     }
 
     func refresh() {
@@ -178,8 +189,12 @@ final class DaybreakViewModel: ObservableObject {
 
     // MARK: - Recompute
 
+    /// The reference "now" the hero + scrubber travel from: the frozen grid-aligned anchor while
+    /// traveling, otherwise the live clock.
+    private var anchorNow: Date { travelAnchor ?? now }
+
     private func referenceDate() -> Date {
-        now.addingTimeInterval(TimeInterval(travelOffsetMinutes * 60))
+        anchorNow.addingTimeInterval(TimeInterval(travelOffsetMinutes * 60))
     }
 
     private func observeExternalChanges() {
@@ -250,8 +265,7 @@ final class DaybreakViewModel: ObservableObject {
         }
 
         // ---- Scrubber ----
-        let scrubber = makeScrubber(heroTZ: heroTZ, heroLocalMinutes: heroLocal,
-                                    heroPhase: heroPhase, heroOrdinal: heroOrdinal)
+        let scrubber = makeScrubber(heroTZ: heroTZ, heroLocalMinutes: heroLocal, heroPhase: heroPhase)
 
         let next = DaybreakSnapshot(hero: hero, cities: rows, scrubber: scrubber,
                                     locationTraveling: locationTraveling, versionText: Self.versionText())
@@ -307,71 +321,18 @@ final class DaybreakViewModel: ObservableObject {
         )
     }
 
-    private func makeScrubber(heroTZ: TimeZone, heroLocalMinutes: Int, heroPhase: DayPhase, heroOrdinal: Int) -> DaybreakScrubberData {
-        let range = travelRange
-        let fraction = DaybreakEngine.handleFraction(offsetMinutes: travelOffsetMinutes, range: range)
+    private func makeScrubber(heroTZ: TimeZone, heroLocalMinutes: Int, heroPhase: DayPhase) -> DaybreakScrubberData {
+        let fraction = DaybreakEngine.handleFraction(offsetMinutes: travelOffsetMinutes, range: travelRange)
         let readout = DaybreakEngine.readout(deltaMinutes: travelOffsetMinutes,
                                              currentLocalMinutes: heroLocalMinutes,
                                              weekdayShort: string(shortWeekday, referenceDate(), heroTZ))
-
-        // Walk *true* local midnights of the current location within the travel range. Stepping a
-        // fixed 1440 minutes would drift on DST-transition days (23/25h); `Calendar` advances days
-        // correctly, so markers and labels stay pinned to real midnights.
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = heroTZ
-        let rangeStart = now.addingTimeInterval(TimeInterval(range.lowerBound * 60))
-        let rangeEnd = now.addingTimeInterval(TimeInterval(range.upperBound * 60))
-        var midnight = calendar.startOfDay(for: rangeStart)
-        if midnight < rangeStart {
-            midnight = calendar.date(byAdding: .day, value: 1, to: midnight) ?? rangeEnd.addingTimeInterval(1)
-        }
-        var markers: [DaybreakDayMarker] = []
-        while midnight <= rangeEnd {
-            let delta = Int((midnight.timeIntervalSince(now) / 60).rounded())
-            let ordinal = DaybreakComputation.dayOrdinal(reference: midnight, timeZone: heroTZ)
-            markers.append(DaybreakDayMarker(
-                id: delta,
-                fraction: DaybreakEngine.handleFraction(offsetMinutes: delta, range: range),
-                label: string(markerDate, midnight, heroTZ),
-                isToday: ordinal == heroOrdinal
-            ))
-            guard let next = calendar.date(byAdding: .day, value: 1, to: midnight) else { break }
-            midnight = next
-        }
-
         return DaybreakScrubberData(
             readout: readout,
             traveling: travelOffsetMinutes != 0,
             handleFraction: fraction,
             handleIsNight: heroPhase.isNight,
-            days: markers,
-            ticks: hourTicks(calendar: calendar, rangeStart: rangeStart, rangeEnd: rangeEnd, range: range)
+            stepMinutes: snapStep
         )
-    }
-
-    /// Hour ruler: one tick per local clock hour, with 6-hourly ticks (06/12/18) emphasised. Midnight
-    /// is skipped — the taller, labelled day marker already stands there.
-    private func hourTicks(calendar: Calendar, rangeStart: Date, rangeEnd: Date,
-                           range: ClosedRange<Int>) -> [DaybreakTick] {
-        var ticks: [DaybreakTick] = []
-        var hourMark = calendar.dateInterval(of: .hour, for: rangeStart)?.start ?? rangeStart
-        if hourMark < rangeStart {
-            hourMark = calendar.date(byAdding: .hour, value: 1, to: hourMark) ?? rangeEnd.addingTimeInterval(1)
-        }
-        while hourMark <= rangeEnd {
-            let hourOfDay = calendar.component(.hour, from: hourMark)
-            if hourOfDay != 0 {
-                let delta = Int((hourMark.timeIntervalSince(now) / 60).rounded())
-                ticks.append(DaybreakTick(
-                    id: delta,
-                    fraction: DaybreakEngine.handleFraction(offsetMinutes: delta, range: range),
-                    isMajor: hourOfDay % 6 == 0
-                ))
-            }
-            guard let next = calendar.date(byAdding: .hour, value: 1, to: hourMark) else { break }
-            hourMark = next
-        }
-        return ticks
     }
 
     // MARK: Helpers
@@ -443,7 +404,7 @@ final class DaybreakViewModel: ObservableObject {
                                    phase: .day, localMinutes: 0),
             cities: [],
             scrubber: DaybreakScrubberData(readout: "Now", traveling: false, handleFraction: 0.5,
-                                           handleIsNight: false, days: [], ticks: []),
+                                           handleIsNight: false, stepMinutes: 15),
             locationTraveling: false,
             versionText: versionText()
         )

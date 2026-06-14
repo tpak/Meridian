@@ -261,11 +261,11 @@ final class DaybreakEngineTests: XCTestCase {
 /// travel offset, so the hero diverged from system time.)
 final class DaybreakViewModelTravelTests: XCTestCase {
 
-    private func makeViewModel() -> DaybreakViewModel {
+    private func makeViewModel(now: Date = Date()) -> DaybreakViewModel {
         let suite = "DaybreakTravelTest"
         let defaults = UserDefaults(suiteName: suite)!
         defaults.removePersistentDomain(forName: suite)
-        return DaybreakViewModel(store: DataStore(with: defaults), now: Date())
+        return DaybreakViewModel(store: DataStore(with: defaults), now: now)
     }
 
     func testOpeningPanelResetsTravelToNow() {
@@ -283,5 +283,28 @@ final class DaybreakViewModelTravelTests: XCTestCase {
         vm.setOffset(90)
         vm.reset()
         XCTAssertEqual(vm.travelOffsetMinutes, 0)
+    }
+
+    /// Sliding from an off-grid wall clock (e.g. 1:46) must land the traveled time on a clean
+    /// snap-step boundary (3:15, not 3:16) — the legacy quarter-hour base, recreated. The grid anchor
+    /// is frozen at travel start, so every real zone (a whole number of 15-min steps from UTC) shows
+    /// clean :00/:15/:30/:45 minutes. Pin the step to 15 so the test is deterministic regardless of the
+    /// machine's saved snap-step preference (it reads `UserDefaults.standard`).
+    func testTravelSnapsToCleanGrid() {
+        let key = DaybreakDefaults.Keys.snapStep
+        let saved = UserDefaults.standard.object(forKey: key)
+        UserDefaults.standard.set(15, forKey: key)
+        defer {
+            if let saved { UserDefaults.standard.set(saved, forKey: key) }
+            else { UserDefaults.standard.removeObject(forKey: key) }
+        }
+
+        // 760 seconds (12m 40s) past a 15-minute boundary in absolute time → deliberately off-grid.
+        let offGrid = Date(timeIntervalSinceReferenceDate: 700_000_000 + 46 * 60)
+        let vm = makeViewModel(now: offGrid)
+        vm.setOffset(90)                                   // slide +1:30
+        XCTAssertEqual(vm.travelOffsetMinutes, 90)
+        XCTAssertEqual(vm.snapshot.hero.localMinutes % 15, 0,
+                       "traveled hero time must snap to a clean 15-minute grid, not inherit now's odd minute")
     }
 }
