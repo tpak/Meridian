@@ -38,9 +38,9 @@ struct CitiesPane: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Cities")
+            Text(String(localized: "Cities"))
                 .font(.system(size: 20, weight: .bold))
-            Text("Track timezones, star the ones for your menu bar, set a color and a short label.")
+            Text(String(localized: "Track timezones, star the ones for your menu bar, set a color and a short label."))
                 .font(.system(size: 12.5))
                 .foregroundStyle(.secondary)
         }
@@ -63,7 +63,7 @@ private extension CitiesPane {
     }
 
     var homeRow: some View {
-        FormRow(label: "Home") {
+        FormRow(label: String(localized: "Home")) {
             // Custom-styled Menu (not a native Picker, which hugs its content and won't honor a
             // fixed width) so it's the exact same box as "Currently in" and they align.
             Menu {
@@ -76,16 +76,16 @@ private extension CitiesPane {
             .menuStyle(.borderlessButton)
             .menuIndicator(.hidden)
             .fixedSize()
-            Text("Always marked with the house")
+            Text(String(localized: "Always marked with the house"))
                 .font(.system(size: 11))
                 .foregroundStyle(.tertiary)
         }
     }
 
     var currentRow: some View {
-        FormRow(label: "Currently in") {
+        FormRow(label: String(localized: "Currently in")) {
             locationBox(currentLocationLabel, showsChevron: false)
-            Text("Auto-detected when you travel")
+            Text(String(localized: "Auto-detected when you travel"))
                 .font(.system(size: 11))
                 .foregroundStyle(.tertiary)
         }
@@ -129,12 +129,12 @@ private extension CitiesPane {
     }
 
     var pinRow: some View {
-        FormRow(label: "Pin to top") {
+        FormRow(label: String(localized: "Pin to top")) {
             Toggle("", isOn: $pinCurrentToTop)
                 .labelsHidden()
                 .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                 .onChange(of: pinCurrentToTop) { _, _ in model.reload() }
-            Text("Show your current timezone first in Meridian")
+            Text(String(localized: "Show your current timezone first in Meridian"))
                 .font(.system(size: 11))
                 .foregroundStyle(.tertiary)
         }
@@ -163,7 +163,7 @@ private extension CitiesPane {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 12))
                     .foregroundStyle(.tertiary)
-                TextField("Add a city or timezone…", text: $query)
+                TextField(String(localized: "Add a city or timezone…"), text: $query)
                     .textFieldStyle(.plain)
                     .font(.system(size: 13))
                     .onChange(of: query) { _, newValue in
@@ -284,7 +284,7 @@ private extension CitiesPane {
 private extension CitiesPane {
     var sortControl: some View {
         HStack(spacing: 8) {
-            Text("Sort")
+            Text(String(localized: "Sort"))
                 .font(.system(size: 11.5))
                 .foregroundStyle(.tertiary)
             // Custom segmented control (not a Picker) so tapping the already-selected segment is
@@ -323,7 +323,7 @@ private extension CitiesPane {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(active ? "Tap again to reverse" : "Sort by \(mode.title.lowercased())")
+        .help(active ? String(localized: "Tap again to reverse") : String(localized: "Sort by \(mode.title.lowercased())"))
     }
 }
 
@@ -432,7 +432,7 @@ private struct CityRowView: View {
                 .foregroundStyle(row.isFavourite ? accent : Color.secondary)
         }
         .buttonStyle(.plain)
-        .help("Show in menu bar")
+        .help(String(localized: "Show in menu bar"))
     }
 
     private var colorDotButton: some View {
@@ -443,7 +443,7 @@ private struct CityRowView: View {
                 .overlay(Circle().stroke(Color.primary.opacity(0.15), lineWidth: 1))
         }
         .buttonStyle(.plain)
-        .help("Set color")
+        .help(String(localized: "Set color"))
     }
 
     private var details: some View {
@@ -467,7 +467,7 @@ private struct CityRowView: View {
     }
 
     private var homeBadge: some View {
-        Text("⌂ Home")
+        Text(String(localized: "⌂ Home"))
             .font(.system(size: 10, weight: .semibold))
             .foregroundStyle(.secondary)
             .padding(.horizontal, 6)
@@ -479,7 +479,7 @@ private struct CityRowView: View {
     }
 
     private var hereBadge: some View {
-        Text("Here")
+        Text(String(localized: "Here"))
             .font(.system(size: 10, weight: .semibold))
             .foregroundStyle(.white)
             .padding(.horizontal, 6)
@@ -488,7 +488,7 @@ private struct CityRowView: View {
     }
 
     private var labelField: some View {
-        TextField("Label", text: $labelText, onCommit: { onCommitLabel(labelText) })
+        TextField(String(localized: "Label"), text: $labelText, onCommit: { onCommitLabel(labelText) })
             .textFieldStyle(.plain)
             .font(.system(size: 12.5))
             .frame(width: 92)
@@ -518,7 +518,7 @@ private struct CityRowView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .help("Remove")
+            .help(String(localized: "Remove"))
         }
     }
 

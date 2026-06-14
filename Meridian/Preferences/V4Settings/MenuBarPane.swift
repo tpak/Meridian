@@ -21,23 +21,23 @@ private struct MenuBarPreset: Identifiable {
 
 private let menuBarPresets: [MenuBarPreset] = [
     MenuBarPreset(
-        id: "compact", label: "Compact", sample: "IST 7:47 AM",
+        id: "compact", label: String(localized: "Compact"), sample: "IST 7:47 AM",
         place: true, day: false, date: false, twentyFourHour: false, dots: true
     ),
     MenuBarPreset(
-        id: "withday", label: "With day", sample: "IST Mon 7:47 AM",
+        id: "withday", label: String(localized: "With day"), sample: "IST Mon 7:47 AM",
         place: true, day: true, date: false, twentyFourHour: false, dots: true
     ),
     MenuBarPreset(
-        id: "dense24", label: "Dense · 24h", sample: "IST 07:47",
+        id: "dense24", label: String(localized: "Dense · 24h"), sample: "IST 07:47",
         place: true, day: false, date: false, twentyFourHour: true, dots: true
     ),
     MenuBarPreset(
-        id: "withdate", label: "With date", sample: "IST 7:47 AM 13 Jun",
+        id: "withdate", label: String(localized: "With date"), sample: "IST 7:47 AM 13 Jun",
         place: true, day: false, date: true, twentyFourHour: false, dots: true
     ),
     MenuBarPreset(
-        id: "mono", label: "Mono · no dots", sample: "IST 7:47 AM",
+        id: "mono", label: String(localized: "Mono · no dots"), sample: "IST 7:47 AM",
         place: true, day: false, date: false, twentyFourHour: false, dots: false
     )
 ]
@@ -105,9 +105,9 @@ struct MenuBarPane: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Menu Bar")
+            Text(String(localized: "Menu Bar"))
                 .font(.system(size: 20, weight: .bold))
-            Text("How your starred cities appear up top. No app name or clock — macOS shows those.")
+            Text(String(localized: "How your starred cities appear up top. No app name or clock — macOS shows those."))
                 .font(.system(size: 12.5))
                 .foregroundStyle(.secondary)
         }
@@ -160,7 +160,7 @@ struct MenuBarPane: View {
 
     private var presetSection: some View {
         VStack(alignment: .leading, spacing: 11) {
-            sectionLabel("Preset")
+            sectionLabel(String(localized: "Preset"))
             LazyVGrid(
                 columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)],
                 spacing: 8
@@ -187,31 +187,31 @@ struct MenuBarPane: View {
 
     private var fineTuneSection: some View {
         VStack(alignment: .leading, spacing: 14) {
-            sectionLabel("Fine-tune")
-            formRow("Place name") {
+            sectionLabel(String(localized: "Fine-tune"))
+            formRow(String(localized: "Place name")) {
                 Toggle("", isOn: $showPlaceName)
                     .labelsHidden()
                     .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                     .onChange(of: showPlaceName) { _, _ in activePresetID = "custom" }
             }
-            formRow("Day of week") {
+            formRow(String(localized: "Day of week")) {
                 Toggle("", isOn: $showDay)
                     .labelsHidden()
                     .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                     .onChange(of: showDay) { _, _ in activePresetID = "custom" }
             }
-            formRow("Date") {
+            formRow(String(localized: "Date")) {
                 Toggle("", isOn: $showDate)
                     .labelsHidden()
                     .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                     .onChange(of: showDate) { _, _ in activePresetID = "custom" }
             }
-            formRow("24-hour time") {
+            formRow(String(localized: "24-hour time")) {
                 Toggle("", isOn: twentyFourBinding)
                     .labelsHidden()
                     .toggleStyle(AccentSwitchToggleStyle(accent: accent))
             }
-            formRow("Color dots") {
+            formRow(String(localized: "Color dots")) {
                 Toggle("", isOn: $menubarColorDots)
                     .labelsHidden()
                     .toggleStyle(AccentSwitchToggleStyle(accent: accent))
@@ -233,10 +233,10 @@ struct MenuBarPane: View {
     // MARK: - Show Meridian in
 
     private var presentationRow: some View {
-        formRow("Show Meridian in") {
+        formRow(String(localized: "Show Meridian in")) {
             Picker("", selection: $appPresentation) {
-                Text("Menu Bar only").tag(AppPresentation.menubarOnly)
-                Text("Dock & Menu Bar").tag(AppPresentation.menubarAndDock)
+                Text(String(localized: "Menu Bar only")).tag(AppPresentation.menubarOnly)
+                Text(String(localized: "Dock & Menu Bar")).tag(AppPresentation.menubarAndDock)
             }
             .pickerStyle(.segmented)
             .labelsHidden()
@@ -250,12 +250,12 @@ struct MenuBarPane: View {
     // MARK: - Float on top
 
     private var floatOnTopRow: some View {
-        formRow("Float on top") {
+        formRow(String(localized: "Float on top")) {
             HStack(spacing: 8) {
                 Toggle("", isOn: $floatOnTop)
                     .labelsHidden()
                     .toggleStyle(AccentSwitchToggleStyle(accent: accent))
-                Text("Keep the popover open")
+                Text(String(localized: "Keep the popover open"))
                     .font(.system(size: 11))
                     .foregroundStyle(.tertiary)
             }

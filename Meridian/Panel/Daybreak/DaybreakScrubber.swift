@@ -41,7 +41,7 @@ struct DaybreakScrubber: View {
             // top edge, so the hero never reflows. README §F.
             if data.traveling {
                 Button(action: onReset) {
-                    Text("↺ Back to now")
+                    Text(String(localized: "↺ Back to now"))
                         .font(.system(size: 11.5, weight: .medium))
                         .foregroundStyle(palette.accent)
                 }
@@ -73,12 +73,16 @@ struct DaybreakScrubber: View {
                 .overlay(Circle().stroke(palette.hairline, lineWidth: 1))
         }
         .buttonStyle(.plain)
-        .help(forward ? "Forward \(stepDescription)" : "Back \(stepDescription)")
+        .help(forward ? String(localized: "Forward \(stepDescription)") : String(localized: "Back \(stepDescription)"))
     }
 
     private var stepDescription: String {
         let step = data.stepMinutes
-        return step % 60 == 0 ? "\(step / 60) hour\(step == 60 ? "" : "s")" : "\(step) minutes"
+        if step % 60 == 0 {
+            let h = step / 60
+            return h == 1 ? String(localized: "\(h) hour") : String(localized: "\(h) hours")
+        }
+        return String(localized: "\(step) minutes")
     }
 
     private var track: some View {

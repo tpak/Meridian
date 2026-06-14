@@ -13,11 +13,11 @@ enum SettingsPane: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .cities: return "Cities"
-        case .menuBar: return "Menu Bar"
-        case .appearance: return "Appearance"
-        case .timeTravel: return "Time Travel"
-        case .general: return "General"
+        case .cities: return String(localized: "Cities")
+        case .menuBar: return String(localized: "Menu Bar")
+        case .appearance: return String(localized: "Appearance")
+        case .timeTravel: return String(localized: "Time Travel")
+        case .general: return String(localized: "General")
         }
     }
 
@@ -141,6 +141,6 @@ struct AccentSwitchToggleStyle: ToggleStyle {
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(.isButton)
-        .accessibilityValue(isOn ? Text("on") : Text("off"))
+        .accessibilityValue(isOn ? Text(String(localized: "on")) : Text(String(localized: "off")))
     }
 }

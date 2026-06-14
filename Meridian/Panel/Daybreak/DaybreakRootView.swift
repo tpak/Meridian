@@ -94,7 +94,7 @@ struct DaybreakRootView: View {
 
     @ViewBuilder private func cityCards(_ snapshot: DaybreakSnapshot) -> some View {
         if snapshot.cities.isEmpty {
-            Text("Add places in Settings to see them here.")
+            Text(String(localized: "Add places in Settings to see them here."))
                 .font(.system(size: 12))
                 .foregroundStyle(palette.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -139,14 +139,14 @@ struct DaybreakRootView: View {
                 .frame(width: 15, height: 15)
         }
         .buttonStyle(.plain)
-        .help("Copy all city times")
-        .accessibilityLabel(Text("Copy all city times"))
+        .help(String(localized: "Copy all city times"))
+        .accessibilityLabel(Text(String(localized: "Copy all city times")))
     }
 
     private func footer(_ snapshot: DaybreakSnapshot) -> some View {
         HStack {
             Button(action: onOpenSettings) {
-                Text("Settings").font(.system(size: 12, weight: .medium)).foregroundStyle(palette.foot)
+                Text(String(localized: "Settings")).font(.system(size: 12, weight: .medium)).foregroundStyle(palette.foot)
             }
             .buttonStyle(.plain)
 
@@ -159,12 +159,12 @@ struct DaybreakRootView: View {
             Spacer()
 
             Button(action: onTogglePin) {
-                Text(isFloating ? "Unfloat ▼" : "Float ▲")
+                Text(isFloating ? String(localized: "Unfloat ▼") : String(localized: "Float ▲"))
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(palette.foot)
             }
             .buttonStyle(.plain)
-            .help(isFloating ? "Stop floating on top" : "Float on top (drag to move)")
+            .help(isFloating ? String(localized: "Stop floating on top") : String(localized: "Float on top (drag to move)"))
         }
         .padding(EdgeInsets(top: 10, leading: 18, bottom: 14, trailing: 18))
         .overlay(alignment: .top) {

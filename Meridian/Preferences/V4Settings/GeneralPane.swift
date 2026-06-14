@@ -44,7 +44,7 @@ struct GeneralPane: View {
 private struct Header: View {
     var body: some View {
         // Spec: General heading has no subtitle paragraph, just the 18pt bottom margin.
-        Text("General")
+        Text(String(localized: "General"))
             .font(.system(size: 20, weight: .bold))
             .padding(.bottom, 18)
     }
@@ -101,7 +101,7 @@ private struct StartAtLoginRow: View {
     private let startupManager = StartupManager()
 
     var body: some View {
-        ToggleRow(label: "Start at login", accent: accent, isOn: $startAtLogin)
+        ToggleRow(label: String(localized: "Start at login"), accent: accent, isOn: $startAtLogin)
             .onChange(of: startAtLogin) { _, newValue in
                 startupManager.toggleLogin(newValue)
             }
@@ -123,7 +123,7 @@ private struct AutoUpdateRow: View {
     }
 
     var body: some View {
-        ToggleRow(label: "Auto-install updates", accent: accent, isOn: $autoUpdate)
+        ToggleRow(label: String(localized: "Auto-install updates"), accent: accent, isOn: $autoUpdate)
             .accessibilityIdentifier("AutoUpdate")
             .onChange(of: autoUpdate) { _, newValue in
                 // Auto-install controls ONLY auto-download; whether Sparkle *checks* on a schedule is
@@ -156,7 +156,7 @@ private struct BetaRow: View {
     @AppStorage(UserDefaultKeys.betaUpdatesEnabled) private var receiveBetas = false
 
     var body: some View {
-        ToggleRow(label: "Receive beta releases", note: "May have bugs", accent: accent, isOn: $receiveBetas)
+        ToggleRow(label: String(localized: "Receive beta releases"), note: String(localized: "May have bugs"), accent: accent, isOn: $receiveBetas)
             .accessibilityIdentifier("ReceiveBetaReleases")
             .onChange(of: receiveBetas) { _, _ in
                 guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
@@ -170,7 +170,7 @@ private struct DebugRow: View {
     @AppStorage(UserDefaultKeys.debugLoggingEnabled) private var debugLogging = false
 
     var body: some View {
-        ToggleRow(label: "Debug logging", accent: accent, isOn: $debugLogging)
+        ToggleRow(label: String(localized: "Debug logging"), accent: accent, isOn: $debugLogging)
             .accessibilityIdentifier("DebugLogging")
     }
 }
@@ -183,7 +183,7 @@ private struct UpdateFrequencyRow: View {
     // Sparkle stores the interval in seconds. "Manually" disables scheduled
     // checks; Daily / Weekly map to the standard intervals AboutView uses.
     private static let intervals: [TimeInterval] = [0, 86400, 604800]
-    private static let labels = ["Manually", "Daily", "Weekly"]
+    private static let labels = [String(localized: "Manually"), String(localized: "Daily"), String(localized: "Weekly")]
 
     @State private var selectedIndex: Int
 
@@ -196,7 +196,7 @@ private struct UpdateFrequencyRow: View {
     }
 
     var body: some View {
-        FormRow(label: "Check for updates") {
+        FormRow(label: String(localized: "Check for updates")) {
             Picker("", selection: $selectedIndex) {
                 ForEach(0..<Self.labels.count, id: \.self) { index in
                     Text(Self.labels[index]).tag(index)
@@ -221,7 +221,7 @@ private struct UpdateFrequencyRow: View {
                 syncSelection() // reflect a settings import / external change
             }
 
-            Button("Check Now") {
+            Button(String(localized: "Check Now")) {
                 guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
                 appDelegate.updaterController.checkForUpdates(nil)
             }
@@ -248,11 +248,11 @@ private struct BackupButtons: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            Button("Export Settings…") { SettingsManager.exportSettings() }
+            Button(String(localized: "Export Settings…")) { SettingsManager.exportSettings() }
                 .accessibilityIdentifier("ExportSettings")
-            Button("Import Settings…") { SettingsManager.importSettings() }
+            Button(String(localized: "Import Settings…")) { SettingsManager.importSettings() }
                 .accessibilityIdentifier("ImportSettings")
-            Button("Export Log") { exportLog() }
+            Button(String(localized: "Export Log")) { exportLog() }
                 .disabled(!debugLogging)
                 .accessibilityIdentifier("ExportLog")
         }
@@ -304,18 +304,18 @@ private struct AboutBlock: View {
                 .foregroundStyle(.tertiary)
 
             HStack(spacing: 18) {
-                LinkText("Open an issue", accent: accent) {
+                LinkText(String(localized: "Open an issue"), accent: accent) {
                     open(AboutUsConstants.GitHubIssuesURL, log: "Opened GitHub Issues")
                 }
                 .accessibilityIdentifier("MeridianPrivateFeedback")
 
-                LinkText("View source", accent: accent) {
+                LinkText(String(localized: "View source"), accent: accent) {
                     open(AboutUsConstants.GitHubURL, log: "Opened GitHub")
                 }
 
                 // Tahoe (#125) recovery link — escape hatch for users who lost
                 // the menu bar icon.
-                LinkText("Can't see it in your menu bar?", accent: accent) {
+                LinkText(String(localized: "Can't see it in your menu bar?"), accent: accent) {
                     ControlCenterSettings.open()
                     Logger.debug("Opened Control Center Settings from General tab")
                 }
@@ -329,8 +329,8 @@ private struct AboutBlock: View {
     }
 
     private var lastCheckedText: String {
-        guard let date = lastCheckDate else { return "Last checked: Never" }
-        return "Last checked \(lastCheckedFormatter.string(from: date))"
+        guard let date = lastCheckDate else { return String(localized: "Last checked: Never") }
+        return String(localized: "Last checked \(lastCheckedFormatter.string(from: date))")
     }
 
     private func refreshLastChecked() {
