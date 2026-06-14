@@ -106,7 +106,13 @@ final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
         panel.setContentSize(NSSize(width: max(fitting.width, bodyWidth + bodyInsetX * 2),
                                     height: fitting.height))
         applyWindowMode(panel)
-        position(panel, under: button)
+        // Floating popovers reopen where the user left them; transient ones anchor under the item.
+        if isFloating, let topLeft = restoredFloatingTopLeft(for: panel, near: button) {
+            panel.setFrameTopLeftPoint(topLeft)
+            panel.invalidateShadow()
+        } else {
+            position(panel, under: button)
+        }
         viewModel.startTicking()
         panel.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
@@ -119,6 +125,10 @@ final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
     }
 
     private func applyWindowMode(_ panel: DaybreakPanel) {
+        // Floating popovers are draggable by their background (chrome); transient ones stay anchored
+        // under the menu-bar item. Interactive surfaces (scrubber, buttons, rows, hero edit) consume
+        // their own gestures, so only true background regions initiate a window drag.
+        panel.isMovableByWindowBackground = isFloating
         if isFloating {
             panel.level = .floating
             panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
@@ -160,6 +170,15 @@ final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
         DataStore.shared().floatOnTop.toggle()
         guard let panel = window as? DaybreakPanel else { return }
         applyWindowMode(panel)
+        if isFloating {
+            // Seed the floating position with where it currently sits (under the menu bar) so the
+            // first reopen lands here until the user drags it elsewhere.
+            saveFloatingTopLeft(panel)
+        } else if let button = anchorButton {
+            // Back to transient mode — re-anchor under the menu-bar item rather than leaving it
+            // stranded wherever it was floating.
+            position(panel, under: button)
+        }
         rebuildHosting()
     }
 
@@ -203,6 +222,41 @@ final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
     func windowDidResignKey(_ notification: Notification) {
         guard !isFloating else { return }
         hidePanel()
+    }
+
+    func windowDidMove(_ notification: Notification) {
+        // Remember where the user drags a floating popover so it reopens there. Programmatic moves
+        // while floating (restore/resize) re-save the same point, which is harmless.
+        guard isFloating, let panel = window as? DaybreakPanel, panel.isVisible else { return }
+        saveFloatingTopLeft(panel)
+    }
+
+    // MARK: Floating position persistence
+
+    private static let floatingTopLeftKey = "com.tpak.meridian.v4.daybreakFloatingTopLeft"
+
+    private var savedFloatingTopLeft: NSPoint? {
+        guard let pair = UserDefaults.standard.array(forKey: Self.floatingTopLeftKey) as? [Double],
+              pair.count == 2 else { return nil }
+        return NSPoint(x: pair[0], y: pair[1])
+    }
+
+    private func saveFloatingTopLeft(_ panel: NSPanel) {
+        let topLeft = [Double(panel.frame.minX), Double(panel.frame.maxY)]
+        UserDefaults.standard.set(topLeft, forKey: Self.floatingTopLeftKey)
+    }
+
+    /// The saved floating top-left, clamped onto the current screen so a stale position (e.g. from a
+    /// disconnected display) can't strand the popover off-screen. `nil` when nothing is saved yet.
+    private func restoredFloatingTopLeft(for panel: NSPanel, near button: NSStatusBarButton) -> NSPoint? {
+        guard let saved = savedFloatingTopLeft else { return nil }
+        let screen = button.window?.screen ?? panel.screen ?? NSScreen.main
+        guard let visible = screen?.visibleFrame else { return saved }
+        let width = panel.frame.width
+        let height = panel.frame.height
+        let x = min(max(saved.x, visible.minX), max(visible.minX, visible.maxX - width))
+        let y = max(min(saved.y, visible.maxY), min(visible.maxY, visible.minY + height))
+        return NSPoint(x: x, y: y)
     }
 
     func windowWillClose(_ notification: Notification) {

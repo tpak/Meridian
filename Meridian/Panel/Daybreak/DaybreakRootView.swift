@@ -159,11 +159,12 @@ struct DaybreakRootView: View {
             Spacer()
 
             Button(action: onTogglePin) {
-                Text(isFloating ? "Unpin ▼" : "Pin ▲")
+                Text(isFloating ? "Unfloat ▼" : "Float ▲")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(palette.foot)
             }
             .buttonStyle(.plain)
+            .help(isFloating ? "Stop floating on top" : "Float on top (drag to move)")
         }
         .padding(EdgeInsets(top: 10, leading: 18, bottom: 14, trailing: 18))
         .overlay(alignment: .top) {
