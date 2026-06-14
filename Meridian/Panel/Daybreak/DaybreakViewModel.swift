@@ -280,7 +280,7 @@ final class DaybreakViewModel: ObservableObject {
         let event = DaybreakEngine.nextSunEvent(localMinutes: localMinutes, sunrise: window.sunrise, sunset: window.sunset)
         let eventString = eventLabel(event)
         let dateString = string(fullDate, reference, timeZone)
-        let eyebrow = "\(name) · \(locationTraveling ? "Current Location" : "Your Time")"
+        let eyebrow = "\(name) · \(locationTraveling ? String(localized: "Current Location") : String(localized: "Your Time"))"
         return DaybreakHeroData(
             eyebrow: eyebrow,
             time: time, period: period,
@@ -364,7 +364,7 @@ final class DaybreakViewModel: ObservableObject {
 
     private func eventLabel(_ event: SunEvent) -> String {
         let arrow = event.kind == .sunrise ? "↑" : "↓"
-        let name = event.kind == .sunrise ? "Sunrise" : "Sunset"
+        let name = event.kind == .sunrise ? String(localized: "Sunrise") : String(localized: "Sunset")
         let (time, period) = formatTime(event.minutes)
         return period.isEmpty ? "\(arrow) \(name) \(time)" : "\(arrow) \(name) \(time) \(period)"
     }
@@ -403,7 +403,7 @@ final class DaybreakViewModel: ObservableObject {
             hero: DaybreakHeroData(eyebrow: "", time: "", period: "", subline: "", hoverSubline: "",
                                    phase: .day, localMinutes: 0),
             cities: [],
-            scrubber: DaybreakScrubberData(readout: "Now", traveling: false, handleFraction: 0.5,
+            scrubber: DaybreakScrubberData(readout: String(localized: "Now"), traveling: false, handleFraction: 0.5,
                                            handleIsNight: false, stepMinutes: 15),
             locationTraveling: false,
             versionText: versionText()

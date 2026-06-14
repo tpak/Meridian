@@ -81,7 +81,7 @@ struct DaybreakHeroView: View {
             }
             .contentShape(Rectangle())
             .onTapGesture(count: 2, perform: onBeginEdit)
-            .help("Double-click to set this time")
+            .help(String(localized: "Double-click to set this time"))
             .accessibilityElement(children: .combine)
             .accessibilityLabel("\(hero.eyebrow). \(hero.time) \(hero.period). \(hero.subline)")
         }

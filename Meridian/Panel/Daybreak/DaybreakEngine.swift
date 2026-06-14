@@ -104,7 +104,7 @@ enum DaybreakEngine {
     /// Offset label relative to the current location: `"+11:30"`, `"−4:30"`, or `"Your time"`
     /// for the hero (offset 0). Mirrors the prototype `offStr`.
     static func offsetLabel(offsetMinutes o: Int) -> String {
-        if o == 0 { return "Your time" }
+        if o == 0 { return String(localized: "Your time") }
         let sign = o < 0 ? minus : "+"
         let a = abs(o)
         return "\(sign)\(a / 60):\(pad(a % 60))"
@@ -118,9 +118,9 @@ enum DaybreakEngine {
         if dayDelta == 0 { return nil }
         if dayDelta < 0 {
             let k = -dayDelta
-            return k == 1 ? "yest." : "\(k)d ago"
+            return k == 1 ? String(localized: "yest.") : String(localized: "\(k)d ago")
         }
-        return dayDelta == 1 ? "tmrw" : "+\(dayDelta)d"
+        return dayDelta == 1 ? String(localized: "tmrw") : String(localized: "+\(dayDelta)d")
     }
 
     // MARK: - Scrubber readout (README §F)
@@ -128,7 +128,7 @@ enum DaybreakEngine {
     /// Human delta for the readout pill, e.g. `"Now"`, `"+12:00"`, `"−1:30"`, `"+2d"`, `"+2d 8:00"`.
     /// Mirrors the prototype `dl(d)`.
     static func deltaLabel(deltaMinutes d: Int) -> String {
-        if d == 0 { return "Now" }
+        if d == 0 { return String(localized: "Now") }
         let sign = d < 0 ? minus : "+"
         let a = abs(d)
         let days = a / 1440
@@ -148,7 +148,7 @@ enum DaybreakEngine {
     static func readout(deltaMinutes d: Int, currentLocalMinutes lm: Int, weekdayShort: String) -> String {
         let t = format12(minutes: lm)
         if d == 0 {
-            return "Now · \(t.time) \(t.period)"
+            return "\(String(localized: "Now")) · \(t.time) \(t.period)"
         }
         return "\(deltaLabel(deltaMinutes: d)) · \(weekdayShort) \(t.time) \(t.period)"
     }

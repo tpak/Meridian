@@ -21,26 +21,26 @@ struct AppearancePane: View {
         VStack(alignment: .leading, spacing: 0) {
             header
 
-            FormRow(label: "Theme") { themeSegment }
+            FormRow(label: String(localized: "Theme")) { themeSegment }
                 .padding(.bottom, 16)
 
             accentRow
                 .padding(.bottom, 18)
 
-            FormRow(label: "Time format") { timeFormatSegment }
+            FormRow(label: String(localized: "Time format")) { timeFormatSegment }
                 .padding(.bottom, 16)
 
-            FormRow(label: "Day display") { dayDisplaySegment }
+            FormRow(label: String(localized: "Day display")) { dayDisplaySegment }
                 .padding(.bottom, 16)
 
-            FormRow(label: "Sunrise / sunset") {
+            FormRow(label: String(localized: "Sunrise / sunset")) {
                 Toggle("", isOn: $showSunriseSunset)
                     .labelsHidden()
                     .toggleStyle(AccentSwitchToggleStyle(accent: accent))
             }
             .padding(.bottom, 16)
 
-            FormRow(label: "Text size") { textSizeSlider }
+            FormRow(label: String(localized: "Text size")) { textSizeSlider }
                 .padding(.bottom, 22)
 
             previewSection
@@ -51,7 +51,7 @@ struct AppearancePane: View {
 
     private var header: some View {
         // Spec: Appearance heading has no subtitle paragraph, just the 18pt bottom margin.
-        Text("Appearance")
+        Text(String(localized: "Appearance"))
             .font(.system(size: 20, weight: .bold))
             .padding(.bottom, 18)
     }
@@ -60,7 +60,7 @@ struct AppearancePane: View {
 
     private var themeSegment: some View {
         SegmentedControl(
-            options: [(Theme.system, "Auto"), (.light, "Light"), (.dark, "Dark")],
+            options: [(Theme.system, String(localized: "Auto")), (.light, String(localized: "Light")), (.dark, String(localized: "Dark"))],
             selection: $theme,
             accent: accent
         )
@@ -68,7 +68,7 @@ struct AppearancePane: View {
 
     private var timeFormatSegment: some View {
         SegmentedControl(
-            options: [(TimeFormat.twelveHour, "12-hour"), (.twentyFourHour, "24-hour")],
+            options: [(TimeFormat.twelveHour, String(localized: "12-hour")), (.twentyFourHour, String(localized: "24-hour"))],
             selection: $timeFormat,
             accent: accent
         )
@@ -77,10 +77,10 @@ struct AppearancePane: View {
     private var dayDisplaySegment: some View {
         SegmentedControl(
             options: [
-                (RelativeDateDisplay.relative, "Relative"),
-                (.actual, "Actual"),
-                (.date, "Date"),
-                (.hidden, "Hide")
+                (RelativeDateDisplay.relative, String(localized: "Relative")),
+                (.actual, String(localized: "Actual")),
+                (.date, String(localized: "Date")),
+                (.hidden, String(localized: "Hide"))
             ],
             selection: $dayDisplay,
             accent: accent
@@ -91,7 +91,7 @@ struct AppearancePane: View {
 
     private var accentRow: some View {
         HStack(alignment: .top, spacing: 16) {
-            Text("Accent color")
+            Text(String(localized: "Accent color"))
                 .font(.system(size: 12.5))
                 .foregroundStyle(.secondary)
                 .frame(width: 150, alignment: .trailing)
@@ -99,7 +99,7 @@ struct AppearancePane: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 accentSwatches
-                Text("\(teamAccent.displayName) · livery palette")
+                Text(String(localized: "\(teamAccent.displayName) · livery palette"))
                     .font(.system(size: 11.5))
                     .foregroundStyle(.tertiary)
                 liveryDisclaimer
@@ -139,10 +139,8 @@ struct AppearancePane: View {
         .padding(.top, 1)
     }
 
-    private static let disclaimerText =
-        "Palette names & colors are stylized tributes for personalization only. "
-        + "Team names and liveries are trademarks of their respective Formula 1 teams — "
-        + "all rights reserved. Meridian is not affiliated with or endorsed by them."
+    // swiftlint:disable:next line_length
+    private static let disclaimerText = String(localized: "Palette names & colors are stylized tributes for personalization only. Team names and liveries are trademarks of their respective Formula 1 teams — all rights reserved. Meridian is not affiliated with or endorsed by them.")
 
     // MARK: Text size
 
@@ -162,7 +160,7 @@ struct AppearancePane: View {
 
     private var previewSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("PREVIEW")
+            Text(String(localized: "PREVIEW"))
                 .font(.system(size: 11, weight: .bold))
                 .tracking(1.2)
                 .foregroundStyle(.tertiary)

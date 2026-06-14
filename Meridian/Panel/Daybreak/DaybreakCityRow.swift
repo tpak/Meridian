@@ -36,7 +36,7 @@ struct DaybreakCityRow: View {
                             .foregroundStyle(palette.textTertiary)
                             .padding(.horizontal, 5)
                             .overlay(RoundedRectangle(cornerRadius: 5).stroke(palette.hairline, lineWidth: 1))
-                            .help("Home")
+                            .help(String(localized: "Home"))
                     }
                 }
                 Text(hovering ? city.hoverLabel : city.nextEventLabel)
@@ -95,7 +95,7 @@ struct DaybreakCityRow: View {
             }
             .contentShape(Rectangle())
             .onTapGesture(count: 2, perform: onBeginEdit)
-            .help("Double-click to set this time")
+            .help(String(localized: "Double-click to set this time"))
             .accessibilityElement(children: .combine)
             .accessibilityLabel("\(city.name). \(city.time) \(city.period). \(city.offsetLabel). \(city.nextEventLabel)")
         }

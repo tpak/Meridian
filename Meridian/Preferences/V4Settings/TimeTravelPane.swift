@@ -25,10 +25,10 @@ struct TimeTravelPane: View {
 
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Time Travel")
+            Text(String(localized: "Time Travel"))
                 .font(.system(size: 20, weight: .bold))
                 .tracking(-0.4)
-            Text("Limits and feel of the scrubber in the popover.")
+            Text(String(localized: "Limits and feel of the scrubber in the popover."))
                 .font(.system(size: 12.5))
                 .foregroundStyle(.secondary)
         }
@@ -62,11 +62,11 @@ private struct ForwardDaysRow: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
-            FormLabel("Travel forward")
+            FormLabel(String(localized: "Travel forward"))
             Slider(value: doubleBinding, in: 1...30, step: 1)
                 .tint(accent)
                 .frame(maxWidth: .infinity)
-            readout("\(forwardDays) day\(forwardDays == 1 ? "" : "s")")
+            readout("\(forwardDays) \(String(localized: forwardDays == 1 ? "day" : "days"))")
         }
     }
 }
@@ -81,11 +81,11 @@ private struct BackDaysRow: View {
         Binding(get: { Double(backDays) }, set: { backDays = Int($0) })
     }
 
-    private var label: String { backDays == 0 ? "Off" : "\(backDays) day\(backDays == 1 ? "" : "s")" }
+    private var label: String { backDays == 0 ? String(localized: "Off") : "\(backDays) \(String(localized: backDays == 1 ? "day" : "days"))" }
 
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
-            FormLabel("Travel back")
+            FormLabel(String(localized: "Travel back"))
             Slider(value: doubleBinding, in: 0...7, step: 1)
                 .tint(accent)
                 .frame(maxWidth: .infinity)
@@ -101,12 +101,12 @@ private struct SnapStepRow: View {
     @Binding var snapStep: Int
 
     private let options: [(value: Int, label: String)] = [
-        (5, "5 min"), (15, "15 min"), (30, "30 min"), (60, "60 min")
+        (5, String(localized: "5 min")), (15, String(localized: "15 min")), (30, String(localized: "30 min")), (60, String(localized: "60 min"))
     ]
 
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
-            FormLabel("Arrow / snap step")
+            FormLabel(String(localized: "Arrow / snap step"))
             segmentedControl
             Spacer()
         }
@@ -158,7 +158,7 @@ private struct ShowScrollerRow: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
-            FormLabel("Show Time Scroller")
+            FormLabel(String(localized: "Show Time Scroller"))
             Toggle("", isOn: $showFutureSlider)
                 .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                 .labelsHidden()

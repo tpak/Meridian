@@ -31,9 +31,9 @@ final class CityListModel: ObservableObject {
         var id: String { rawValue }
         var title: String {
             switch self {
-            case .timeDiff: return "Time diff"
-            case .name: return "Name"
-            case .label: return "Label"
+            case .timeDiff: return String(localized: "Time diff")
+            case .name: return String(localized: "Name")
+            case .label: return String(localized: "Label")
             }
         }
     }
