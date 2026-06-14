@@ -3,6 +3,28 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>4.0.0-beta21</title>
+            <pubDate>Sun, 14 Jun 2026 15:29:30 +0000</pubDate>
+            <sparkle:channel>beta</sparkle:channel>
+            <sparkle:version>4000021</sparkle:version>
+            <sparkle:shortVersionString>4.0.0-beta21</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Introducing Daybreak — a brand-new look for Meridian</li>
+                    <li>New menu bar popover with a live day/night view and per-city sunrise/sunset</li>
+                    <li>Redesigned Settings window</li>
+                    <li>New accent color themes that tint the whole app</li>
+                    <li>Single-line menu bar item with per-city color dots</li>
+                    <li>Copy all city times to the clipboard from the popover</li>
+                    <li>Float the popover on top and drag it anywhere on screen</li>
+                    <li>Arrow-key navigation when searching for a city</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v4.0.0-beta21/Meridian.app.zip" length="3819847" type="application/octet-stream" sparkle:edSignature="t8RQZPpcKRWBl6A7wUx8oa/OmScbbr39Oy4yjOhI6cEBvTm2NZrn1BrwUSYKWPZtlzDbS+tdzW9bSZvU4mTkAg=="/>
+        </item>
+        <item>
             <title>3.1.3</title>
             <pubDate>Sat, 13 Jun 2026 03:04:05 +0000</pubDate>
             <sparkle:version>3013100</sparkle:version>
