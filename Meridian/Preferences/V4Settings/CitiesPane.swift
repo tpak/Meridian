@@ -21,6 +21,8 @@ struct CitiesPane: View {
 
     @State private var query = ""
     @State private var colorPickFor: String?
+    // Highlighted search result for keyboard (arrow keys) and mouse (hover) navigation.
+    @State private var selectedResultIndex: Int?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -167,7 +169,19 @@ private extension CitiesPane {
                     .font(.system(size: 13))
                     .onChange(of: query) { _, newValue in
                         model.updateSearch(newValue)
+                        selectedResultIndex = nil
                     }
+                    .onChange(of: model.searchResults) { _, results in
+                        // Async geocoder results can replace the list out from under a
+                        // keyboard selection — keep the highlight in bounds.
+                        if let idx = selectedResultIndex, !results.indices.contains(idx) {
+                            selectedResultIndex = results.isEmpty ? nil : results.count - 1
+                        }
+                    }
+                    .onKeyPress(.downArrow) { moveSelection(by: 1) }
+                    .onKeyPress(.upArrow) { moveSelection(by: -1) }
+                    .onKeyPress(.return) { commitSelection() }
+                    .onKeyPress(.escape) { dismissResults() }
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
@@ -189,7 +203,7 @@ private extension CitiesPane {
 
     var searchResultsList: some View {
         VStack(alignment: .leading, spacing: 1) {
-            ForEach(model.searchResults) { result in
+            ForEach(Array(model.searchResults.enumerated()), id: \.element.id) { index, result in
                 Button {
                     addResult(result)
                 } label: {
@@ -209,6 +223,13 @@ private extension CitiesPane {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(index == selectedResultIndex ? accent.opacity(0.18) : Color.clear)
+                )
+                .onHover { hovering in
+                    if hovering { selectedResultIndex = index }
+                }
             }
         }
         .padding(4)
@@ -220,6 +241,42 @@ private extension CitiesPane {
     func addResult(_ result: CitySearchResult) {
         model.add(result)
         query = ""
+        selectedResultIndex = nil
+    }
+
+    // MARK: Keyboard navigation
+
+    /// Move the highlight through the results. Down from nothing selects the first row; up from
+    /// nothing selects the last (the macOS search-field convention). Returns `.handled` so the
+    /// arrow key doesn't fall through to the text field's cursor handling.
+    func moveSelection(by delta: Int) -> KeyPress.Result {
+        let count = model.searchResults.count
+        guard count > 0 else { return .ignored }
+        if let current = selectedResultIndex {
+            selectedResultIndex = min(max(current + delta, 0), count - 1)
+        } else {
+            selectedResultIndex = delta > 0 ? 0 : count - 1
+        }
+        return .handled
+    }
+
+    /// Add the highlighted result on Return. With results showing but nothing highlighted, add the
+    /// first one so a quick search-then-Enter still works.
+    func commitSelection() -> KeyPress.Result {
+        let results = model.searchResults
+        guard !results.isEmpty else { return .ignored }
+        let index = selectedResultIndex ?? 0
+        guard results.indices.contains(index) else { return .ignored }
+        addResult(results[index])
+        return .handled
+    }
+
+    /// Escape clears the query (and therefore the results) when the list is showing.
+    func dismissResults() -> KeyPress.Result {
+        guard !model.searchResults.isEmpty else { return .ignored }
+        query = ""
+        selectedResultIndex = nil
+        return .handled
     }
 }
 
