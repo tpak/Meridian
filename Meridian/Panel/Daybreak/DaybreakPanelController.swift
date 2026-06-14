@@ -5,6 +5,7 @@
 // it, so the old panel remains an instant fallback (toggle `AppDelegate.useDaybreakPanel`).
 
 import AppKit
+import Combine
 import SwiftUI
 
 final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
@@ -12,6 +13,7 @@ final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
     let viewModel = DaybreakViewModel()
     private var hosting: NSHostingView<DaybreakRootView>?
     private weak var anchorButton: NSStatusBarButton?
+    private var cancellables = Set<AnyCancellable>()
 
     // Chrome insets baked into DaybreakRootView (transparent margin around the 378px body for the
     // shadow + notch). Used to align the body under the status item.
@@ -37,6 +39,35 @@ final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
         self.init(window: panel)
         panel.delegate = self
         rebuildHosting()
+        observeContentHeight()
+    }
+
+    /// While the popover is open the only thing that changes its height is the scrubber's "Back to
+    /// now" link toggling in/out of travel. Re-fit the window when that happens, anchored at the TOP
+    /// edge so the body grows DOWNWARD — the reset link pushes the footer down and the hero (pinned at
+    /// the top) never reflows. README §F.
+    private func observeContentHeight() {
+        viewModel.$snapshot
+            .map { $0.scrubber.traveling }
+            .removeDuplicates()
+            .receive(on: RunLoop.main)
+            // Defer one runloop pass so the hosting view has re-rendered the toggled reset link before
+            // we measure `fittingSize` — otherwise we'd resize to the pre-toggle height.
+            .sink { [weak self] _ in DispatchQueue.main.async { self?.resizeToFitContent() } }
+            .store(in: &cancellables)
+    }
+
+    private func resizeToFitContent() {
+        guard let panel = window as? DaybreakPanel, let host = hosting, panel.isVisible else { return }
+        host.layoutSubtreeIfNeeded()
+        let fitting = host.fittingSize
+        let width = max(fitting.width, bodyWidth + bodyInsetX * 2)
+        let frame = panel.frame
+        guard abs(frame.height - fitting.height) > 0.5 || abs(frame.width - width) > 0.5 else { return }
+        // AppKit frames are bottom-left anchored; hold the top edge (maxY) so growth extends downward.
+        let newFrame = NSRect(x: frame.minX, y: frame.maxY - fitting.height, width: width, height: fitting.height)
+        panel.setFrame(newFrame, display: true)
+        panel.invalidateShadow()
     }
 
     var isFloating: Bool { DataStore.shared().floatOnTop }
@@ -46,7 +77,8 @@ final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
             viewModel: viewModel,
             isFloating: isFloating,
             onOpenSettings: { [weak self] in self?.openSettings() },
-            onTogglePin: { [weak self] in self?.togglePin() }
+            onTogglePin: { [weak self] in self?.togglePin() },
+            onCopyAll: { [weak self] in self?.copyAllCitiesToClipboard() }
         )
         let host = NSHostingView(rootView: root)
         host.autoresizingMask = [.width, .height]
@@ -138,6 +170,32 @@ final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString("\(name) - \(time)", forType: .string)
+    }
+
+    /// Copy every visible city's name + time as newline-separated text — the v4 equivalent of the
+    /// legacy footer "copy all timezones" button. Current location (hero) first, then each tracked
+    /// city, mirroring the popover's top-to-bottom order. Reflects the scrubber's traveled time.
+    func copyAllCitiesToClipboard() {
+        let snapshot = viewModel.snapshot
+        var lines: [String] = []
+
+        // Hero name is the eyebrow segment before " · " ("Denver · Current Location" → "Denver").
+        let heroName = snapshot.hero.eyebrow.components(separatedBy: " · ").first ?? snapshot.hero.eyebrow
+        lines.append(Self.copyLine(name: heroName, time: snapshot.hero.time, period: snapshot.hero.period))
+
+        // The rows already exclude the current-location timezone, so there's no duplicate hero line.
+        for city in snapshot.cities {
+            lines.append(Self.copyLine(name: city.name, time: city.time, period: city.period))
+        }
+
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(lines.joined(separator: "\n"), forType: .string)
+    }
+
+    private static func copyLine(name: String, time: String, period: String) -> String {
+        let timeString = period.isEmpty ? time : "\(time) \(period)"
+        return "\(name) — \(timeString)"
     }
 
     // MARK: NSWindowDelegate

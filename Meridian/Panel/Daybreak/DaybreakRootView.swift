@@ -12,11 +12,14 @@ struct DaybreakRootView: View {
     var isFloating: Bool = false
     var onOpenSettings: () -> Void = {}
     var onTogglePin: () -> Void = {}
+    var onCopyAll: () -> Void = {}
 
     @Environment(\.colorScheme) private var systemScheme
     @State private var editingID: String?
     @State private var editText: String = ""
     @State private var paletteTick = 0
+    @State private var didCopyAll = false
+    @State private var copyFeedbackTask: Task<Void, Never>?
     @State private var lastThemeRaw = DataStore.shared().theme.rawValue
     @AppStorage("com.tpak.meridian.v4.textScale") private var textScale = 1.0
     @AppStorage("showFutureSlider") private var showScrubber = true
@@ -116,12 +119,38 @@ struct DaybreakRootView: View {
         }
     }
 
+    /// Footer "copy all city times" button. Copies on tap and briefly flips the icon to a checkmark
+    /// (tinted with the Daybreak accent) as confirmation — the v4 take on the legacy copy-to-clipboard.
+    private var copyAllButton: some View {
+        Button {
+            onCopyAll()
+            withAnimation(.easeInOut(duration: 0.15)) { didCopyAll = true }
+            copyFeedbackTask?.cancel()
+            copyFeedbackTask = Task {
+                try? await Task.sleep(nanoseconds: 1_400_000_000)
+                if !Task.isCancelled {
+                    withAnimation(.easeInOut(duration: 0.15)) { didCopyAll = false }
+                }
+            }
+        } label: {
+            Image(systemName: didCopyAll ? "checkmark" : "doc.on.doc")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(didCopyAll ? palette.accent : palette.foot)
+                .frame(width: 15, height: 15)
+        }
+        .buttonStyle(.plain)
+        .help("Copy all city times")
+        .accessibilityLabel(Text("Copy all city times"))
+    }
+
     private func footer(_ snapshot: DaybreakSnapshot) -> some View {
         HStack {
             Button(action: onOpenSettings) {
                 Text("Settings").font(.system(size: 12, weight: .medium)).foregroundStyle(palette.foot)
             }
             .buttonStyle(.plain)
+
+            copyAllButton
 
             Spacer()
             Text(snapshot.versionText)
