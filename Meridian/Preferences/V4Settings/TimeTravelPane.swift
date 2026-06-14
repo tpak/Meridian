@@ -160,8 +160,7 @@ private struct ShowScrollerRow: View {
         HStack(alignment: .center, spacing: 16) {
             FormLabel("Show Time Scroller")
             Toggle("", isOn: $showFutureSlider)
-                .toggleStyle(.switch)
-                .tint(accent)
+                .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                 .labelsHidden()
             Spacer()
         }

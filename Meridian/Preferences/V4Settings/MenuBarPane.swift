@@ -191,35 +191,30 @@ struct MenuBarPane: View {
             formRow("Place name") {
                 Toggle("", isOn: $showPlaceName)
                     .labelsHidden()
-                    .toggleStyle(.switch)
-                    .tint(accent)
+                    .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                     .onChange(of: showPlaceName) { _, _ in activePresetID = "custom" }
             }
             formRow("Day of week") {
                 Toggle("", isOn: $showDay)
                     .labelsHidden()
-                    .toggleStyle(.switch)
-                    .tint(accent)
+                    .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                     .onChange(of: showDay) { _, _ in activePresetID = "custom" }
             }
             formRow("Date") {
                 Toggle("", isOn: $showDate)
                     .labelsHidden()
-                    .toggleStyle(.switch)
-                    .tint(accent)
+                    .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                     .onChange(of: showDate) { _, _ in activePresetID = "custom" }
             }
             formRow("24-hour time") {
                 Toggle("", isOn: twentyFourBinding)
                     .labelsHidden()
-                    .toggleStyle(.switch)
-                    .tint(accent)
+                    .toggleStyle(AccentSwitchToggleStyle(accent: accent))
             }
             formRow("Color dots") {
                 Toggle("", isOn: $menubarColorDots)
                     .labelsHidden()
-                    .toggleStyle(.switch)
-                    .tint(accent)
+                    .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                     .onChange(of: menubarColorDots) { _, _ in activePresetID = "custom" }
             }
         }
@@ -259,8 +254,7 @@ struct MenuBarPane: View {
             HStack(spacing: 8) {
                 Toggle("", isOn: $floatOnTop)
                     .labelsHidden()
-                    .toggleStyle(.switch)
-                    .tint(accent)
+                    .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                 Text("Keep the popover open")
                     .font(.system(size: 11))
                     .foregroundStyle(.tertiary)

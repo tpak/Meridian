@@ -88,8 +88,7 @@ private struct ToggleRow: View {
         FormRow(label: label, note: note) {
             Toggle("", isOn: $isOn)
                 .labelsHidden()
-                .toggleStyle(.switch)
-                .tint(accent)
+                .toggleStyle(AccentSwitchToggleStyle(accent: accent))
         }
     }
 }

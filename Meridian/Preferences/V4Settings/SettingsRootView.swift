@@ -98,3 +98,49 @@ struct SettingsRootView: View {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "4.0"
     }
 }
+
+// MARK: - Accent switch toggle style
+
+/// A switch drawn entirely in SwiftUI whose ON color is the live team `accent`.
+///
+/// macOS's built-in `.switch` toggle style renders an `NSSwitch`, which colors its ON state from
+/// `NSColor.controlAccentColor` and ignores SwiftUI's `.tint`. Meridian swizzles
+/// `controlAccentColor` to the team color, but AppKit caches that dynamic color's resolution per
+/// appearance and won't re-resolve an already-drawn switch without a relaunch — so native switches
+/// freeze on whatever accent happened to be drawn first this session (e.g. McLaren orange) instead
+/// of following the live Aston/Ferrari selection. Drawing the switch ourselves binds the ON color
+/// straight to `accent`, so it always matches and updates live like the segmented controls and the
+/// text-size slider.
+struct AccentSwitchToggleStyle: ToggleStyle {
+    let accent: Color
+
+    // Match the native macOS switch footprint (≈38×22) so existing row layouts don't shift.
+    private let trackWidth: CGFloat = 38
+    private let trackHeight: CGFloat = 22
+    private let knobInset: CGFloat = 2
+
+    func makeBody(configuration: Configuration) -> some View {
+        let isOn = configuration.isOn
+        let knobDiameter = trackHeight - knobInset * 2
+        let travel = (trackWidth - knobDiameter) / 2 - knobInset
+
+        return Button {
+            configuration.isOn.toggle()
+        } label: {
+            ZStack {
+                Capsule()
+                    .fill(isOn ? accent : Color.primary.opacity(0.22))
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: knobDiameter, height: knobDiameter)
+                    .shadow(color: .black.opacity(0.18), radius: 0.8, y: 0.5)
+                    .offset(x: isOn ? travel : -travel)
+            }
+            .frame(width: trackWidth, height: trackHeight)
+            .animation(.easeInOut(duration: 0.15), value: isOn)
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityValue(isOn ? Text("on") : Text("off"))
+    }
+}

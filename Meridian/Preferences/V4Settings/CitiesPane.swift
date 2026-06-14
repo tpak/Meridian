@@ -132,8 +132,7 @@ private extension CitiesPane {
         FormRow(label: "Pin to top") {
             Toggle("", isOn: $pinCurrentToTop)
                 .labelsHidden()
-                .toggleStyle(.switch)
-                .tint(accent)
+                .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                 .onChange(of: pinCurrentToTop) { _, _ in model.reload() }
             Text("Show your current timezone first in Meridian")
                 .font(.system(size: 11))

@@ -36,8 +36,7 @@ struct AppearancePane: View {
             FormRow(label: "Sunrise / sunset") {
                 Toggle("", isOn: $showSunriseSunset)
                     .labelsHidden()
-                    .toggleStyle(.switch)
-                    .tint(accent)
+                    .toggleStyle(AccentSwitchToggleStyle(accent: accent))
             }
             .padding(.bottom, 16)
 
