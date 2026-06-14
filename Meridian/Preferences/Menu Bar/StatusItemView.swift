@@ -55,10 +55,16 @@ class StatusItemView: NSView {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
         paragraphStyle.lineBreakMode = .byTruncatingTail
-        // Better readability for p,q,y,g in the status bar.
-        let userPreferredLanguage = Locale.preferredLanguages.first ?? "en-US"
-        let lineHeight = userPreferredLanguage.contains("en") ? LayoutConstants.englishMenubarLineHeightMultiple : 1
-        paragraphStyle.lineHeightMultiple = CGFloat(lineHeight)
+        // The two-line item compresses line height for p,q,y,g readability across its stacked
+        // lines. The single-line item is vertically centered, so it keeps the natural line height —
+        // the compressed box would otherwise shift the glyphs up and clip descenders.
+        if kMenubarV4SingleLine {
+            paragraphStyle.lineHeightMultiple = 1
+        } else {
+            let userPreferredLanguage = Locale.preferredLanguages.first ?? "en-US"
+            let lineHeight = userPreferredLanguage.contains("en") ? LayoutConstants.englishMenubarLineHeightMultiple : 1
+            paragraphStyle.lineHeightMultiple = CGFloat(lineHeight)
+        }
         return paragraphStyle
     }()
 
@@ -113,13 +119,15 @@ class StatusItemView: NSView {
         timeView.disableWrapping()
 
         if kMenubarV4SingleLine {
-            // A single line fills the full height; the location line is unused.
+            // One line, vertically centered. The location line is unused. Pinning top+bottom would
+            // stretch the field and an NSTextField draws a single line at the *top* of a tall frame,
+            // shoving the text against the menu bar's top edge — so centerY-anchor it instead and
+            // let it keep its intrinsic (one-line) height.
             locationView.isHidden = true
             NSLayoutConstraint.activate([
                 timeView.leadingAnchor.constraint(equalTo: leadingAnchor),
                 timeView.trailingAnchor.constraint(equalTo: trailingAnchor),
-                timeView.topAnchor.constraint(equalTo: topAnchor),
-                timeView.bottomAnchor.constraint(equalTo: bottomAnchor)
+                timeView.centerYAnchor.constraint(equalTo: centerYAnchor)
             ])
             return
         }

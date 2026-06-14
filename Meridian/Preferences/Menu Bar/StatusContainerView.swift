@@ -37,6 +37,11 @@ func compactWidth(for timezone: TimezoneData, with store: DataStore) -> Int {
 // Test with Sat 12:46 AM
 let bufferWidth: CGFloat = 9.5
 
+/// The status item content height tracks the live menu-bar thickness. A vertically-centered single
+/// line is centred within this height, so it must match the bar — the old hardcoded 30pt overran a
+/// ~24pt bar and pushed centred content upward toward the top edge.
+var menubarItemHeight: CGFloat { NSStatusBar.system.thickness }
+
 protocol StatusItemViewConforming {
     /// Mark that we need to refresh the text we're showing in the menubar
     func statusItemViewSetNeedsDisplay()
@@ -112,7 +117,7 @@ class StatusContainerView: NSView {
         }
 
         let statusItemWidth = containerWidth(for: timezones)
-        let frame = NSRect(x: 0, y: 0, width: statusItemWidth, height: 30)
+        let frame = NSRect(x: 0, y: 0, width: statusItemWidth, height: menubarItemHeight)
         super.init(frame: frame)
 
         timezones.forEach { addTimezone($0) }
@@ -125,7 +130,7 @@ class StatusContainerView: NSView {
 
     func addTimezone(_ timezone: TimezoneData) {
         let calculatedWidth = bestWidth(for: timezone)
-        let frame = NSRect(x: previousX, y: 0, width: calculatedWidth, height: 30)
+        let frame = NSRect(x: previousX, y: 0, width: calculatedWidth, height: Int(menubarItemHeight))
 
         let statusItemView = StatusItemView(frame: frame)
         statusItemView.dataObject = timezone
