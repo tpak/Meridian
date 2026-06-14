@@ -255,3 +255,33 @@ final class DaybreakEngineTests: XCTestCase {
         XCTAssertEqual(DaybreakEngine.handleFraction(offsetMinutes: 9999, range: range), 1.0, accuracy: 0.0001)
     }
 }
+
+/// The current-location hero must always match the system clock when the panel opens — time travel
+/// is transient and never carries into a new open. (Regression: the panel could stay stuck in a
+/// travel offset, so the hero diverged from system time.)
+final class DaybreakViewModelTravelTests: XCTestCase {
+
+    private func makeViewModel() -> DaybreakViewModel {
+        let suite = "DaybreakTravelTest"
+        let defaults = UserDefaults(suiteName: suite)!
+        defaults.removePersistentDomain(forName: suite)
+        return DaybreakViewModel(store: DataStore(with: defaults), now: Date())
+    }
+
+    func testOpeningPanelResetsTravelToNow() {
+        let vm = makeViewModel()
+        vm.setOffset(120)                          // travel +2h
+        XCTAssertEqual(vm.travelOffsetMinutes, 120)
+
+        vm.startTicking()                          // panel opened
+        XCTAssertEqual(vm.travelOffsetMinutes, 0, "the hero must return to system time on open")
+        vm.stopTicking()
+    }
+
+    func testResetReturnsToNow() {
+        let vm = makeViewModel()
+        vm.setOffset(90)
+        vm.reset()
+        XCTAssertEqual(vm.travelOffsetMinutes, 0)
+    }
+}

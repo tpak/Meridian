@@ -115,7 +115,11 @@ struct DaybreakScrubber: View {
             .frame(width: w, height: trackHeight)
             .contentShape(Rectangle())
             .gesture(
-                DragGesture(minimumDistance: 0)
+                // Require a real drag (not a bare tap/click) to scrub. With minimumDistance 0 a stray
+                // click anywhere on the panel that landed here teleported the handle and silently put
+                // the panel into time-travel, so the current location stopped matching the system
+                // clock. A deliberate drag of the handle still scrubs; ‹ › nudge for fine steps.
+                DragGesture(minimumDistance: 5)
                     .onChanged { value in
                         guard w > 0 else { return }
                         onScrubFraction(value.location.x / w)

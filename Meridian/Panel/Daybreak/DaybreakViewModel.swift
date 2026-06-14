@@ -114,6 +114,9 @@ final class DaybreakViewModel: ObservableObject {
 
     func startTicking() {
         now = Date()
+        // Always open at the present moment: the hero (current location) must match the system clock.
+        // Time travel is a transient, per-session exploration — it never carries over to a new open.
+        travelOffsetMinutes = 0
         recompute()
         ticker?.invalidate()
         let timer = Timer(timeInterval: 1.0, repeats: true) { [weak self] _ in
