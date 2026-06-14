@@ -440,6 +440,59 @@ class MeridianUnitTests: XCTestCase {
         defaults.removePersistentDomain(forName: "HomeRowMigrationTest_Dedup")
     }
 
+    func testSeedsCurrentTimezoneAsCurrentLocationWhenEmpty() {
+        let suite = "SeedTest_Empty"
+        let defaults = UserDefaults(suiteName: suite)!
+        defaults.removePersistentDomain(forName: suite)
+        let store = DataStore(with: defaults)
+        XCTAssertTrue(store.timezoneObjects().isEmpty)
+
+        AppDefaults.seedCurrentTimezoneIfEmpty(store: store)
+
+        let rows = store.timezoneObjects()
+        XCTAssertEqual(rows.count, 1, "an empty list should be seeded with one city")
+        XCTAssertEqual(rows.first?.timezone(), TimeZone.autoupdatingCurrent.identifier)
+        XCTAssertTrue(rows.first?.isSystemTimezone ?? false, "seeded row is the current location")
+        // Home is left unset (the seed never writes homeTimezoneID) so the user can choose it.
+
+        defaults.removePersistentDomain(forName: suite)
+    }
+
+    func testSeedDoesNotDuplicateButReseedsAfterEmptying() {
+        let suite = "SeedTest_Reseed"
+        let defaults = UserDefaults(suiteName: suite)!
+        defaults.removePersistentDomain(forName: suite)
+        let store = DataStore(with: defaults)
+
+        AppDefaults.seedCurrentTimezoneIfEmpty(store: store)
+        AppDefaults.seedCurrentTimezoneIfEmpty(store: store)
+        XCTAssertEqual(store.timezoneObjects().count, 1, "must not seed on top of an existing list")
+
+        // Self-heal: a list that gets emptied (import, reset) is re-seeded on the next launch.
+        store.setTimezones([])
+        AppDefaults.seedCurrentTimezoneIfEmpty(store: store)
+        XCTAssertEqual(store.timezoneObjects().count, 1, "an emptied list is re-seeded, not left blank")
+
+        defaults.removePersistentDomain(forName: suite)
+    }
+
+    func testSeedSkippedWhenListNotEmpty() {
+        let suite = "SeedTest_NotEmpty"
+        let defaults = UserDefaults(suiteName: suite)!
+        defaults.removePersistentDomain(forName: suite)
+        let store = DataStore(with: defaults)
+        let existing = TimezoneData()
+        existing.timezoneID = "Asia/Tokyo"
+        store.addTimezone(existing)
+
+        AppDefaults.seedCurrentTimezoneIfEmpty(store: store)
+
+        XCTAssertEqual(store.timezoneObjects().count, 1, "an existing list is left untouched")
+        XCTAssertEqual(store.timezoneObjects().first?.timezone(), "Asia/Tokyo")
+
+        defaults.removePersistentDomain(forName: suite)
+    }
+
     func testFormattedLabel() {
         let dataObject = TimezoneData(with: mumbai)
         XCTAssertEqual(dataObject.formattedTimezoneLabel(), "Ghar", "Incorrect custom label returned by model \(dataObject.formattedTimezoneLabel())")

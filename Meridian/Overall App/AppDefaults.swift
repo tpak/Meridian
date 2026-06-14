@@ -37,6 +37,35 @@ class AppDefaults {
         // healed blob is what we write back.
         let healed = runHomeRowMigrationV1(on: timezones, defaults: defaults)
         store.setTimezones(healed)
+
+        // Never present an empty app: if no timezones are tracked, seed the current one.
+        seedCurrentTimezoneIfEmpty(store: store)
+    }
+
+    /// Ensure the app is never blank: when no timezones are tracked, seed the current system
+    /// timezone as the current location (`isSystemTimezone`) so "Currently in" and the Daybreak hero
+    /// are populated. It is deliberately NOT set as Home — the user may be travelling — so Home stays
+    /// unset for them to choose. The current-location row is non-removable in the UI, so in normal
+    /// use this only fires on a genuinely fresh install; running it on every empty launch (rather
+    /// than gating on a one-time flag) means a list that gets emptied — e.g. by an import or reset —
+    /// self-heals instead of leaving the user stuck with a blank app. Public for tests.
+    class func seedCurrentTimezoneIfEmpty(store: DataStore) {
+        guard store.timezoneObjects().isEmpty else { return }
+
+        let identifier = TimeZone.autoupdatingCurrent.identifier
+        let friendlyName = identifier.split(separator: "/").last
+            .map { $0.replacingOccurrences(of: "_", with: " ") } ?? identifier
+
+        let seeded = TimezoneData.make(timezoneID: identifier, name: friendlyName, customLabel: "",
+                                       latitude: 0, longitude: 0, placeIdentifier: UUID().uuidString)
+        seeded.isSystemTimezone = true
+        // Leave coordinates nil so AppDelegate.backfillMissingCoordinates (and LocationController,
+        // once location permission is granted) fill in real ones for sunrise/sunset.
+        seeded.latitude = nil
+        seeded.longitude = nil
+        store.addTimezone(seeded)
+
+        Logger.production("Seeded current timezone \(identifier) into empty list")
     }
 
     /// One-time migration that converts legacy inverted-bool and int-encoded

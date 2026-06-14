@@ -8,6 +8,34 @@ import Sparkle
 @main
 open class AppDelegate: NSObject, NSApplicationDelegate {
     internal lazy var panelController = PanelController(windowNibName: .panel)
+    /// v4 "Daybreak" SwiftUI popover. When `useDaybreakPanel` is true the status-item click routes
+    /// here instead of the legacy `panelController`; flip the flag to fall back instantly.
+    internal lazy var daybreakPanelController = DaybreakPanelController()
+    private let useDaybreakPanel = true
+    /// v4 SwiftUI Settings window. When `useV4Settings` is true, the Daybreak footer + ⌘, open this
+    /// instead of the legacy storyboard Preferences; flip the flag to fall back.
+    internal lazy var settingsWindowController = SettingsWindowController()
+    private let useV4Settings = true
+
+    /// Open Settings, routing to the v4 window or the legacy Preferences per the flag.
+    @objc func openSettingsRouted() {
+        if useV4Settings {
+            settingsWindowController.show()
+        } else {
+            panelController.openPreferencesWindow()
+        }
+    }
+
+    /// The app menu's "Preferences… ⌘," item ships from MainMenu.xib with no action connected, so the
+    /// shortcut was dead. Connect it to the routed Settings opener (works in both menubar-only and
+    /// dock activation modes).
+    private func wirePreferencesMenuItem() {
+        guard let appMenu = NSApp.mainMenu?.items.first?.submenu else { return }
+        for item in appMenu.items where item.keyEquivalent == "," && item.action == nil {
+            item.target = self
+            item.action = #selector(openSettingsRouted)
+        }
+    }
     private lazy var statusBarHandler: StatusItemHandler = StatusItemHandler(with: DataStore.shared())
     lazy var updaterController: SPUStandardUpdaterController = {
         SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: self, userDriverDelegate: nil)
@@ -28,6 +56,7 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         }
         enableAutoUpdateByDefault()
         backfillMissingCoordinates()
+        wirePreferencesMenuItem()
         continueUsually()
         setupMemoryPressureMonitoring()
         reopenAppearanceIfRelaunchedForTeamAccent()
@@ -255,7 +284,8 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openPreferencesWindow() {
-        panelController.openPreferencesWindow()
+        // Dock-menu "Settings" routes through the v4 flag too (not just the Daybreak footer).
+        openSettingsRouted()
     }
 
     @objc func hideFromDock() {
@@ -315,6 +345,11 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @IBAction open func togglePanel(_ sender: NSButton) {
+        if useDaybreakPanel, let button = sender as? NSStatusBarButton {
+            daybreakPanelController.toggle(relativeTo: button)
+            button.state = (daybreakPanelController.window?.isVisible == true) ? .on : .off
+            return
+        }
         panelController.showWindow(nil)
         panelController.setActivePanel(newValue: sender.state == .on)
         NSApp.activate(ignoringOtherApps: true)
