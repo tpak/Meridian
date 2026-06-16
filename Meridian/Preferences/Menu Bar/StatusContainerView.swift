@@ -37,9 +37,10 @@ func compactWidth(for timezone: TimezoneData, with store: DataStore) -> Int {
 // Test with Sat 12:46 AM
 let bufferWidth: CGFloat = 9.5
 
-/// The status item content height tracks the live menu-bar thickness. A vertically-centered single
-/// line is centred within this height, so it must match the bar — the old hardcoded 30pt overran a
-/// ~24pt bar and pushed centred content upward toward the top edge.
+/// Height of the status-item content — always the live menu-bar thickness so the item fills the bar
+/// exactly (measured: 22pt on this hardware). A taller item overflows the bar and shoves the
+/// two-line stacked content down onto the bottom edge; matching the bar keeps both the single line
+/// and the stacked pair vertically centred (#142 UAT).
 var menubarItemHeight: CGFloat { NSStatusBar.system.thickness }
 
 protocol StatusItemViewConforming {

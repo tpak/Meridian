@@ -23,9 +23,21 @@ let defaultParagraphStyle: NSMutableParagraphStyle = {
 
 let compactModeTimeFont: NSFont = NSFont.monospacedDigitSystemFont(ofSize: 10, weight: .regular)
 
-/// v4 menu bar: render each favourite as a single line "● NAME TIME" with a per-city color dot,
-/// instead of the legacy two-line (place over time) item. Flip to false to restore the old layout.
-let kMenubarV4SingleLine = true
+/// v4 menu bar: render each favourite as a single line "● NAME TIME" with a per-city color dot.
+/// The user can opt back into the legacy two-line (place over time) item via Settings → Menu Bar →
+/// the "Stacked" preset (issue #142), which is what conserves horizontal width on small/notched
+/// laptops with several favourites. Single-line stays the default — this is true unless the user
+/// turns on the stacked layout, so the whole render pipeline branches on it at runtime.
+var kMenubarV4SingleLine: Bool { !menubarStackedLayoutEnabled }
+
+/// Whether the menu-bar item uses the legacy two-line stacked layout (city name over the time),
+/// opt-in via Settings → Menu Bar → "Stacked" preset (issue #142). Default off → single-line.
+/// Backed by the same raw-key convention as the sibling color-dots toggle; a write to it triggers
+/// `UserDefaults.didChangeNotification`, which `StatusItemHandler` already observes to rebuild the
+/// menu-bar container with fresh `StatusItemView`s in the new layout.
+var menubarStackedLayoutEnabled: Bool {
+    UserDefaults.standard.object(forKey: "com.tpak.meridian.v4.menubarStacked") as? Bool ?? false
+}
 
 /// Whether the leading color dot is shown (Settings → Menu Bar → Color dots; default on).
 var menubarColorDotsEnabled: Bool {
@@ -55,16 +67,11 @@ class StatusItemView: NSView {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
         paragraphStyle.lineBreakMode = .byTruncatingTail
-        // The two-line item compresses line height for p,q,y,g readability across its stacked
-        // lines. The single-line item is vertically centered, so it keeps the natural line height —
-        // the compressed box would otherwise shift the glyphs up and clip descenders.
-        if kMenubarV4SingleLine {
-            paragraphStyle.lineHeightMultiple = 1
-        } else {
-            let userPreferredLanguage = Locale.preferredLanguages.first ?? "en-US"
-            let lineHeight = userPreferredLanguage.contains("en") ? LayoutConstants.englishMenubarLineHeightMultiple : 1
-            paragraphStyle.lineHeightMultiple = CGFloat(lineHeight)
-        }
+        // Natural line height for both layouts. The stacked two-line item gives each line its own
+        // half of the (taller, 30pt) item, so it no longer needs the old 0.92 compression — that
+        // compression is what made the menu-bar text read denser than the Settings preview, which
+        // uses natural line height (#142 UAT).
+        paragraphStyle.lineHeightMultiple = 1
         return paragraphStyle
     }()
 
@@ -89,7 +96,9 @@ class StatusItemView: NSView {
         if let cached = cachedTextFontAttributes { return cached }
         let textColor = hasDarkAppearance ? NSColor.white : NSColor.black
         let attributes: [NSAttributedString.Key: Any] = [
-            NSAttributedString.Key.font: NSFont.boldSystemFont(ofSize: 10),
+            // Semibold (not bold) for the stacked name line — matches the cleaner Settings preview
+            // chip; full bold read heavier/chunkier in the menu bar (issue #142 UAT).
+            NSAttributedString.Key.font: NSFont.systemFont(ofSize: 10, weight: .semibold),
             NSAttributedString.Key.foregroundColor: textColor,
             NSAttributedString.Key.backgroundColor: NSColor.clear,
             NSAttributedString.Key.paragraphStyle: paragraphStyle
@@ -132,20 +141,20 @@ class StatusItemView: NSView {
             return
         }
 
-        let topAnchorConstant: CGFloat = 0.0
-
+        // Centre each line's *text* symmetrically about the bar's middle. Anchoring a field's
+        // centreY positions its text centre (this is exactly what the single-line item does), so the
+        // name a little above centre and the time a little below keeps the pair vertically centred
+        // and the gap tight — regardless of the line-box padding that pushed the time onto the bottom
+        // edge under the previous layouts (measured fix, #142 UAT).
+        let halfGap: CGFloat = 6
         NSLayoutConstraint.activate([
             locationView.leadingAnchor.constraint(equalTo: leadingAnchor),
             locationView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            locationView.topAnchor.constraint(equalTo: topAnchor, constant: topAnchorConstant),
-            locationView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.35)
-        ])
+            locationView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -halfGap),
 
-        NSLayoutConstraint.activate([
             timeView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            timeView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
-            timeView.topAnchor.constraint(equalTo: locationView.bottomAnchor),
-            timeView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            timeView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            timeView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: halfGap)
         ])
     }
 

@@ -20,6 +20,10 @@ final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
     private let bodyInsetX: CGFloat = 40
     private let bodyTopInset: CGFloat = 14
     private let bodyWidth: CGFloat = 378
+    // Gap between the menu-bar bottom and the panel body so the popover sits clearly *below* the bar
+    // (standard menu-bar-app behaviour) instead of flush against it. (#142 UAT — the menu-bar item
+    // height fix moved the anchor button's bottom up to the bar, which pulled the panel flush.)
+    private let bodyGapBelowBar: CGFloat = 8
 
     convenience init() {
         let panel = DaybreakPanel(
@@ -152,9 +156,9 @@ final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
         if let visible = screen?.visibleFrame {
             left = max(visible.minX + 4, min(left, visible.maxX - width - 4))
         }
-        // Align the body's top to just under the menu-bar item (the transparent top inset overlaps
-        // the bar harmlessly).
-        let topLeft = NSPoint(x: left, y: buttonRect.minY + bodyTopInset)
+        // Align the body's top just under the menu-bar item, plus a small gap so the popover sits
+        // clearly below the bar (the transparent top inset still overlaps the bar harmlessly).
+        let topLeft = NSPoint(x: left, y: buttonRect.minY + bodyTopInset - bodyGapBelowBar)
         panel.setFrameTopLeftPoint(topLeft)
         panel.invalidateShadow()
     }

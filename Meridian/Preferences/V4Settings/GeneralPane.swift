@@ -33,7 +33,7 @@ struct GeneralPane: View {
 
             Divider().padding(.top, 18).padding(.bottom, 18)
 
-            AboutBlock(accent: accent)
+            AboutBlock()
                 .frame(maxWidth: .infinity, alignment: .center)
         }
     }
@@ -196,36 +196,43 @@ private struct UpdateFrequencyRow: View {
     }
 
     var body: some View {
-        FormRow(label: String(localized: "Check for updates")) {
-            Picker("", selection: $selectedIndex) {
-                ForEach(0..<Self.labels.count, id: \.self) { index in
-                    Text(Self.labels[index]).tag(index)
+        // Two rows: the frequency segment, then "Check Now" on its own line aligned under the
+        // segment (empty label column) instead of being pushed out to the right edge (UAT feedback).
+        VStack(alignment: .leading, spacing: 10) {
+            FormRow(label: String(localized: "Check for updates")) {
+                Picker("", selection: $selectedIndex) {
+                    ForEach(0..<Self.labels.count, id: \.self) { index in
+                        Text(Self.labels[index]).tag(index)
+                    }
                 }
-            }
-            .labelsHidden()
-            .pickerStyle(.segmented)
-            .tint(accent)
-            .fixedSize()
-            .onChange(of: selectedIndex) { _, newValue in
-                guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
-                let updater = appDelegate.updaterController.updater
-                let interval = Self.intervals[newValue]
-                // Interval 0 = manual: stop scheduling checks entirely.
-                updater.automaticallyChecksForUpdates = interval > 0
-                if interval > 0 {
-                    updater.updateCheckInterval = interval
+                .labelsHidden()
+                .pickerStyle(.segmented)
+                .tint(accent)
+                .fixedSize()
+                .onChange(of: selectedIndex) { _, newValue in
+                    guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
+                    let updater = appDelegate.updaterController.updater
+                    let interval = Self.intervals[newValue]
+                    // Interval 0 = manual: stop scheduling checks entirely.
+                    updater.automaticallyChecksForUpdates = interval > 0
+                    if interval > 0 {
+                        updater.updateCheckInterval = interval
+                    }
                 }
-            }
-            .onAppear { syncSelection() }
-            .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
-                syncSelection() // reflect a settings import / external change
+                .onAppear { syncSelection() }
+                .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
+                    syncSelection() // reflect a settings import / external change
+                }
             }
 
-            Button(String(localized: "Check Now")) {
-                guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
-                appDelegate.updaterController.checkForUpdates(nil)
+            FormRow(label: "") {
+                Button(String(localized: "Check Now")) {
+                    guard let appDelegate = NSApplication.shared.delegate as? AppDelegate else { return }
+                    appDelegate.updaterController.checkForUpdates(nil)
+                }
+                .font(.system(size: 12))
+                .buttonStyle(ShadedButtonStyle())
             }
-            .font(.system(size: 12))
         }
     }
 
@@ -257,6 +264,7 @@ private struct BackupButtons: View {
                 .accessibilityIdentifier("ExportLog")
         }
         .font(.system(size: 12, weight: .medium))
+        .buttonStyle(ShadedButtonStyle())
     }
 
     private func exportLog() {
@@ -285,7 +293,6 @@ private let lastCheckedFormatter: DateFormatter = {
 }()
 
 private struct AboutBlock: View {
-    let accent: Color
     @State private var lastCheckDate: Date?
 
     private var versionString: String {
@@ -303,19 +310,19 @@ private struct AboutBlock: View {
                 .font(.system(size: 11.5))
                 .foregroundStyle(.tertiary)
 
-            HStack(spacing: 18) {
-                LinkText(String(localized: "Open an issue"), accent: accent) {
+            HStack(spacing: 10) {
+                LinkText(String(localized: "Open an issue")) {
                     open(AboutUsConstants.GitHubIssuesURL, log: "Opened GitHub Issues")
                 }
                 .accessibilityIdentifier("MeridianPrivateFeedback")
 
-                LinkText(String(localized: "View source"), accent: accent) {
+                LinkText(String(localized: "View source")) {
                     open(AboutUsConstants.GitHubURL, log: "Opened GitHub")
                 }
 
                 // Tahoe (#125) recovery link — escape hatch for users who lost
                 // the menu bar icon.
-                LinkText(String(localized: "Can't see it in your menu bar?"), accent: accent) {
+                LinkText(String(localized: "Can't see it in your menu bar?")) {
                     ControlCenterSettings.open()
                     Logger.debug("Opened Control Center Settings from General tab")
                 }
@@ -346,24 +353,53 @@ private struct AboutBlock: View {
 
 private struct LinkText: View {
     let title: String
-    let accent: Color
     let action: () -> Void
 
-    init(_ title: String, accent: Color, action: @escaping () -> Void) {
+    init(_ title: String, action: @escaping () -> Void) {
         self.title = title
-        self.accent = accent
         self.action = action
     }
 
     var body: some View {
+        // Shaded so it reads as a button on the dark canvas rather than blending in like the old
+        // accent-coloured plain text link (UAT feedback).
         Button(action: action) {
             Text(title)
                 .font(.system(size: 12))
-                .foregroundStyle(accent)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(ShadedButtonStyle())
         .onHover { hovering in
             if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+        }
+    }
+}
+
+// A clearly-shaded button background (fill + hairline border) so command buttons read as buttons
+// against the settings window's dark canvas — the system `.bordered` style renders nearly invisibly
+// here (UAT feedback). Adapts to light/dark via `Color.primary` and dims when disabled.
+private struct ShadedButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        ShadedButtonLabel(configuration: configuration)
+    }
+
+    private struct ShadedButtonLabel: View {
+        let configuration: ButtonStyle.Configuration
+        @Environment(\.isEnabled) private var isEnabled
+
+        var body: some View {
+            configuration.label
+                .padding(.horizontal, 11)
+                .padding(.vertical, 5)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.primary.opacity(configuration.isPressed ? 0.16 : 0.08))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(Color.primary.opacity(0.18), lineWidth: 1)
+                )
+                .contentShape(RoundedRectangle(cornerRadius: 6))
+                .opacity(isEnabled ? 1 : 0.4)
         }
     }
 }
