@@ -56,7 +56,13 @@ internal enum ControlCenterSettings {
 }
 
 class StatusItemHandler: NSObject {
-    private lazy var clockIcon: NSImage? = NSImage(systemSymbolName: "clock.fill", accessibilityDescription: "Meridian")
+    // "Midnight Sundial" monochrome template glyph (Assets → MenuBarIcon), shown when the user has
+    // no starred cities. isTemplate lets macOS tint it to the bar (white on dark, black on light).
+    private lazy var meridianMenubarIcon: NSImage? = {
+        let image = NSImage(named: .menubarIcon)
+        image?.isTemplate = true
+        return image
+    }()
 
     var hasActiveIcon: Bool = false
 
@@ -436,7 +442,7 @@ class StatusItemHandler: NSObject {
         }
 
         statusItem.button?.title = UserDefaultKeys.emptyString
-        statusItem.button?.image = clockIcon
+        statusItem.button?.image = meridianMenubarIcon
         statusItem.button?.imagePosition = .imageOnly
         statusItem.button?.toolTip = "Meridian"
     }

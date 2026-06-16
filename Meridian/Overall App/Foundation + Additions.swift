@@ -17,7 +17,9 @@ extension NSNib.Name {
 }
 
 extension NSImage.Name {
-    static let menubarIcon = NSImage.Name("LightModeIcon")
+    // "Midnight Sundial" monochrome menu-bar glyph (Assets → MenuBarIcon, Render As: Template).
+    // Shown when the user has no starred cities. Tinted by macOS; load with isTemplate = true.
+    static let menubarIcon = NSImage.Name("MenuBarIcon")
 }
 
 extension NSView {
