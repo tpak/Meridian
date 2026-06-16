@@ -17,6 +17,22 @@ private struct MenuBarPreset: Identifiable {
     let date: Bool
     let twentyFourHour: Bool
     let dots: Bool
+    /// Legacy two-line layout (city name over time). Default false keeps the five single-line
+    /// presets unchanged; only the "Stacked" preset opts in (issue #142).
+    let stacked: Bool
+
+    init(id: String, label: String, sample: String, place: Bool, day: Bool, date: Bool,
+         twentyFourHour: Bool, dots: Bool, stacked: Bool = false) {
+        self.id = id
+        self.label = label
+        self.sample = sample
+        self.place = place
+        self.day = day
+        self.date = date
+        self.twentyFourHour = twentyFourHour
+        self.dots = dots
+        self.stacked = stacked
+    }
 }
 
 private let menuBarPresets: [MenuBarPreset] = [
@@ -39,6 +55,13 @@ private let menuBarPresets: [MenuBarPreset] = [
     MenuBarPreset(
         id: "mono", label: String(localized: "Mono · no dots"), sample: "IST 7:47 AM",
         place: true, day: false, date: false, twentyFourHour: false, dots: false
+    ),
+    // Two-line "stacked" item (city name over the time) — restored from pre-v4 for users who
+    // need more favourites to fit in a narrow / notched menu bar (issue #142). Interim engineering
+    // restore of the legacy layout; pending a design-partner pass on fonts/spacing/dots.
+    MenuBarPreset(
+        id: "stacked", label: String(localized: "Stacked"), sample: "IST\n7:47 AM",
+        place: true, day: false, date: false, twentyFourHour: false, dots: false, stacked: true
     )
 ]
 
@@ -78,6 +101,8 @@ struct MenuBarPane: View {
     @AppStorage("showDateInMenubar") private var showDate = false
     @AppStorage("timeFormat") private var timeFormat: TimeFormat = .twelveHour
     @AppStorage("com.tpak.meridian.v4.menubarColorDots") private var menubarColorDots = true
+    // Legacy two-line stacked layout, opt-in via the "Stacked" preset (issue #142). Default off.
+    @AppStorage("com.tpak.meridian.v4.menubarStacked") private var menubarStacked = false
 
     // Presentation + float
     @AppStorage("com.tpak.meridian.appDisplayOptions") private var appPresentation: AppPresentation = .menubarOnly
@@ -95,7 +120,7 @@ struct MenuBarPane: View {
                 .padding(.bottom, 24)
             fineTuneSection
             presentationRow
-                .padding(.top, 4)
+                .padding(.top, 14)
             floatOnTopRow
                 .padding(.top, 14)
         }
@@ -132,7 +157,7 @@ struct MenuBarPane: View {
 
     private var previewChips: some View {
         HStack(spacing: 0) {
-            ForEach(previewItems, id: \.label) { item in
+            ForEach(Array(previewItems.enumerated()), id: \.offset) { _, item in
                 MenuBarChip(item: item)
                     .padding(.leading, 16)
             }
@@ -142,17 +167,39 @@ struct MenuBarPane: View {
 
     private var previewItems: [PreviewChipItem] {
         previewSamples.map { sample in
+            let time = timeFormat == .twentyFourHour ? sample.t24 : "\(sample.t12) \(sample.ampm)"
+
+            if menubarStacked {
+                // Legacy two-line item: city name on top, time (with optional day/date) below —
+                // mirrors compactMenuTitle()/compactMenuSubtitle(). The two-line renderer draws no
+                // color dot, so the preview omits it too (open design question — see notes).
+                let top: String
+                var bottomParts: [String] = []
+                if showPlaceName {
+                    top = sample.name
+                    if showDay { bottomParts.append(sample.day) }
+                    if showDate { bottomParts.append(sample.date) }
+                    bottomParts.append(time)
+                } else {
+                    var topParts: [String] = []
+                    if showDay { topParts.append(sample.day) }
+                    if showDate { topParts.append(sample.date) }
+                    top = topParts.isEmpty ? sample.name : topParts.joined(separator: " ")
+                    bottomParts.append(time)
+                }
+                return PreviewChipItem(topLabel: top,
+                                       bottomLabel: bottomParts.joined(separator: " "),
+                                       dot: sample.dotColor, showDot: false)
+            }
+
             var parts: [String] = []
             if showPlaceName { parts.append(sample.name) }
             if showDay { parts.append(sample.day) }
-            let time = timeFormat == .twentyFourHour ? sample.t24 : "\(sample.t12) \(sample.ampm)"
             parts.append(time)
             if showDate { parts.append(sample.date) }
-            return PreviewChipItem(
-                label: parts.joined(separator: " "),
-                dot: sample.dotColor,
-                showDot: menubarColorDots
-            )
+            return PreviewChipItem(topLabel: parts.joined(separator: " "),
+                                   bottomLabel: nil,
+                                   dot: sample.dotColor, showDot: menubarColorDots)
         }
     }
 
@@ -181,6 +228,9 @@ struct MenuBarPane: View {
         showDate = preset.date
         menubarColorDots = preset.dots
         timeFormat = preset.twentyFourHour ? .twentyFourHour : .twelveHour
+        // Switching to/from the Stacked preset flips the menu-bar layout; the write triggers a
+        // menu-bar rebuild via StatusItemHandler's UserDefaults observer.
+        menubarStacked = preset.stacked
     }
 
     // MARK: - Fine-tune section
@@ -303,7 +353,9 @@ private struct FormRow<C: View>: View {
 // MARK: - PreviewChipItem + MenuBarChip
 
 private struct PreviewChipItem {
-    let label: String
+    let topLabel: String
+    /// Non-nil renders a two-line (stacked) chip: `topLabel` over `bottomLabel`. Nil → single line.
+    let bottomLabel: String?
     let dot: Color
     let showDot: Bool
 }
@@ -318,9 +370,19 @@ private struct MenuBarChip: View {
                     .fill(item.dot)
                     .frame(width: 5, height: 5)
             }
-            Text(item.label)
-                .font(.system(size: 12, weight: .semibold).monospacedDigit())
+            if let bottom = item.bottomLabel {
+                VStack(alignment: .center, spacing: 0) {
+                    Text(item.topLabel)
+                        .font(.system(size: 10, weight: .semibold))
+                    Text(bottom)
+                        .font(.system(size: 10).monospacedDigit())
+                }
                 .foregroundColor(.white)
+            } else {
+                Text(item.topLabel)
+                    .font(.system(size: 12, weight: .semibold).monospacedDigit())
+                    .foregroundColor(.white)
+            }
         }
     }
 }
@@ -335,15 +397,21 @@ private struct PresetCard: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 5) {
                 Text(preset.label)
                     .font(.system(size: 12.5, weight: .semibold))
                     .foregroundStyle(.primary)
                 Text(preset.sample)
                     .font(.system(size: 11).monospacedDigit())
                     .foregroundStyle(.secondary)
+                    // Right-justify the sample so it sits cleanly off the label (not crammed against
+                    // it) and lines up like the menu-bar preview strip. Reserve two lines on every
+                    // card so the two-line "Stacked" sample doesn't grow its grid row (issue #142 UAT).
+                    .multilineTextAlignment(.trailing)
+                    .lineLimit(2, reservesSpace: true)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .topLeading)
             .padding(.horizontal, 13)
             .padding(.vertical, 11)
         }
