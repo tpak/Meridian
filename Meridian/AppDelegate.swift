@@ -54,6 +54,7 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
             self.checkForPreviousUncleanExit()
             self.writeSentinelFile()
         }
+        enableStartAtLoginByDefault()
         enableAutoUpdateByDefault()
         backfillMissingCoordinates()
         wirePreferencesMenuItem()
@@ -244,6 +245,10 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
             UserDefaults.standard.set(true, forKey: hasSetAutoUpdate)
             updaterController.updater.automaticallyChecksForUpdates = true
             updaterController.updater.automaticallyDownloadsUpdates = true
+            // Fresh-install cadence: check daily. Info.plist has no SUScheduledCheckInterval, so set
+            // it explicitly rather than relying on Sparkle's built-in default. Existing users keep
+            // whatever frequency they've chosen (this block runs only once).
+            updaterController.updater.updateCheckInterval = 86400
         }
 
         // Migration: users who went through the pre-2.12.0 broken period may have
@@ -262,6 +267,29 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         let downloads = updaterController.updater.automaticallyDownloadsUpdates
         let interval = updaterController.updater.updateCheckInterval
         Logger.production("Sparkle autoupdate: checks=\(checks) downloads=\(downloads) interval=\(Int(interval))s")
+    }
+
+    // MARK: - Start-at-Login Default
+
+    /// Fresh installs default to starting at login. Runs once and only for a genuinely new install —
+    /// never an upgrade — so existing users who left start-at-login off aren't silently opted in.
+    /// "HasSetAutoUpdateDefault" has been written on first launch since early versions, so its
+    /// absence marks a brand-new install. MUST run BEFORE enableAutoUpdateByDefault(), which sets
+    /// that flag.
+    private func enableStartAtLoginByDefault() {
+        let hasSetStartAtLogin = "HasSetStartAtLoginDefault"
+        guard !UserDefaults.standard.bool(forKey: hasSetStartAtLogin) else { return }
+
+        let isFreshInstall = !UserDefaults.standard.bool(forKey: "HasSetAutoUpdateDefault")
+        UserDefaults.standard.set(true, forKey: hasSetStartAtLogin)
+        guard isFreshInstall else {
+            Logger.production("Existing install — leaving start-at-login preference untouched")
+            return
+        }
+
+        UserDefaults.standard.set(true, forKey: UserDefaultKeys.startAtLogin)
+        StartupManager().toggleLogin(true)
+        Logger.production("Fresh install: enabled start-at-login by default")
     }
 
     // MARK: - Dock Menu
