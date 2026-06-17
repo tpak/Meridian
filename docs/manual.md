@@ -11,6 +11,8 @@ description: The complete guide to Meridian, the macOS menu-bar world clock.
 
 ---
 
+![Meridian — the menu-bar item and the Daybreak popover](screenshots/hero.png)
+
 ## Contents
 
 - [Installing Meridian](#installing-meridian)
@@ -44,7 +46,7 @@ Or download the latest `.zip` from the [Releases page](https://github.com/tpak/M
 
 Meridian keeps itself up to date automatically, so you only have to install it once. See [Updates & the beta channel](#updates--the-beta-channel).
 
-<!-- screenshot: screenshots/menu-bar-item.png — Meridian's icon in the macOS menu bar -->
+![Meridian's starred cities in the macOS menu bar](screenshots/menu-bar-item.png)
 
 ---
 
@@ -65,7 +67,7 @@ On recent macOS versions, the system can hide menu-bar apps behind **Control Cen
 
 Click the menu-bar icon to drop down the popover — a tidy card anchored under your menu-bar item.
 
-<!-- screenshot: screenshots/popover.png — the Daybreak popover with hero and city cards -->
+![The Daybreak popover: the current-location hero plus a card for each city](screenshots/popover.png)
 
 ### The hero (your current location)
 
@@ -101,7 +103,7 @@ Along the bottom of the popover:
 
 Open **Settings → Cities** (`⌘,`, then choose **Cities** in the sidebar).
 
-<!-- screenshot: screenshots/settings-cities.png — the Cities settings pane -->
+![Settings → Cities](screenshots/settings-cities.png)
 
 ### Add a city or time zone
 
@@ -146,7 +148,7 @@ What shows in the menu bar depends on your starred cities:
 
 Configure this in **Settings → Menu Bar**. A **live preview** at the top of the pane shows your changes before you commit.
 
-<!-- screenshot: screenshots/settings-menubar.png — the Menu Bar settings pane with preset grid -->
+![Settings → Menu Bar, with the density-preset grid and live preview](screenshots/settings-menubar.png)
 
 ### Density presets
 
@@ -182,7 +184,7 @@ The **Float on top** toggle (also available in the popover footer as **Float ▲
 
 Meridian lets you slide time forward and back to find a moment that works everywhere — all your cities update together.
 
-<!-- screenshot: screenshots/time-travel.png — the scrubber mid-travel with the readout pill -->
+![Time-travelling: the scrubber mid-drag with the offset pill and the "Back to now" link](screenshots/time-travel.png)
 
 ### In the popover
 
@@ -193,7 +195,7 @@ Meridian lets you slide time forward and back to find a moment that works everyw
 
 ### Settings → Time Travel
 
-<!-- screenshot: screenshots/settings-timetravel.png — the Time Travel settings pane -->
+![Settings → Time Travel](screenshots/settings-timetravel.png)
 
 - **Travel forward** — how many days ahead you can jump when typing a time (1–30 days; default 6).
 - **Travel back** — how many days back you can jump (0–7 days; `0` turns it off; default 2).
@@ -208,7 +210,7 @@ Meridian lets you slide time forward and back to find a moment that works everyw
 
 Open **Settings → Appearance**. A **PREVIEW** card at the bottom shows your changes live.
 
-<!-- screenshot: screenshots/settings-appearance.png — the Appearance settings pane -->
+![Settings → Appearance, with the accent palette and live preview](screenshots/settings-appearance.png)
 
 - **Theme** — **Auto** (follow macOS), **Light**, or **Dark**. (Default: Light.)
 - **Accent color** — pick from a grid of **Formula 1 livery-inspired** palettes (Alpine, Aston Martin, Audi, Cadillac, Ferrari, Haas, McLaren, Mercedes, Racing Bulls, Red Bull Racing, Williams). The accent tints switches, selections, and scrubber highlights. (Default: Aston Martin.) *The palette names and colors are stylized tributes and are not affiliated with or endorsed by any Formula 1 team.* Changing the accent may prompt a quick restart so every control repaints.
@@ -232,6 +234,8 @@ Turn on **Settings → Appearance → Sunrise / sunset** to show each city's nex
 ## Updates & the beta channel
 
 Meridian updates itself using [Sparkle](https://sparkle-project.org). Because it rarely needs to quit, updates install quietly in the background.
+
+![Settings → General](screenshots/settings-general.png)
 
 In **Settings → General**:
 
