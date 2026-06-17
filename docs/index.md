@@ -1,0 +1,28 @@
+---
+title: Meridian
+---
+
+# Meridian
+
+A macOS menu-bar world clock. Keep the cities you care about a click away, see whether it's day or night in each one at a glance, and "time-travel" to find a moment that works across time zones.
+
+## Documentation
+
+- **[User Manual](manual.html)** — the complete guide to every setting and feature
+- **[What's new in 4.0.0 — "Daybreak"](RELEASE_NOTES_4.0.0.html)** — the latest release
+
+## Install
+
+```bash
+brew tap tpak/tpak
+brew install --cask meridian
+```
+
+Or download the latest build from the [Releases page](https://github.com/tpak/Meridian/releases).
+
+## Links
+
+- [Source code](https://github.com/tpak/Meridian)
+- [Report an issue](https://github.com/tpak/Meridian/issues)
+
+<sub>Meridian is open source and is a fork of <a href="https://github.com/n0shake/Clocker">Clocker</a> by Abhishek Banthia.</sub>
