@@ -3,6 +3,22 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>4.0.0-beta31</title>
+            <pubDate>Wed, 17 Jun 2026 21:33:38 +0000</pubDate>
+            <sparkle:channel>beta</sparkle:channel>
+            <sparkle:version>4000031</sparkle:version>
+            <sparkle:shortVersionString>4.0.0-beta31</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Privacy: keep custom city labels and addresses out of the diagnostic log</li>
+                    <li>Internal cleanup and stability improvements</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v4.0.0-beta31/Meridian.app.zip" length="2587201" type="application/octet-stream" sparkle:edSignature="vYZWg7U4/xm5Uz/4A+exdoDcc34JYINs3zZ8j30xK2u1fA45dcu9CxkqX55T2sm1jeoTe9SMne+YkQ1aCCRXCA=="/>
+        </item>
+        <item>
             <title>4.0.0-beta30</title>
             <pubDate>Tue, 16 Jun 2026 14:13:06 +0000</pubDate>
             <sparkle:channel>beta</sparkle:channel>
