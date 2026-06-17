@@ -4,9 +4,9 @@
 //
 // These are intentionally kept out of the carefully-migrated core (`Strings.swift` /
 // `AppDefaults` / `DataStore`) for the duration of the redesign: each accessor reads through a
-// sensible fallback, so no default-registration or migration is required to ship Phase 1. They
-// will be folded into `DataStore`'s typed accessors (and registered in `AppDefaults`) when the
-// Settings window is rebuilt in Phase 3.
+// sensible fallback, so no default-registration or migration is required to ship Phase 1. Every
+// v4 key string is now centralized in `Keys` below (the single source of truth); folding the typed
+// accessors into `DataStore` and registering defaults in `AppDefaults` remains a later step.
 
 import Foundation
 
@@ -22,6 +22,18 @@ enum DaybreakDefaults {
         static let snapStep = "com.tpak.meridian.v4.snapStep"
         /// Pin the current-location row to the top of the list (Settings → Cities; default on).
         static let pinCurrentToTop = "com.tpak.meridian.v4.pinCurrentToTop"
+        /// Popover text-scale factor 0.85–1.3 (Settings → Appearance → Text size; default 1.0).
+        static let textScale = "com.tpak.meridian.v4.textScale"
+        /// Show the leading color dot in the menu bar (Settings → Menu Bar; default on).
+        static let menubarColorDots = "com.tpak.meridian.v4.menubarColorDots"
+        /// Legacy two-line stacked menu-bar layout, opt-in via the "Stacked" preset (#142; default off).
+        static let menubarStacked = "com.tpak.meridian.v4.menubarStacked"
+        /// Active menu-bar density preset id (Settings → Menu Bar; default "compact").
+        static let menubarPreset = "com.tpak.meridian.v4.menubarPreset"
+        /// Per-city color-dot hex map, JSON-encoded (Settings → Cities).
+        static let cityColors = "com.tpak.meridian.v4.cityColors"
+        /// Saved top-left point of the floating popover.
+        static let daybreakFloatingTopLeft = "com.tpak.meridian.v4.daybreakFloatingTopLeft"
     }
 
     private static var standard: UserDefaults { .standard }

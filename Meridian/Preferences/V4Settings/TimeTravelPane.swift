@@ -9,8 +9,8 @@ struct TimeTravelPane: View {
     let accent: Color
 
     @AppStorage("sliderDayRange") private var forwardDays = 6
-    @AppStorage("com.tpak.meridian.v4.travelPastDays") private var backDays = 2
-    @AppStorage("com.tpak.meridian.v4.snapStep") private var snapStep = 15
+    @AppStorage(DaybreakDefaults.Keys.travelPastDays) private var backDays = 2
+    @AppStorage(DaybreakDefaults.Keys.snapStep) private var snapStep = 15
     @AppStorage("showFutureSlider") private var showFutureSlider = true
 
     var body: some View {

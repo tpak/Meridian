@@ -10,11 +10,15 @@ internal enum MenubarState {
     case icon
 }
 
-private enum BufferWidthConstants {
+/// Shared menu-bar width geometry, referenced by both `bufferCalculatedWidth()` here and
+/// `compactWidth(for:with:)` in StatusContainerView so the two stay in sync.
+enum MenubarLayoutConstants {
     static let baseWidth = 55
     static let dayBuffer = 12
     static let twelveHourBuffer = 20
+    static let secondsBuffer = 15
     static let dateBuffer = 20
+    static let colorDotPadding: CGFloat = 14
 }
 
 private enum MenubarTimerConstants {
@@ -451,18 +455,18 @@ class StatusItemHandler: NSObject {
     }
 
     private func bufferCalculatedWidth() -> Int {
-        var totalWidth = BufferWidthConstants.baseWidth
+        var totalWidth = MenubarLayoutConstants.baseWidth
 
         if store.shouldShowDayInMenubar() {
-            totalWidth += BufferWidthConstants.dayBuffer
+            totalWidth += MenubarLayoutConstants.dayBuffer
         }
 
         if store.isBufferRequiredForTwelveHourFormats() {
-            totalWidth += BufferWidthConstants.twelveHourBuffer
+            totalWidth += MenubarLayoutConstants.twelveHourBuffer
         }
 
         if store.shouldShowDateInMenubar() {
-            totalWidth += BufferWidthConstants.dateBuffer
+            totalWidth += MenubarLayoutConstants.dateBuffer
         }
 
         return totalWidth

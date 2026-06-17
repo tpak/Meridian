@@ -240,7 +240,7 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Auto-Update Default
 
     private func enableAutoUpdateByDefault() {
-        let hasSetAutoUpdate = "HasSetAutoUpdateDefault"
+        let hasSetAutoUpdate = UserDefaultKeys.hasSetAutoUpdateDefault
         if !UserDefaults.standard.bool(forKey: hasSetAutoUpdate) {
             UserDefaults.standard.set(true, forKey: hasSetAutoUpdate)
             updaterController.updater.automaticallyChecksForUpdates = true
@@ -255,7 +255,7 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         // automaticallyDownloadsUpdates = true but automaticallyChecksForUpdates = false.
         // Sparkle requires both to be true for scheduled background checks to run,
         // so sync them once.
-        let hasFixedAutoUpdateSync = "HasFixedAutoUpdateSync"
+        let hasFixedAutoUpdateSync = UserDefaultKeys.hasFixedAutoUpdateSync
         if !UserDefaults.standard.bool(forKey: hasFixedAutoUpdateSync) {
             UserDefaults.standard.set(true, forKey: hasFixedAutoUpdateSync)
             if updaterController.updater.automaticallyDownloadsUpdates {
@@ -277,10 +277,10 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
     /// absence marks a brand-new install. MUST run BEFORE enableAutoUpdateByDefault(), which sets
     /// that flag.
     private func enableStartAtLoginByDefault() {
-        let hasSetStartAtLogin = "HasSetStartAtLoginDefault"
+        let hasSetStartAtLogin = UserDefaultKeys.hasSetStartAtLoginDefault
         guard !UserDefaults.standard.bool(forKey: hasSetStartAtLogin) else { return }
 
-        let isFreshInstall = !UserDefaults.standard.bool(forKey: "HasSetAutoUpdateDefault")
+        let isFreshInstall = !UserDefaults.standard.bool(forKey: UserDefaultKeys.hasSetAutoUpdateDefault)
         UserDefaults.standard.set(true, forKey: hasSetStartAtLogin)
         guard isFreshInstall else {
             Logger.production("Existing install — leaving start-at-login preference untouched")

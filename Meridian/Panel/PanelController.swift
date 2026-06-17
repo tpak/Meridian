@@ -371,9 +371,9 @@ class PanelController: ParentPanelController {
     private func startTimer() {
         Logger.debug("Start timer called")
 
-        parentTimer = Repeater(interval: .seconds(1), mode: .infinite) { _ in
+        parentTimer = Repeater(interval: .seconds(1), mode: .infinite) { [weak self] _ in
             DispatchQueue.main.async {
-                self.updateTime()
+                self?.updateTime()
             }
         }
         parentTimer?.start()
