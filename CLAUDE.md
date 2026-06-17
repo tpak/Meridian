@@ -415,6 +415,13 @@ Before any release, run a full pre-release check and **show the status of each i
 3. Release notes don't break shell interpolation (no unescaped special chars in multiline strings passed to `make release`; use `bash scripts/release.sh -n "..."` directly for multiline notes)
 4. Sparkle appcast configuration is correct (`SUFeedURL`, `SUPublicEDKey` in Info.plist)
 5. After `make release` completes, run `gh run list --branch main --limit 3` and verify the version bump and appcast commits pass CI
+6. **User manual is current** — `docs/manual.md` reflects any new/changed setting, option, or feature in this release (see *User Documentation* below)
+
+## User Documentation
+
+The end-user manual lives at **`docs/manual.md`** (a single page) and is published to **GitHub Pages**. Themed release notes live at `docs/RELEASE_NOTES_<version>.md`.
+
+**Keep the manual current with every release.** Whenever a release adds, removes, or changes a user-facing setting, option, panel/menu-bar behavior, or keyboard shortcut, update `docs/manual.md` in the *same* PR — and treat a stale manual as a release blocker (Release Checklist item 6). When you document a new screen, also add a matching `<!-- screenshot: screenshots/… -->` placeholder so the image can be captured before the manual is published. Note that the shipping UI is the v4 SwiftUI Settings (`Preferences/V4Settings/*`) and Daybreak popover (`Panel/Daybreak/*`) — **not** the legacy storyboard settings behind the `useV4Settings`/`useDaybreakPanel` kill-switches — so document the v4 panes.
 
 ## Test-Driven Implementation
 
