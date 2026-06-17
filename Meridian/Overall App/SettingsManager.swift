@@ -65,14 +65,6 @@ struct SettingsManager {
         }
     }
 
-    static func copySettingsToClipboard() {
-        guard let jsonData = buildJSON(),
-              let jsonString = String(data: jsonData, encoding: .utf8) else { return }
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(jsonString, forType: .string)
-        NSApp.keyWindow?.contentView?.makeToast("Settings copied to clipboard")
-    }
-
     static func importSettings() {
         let panel = NSOpenPanel()
         panel.directoryURL = exportDirectory

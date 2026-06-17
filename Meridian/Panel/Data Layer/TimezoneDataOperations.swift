@@ -350,7 +350,7 @@ extension TimezoneDataOperations {
             dataObject.isSunriseOrSunset = solar.isNighttime
             TimezoneDataOperations.sunriseCache[cacheKey] = (sunrise, sunset)
         } else {
-            Logger.production("Sunrise/Sunset Error: Unable to fetch sunrise/sunset for \(dataObject.formattedTimezoneLabel())")
+            Logger.production("Sunrise/Sunset Error: Unable to fetch sunrise/sunset for timezone \(dataObject.timezoneID ?? "unknown")")
             TimezoneDataOperations.sunriseCache[cacheKey] = (nil, nil)
         }
     }

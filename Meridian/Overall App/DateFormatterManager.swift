@@ -4,12 +4,9 @@ import Cocoa
 
 enum DateFormatterManager {
     private static var dateFormatter = DateFormatter()
-    private static var calendarDateFormatter = DateFormatter()
-    private static var simpleFormatter = DateFormatter()
     private static var specializedFormatter = DateFormatter()
     private static var localizedDateFormatter = DateFormatter()
     private static var localizedSimpleFormatter = DateFormatter()
-    private static var gregorianCalendar = Calendar(identifier: Calendar.Identifier.gregorian)
     private static var USLocale = Locale(identifier: "en_US")
 
     static func dateFormatter(with style: DateFormatter.Style, for timezoneIdentifier: String) -> DateFormatter {

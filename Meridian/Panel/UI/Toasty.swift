@@ -94,10 +94,6 @@ public struct DefaultStyle: Style {
     public static let shared = DefaultStyle()
 }
 
-private enum ToastKeys {
-    static var ActiveToast = "TSToastActiveToastKey"
-}
-
 class ToastView: NSView {
     private let message: String
     private let labelSize: CGSize

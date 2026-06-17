@@ -8,7 +8,6 @@ public enum UserDefaultKeys {
     static let timezoneName = "formattedAddress"
     static let customLabel = "customLabel"
     static let selectedTimeZoneFormatKey = "is24HourFormatSelected"
-    static let dragSessionKey = "public.text"
     static let timezoneID = "timezoneID"
     static let placeIdentifier = "place_id"
     static let relativeDateKey = "relativeDate"
@@ -25,12 +24,10 @@ public enum UserDefaultKeys {
     static let futureSliderRange = "sliderDayRange"
     static let appDisplayOptions = "com.tpak.meridian.appDisplayOptions"
     static let testingLaunchArgument = "isUITesting"
-    static let appleInterfaceStyleKey = "AppleInterfaceStyle"
     static let debugLoggingEnabled = "com.tpak.meridian.debugLoggingEnabled"
     static let betaUpdatesEnabled = "com.tpak.meridian.betaUpdatesEnabled"
     static let latitude = "latitude"
     static let longitude = "longitude"
-    static let nextUpdate = "nextUpdate"
 
     // MARK: - Modernized typed-storage keys (issue #97)
     // These replace the legacy inverted-bool / int-encoded keys above.

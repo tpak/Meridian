@@ -14,8 +14,6 @@ struct PreferencesConstants {
                                                         comment: "Max Character Count Allowed Error Message")
     static let noInternetConnectivityError = "You're offline, maybe?".localized()
     static let tryAgainMessage = "Try again, maybe?".localized()
-    static let offlineErrorMessage = "The Internet connection appears to be offline.".localized()
-    static let hotKeyPathIdentifier = "values.globalPing"
 }
 
 class PreferencesViewController: ParentViewController {
@@ -345,10 +343,6 @@ extension PreferencesViewController {
 
 // Sorting
 extension PreferencesViewController {
-    @IBAction func sortOptions(_: NSButton) {
-        additionalSortOptions.isHidden.toggle()
-    }
-
     @IBAction func sortByTime(_ sender: NSButton) {
         let result = sortingManager.sort(selectedTimeZones, by: .time)
         sender.image = result.indicatorImage
