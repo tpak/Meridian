@@ -269,14 +269,6 @@ class TimezoneAdditionHandler: NSObject {
         isActivityInProgress = false
     }
 
-    private func showMessage() {
-        guard let host = host else { return }
-        host.placeholderLabel.placeholderString = PreferencesConstants.noInternetConnectivityError
-        isActivityInProgress = false
-        host.searchResultsDataSource.cleanupFilterArray()
-        reloadSearchResults()
-    }
-
     // MARK: - Add to Favorites
 
     func addToFavorites() {

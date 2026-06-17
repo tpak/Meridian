@@ -64,8 +64,6 @@ class StatusItemHandler: NSObject {
         return image
     }()
 
-    var hasActiveIcon: Bool = false
-
     var menubarTimer: Timer?
 
     var statusItem: NSStatusItem = {
@@ -315,10 +313,6 @@ class StatusItemHandler: NSObject {
     // the compact container.
     @objc func respondToInterfaceStyleChange() {
         updateCompactMenubar()
-    }
-
-    @objc func setHasActiveIcon(_ value: Bool) {
-        hasActiveIcon = value
     }
 
     @objc func menubarIconClicked(_ sender: NSStatusBarButton) {

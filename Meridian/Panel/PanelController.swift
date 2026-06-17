@@ -395,10 +395,6 @@ class PanelController: ParentPanelController {
         setActivePanel(newValue: false)
     }
 
-    func hasActivePanelGetter() -> Bool {
-        return hasActivePanel
-    }
-
     func minimize() {
         let delegate = NSApplication.shared.delegate as? AppDelegate
         let count = DataStore.shared().menubarTimezones().count

@@ -23,7 +23,6 @@ final class LocalizationTests: XCTestCase {
         // .localized() keys (PreferencesViewController)
         "You're offline, maybe?",
         "Try again, maybe?",
-        "The Internet connection appears to be offline.",
         // .localized() keys (AppearanceViewController)
         "Favourite a timezone to enable menubar display options.",
         "Time Format",
@@ -71,6 +70,5 @@ final class LocalizationTests: XCTestCase {
         XCTAssertFalse(PreferencesConstants.maxCharactersAllowed.isEmpty)
         XCTAssertFalse(PreferencesConstants.noInternetConnectivityError.isEmpty)
         XCTAssertFalse(PreferencesConstants.tryAgainMessage.isEmpty)
-        XCTAssertFalse(PreferencesConstants.offlineErrorMessage.isEmpty)
     }
 }

@@ -89,7 +89,7 @@ extension LocationController: CLLocationManagerDelegate {
                 guard let cityName = places.first?.cityName else { return }
                 self.updateHomeObject(with: cityName, coordinates: coordinates)
             } catch {
-                Logger.production("Reverse geocode failed: \(error.localizedDescription)")
+                Logger.production("Reverse geocode failed: \((error as NSError).domain) \((error as NSError).code)")
             }
         }
     }
@@ -104,6 +104,6 @@ extension LocationController: CLLocationManagerDelegate {
     }
 
     func locationManager(_: CLLocationManager, didFailWithError error: Error) {
-        Logger.production("Location error: \(error.localizedDescription)")
+        Logger.production("Location error: \((error as NSError).domain) \((error as NSError).code)")
     }
 }
