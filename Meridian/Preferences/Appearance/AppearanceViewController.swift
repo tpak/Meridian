@@ -311,7 +311,6 @@ class AppearanceViewController: ParentViewController {
         // after the new instance launches; the user lands back where
         // they were instead of an empty menu bar app.
         UserDefaults.standard.set(true, forKey: UserDefaultKeys.reopenAppearanceOnLaunch)
-        UserDefaults.standard.synchronize()
 
         // Spawn a new instance, then terminate this one. `open -n` makes
         // the new instance start fresh rather than activating the

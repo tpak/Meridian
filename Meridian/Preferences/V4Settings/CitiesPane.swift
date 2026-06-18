@@ -16,7 +16,7 @@ struct CitiesPane: View {
     @ObservedObject var model: CityListModel
     let accent: Color
 
-    @AppStorage("com.tpak.meridian.v4.pinCurrentToTop") private var pinCurrentToTop = true
+    @AppStorage(DaybreakDefaults.Keys.pinCurrentToTop) private var pinCurrentToTop = true
     static let locationControlWidth: CGFloat = 200
 
     @State private var query = ""

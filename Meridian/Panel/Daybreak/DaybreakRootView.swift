@@ -21,7 +21,7 @@ struct DaybreakRootView: View {
     @State private var didCopyAll = false
     @State private var copyFeedbackTask: Task<Void, Never>?
     @State private var lastThemeRaw = DataStore.shared().theme.rawValue
-    @AppStorage("com.tpak.meridian.v4.textScale") private var textScale = 1.0
+    @AppStorage(DaybreakDefaults.Keys.textScale) private var textScale = 1.0
     @AppStorage("showFutureSlider") private var showScrubber = true
 
     private var palette: DaybreakPalette {

@@ -15,7 +15,7 @@ struct AppearancePane: View {
     @AppStorage("timeFormat") private var timeFormat: TimeFormat = .twelveHour
     @AppStorage("relativeDate") private var dayDisplay: RelativeDateDisplay = .relative
     @AppStorage("showSunriseSunset") private var showSunriseSunset = false // matches AppDefaults
-    @AppStorage("com.tpak.meridian.v4.textScale") private var textScale = 1.0
+    @AppStorage(DaybreakDefaults.Keys.textScale) private var textScale = 1.0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

@@ -36,12 +36,12 @@ var kMenubarV4SingleLine: Bool { !menubarStackedLayoutEnabled }
 /// `UserDefaults.didChangeNotification`, which `StatusItemHandler` already observes to rebuild the
 /// menu-bar container with fresh `StatusItemView`s in the new layout.
 var menubarStackedLayoutEnabled: Bool {
-    UserDefaults.standard.object(forKey: "com.tpak.meridian.v4.menubarStacked") as? Bool ?? false
+    UserDefaults.standard.object(forKey: DaybreakDefaults.Keys.menubarStacked) as? Bool ?? false
 }
 
 /// Whether the leading color dot is shown (Settings → Menu Bar → Color dots; default on).
 var menubarColorDotsEnabled: Bool {
-    UserDefaults.standard.object(forKey: "com.tpak.meridian.v4.menubarColorDots") as? Bool ?? true
+    UserDefaults.standard.object(forKey: DaybreakDefaults.Keys.menubarColorDots) as? Bool ?? true
 }
 
 extension NSView {
@@ -60,9 +60,7 @@ class StatusItemView: NSView {
 
     private let locationView = NSTextField(labelWithString: "Hello")
     private let timeView = NSTextField(labelWithString: "Mon 19:14 PM")
-    private var operationsObject: TimezoneDataOperations {
-        return TimezoneDataOperations(with: dataObject, store: DataStore.shared())
-    }
+    private var operationsObject: TimezoneDataOperations!
     private lazy var paragraphStyle: NSMutableParagraphStyle = {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
@@ -111,6 +109,8 @@ class StatusItemView: NSView {
 
     var dataObject: TimezoneData! {
         didSet {
+            // Rebuild the operations object once per data change instead of on every render access.
+            operationsObject = TimezoneDataOperations(with: dataObject, store: DataStore.shared())
             initialSetup()
         }
     }

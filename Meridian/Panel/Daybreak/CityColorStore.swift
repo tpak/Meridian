@@ -9,7 +9,7 @@ import SwiftUI
 import AppKit
 
 enum CityColorStore {
-    private static let key = "com.tpak.meridian.v4.cityColors"
+    private static let key = DaybreakDefaults.Keys.cityColors
 
     /// The design's per-city swatch palette (Settings → Cities).
     static let palette: [String] = [

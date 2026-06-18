@@ -237,7 +237,7 @@ final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
 
     // MARK: Floating position persistence
 
-    private static let floatingTopLeftKey = "com.tpak.meridian.v4.daybreakFloatingTopLeft"
+    private static let floatingTopLeftKey = DaybreakDefaults.Keys.daybreakFloatingTopLeft
 
     private var savedFloatingTopLeft: NSPoint? {
         guard let pair = UserDefaults.standard.array(forKey: Self.floatingTopLeftKey) as? [Double],

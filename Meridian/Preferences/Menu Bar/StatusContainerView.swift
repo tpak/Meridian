@@ -5,18 +5,18 @@ import CoreLoggerKit
 import CoreModelKit
 
 func compactWidth(for timezone: TimezoneData, with store: DataStore) -> Int {
-    var totalWidth = 55
+    var totalWidth = MenubarLayoutConstants.baseWidth
     let timeFormat = timezone.timezoneFormat(store.timezoneFormat())
 
     if store.shouldShowDayInMenubar() {
-        totalWidth += 12
+        totalWidth += MenubarLayoutConstants.dayBuffer
     }
 
     if timeFormat == DateFormat.twelveHour
         || timeFormat == DateFormat.twelveHourWithSeconds
         || timeFormat == DateFormat.twelveHourWithZero
         || timeFormat == DateFormat.twelveHourWithSeconds {
-        totalWidth += 20
+        totalWidth += MenubarLayoutConstants.twelveHourBuffer
     } else if timeFormat == DateFormat.twentyFourHour
         || timeFormat == DateFormat.twentyFourHourWithSeconds {
         totalWidth += 0
@@ -24,11 +24,11 @@ func compactWidth(for timezone: TimezoneData, with store: DataStore) -> Int {
 
     if timezone.shouldShowSeconds(store.timezoneFormat()) {
         // Slight buffer needed when the Menubar supplementary text was Mon 9:27:58 AM
-        totalWidth += 15
+        totalWidth += MenubarLayoutConstants.secondsBuffer
     }
 
     if store.shouldShowDateInMenubar() {
-        totalWidth += 20
+        totalWidth += MenubarLayoutConstants.dateBuffer
     }
 
     return totalWidth
@@ -97,7 +97,7 @@ class StatusContainerView: NSView {
                     // truncating the measurement itself.
                     let lineSize = compactModeTimeFont.size(for: operationObject.compactMenuOneLine(),
                                                             width: 1000, attributes: timeBasedAttributes)
-                    let dotPad: CGFloat = menubarColorDotsEnabled ? 14 : 0
+                    let dotPad: CGFloat = menubarColorDotsEnabled ? MenubarLayoutConstants.colorDotPadding : 0
                     return result + lineSize.width + dotPad + bufferWidth
                 }
                 let precalculatedWidth = Double(compactWidth(for: timezoneObject, with: store))
@@ -161,7 +161,7 @@ class StatusContainerView: NSView {
         if kMenubarV4SingleLine {
             let lineSize = compactModeTimeFont.size(for: operation.compactMenuOneLine(),
                                                     width: 1000, attributes: timeBasedAttributes)
-            let dotPad: CGFloat = menubarColorDotsEnabled ? 14 : 0
+            let dotPad: CGFloat = menubarColorDotsEnabled ? MenubarLayoutConstants.colorDotPadding : 0
             result = Int(lineSize.width + dotPad + bufferWidth)
         } else {
             let bestSize = compactModeTimeFont.size(for: operation.compactMenuSubtitle(),

@@ -28,6 +28,10 @@ public enum UserDefaultKeys {
     static let betaUpdatesEnabled = "com.tpak.meridian.betaUpdatesEnabled"
     static let latitude = "latitude"
     static let longitude = "longitude"
+    // One-shot install/migration flags — raw string values preserved from the pre-typed-key era; do NOT change.
+    static let hasSetAutoUpdateDefault = "HasSetAutoUpdateDefault"
+    static let hasFixedAutoUpdateSync = "HasFixedAutoUpdateSync"
+    static let hasSetStartAtLoginDefault = "HasSetStartAtLoginDefault"
 
     // MARK: - Modernized typed-storage keys (issue #97)
     // These replace the legacy inverted-bool / int-encoded keys above.

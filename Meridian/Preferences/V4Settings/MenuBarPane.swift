@@ -100,16 +100,16 @@ struct MenuBarPane: View {
     @AppStorage("showDayInMenubar") private var showDay = false
     @AppStorage("showDateInMenubar") private var showDate = false
     @AppStorage("timeFormat") private var timeFormat: TimeFormat = .twelveHour
-    @AppStorage("com.tpak.meridian.v4.menubarColorDots") private var menubarColorDots = true
+    @AppStorage(DaybreakDefaults.Keys.menubarColorDots) private var menubarColorDots = true
     // Legacy two-line stacked layout, opt-in via the "Stacked" preset (issue #142). Default off.
-    @AppStorage("com.tpak.meridian.v4.menubarStacked") private var menubarStacked = false
+    @AppStorage(DaybreakDefaults.Keys.menubarStacked) private var menubarStacked = false
 
     // Presentation + float
     @AppStorage("com.tpak.meridian.appDisplayOptions") private var appPresentation: AppPresentation = .menubarOnly
     @AppStorage("floatOnTop") private var floatOnTop = false
 
     // Active preset tracking
-    @AppStorage("com.tpak.meridian.v4.menubarPreset") private var activePresetID = "compact"
+    @AppStorage(DaybreakDefaults.Keys.menubarPreset) private var activePresetID = "compact"
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
