@@ -21,6 +21,7 @@ struct GeneralPane: View {
                 AutoUpdateRow(accent: accent)
                 BetaRow(accent: accent)
                 DebugRow(accent: accent)
+                GlobalShortcutRow()
             }
 
             UpdateFrequencyRow(accent: accent)
@@ -172,6 +173,40 @@ private struct DebugRow: View {
     var body: some View {
         ToggleRow(label: String(localized: "Debug logging"), accent: accent, isOn: $debugLogging)
             .accessibilityIdentifier("DebugLogging")
+    }
+}
+
+// MARK: - Global shortcut
+
+// Restores the global hotkey recorder that the legacy storyboard Preferences had (#168). Reuses the
+// existing AppKit `ShortcutRecorderButton` + `GlobalShortcutMonitor`, so a shortcut saved by an older
+// version keeps working and the on-disk storage (the `globalPing` key) is unchanged.
+private struct GlobalShortcutRow: View {
+    var body: some View {
+        FormRow(label: String(localized: "Global shortcut"),
+                note: String(localized: "Open Meridian from anywhere")) {
+            ShortcutRecorderField()
+                .frame(width: 180, height: 24)
+        }
+        .accessibilityIdentifier("GlobalShortcut")
+    }
+}
+
+// Hosts the AppKit recorder inside SwiftUI. Writing the captured combo to
+// `GlobalShortcutMonitor.shared.currentShortcut` auto-encodes it and re-registers the global monitor
+// (the toggle action itself is wired once by AppDelegate at launch). `nil` clears the shortcut.
+private struct ShortcutRecorderField: NSViewRepresentable {
+    func makeNSView(context _: Context) -> ShortcutRecorderButton {
+        let button = ShortcutRecorderButton(frame: .zero)
+        button.shortcutDidChange = { [weak button] combo in
+            GlobalShortcutMonitor.shared.currentShortcut = combo
+            button?.updateDisplay()
+        }
+        return button
+    }
+
+    func updateNSView(_ nsView: ShortcutRecorderButton, context _: Context) {
+        nsView.updateDisplay()
     }
 }
 
