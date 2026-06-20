@@ -1,6 +1,6 @@
 # Manual screenshots
 
-These images are referenced by `docs/manual.md`. Captured from `4.0.0-beta31` and lightly processed (window shots are trimmed tight and given clean transparent rounded corners so they sit flush on the page).
+These images are referenced by `docs/manual.md`. Re-captured from `4.0.0-beta33` (issue #172) as clean ⌥-click window/popover grabs (transparent background, no baked-in desktop). Exception: `time-travel.png` is still the earlier beta31 capture — a fresh mid-travel shot wasn't part of the #172 batch.
 
 | File | What it shows |
 |------|---------------|

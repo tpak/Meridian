@@ -1,5 +1,9 @@
 # Design sync — menu-bar glyph tightened (UAT)
 
+> ⚠️ **SUPERSEDED — historical.** This documents the *Midnight Sundial* menu-bar template, which has
+> since been replaced by the partner's **Dial + Sun** glyph. See
+> [`../CHANGES-FOR-DESIGN-PARTNER.md` §5b](../CHANGES-FOR-DESIGN-PARTNER.md) for what actually ships.
+
 **Status:** shipped in local UAT `4.0.0-beta29`. **Deviates from `README-icons.md`** — please review.
 
 ## What changed and why

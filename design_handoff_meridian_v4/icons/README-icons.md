@@ -58,6 +58,11 @@ Then either drop `AppIcon.icns` into the app target, **or** add the PNGs to an `
 
 ## Icon 2 — Menu-bar item (the no-favorites fallback)
 
+> ⚠️ **SUPERSEDED — historical.** The menu-bar glyph below (Midnight Sundial template) has been
+> replaced by the partner's **Dial + Sun** glyph (`menubar-dialsun/`). See
+> [`../CHANGES-FOR-DESIGN-PARTNER.md` §5b](../CHANGES-FOR-DESIGN-PARTNER.md) for what actually ships.
+> *(Icon 1, the app-icon build instructions above, is still accurate.)*
+
 **Use:** `MenuBarIcon-template.svg` (preferred) or the `menubar/` PNGs.
 This is the glyph shown in the macOS menu bar **when the user has not starred any city** (when they have favorites, the bar shows those city times instead — see the main design README).
 
