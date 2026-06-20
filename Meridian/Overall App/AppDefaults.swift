@@ -49,6 +49,12 @@ class AppDefaults {
     /// Skips if the user already has a shortcut (including a legacy-migrated one). Gated by a one-time
     /// flag set on the first pass so that a later *clear* by the user is not re-seeded. Public for tests.
     class func seedDefaultGlobalShortcutIfNeeded(defaults: UserDefaults) {
+        // The shortcut is stored in UserDefaults.standard (via GlobalShortcutMonitor), so only seed
+        // when we're initializing that real domain. Tests pass a throwaway suite to AppDefaults.initialize;
+        // without this guard the flag would land in the suite while the seed still wrote the real
+        // standard `globalPing` and registered a live Carbon hot key, defeating their isolation.
+        guard defaults === UserDefaults.standard else { return }
+
         guard !defaults.bool(forKey: UserDefaultKeys.defaultGlobalShortcutSeededV1) else { return }
         defaults.set(true, forKey: UserDefaultKeys.defaultGlobalShortcutSeededV1)
 
