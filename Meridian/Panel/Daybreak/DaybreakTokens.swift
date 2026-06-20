@@ -82,7 +82,7 @@ struct DaybreakPalette {
         dayTick: rgb(255, 255, 255, 0.50),
         foot: rgb(235, 235, 245, 0.50),
         footVersion: rgb(235, 235, 245, 0.30),
-        shadowColor: rgb(0, 0, 0, 0.55), shadowRadius: 35, shadowY: 28
+        shadowColor: rgb(0, 0, 0, 0.45), shadowRadius: 18, shadowY: 8
     )
 
     static let light = DaybreakPalette(
@@ -97,7 +97,7 @@ struct DaybreakPalette {
         dayTick: rgb(0, 0, 0, 0.42),
         foot: rgb(60, 60, 67, 0.55),
         footVersion: rgb(60, 60, 67, 0.32),
-        shadowColor: rgb(0, 0, 0, 0.18), shadowRadius: 35, shadowY: 28
+        shadowColor: rgb(0, 0, 0, 0.16), shadowRadius: 18, shadowY: 8
     )
 
     static func resolve(_ scheme: ColorScheme) -> DaybreakPalette {
@@ -121,7 +121,7 @@ struct DaybreakPalette {
     var editFieldBorder: Color { isDark ? rgb(255, 255, 255, 0.30) : rgb(0, 0, 0, 0.20) }
 }
 
-/// Hero sky gradient + notch color, keyed by the current location's phase (README §C).
+/// Hero sky gradient, keyed by the current location's phase (README §C).
 enum DaybreakSky {
     /// 135° gradient ≈ top-leading → bottom-trailing.
     static func gradient(for phase: DayPhase) -> LinearGradient {
@@ -134,16 +134,6 @@ enum DaybreakSky {
         case .dawn:  return [rgb(70, 64, 111), rgb(255, 158, 109)] // #46406f → #ff9e6d
         case .day:   return [rgb(52, 80, 127), rgb(111, 147, 196)] // #34507f → #6f93c4
         case .dusk:  return [rgb(58, 47, 94), rgb(255, 122, 89)]   // #3a2f5e → #ff7a59
-        }
-    }
-
-    /// The notch (small triangle pointing at the menu-bar item) matches the gradient's top color.
-    static func notchColor(for phase: DayPhase) -> Color {
-        switch phase {
-        case .night: return rgb(16, 18, 43)
-        case .dawn:  return rgb(70, 64, 111)
-        case .day:   return rgb(52, 80, 127)
-        case .dusk:  return rgb(58, 47, 94)
         }
     }
 }

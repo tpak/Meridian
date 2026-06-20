@@ -36,6 +36,8 @@ These were verified against the shipping code (4.0.0-beta3x). Each may be a deli
 | **Sunrise/sunset default** | Appearance: **default on** | default **off** | Confirm default. |
 | **Theme default** | "real app follows macOS" (Auto) | default **Light** | Confirm whether default should be Auto. |
 | **Cities drag-to-reorder** | City rows have a **drag handle** to reorder | Drag-reorder is **inert**; ordering is via the **Sort** control only | Confirm: drop the handle from the design, or implement drag. |
+| **Popover drop shadow** | Popover §1: "large soft drop shadow" | Reduced to a smaller, window-like shadow (radius 35→18, y-offset 28→8) | UAT: the large shadow read heavy next to standard macOS windows (Settings / Finder). Confirm the lighter shadow, or update the spec. |
+| **Popover top notch** | Popover §1: "small notch at top pointing to the menu-bar item" | **Removed** | Read as a stray artifact (especially while floating, detached from the bar) with no clear purpose. Confirm removal, or restyle if it should stay. |
 
 ---
 
