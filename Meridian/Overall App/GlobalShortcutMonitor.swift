@@ -1,5 +1,6 @@
 // Copyright © 2015 Abhishek Banthia, © 2026 Chris Tirpak
 
+import Carbon.HIToolbox
 import Cocoa
 import CoreLoggerKit
 
@@ -57,8 +58,10 @@ final class GlobalShortcutMonitor {
         }
     }
 
-    private var globalMonitor: Any?
-    private var localMonitor: Any?
+    private var hotKeyRef: EventHotKeyRef?
+    private var eventHandlerInstalled = false
+    // 'MERD' — identifies our hot key in the shared Carbon event stream.
+    private let hotKeyID = EventHotKeyID(signature: 0x4D45_5244, id: 1)
     var action: (() -> Void)?
 
     private let userDefaultsKey = "globalPing"
@@ -114,6 +117,14 @@ final class GlobalShortcutMonitor {
 
     private init() {}
 
+    // Registers a real system-wide hot key via Carbon's RegisterEventHotKey.
+    //
+    // The previous implementation used NSEvent.addGlobalMonitorForEvents, which is a *passive*
+    // observer: it needs Accessibility/Input-Monitoring permission to fire at all, and it can't
+    // consume the event — so when another app was focused the keystroke still reached that app,
+    // which beeped on the unhandled key equivalent (the "ding"). A Carbon hot key is delivered to
+    // us system-wide, consumes the event (no ding), needs no special permission, and takes effect
+    // immediately on register — so it also fixes the "didn't apply until relaunch" recording bug.
     func register() {
         unregister()
 
@@ -121,35 +132,72 @@ final class GlobalShortcutMonitor {
             return
         }
 
-        let targetKeyCode = shortcut.keyCode
-        let targetFlags = NSEvent.ModifierFlags(rawValue: shortcut.modifierFlags)
+        installEventHandlerIfNeeded()
 
-        // Global monitor (when app is not active)
-        globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            if event.keyCode == targetKeyCode && event.modifierFlags.intersection(.deviceIndependentFlagsMask) == targetFlags {
-                self?.action?()
-            }
-        }
-
-        // Local monitor (when app IS active)
-        localMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            if event.keyCode == targetKeyCode && event.modifierFlags.intersection(.deviceIndependentFlagsMask) == targetFlags {
-                self?.action?()
-                return nil  // Consume the event
-            }
-            return event
+        let modifiers = Self.carbonModifiers(from: NSEvent.ModifierFlags(rawValue: shortcut.modifierFlags))
+        var ref: EventHotKeyRef?
+        let status = RegisterEventHotKey(UInt32(shortcut.keyCode),
+                                         modifiers,
+                                         hotKeyID,
+                                         GetApplicationEventTarget(),
+                                         0,
+                                         &ref)
+        if status == noErr {
+            hotKeyRef = ref
+        } else {
+            Logger.production("GlobalShortcutMonitor: RegisterEventHotKey failed (status \(status)) — the combo may be taken by another app")
         }
     }
 
     func unregister() {
-        if let monitor = globalMonitor {
-            NSEvent.removeMonitor(monitor)
-            globalMonitor = nil
+        if let ref = hotKeyRef {
+            UnregisterEventHotKey(ref)
+            hotKeyRef = nil
         }
+    }
 
-        if let monitor = localMonitor {
-            NSEvent.removeMonitor(monitor)
-            localMonitor = nil
+    // Installs the kEventHotKeyPressed handler once for the lifetime of the (singleton) monitor.
+    private func installEventHandlerIfNeeded() {
+        guard !eventHandlerInstalled else { return }
+
+        var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard),
+                                 eventKind: UInt32(kEventHotKeyPressed))
+        let selfPtr = Unmanaged.passUnretained(self).toOpaque()
+
+        let status = InstallEventHandler(GetApplicationEventTarget(), { _, event, userData -> OSStatus in
+            guard let event = event, let userData = userData else { return OSStatus(eventNotHandledErr) }
+
+            var firedID = EventHotKeyID()
+            let err = GetEventParameter(event,
+                                        EventParamName(kEventParamDirectObject),
+                                        EventParamType(typeEventHotKeyID),
+                                        nil,
+                                        MemoryLayout<EventHotKeyID>.size,
+                                        nil,
+                                        &firedID)
+            guard err == noErr else { return err }
+
+            let monitor = Unmanaged<GlobalShortcutMonitor>.fromOpaque(userData).takeUnretainedValue()
+            if firedID.signature == monitor.hotKeyID.signature && firedID.id == monitor.hotKeyID.id {
+                DispatchQueue.main.async { monitor.action?() }
+            }
+            return noErr
+        }, 1, &spec, selfPtr, nil)
+
+        if status == noErr {
+            eventHandlerInstalled = true
+        } else {
+            Logger.production("GlobalShortcutMonitor: InstallEventHandler failed (status \(status))")
         }
+    }
+
+    // Translates Cocoa modifier flags to the Carbon bitmask RegisterEventHotKey expects.
+    static func carbonModifiers(from flags: NSEvent.ModifierFlags) -> UInt32 {
+        var carbon: UInt32 = 0
+        if flags.contains(.command) { carbon |= UInt32(cmdKey) }
+        if flags.contains(.option) { carbon |= UInt32(optionKey) }
+        if flags.contains(.control) { carbon |= UInt32(controlKey) }
+        if flags.contains(.shift) { carbon |= UInt32(shiftKey) }
+        return carbon
     }
 }

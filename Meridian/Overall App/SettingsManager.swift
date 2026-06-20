@@ -21,6 +21,12 @@ struct SettingsManager {
         static let preferences = "preferences"
         static let startAtLogin = "startAtLogin"
         static let sparkle = "sparkle"
+        static let globalShortcut = "globalShortcut"
+    }
+
+    private enum GlobalShortcutField {
+        static let keyCode = "keyCode"
+        static let modifierFlags = "modifierFlags"
     }
 
     private enum SparkleExportField {
@@ -151,13 +157,25 @@ struct SettingsManager {
             sparkle[SparkleExportField.updateCheckInterval] = updater.updateCheckInterval
         }
 
-        let payload: [String: Any] = [
+        var payload: [String: Any] = [
             ExportKey.version: 2,
             ExportKey.timezones: timezoneBase64,
             ExportKey.preferences: prefs,
             ExportKey.startAtLogin: startAtLoginEnabled,
             ExportKey.sparkle: sparkle
         ]
+
+        // Global hot key — emitted as a sub-object when set, or null when none, so import can
+        // both restore and clear it. Older files without the key leave the current shortcut alone.
+        if let combo = GlobalShortcutMonitor.shared.currentShortcut {
+            payload[ExportKey.globalShortcut] = [
+                GlobalShortcutField.keyCode: Int(combo.keyCode),
+                GlobalShortcutField.modifierFlags: Int(combo.modifierFlags)
+            ]
+        } else {
+            payload[ExportKey.globalShortcut] = NSNull()
+        }
+
         return try? JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys])
     }
 
@@ -196,6 +214,19 @@ struct SettingsManager {
         if let startAtLogin = json[ExportKey.startAtLogin] as? Bool {
             UserDefaults.standard.set(startAtLogin, forKey: startAtLoginKey)
             StartupManager().toggleLogin(startAtLogin)
+        }
+
+        // Apply the global hot key via the monitor so it re-registers the Carbon hot key
+        // immediately (writing UserDefaults alone wouldn't take effect). A present sub-object
+        // restores it, explicit null clears it, and an absent key (older files) leaves it as-is.
+        if let shortcut = json[ExportKey.globalShortcut] as? [String: Any],
+           let keyCode = shortcut[GlobalShortcutField.keyCode] as? Int,
+           keyCode > 0, keyCode <= Int(UInt16.max),
+           let modifierFlags = shortcut[GlobalShortcutField.modifierFlags] as? Int, modifierFlags >= 0 {
+            GlobalShortcutMonitor.shared.currentShortcut = GlobalShortcutMonitor.KeyCombo(
+                keyCode: UInt16(keyCode), modifierFlags: UInt(modifierFlags))
+        } else if json[ExportKey.globalShortcut] is NSNull {
+            GlobalShortcutMonitor.shared.currentShortcut = nil
         }
 
         DataStore.shared().setTimezones(timezoneBlobs)

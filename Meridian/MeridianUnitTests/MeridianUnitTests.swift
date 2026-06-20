@@ -1286,6 +1286,72 @@ class SettingsManagerVersioningTests: XCTestCase {
         XCTAssertTrue(UserDefaults.standard.bool(forKey: UserDefaultKeys.betaUpdatesEnabled))
     }
 
+    // MARK: global shortcut export/import (round-trips the universal hot key)
+
+    func testExport_includesGlobalShortcut() throws {
+        let monitor = GlobalShortcutMonitor.shared
+        let original = monitor.currentShortcut
+        defer { monitor.currentShortcut = original }
+
+        monitor.currentShortcut = GlobalShortcutMonitor.KeyCombo(
+            keyCode: 0x0F, // R
+            modifierFlags: NSEvent.ModifierFlags.command.rawValue | NSEvent.ModifierFlags.option.rawValue)
+
+        guard let data = SettingsManager.buildJSON(),
+              let json = parse(data),
+              let shortcut = json["globalShortcut"] as? [String: Any] else {
+            XCTFail("export missing globalShortcut")
+            return
+        }
+        XCTAssertEqual(shortcut["keyCode"] as? Int, 0x0F)
+        XCTAssertEqual(shortcut["modifierFlags"] as? Int,
+                       Int(NSEvent.ModifierFlags.command.rawValue | NSEvent.ModifierFlags.option.rawValue))
+    }
+
+    func testImport_globalShortcutRoundTrip() throws {
+        let monitor = GlobalShortcutMonitor.shared
+        let original = monitor.currentShortcut
+        defer { monitor.currentShortcut = original }
+
+        let expectedFlags = NSEvent.ModifierFlags.command.rawValue | NSEvent.ModifierFlags.option.rawValue
+        monitor.currentShortcut = GlobalShortcutMonitor.KeyCombo(keyCode: 0x0F, modifierFlags: expectedFlags)
+
+        guard let data = SettingsManager.buildJSON() else {
+            XCTFail("export failed")
+            return
+        }
+
+        // Mutate to confirm import actually overwrites.
+        monitor.currentShortcut = GlobalShortcutMonitor.KeyCombo(
+            keyCode: 0x11, modifierFlags: NSEvent.ModifierFlags.control.rawValue)
+
+        try SettingsManager.applySettings(from: data)
+
+        XCTAssertEqual(monitor.currentShortcut?.keyCode, 0x0F)
+        XCTAssertEqual(monitor.currentShortcut?.modifierFlags, expectedFlags)
+    }
+
+    func testImport_nullGlobalShortcutClearsIt() throws {
+        let monitor = GlobalShortcutMonitor.shared
+        let original = monitor.currentShortcut
+        defer { monitor.currentShortcut = original }
+
+        // Export with no shortcut set → globalShortcut is null in the payload.
+        monitor.currentShortcut = nil
+        guard let data = SettingsManager.buildJSON() else {
+            XCTFail("export failed")
+            return
+        }
+
+        // Set one, then import the "no shortcut" payload — it should be cleared.
+        monitor.currentShortcut = GlobalShortcutMonitor.KeyCombo(
+            keyCode: 0x0F, modifierFlags: NSEvent.ModifierFlags.command.rawValue)
+
+        try SettingsManager.applySettings(from: data)
+
+        XCTAssertNil(monitor.currentShortcut)
+    }
+
     func testImport_v1LegacyExportConvertsInversion() throws {
         // Build a v1 payload by hand — this is what 2.19/2.20 wrote.
         let v1: [String: Any] = [
