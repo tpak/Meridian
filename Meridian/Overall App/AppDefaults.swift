@@ -40,6 +40,27 @@ class AppDefaults {
 
         // Never present an empty app: if no timezones are tracked, seed the current one.
         seedCurrentTimezoneIfEmpty(store: store)
+
+        // Ship a working global hot key out of the box (unless the user already chose one).
+        seedDefaultGlobalShortcutIfNeeded(defaults: defaults)
+    }
+
+    /// On first launch, seed a default global shortcut — ⌃⌥⌘T — so the hot key works out of the box.
+    /// Skips if the user already has a shortcut (including a legacy-migrated one). Gated by a one-time
+    /// flag set on the first pass so that a later *clear* by the user is not re-seeded. Public for tests.
+    class func seedDefaultGlobalShortcutIfNeeded(defaults: UserDefaults) {
+        guard !defaults.bool(forKey: UserDefaultKeys.defaultGlobalShortcutSeededV1) else { return }
+        defaults.set(true, forKey: UserDefaultKeys.defaultGlobalShortcutSeededV1)
+
+        // Respect an existing choice; the getter also migrates the legacy key, so this covers upgrades.
+        guard GlobalShortcutMonitor.shared.currentShortcut == nil else { return }
+
+        // ⌃⌥⌘T — keyCode 17 (T) + control/option/command. Setting via the monitor also registers the
+        // Carbon hot key immediately, so it works on this very launch regardless of init ordering.
+        let modifiers: NSEvent.ModifierFlags = [.control, .option, .command]
+        GlobalShortcutMonitor.shared.currentShortcut = GlobalShortcutMonitor.KeyCombo(
+            keyCode: 17, modifierFlags: modifiers.rawValue)
+        Logger.production("Seeded default global shortcut ⌃⌥⌘T")
     }
 
     /// Ensure the app is never blank: when no timezones are tracked, seed the current system

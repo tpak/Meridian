@@ -74,6 +74,12 @@ public enum UserDefaultKeys {
     // runLegacyArtifactCleanupV1.
     static let legacyArtifactCleanupV1 = "com.tpak.meridian.legacyArtifactCleanupV1"
 
+    // One-time flag for seeding the default global shortcut (⌃⌥⌘T) on first launch, so the app ships
+    // with a working hot key out of the box. Set after the seed runs (even when it skips because the
+    // user already chose a shortcut) so a later *clear* by the user isn't re-seeded on the next
+    // launch. See AppDefaults.seedDefaultGlobalShortcutIfNeeded.
+    static let defaultGlobalShortcutSeededV1 = "com.tpak.meridian.defaultGlobalShortcutSeededV1"
+
     // F1 team accent color selection. Stored as TeamAccent.rawValue (String).
     // See DataStore.swift for the enum definition and resolved NSColor.
     static let teamAccent = "com.tpak.meridian.teamAccent"
