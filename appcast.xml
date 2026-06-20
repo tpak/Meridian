@@ -3,6 +3,33 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>4.0.0</title>
+            <pubDate>Sat, 20 Jun 2026 10:40:55 +0000</pubDate>
+            <sparkle:version>4000100</sparkle:version>
+            <sparkle:shortVersionString>4.0.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Meridian 4.0 "Daybreak" — a complete visual redesign. Your cities and settings carry over automatically.</li>
+                    <li>New Daybreak popover with a living sky that shifts through dawn, day, dusk, and night for your current location</li>
+                    <li>Every city shows a sun or moon that flips live as it crosses its own sunrise and sunset</li>
+                    <li>Redesigned city cards showing each place's time and how far ahead or behind it is right now</li>
+                    <li>Reimagined time-travel scrubber — drag to glide through the hours, or double-click any time to type one</li>
+                    <li>Brand-new native Settings window: Cities, Menu Bar, Appearance, Time Travel, and General</li>
+                    <li>Custom labels and per-city color dots; pick a Home city while your current location follows your Mac</li>
+                    <li>Five menu-bar density presets plus an opt-in two-line "Stacked" layout for narrow or notched menu bars</li>
+                    <li>Accent color themes, adjustable text size, and a configurable time-travel range</li>
+                    <li>Float the popover on top and drag it anywhere; copy all city times to the clipboard</li>
+                    <li>System-wide hotkey (default ⌃⌥⌘T) opens Meridian from any app — reliable from anywhere, no error beep</li>
+                    <li>Export and import your settings to back them up or move to another Mac</li>
+                    <li>New "Midnight Sundial" app icon, smarter city search, and full localization in 15 languages</li>
+                    <li>Open Manual button in Settings → General links to the online user guide</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v4.0.0/Meridian.app.zip" length="2590515" type="application/octet-stream" sparkle:edSignature="fwtMoIrlGJ0Fd915DwKbyGxRmEVx8LaUQR5NN8Uj8myMFdg7/vgCuHx3RO1VLv4/iQ6vmJUL1f80UqfVHubNBg=="/>
+        </item>
+        <item>
             <title>4.0.0-beta33</title>
             <pubDate>Sat, 20 Jun 2026 03:10:33 +0000</pubDate>
             <sparkle:channel>beta</sparkle:channel>
