@@ -22,6 +22,9 @@ A copy icon in the popover footer that copies every city's name + time to the cl
 ### Menu-bar glyph tightening  *(Added — see [`icons/MENUBAR-GLYPH-TIGHTENED.md`](icons/MENUBAR-GLYPH-TIGHTENED.md))*
 Adjustments to the menu-bar sundial glyph spacing.
 
+### New menu-bar icon "Dial + Sun" + size adjustment  *(Added, PR #177 — source in [`icons/menubar-dialsun/`](icons/menubar-dialsun/))*
+Adopted the partner's new **Dial + Sun** template glyph (the monochrome icon shown when no cities are starred). **Size feedback:** as delivered, the glyph filled only **~75% of its canvas** (≈30% internal padding), so in the menu bar it rendered noticeably smaller than the neighboring system/app icons. We re-rendered the shipped asset with the glyph scaled to fill **~92%** of the canvas as an interim fix. **Ask:** please bake the larger glyph (less padding, ~90% fill — the dial circle close to the icon's edges) into the master SVG/PNGs and resend, so we ship your exact artwork instead of our rescale.
+
 ---
 
 ## Diverges from the spec — please confirm intended or update the HTML
