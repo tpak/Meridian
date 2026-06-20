@@ -242,6 +242,8 @@ In **Settings → General**:
 - **Auto-install updates** — when on (the default), new versions download and install automatically.
 - **Check for updates** — how often Meridian checks: **Manually**, **Daily**, or **Weekly**. The **Check Now** button checks immediately. The last-checked time is shown in the About block.
 - **Receive beta releases** — opt in to pre-release builds. *(These may have bugs.)* Turning it on triggers an immediate check. Beta testers automatically receive the final stable release when it ships, so you're never stuck on a beta.
+- **Global shortcut** — record a system-wide hotkey to open/close the popover (defaults to **⌃⌥⌘T**); see [Keyboard shortcuts](#keyboard-shortcuts).
+- **About** — shows the version and last-checked time, with buttons to **Open an issue**, **View source**, a recovery link if your menu-bar icon goes missing, and **Open Manual** to open this guide.
 
 ---
 
@@ -337,6 +339,7 @@ Meridian is built to respect your privacy:
 
 - **Found a bug or have an idea?** Open an issue: <https://github.com/tpak/Meridian/issues> (also linked from **Settings → General → Open an issue**).
 - **Source code:** <https://github.com/tpak/Meridian> (also **Settings → General → View source**).
+- **This manual:** <https://tpak.github.io/Meridian/manual.html> (also **Settings → General → Open Manual**).
 
 Meridian is open source, and is a fork of [Clocker](https://github.com/n0shake/Clocker) by Abhishek Banthia.
 
