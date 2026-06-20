@@ -273,4 +273,59 @@ class GlobalShortcutMonitorTests: XCTestCase {
 
         XCTAssertEqual(originalCombo, decodedCombo)
     }
+
+    // MARK: - Change Notification
+
+    // The Settings recorder field repaints off this notification, so an import / clear is reflected
+    // in the UI instead of showing a stale value.
+    func testSettingShortcutPostsChangeNotification() {
+        let monitor = GlobalShortcutMonitor.shared
+        let notified = expectation(forNotification: .globalShortcutChanged, object: nil, handler: nil)
+        monitor.currentShortcut = GlobalShortcutMonitor.KeyCombo(
+            keyCode: 0x01,
+            modifierFlags: NSEvent.ModifierFlags.command.rawValue)
+        wait(for: [notified], timeout: 1.0)
+    }
+
+    // MARK: - Default shortcut seeding (⌃⌥⌘T)
+
+    func testSeedDefaultGlobalShortcut_setsDefaultWhenNoneAndUnseeded() {
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: UserDefaultKeys.defaultGlobalShortcutSeededV1)
+        defaults.removeObject(forKey: testUserDefaultsKey)
+        defer { defaults.removeObject(forKey: UserDefaultKeys.defaultGlobalShortcutSeededV1) }
+
+        AppDefaults.seedDefaultGlobalShortcutIfNeeded(defaults: defaults)
+
+        let combo = GlobalShortcutMonitor.shared.currentShortcut
+        XCTAssertEqual(combo?.keyCode, 17) // T
+        let expected: NSEvent.ModifierFlags = [.control, .option, .command]
+        XCTAssertEqual(combo?.modifierFlags, expected.rawValue)
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.defaultGlobalShortcutSeededV1))
+    }
+
+    func testSeedDefaultGlobalShortcut_doesNotOverrideExistingChoice() {
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: UserDefaultKeys.defaultGlobalShortcutSeededV1)
+        defer { defaults.removeObject(forKey: UserDefaultKeys.defaultGlobalShortcutSeededV1) }
+
+        let existing = GlobalShortcutMonitor.KeyCombo(
+            keyCode: 0x09, modifierFlags: NSEvent.ModifierFlags.command.rawValue) // ⌘V
+        GlobalShortcutMonitor.shared.currentShortcut = existing
+
+        AppDefaults.seedDefaultGlobalShortcutIfNeeded(defaults: defaults)
+
+        XCTAssertEqual(GlobalShortcutMonitor.shared.currentShortcut, existing)
+    }
+
+    func testSeedDefaultGlobalShortcut_skipsWhenAlreadySeeded() {
+        let defaults = UserDefaults.standard
+        defaults.set(true, forKey: UserDefaultKeys.defaultGlobalShortcutSeededV1)
+        defaults.removeObject(forKey: testUserDefaultsKey) // user has cleared / none
+        defer { defaults.removeObject(forKey: UserDefaultKeys.defaultGlobalShortcutSeededV1) }
+
+        AppDefaults.seedDefaultGlobalShortcutIfNeeded(defaults: defaults)
+
+        XCTAssertNil(GlobalShortcutMonitor.shared.currentShortcut)
+    }
 }

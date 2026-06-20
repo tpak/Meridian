@@ -286,9 +286,9 @@ The **copy icon** in the popover footer copies every visible city to the clipboa
 
 ### Global hotkey
 
-Meridian supports a **system-wide hotkey** that toggles the popover from any app.
+Meridian has a **system-wide hotkey** that opens or closes the popover from any app. It defaults to **⌃⌥⌘T** (Control-Option-Command-T).
 
-> **Note for version 4.0:** the new Settings window doesn't yet include a control to *record* this shortcut. If you set one in an earlier version, it still works. A way to set it in the redesigned Settings is planned.
+To change it, open **Settings → General → Global shortcut**, click the field, and press your new combination (it must include ⌘, ⌥, or ⌃). The field fills with your accent color while it's listening and shows the recorded keys when you're done. Press **Delete** or **Escape** while recording to clear the shortcut. Your choice is included in **Export/Import Settings**.
 
 ---
 
