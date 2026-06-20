@@ -11,7 +11,7 @@ Your cities, labels, favorites, and preferences all carry over automatically.
 - **A living sky.** The popover's hero shifts through dawn, day, dusk, and night to match the real time of day at your current location, with a sun or moon disc that reflects the current phase.
 - **Sun & moon, everywhere.** Every city shows a sun or moon glyph that flips live as that city crosses its own sunrise and sunset.
 - **Redesigned city cards.** Each place shows its time, whether it's day or night there, and how far ahead or behind it is *relative to where you are right now*.
-- **A reimagined time-travel scrubber** with a tick ruler, day-boundary markers, and a centered handle carrying the current sun/moon.
+- **A reimagined time-travel scrubber** with a tick ruler and a centered handle carrying the current sun/moon.
 - **A brand-new native Settings window** with a clean sidebar: **Cities, Menu Bar, Appearance, Time Travel,** and **General**.
 - **A new "Midnight Sundial" app icon** and matching menu-bar icons.
 
@@ -27,6 +27,9 @@ Your cities, labels, favorites, and preferences all carry over automatically.
 - **Configurable time-travel range** and a snap step (5 / 15 / 30 / 60 min).
 - **Float the popover on top** and drag it anywhere — it remembers where you parked it.
 - **Copy all city times** to the clipboard from the footer as a clean, one-per-line list.
+- **A system-wide hotkey** (default **⌃⌥⌘T**) opens Meridian from any app — set your own in Settings → General.
+- **Export and import your settings** to a file, so you can back them up or move them to another Mac.
+- **Open Manual** button in Settings → General links straight to the online user guide.
 
 ## Improvements
 
@@ -46,6 +49,7 @@ Your cities, labels, favorites, and preferences all carry over automatically.
 - Fixed inconsistent labels in search results and partial-geocode artifacts.
 - Fixed time-travel so it snaps cleanly to the grid and aligns to day boundaries.
 - Restored the draggable floating popover and renamed the control from "Pin" to "Float."
+- Made the global hotkey reliable from any app (no more missed presses or error beep) and included it in settings export/import.
 
 ---
 
@@ -53,4 +57,4 @@ Your cities, labels, favorites, and preferences all carry over automatically.
 
 Meridian updates itself — you'll be offered 4.0 automatically. Your time zones and settings are preserved across the upgrade. Want early access to future releases? Turn on **Settings → General → Receive beta releases**.
 
-<sub>Key PRs in this release: #140 (Daybreak redesign), #141 (localization), #142 & #143 (stacked menu-bar layout, settings polish, new icons).</sub>
+<sub>Key PRs in this release: #140 (Daybreak redesign), #141 (localization), #142 & #143 (stacked menu-bar layout, settings polish, new icons), #174 & #179 (global hotkey), #180 (Open Manual).</sub>
