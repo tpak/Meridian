@@ -16,7 +16,7 @@ final class DaybreakPanelController: NSWindowController, NSWindowDelegate {
     private var cancellables = Set<AnyCancellable>()
 
     // Chrome insets baked into DaybreakRootView (transparent margin around the 378px body for the
-    // shadow + notch). Used to align the body under the status item.
+    // shadow). Used to align the body under the status item.
     private let bodyInsetX: CGFloat = 40
     private let bodyTopInset: CGFloat = 14
     private let bodyWidth: CGFloat = 378

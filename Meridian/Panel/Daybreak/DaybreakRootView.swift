@@ -2,7 +2,7 @@
 //
 // DaybreakRootView — the SwiftUI root hosted inside the menu-bar panel. Composes the hero, the city
 // cards, the scrubber, and the footer, and draws the popover chrome (378px body, 18px radius,
-// hairline border, soft shadow, top notch). Owns the inline time-edit state shared by the hero and
+// hairline border, soft shadow). Owns the inline time-edit state shared by the hero and
 // rows, and resolves light/dark from the user's Theme preference (README §1 surfaces).
 
 import SwiftUI
@@ -75,7 +75,6 @@ struct DaybreakRootView: View {
         .background(palette.surface)
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(palette.hairline, lineWidth: 1))
-        .overlay(alignment: .topTrailing) { notch(snapshot) }
         .shadow(color: palette.shadowColor, radius: palette.shadowRadius, y: palette.shadowY)
         .padding(.horizontal, 40)
         .padding(.top, 14)
@@ -172,14 +171,6 @@ struct DaybreakRootView: View {
         }
     }
 
-    private func notch(_ snapshot: DaybreakSnapshot) -> some View {
-        UpTriangle()
-            .fill(DaybreakSky.notchColor(for: snapshot.hero.phase))
-            .frame(width: 18, height: 9)
-            .padding(.trailing, 51)
-            .offset(y: -8)
-    }
-
     // MARK: Inline edit
 
     private func beginEdit(id: String, time: String, period: String) {
@@ -196,17 +187,5 @@ struct DaybreakRootView: View {
 
     private func cancelEdit() {
         editingID = nil
-    }
-}
-
-/// Upward-pointing triangle for the popover notch.
-private struct UpTriangle: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
-        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
-        path.closeSubpath()
-        return path
     }
 }
