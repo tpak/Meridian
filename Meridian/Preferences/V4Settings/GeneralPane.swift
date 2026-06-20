@@ -182,20 +182,32 @@ private struct DebugRow: View {
 // existing AppKit `ShortcutRecorderButton` + `GlobalShortcutMonitor`, so a shortcut saved by an older
 // version keeps working and the on-disk storage (the `globalPing` key) is unchanged.
 private struct GlobalShortcutRow: View {
+    // Bumped whenever the stored shortcut changes elsewhere (an import, a clear) so the AppKit
+    // recorder is told to re-read and repaint — otherwise SwiftUI never re-renders the
+    // representable and the field shows a stale value (e.g. after Import Settings).
+    @State private var refreshToken = 0
+
     var body: some View {
         FormRow(label: String(localized: "Global shortcut"),
                 note: String(localized: "Open Meridian from anywhere")) {
-            ShortcutRecorderField()
+            ShortcutRecorderField(refreshToken: refreshToken)
                 .frame(width: 180, height: 24)
         }
         .accessibilityIdentifier("GlobalShortcut")
+        .onReceive(NotificationCenter.default.publisher(for: .globalShortcutChanged)) { _ in
+            refreshToken &+= 1
+        }
     }
 }
 
 // Hosts the AppKit recorder inside SwiftUI. Writing the captured combo to
-// `GlobalShortcutMonitor.shared.currentShortcut` auto-encodes it and re-registers the global monitor
+// `GlobalShortcutMonitor.shared.currentShortcut` auto-encodes it and re-registers the global hot key
 // (the toggle action itself is wired once by AppDelegate at launch). `nil` clears the shortcut.
+// `refreshToken` is a stored input so a change to it makes SwiftUI call `updateNSView`, which re-reads
+// the stored shortcut — this is how an import or external change repaints the field.
 private struct ShortcutRecorderField: NSViewRepresentable {
+    let refreshToken: Int
+
     func makeNSView(context _: Context) -> ShortcutRecorderButton {
         let button = ShortcutRecorderButton(frame: .zero)
         button.shortcutDidChange = { [weak button] combo in

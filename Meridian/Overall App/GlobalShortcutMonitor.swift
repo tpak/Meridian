@@ -4,6 +4,12 @@ import Carbon.HIToolbox
 import Cocoa
 import CoreLoggerKit
 
+extension Notification.Name {
+    /// Posted whenever the global shortcut changes — recorded, cleared, or imported — so UI that
+    /// mirrors it (the Settings recorder field) can refresh instead of showing a stale value.
+    static let globalShortcutChanged = Notification.Name("com.tpak.meridian.globalShortcutChanged")
+}
+
 final class GlobalShortcutMonitor {
     static let shared = GlobalShortcutMonitor()
 
@@ -112,6 +118,7 @@ final class GlobalShortcutMonitor {
             }
 
             register()
+            NotificationCenter.default.post(name: .globalShortcutChanged, object: nil)
         }
     }
 

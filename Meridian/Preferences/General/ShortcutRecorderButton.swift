@@ -27,22 +27,32 @@ class ShortcutRecorderButton: NSButton {
     func updateDisplay() {
         let currentShortcut = GlobalShortcutMonitor.shared.currentShortcut
         if isRecording {
-            self.title = "Type shortcut..."
-            self.font = NSFont.systemFont(ofSize: NSFont.systemFontSize(for: .small))
+            // Obvious "I'm listening" state: accent-filled bezel + a cleared placeholder, so the
+            // user sees that clicking cleared the old value and key capture is now active.
+            self.bezelColor = .controlAccentColor
+            self.attributedTitle = NSAttributedString(
+                string: "Type shortcut…",
+                attributes: [
+                    .foregroundColor: NSColor.white,
+                    .font: NSFont.systemFont(ofSize: NSFont.systemFontSize(for: .small))
+                ])
         } else if let shortcut = currentShortcut {
+            self.bezelColor = nil
             self.title = shortcut.displayString
-            self.font = NSFont.systemFont(ofSize: NSFont.systemFontSize)
+            self.font = NSFont.systemFont(ofSize: NSFont.systemFontSize, weight: .medium)
         } else {
+            self.bezelColor = nil
             self.title = "Click to Record Shortcut"
             self.font = NSFont.systemFont(ofSize: NSFont.systemFontSize(for: .small))
         }
     }
 
     override func mouseDown(with event: NSEvent) {
-        if !isRecording {
-            startRecording()
+        if isRecording {
+            // Second click cancels recording and restores the existing shortcut.
+            stopRecording()
         } else {
-            super.mouseDown(with: event)
+            startRecording()
         }
     }
 
