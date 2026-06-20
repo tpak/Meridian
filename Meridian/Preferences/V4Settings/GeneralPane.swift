@@ -375,6 +375,15 @@ private struct AboutBlock: View {
                 }
                 .accessibilityIdentifier("MenubarTroubleshooting")
             }
+
+            Divider()
+                .frame(maxWidth: 260)
+                .padding(.top, 4)
+
+            LinkText(String(localized: "Open Manual")) {
+                open(AboutUsConstants.ManualURL, log: "Opened user manual")
+            }
+            .accessibilityIdentifier("OpenManual")
         }
         .onAppear { refreshLastChecked() }
         .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in

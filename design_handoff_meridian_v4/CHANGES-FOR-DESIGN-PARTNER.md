@@ -53,9 +53,13 @@ Net-new features and surfaces that weren't in the original prototypes.
 
 **Settings → General** *(see `screenshots/settings-general.png`)*
 - **Global keyboard shortcut recorder** — a "Global shortcut" row (under Debug logging) records a
-  hotkey that toggles the popover from anywhere. The v4 move to SwiftUI Settings had dropped the v3
-  global hotkey; this restores it. It currently uses the legacy AppKit recorder control (rounded
-  bezel, "Click to Record Shortcut"), not the v4 visual language.
+  hotkey that toggles the popover from anywhere; it defaults to **⌃⌥⌘T**. The v4 move to SwiftUI
+  Settings had dropped the v3 global hotkey; this restores it. It still uses the legacy AppKit
+  recorder control (rounded bezel), now with accent-colored "recording" feedback while listening —
+  but it isn't yet drawn in the full v4 visual language.
+- **"Open Manual" button** — added to the About block, on its own row under a divider beneath the
+  *Open an issue / View source / Can't see it in your menu bar?* links. It opens the published user
+  manual (GitHub Pages) and uses the same shaded button style as the other About links.
 
 ---
 
