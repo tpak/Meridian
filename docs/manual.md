@@ -342,4 +342,4 @@ Meridian is open source, and is a fork of [Clocker](https://github.com/n0shake/C
 
 ---
 
-<sub>This manual documents Meridian 4.0. Screenshots are referenced as placeholders (<code>screenshots/…</code>) and will be added before publication.</sub>
+<sub>This manual documents Meridian 4.0. Screenshots are captured from the shipping 4.0.0 build.</sub>
