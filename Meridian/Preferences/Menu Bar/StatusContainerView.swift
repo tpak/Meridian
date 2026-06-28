@@ -108,7 +108,7 @@ class StatusContainerView: NSView {
                                                                    width: precalculatedWidth,
                                                                    attributes: timeBasedAttributes)
                 let showSeconds = timezoneObject.shouldShowSeconds(store.timezoneFormat())
-                let secondsBuffer: CGFloat = showSeconds ? 7 : 0
+                let secondsBuffer: CGFloat = showSeconds ? MenubarLayoutConstants.measuredSecondsBuffer : 0
                 return result + max(calculatedTitleSize.width, calculatedSubtitleSize.width) + bufferWidth + secondsBuffer
             }
 
