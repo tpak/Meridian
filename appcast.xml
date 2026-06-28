@@ -3,6 +3,21 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>4.0.2-beta1</title>
+            <pubDate>Sun, 28 Jun 2026 21:53:53 +0000</pubDate>
+            <sparkle:channel>beta</sparkle:channel>
+            <sparkle:version>4002001</sparkle:version>
+            <sparkle:shortVersionString>4.0.2-beta1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Time travel: the slider now scrubs your full Travel forward/back range instead of stopping at about 12 hours.</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v4.0.2-beta1/Meridian.app.zip" length="2225668" type="application/octet-stream" sparkle:edSignature="2oIwDwWwCIZclZxkxinjopcp39pd+nIfStdg1SCyYyscOEQdnjQjmOEKO9LJtccJIXnkPuX5rmUuh7vbTuPADg=="/>
+        </item>
+        <item>
             <title>4.0.1</title>
             <pubDate>Sun, 28 Jun 2026 05:46:13 +0000</pubDate>
             <sparkle:version>4001100</sparkle:version>
