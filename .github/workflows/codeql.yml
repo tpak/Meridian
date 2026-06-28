@@ -28,7 +28,7 @@ jobs:
       # Package.resolved changes — safe here because these are dependency
       # source checkouts, not compiled modules.
       - name: Cache Swift packages
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: .spm-cache
           key: spm-${{ runner.os }}-${{ hashFiles('Meridian/Meridian.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
