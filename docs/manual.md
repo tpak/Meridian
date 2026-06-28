@@ -188,21 +188,21 @@ Meridian lets you slide time forward and back to find a moment that works everyw
 
 ### In the popover
 
-- **Drag the sun/moon handle** along the ruler below the city cards to glide through the next several hours (about **2 hours back to 12 hours ahead**). A pill above the track shows the offset and the resulting time (e.g. `+3:00 · 10:47 PM`). The handle's glyph flips between sun and moon as cities cross sunrise/sunset. A deliberate drag is required, so a stray click won't move it.
-- **Nudge arrows (‹ ›)** step the time by your **snap step** (5, 15, 30, or 60 minutes).
-- **Type a time to jump to it.** Double-click any time in the popover — the hero time or a city's time — and type a new one (`3:30 PM`, `15:30`, `3pm` all work). Press **Return** and every clock recomputes so that city reads the time you entered. This is how you jump **days** ahead or back.
+- **Drag the sun/moon handle** along the ruler below the city cards to glide across your travel window — the full **Travel forward / back** range you set in Settings (by default about **2 days back to 6 days ahead**). "Now" sits at the center of the ruler, the past to its left and the future to its right. A pill above the track shows the offset and the resulting time (e.g. `+3:00 · 10:47 PM`, or `+2d · Wed 8:00 AM` further out). The handle's glyph flips between sun and moon as cities cross sunrise/sunset. A deliberate drag is required, so a stray click won't move it.
+- **Nudge arrows (‹ ›)** step the time by your **snap step** (5, 15, 30, or 60 minutes) — the precise way to land on an exact moment when the ruler spans many days.
+- **Type a time to jump to it.** Double-click any time in the popover — the hero time or a city's time — and type a new one (`3:30 PM`, `15:30`, `3pm` all work). Press **Return** and every clock recomputes so that city reads the time you entered.
 - **↺ Back to now** appears while you're traveling — click it to snap back to the present. Closing and reopening the popover also resets to now.
 
 ### Settings → Time Travel
 
 ![Settings → Time Travel](screenshots/settings-timetravel.png)
 
-- **Travel forward** — how many days ahead you can jump when typing a time (1–30 days; default 6).
-- **Travel back** — how many days back you can jump (0–7 days; `0` turns it off; default 2).
+- **Travel forward** — how far ahead the scrubber reaches (and how far a typed time can jump): **1–30 days**; default 6.
+- **Travel back** — how far back the scrubber reaches: **0–7 days**; `0` turns travel into the past off; default 2.
 - **Arrow / snap step** — the increment for the nudge arrows and grid alignment: **5 / 15 / 30 / 60 minutes** (default 15).
 - **Show Time Scroller** — show or hide the scrubber in the popover.
 
-> The drag scrubber always covers a compact, legible window (about 2 hours back to 12 hours forward) so the day-boundary markers stay readable. The **Travel forward / back** ranges set how far you can jump when you *type* a time.
+> The scrubber spans your whole **Travel forward / back** window. A wide range (say 14 days forward) packs a lot of time into a small ruler, so dragging makes big, quick jumps — use the **‹ ›** arrows, or type a time directly, to land on an exact moment.
 
 ---
 

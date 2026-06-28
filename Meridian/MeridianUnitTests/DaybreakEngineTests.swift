@@ -254,6 +254,32 @@ final class DaybreakEngineTests: XCTestCase {
         XCTAssertEqual(DaybreakEngine.handleFraction(offsetMinutes: -9999, range: range), 0.0, accuracy: 0.0001)
         XCTAssertEqual(DaybreakEngine.handleFraction(offsetMinutes: 9999, range: range), 1.0, accuracy: 0.0001)
     }
+
+    // MARK: - Travel range from day settings (the day-window scrubber)
+
+    func testTravelRangeSpansFullDayWindow() {
+        // The scrubber must reach the user's whole Travel forward / back window, not a fixed cap.
+        let range = DaybreakEngine.travelRange(forwardDays: 14, backDays: 2)
+        XCTAssertEqual(range.lowerBound, -2 * 24 * 60)   // −2 days
+        XCTAssertEqual(range.upperBound, 14 * 24 * 60)   // +14 days
+        // The handle still reaches both ends and pins "now" to centre on the asymmetric window.
+        XCTAssertEqual(DaybreakEngine.handleFraction(offsetMinutes: range.upperBound, range: range), 1.0, accuracy: 0.0001)
+        XCTAssertEqual(DaybreakEngine.handleFraction(offsetMinutes: 0, range: range), 0.5, accuracy: 0.0001)
+    }
+
+    func testTravelRangeBackOffStartsAtNow() {
+        // "Travel back: Off" (0 days) → the range starts at now; only the future is reachable.
+        let range = DaybreakEngine.travelRange(forwardDays: 6, backDays: 0)
+        XCTAssertEqual(range.lowerBound, 0)
+        XCTAssertEqual(range.upperBound, 6 * 24 * 60)
+    }
+
+    func testTravelRangeClampsNegativeInputs() {
+        // Defensive: never produce an inverted range from stray negative inputs.
+        let range = DaybreakEngine.travelRange(forwardDays: -5, backDays: -5)
+        XCTAssertEqual(range.lowerBound, 0)
+        XCTAssertEqual(range.upperBound, 0)
+    }
 }
 
 /// The current-location hero must always match the system clock when the panel opens — time travel

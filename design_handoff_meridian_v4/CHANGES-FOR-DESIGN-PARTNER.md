@@ -71,10 +71,10 @@ Grouped by surface. Each row: the original prototype, what shipped, and why.
 
 | Area | Original spec | Shipped v4 | Why |
 |---|---|---|---|
-| **Time-travel scrubber range** | Spans the Travel forward/back **day window** (14 fwd / 2 back) with dated day-boundary markers | Fixed to **~2h back / 12h forward**; the Settings day sliders don't drive it | Interim hour-scale window; the day-window model was deferred. |
-| **Scrubber day-boundary markers** | Dated midnight markers along the track, "today" accent-tinted | A plain tick comb — no dated markers, no date labels, no accent tint | Simplified ruler for the hour-scale window. |
-| **Scrubber interaction** | Clicking anywhere on the track jumps the handle there | Drag-only (a deliberate drag of ≥5pt scrubs; a plain click does nothing) | Prevents stray clicks from silently entering time-travel. |
-| **Handle mapping** | Linear across a symmetric range, so "now" sits centered | "Now" is pinned to the visual center; past compresses into the left half, future into the right (non-proportional) | Keeps "now" centered on the asymmetric −2h..+12h range. |
+| **Time-travel scrubber range** | Spans the Travel forward/back **day window** (14 fwd / 2 back) with dated day-boundary markers | **Now spans the Travel forward/back day window** — the Settings day sliders drive it directly (forward 14 / back 2 → the handle reaches +14d / −2d). See the next two rows for the ruler treatment and handle mapping. | The deferred day-window rework landed; the scrubber reaches the full configured range again instead of a fixed interim window. |
+| **Scrubber day-boundary markers** | Dated midnight markers along the track, "today" accent-tinted | A plain tick comb — no dated markers, no date labels, no accent tint | Simplified ruler; the handle + readout pill carry position, so a multi-day span needs no dated markers. |
+| **Scrubber interaction** | Clicking anywhere on the track jumps the handle there | Drag-only (a deliberate drag of ≥5pt scrubs; a plain click does nothing). The ‹ › buttons step an exact snap-step (5/15/30/60 min) for fine control over a wide day range. | Prevents stray clicks from silently entering time-travel. |
+| **Handle mapping** | Linear across a symmetric range, so "now" sits centered | "Now" is pinned to the visual center; past compresses into the left half, future into the right (non-proportional) | Keeps "now" centered on the asymmetric day window (e.g. −2d..+14d), so the future spans the right half regardless of how lopsided forward/back are. |
 | **Scrubber visibility** | Always shown | Hidden when Settings → Time Travel → "Show Time Scroller" is off (popover collapses to hero + cities + footer) | Honors the existing show/hide toggle. |
 | **Time-travel persistence** | Travel delta persists across interactions | Resets to "Now" each time the popover opens | The hero must match the live system clock on open. |
 | **Traveled minute grid** | Snap the offset to 15 min | Traveled times land on a clean quarter-hour grid frozen at travel-start | Cleaner displayed minutes while traveling. |
@@ -121,7 +121,7 @@ Grouped by surface. Each row: the original prototype, what shipped, and why.
 
 | Area | Original spec | Shipped v4 | Why |
 |---|---|---|---|
-| **Time Travel day sliders** | "Travel forward / back" bound the scrubber range | Currently inert — the scrubber range is fixed (see Daybreak above); the sliders are shown but not yet wired | Pending the day-window scrubber rework. |
+| **Time Travel day sliders** | "Travel forward / back" bound the scrubber range | **Wired — both sliders now bound the scrubber's travel range** (forward 1–30 days, back 0–7 days; "back 0" disables travel into the past) | Matches the original spec; the day-window scrubber rework landed. |
 | **Travel forward default** | 14 days | 6 days | Carries the existing app-wide default. |
 | **Receive beta releases default** | On (in the prototype state) | Off | Shipping beta-on to everyone isn't the default we want. |
 | **Export Log button** | Always enabled | Disabled until Debug logging is on | Export Log is only meaningful when logging is on. |

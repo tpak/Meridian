@@ -77,11 +77,14 @@ enum DaybreakDefaults {
         set { standard.set(newValue, forKey: Keys.snapStep, forKeyIfValid: [5, 15, 30, 60]) }
     }
 
-    /// The scrubber's travel window, in minutes. A tight, legible span (2h back / 12h forward) — a
-    /// multi-day range crams the day-boundary labels into illegible mush. The Time Travel pane's
-    /// day sliders will be reworked to hour-scale to drive this; for now the window is fixed.
+    /// The scrubber's travel window, in minutes, spanning the user's Travel forward / back **day**
+    /// window (Settings → Time Travel). `DaybreakEngine.handleFraction` pins "now" to the visual
+    /// centre, so the past fills the left half of the track and the future the right half regardless
+    /// of how asymmetric the window is. The ruler is a decorative tick comb (no dated day labels), so
+    /// a multi-day span no longer crams illegible markers — this retires the earlier fixed
+    /// hour-scale interim window and connects the previously-inert day sliders.
     static var travelRangeMinutes: ClosedRange<Int> {
-        return (-2 * 60)...(12 * 60)
+        DaybreakEngine.travelRange(forwardDays: travelForwardDays, backDays: travelBackDays)
     }
 
     private static func clampDays(_ value: Int, min lo: Int, max hi: Int) -> Int {

@@ -217,9 +217,20 @@ enum DaybreakEngine {
         return min(range.upperBound, max(range.lowerBound, snapped))
     }
 
+    /// The scrubber's travel window, in minutes, derived from the user's Travel forward / back **day**
+    /// settings (Settings → Time Travel). "Now" (0) is always inside the range; the past is negative,
+    /// the future positive. With `backDays == 0` the range starts at 0 (travel-back disabled). README
+    /// §F — the day-window scrubber that the fixed hour-scale interim window replaces.
+    static func travelRange(forwardDays: Int, backDays: Int) -> ClosedRange<Int> {
+        let minutesPerDay = 24 * 60
+        let forward = max(0, forwardDays) * minutesPerDay
+        let back = -max(0, backDays) * minutesPerDay
+        return back...forward
+    }
+
     /// Track position (0…1) for a travel offset, with "now" (0) pinned to the CENTRE (0.5). The past
     /// fills the left half, the future the right half — so the handle starts centred even though the
-    /// range is asymmetric (e.g. -2h back / +12h forward map to equal halves of the track).
+    /// range is asymmetric (e.g. -2d back / +14d forward map to equal halves of the track).
     static func handleFraction(offsetMinutes offset: Int, range: ClosedRange<Int>) -> Double {
         let lo = Double(range.lowerBound), hi = Double(range.upperBound), o = Double(offset)
         if o <= 0 {
