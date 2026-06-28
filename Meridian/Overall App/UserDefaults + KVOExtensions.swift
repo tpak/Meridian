@@ -12,8 +12,8 @@ extension UserDefaults {
     }
 
     // For KVO notifications to fire, the property name must match the
-    // UserDefaults key string. Combine subscribers in PanelController and
-    // ParentPanelController watch these to react to user toggles.
+    // UserDefaults key string. Observers across the app watch these to
+    // react to user toggles.
     @objc dynamic var floatOnTop: Bool {
         return bool(forKey: UserDefaultKeys.floatOnTop)
     }

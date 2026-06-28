@@ -403,17 +403,6 @@ class MeridianUnitTests: XCTestCase {
         defaults.removePersistentDomain(forName: "HomeRowMigrationTest_Idempotent")
     }
 
-    /// Regression: the empty-state "+" button in Panel.xib dispatches
-    /// `openPreferences:` up the responder chain. ParentPanelController is
-    /// in that chain and must implement the selector — otherwise the
-    /// button is silently dead, which leaves a freshly-installed app with
-    /// no way to add the first timezone.
-    func testParentPanelControllerRespondsToOpenPreferencesAction() {
-        let selector = NSSelectorFromString("openPreferences:")
-        XCTAssertTrue(ParentPanelController.instancesRespond(to: selector),
-                      "ParentPanelController must respond to openPreferences: so the empty-state + button works")
-    }
-
     func testHomeRowMigrationDeduplicatesMultipleFlaggedRows() throws {
         let defaults = UserDefaults(suiteName: "HomeRowMigrationTest_Dedup")!
         defaults.removePersistentDomain(forName: "HomeRowMigrationTest_Dedup")
@@ -576,14 +565,6 @@ class MeridianUnitTests: XCTestCase {
         XCTAssertEqual(stringWithComma.filteredName(), "Mumbai")
         XCTAssertEqual(stringWithoutComma.filteredName(), "Mumbai")
         XCTAssertEqual(emptyString.filteredName(), "")
-    }
-
-    func testNoTimezoneView() {
-        let sampleRect = CGRect(x: 0, y: 0, width: 200, height: 200)
-        let subject = NoTimezoneView(frame: sampleRect)
-        // Perform a layout to add subviews
-        subject.layout()
-        XCTAssertGreaterThanOrEqual(subject.subviews.count, 2, "NoTimezoneView should have at least 2 subviews after layout")
     }
 
     func testDefaultsWiping() {

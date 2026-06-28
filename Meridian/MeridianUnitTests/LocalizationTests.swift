@@ -62,13 +62,4 @@ final class LocalizationTests: XCTestCase {
         XCTAssertFalse(result.isEmpty)
         XCTAssertEqual(result, "No places added")
     }
-
-    func testPreferencesConstantsAreLocalized() {
-        // These are initialized at static level — verify they resolved
-        XCTAssertFalse(PreferencesConstants.noTimezoneSelectedErrorMessage.isEmpty)
-        XCTAssertFalse(PreferencesConstants.maxTimezonesErrorMessage.isEmpty)
-        XCTAssertFalse(PreferencesConstants.maxCharactersAllowed.isEmpty)
-        XCTAssertFalse(PreferencesConstants.noInternetConnectivityError.isEmpty)
-        XCTAssertFalse(PreferencesConstants.tryAgainMessage.isEmpty)
-    }
 }

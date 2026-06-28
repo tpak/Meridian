@@ -238,10 +238,9 @@ struct SettingsManager {
             // an imported teamAccent change actually paints — see
             // NSApplication.mer_invalidateAccentEverywhere in DataStore.swift.
             NSApp.mer_invalidateAccentEverywhere()
-            if let panel = PanelController.panel() {
-                panel.updateDefaultPreferences()
-                panel.updateTableContent()
-            }
+            // The Daybreak panel refreshes itself: DataStore.setTimezones fires
+            // UserDefaults.didChangeNotification, which DaybreakViewModel observes
+            // and debounces into a recompute(). Preference writes do the same.
             if let appDelegate = NSApp.delegate as? AppDelegate {
                 appDelegate.statusItemForPanel().refresh()
                 if let sparkle = json[ExportKey.sparkle] as? [String: Any] {

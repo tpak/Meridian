@@ -246,7 +246,7 @@ enum TeamAccent: String, Codable, CaseIterable {
         }
     }
 
-    /// Resolved accent color used by PanelController and CustomSliderCell.
+    /// Resolved accent color used across the Daybreak panel and menu bar.
     /// Alpha 0.85 matches the toned-down Aston Martin shipping value (PR
     /// e4ad82b2) so saturation feels consistent across teams.
     var accentColor: NSColor {
@@ -269,9 +269,9 @@ extension TeamAccent: JSONNameDecodable {}
 // The team-accent swizzle (NSColor.controlAccentColor + invalidation
 // notification) lives in App/AccentColorSwizzler.swift.
 
-// Indices match the popup item order in
-// AppearanceViewController.setupTimeFormatPopup(); 2/5/8 are disabled
-// separator rows and intentionally have no enum case.
+// Raw values are the canonical time-format indices used across the app.
+// 2/5/8 were separator rows in the legacy picker and intentionally have
+// no enum case; the gap is kept stable so persisted values still decode.
 enum TimeFormat: Int, Codable, CaseIterable {
     case twelveHour = 0
     case twentyFourHour = 1

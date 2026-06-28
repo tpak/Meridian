@@ -84,33 +84,11 @@ public enum UserDefaultKeys {
     // See DataStore.swift for the enum definition and resolved NSColor.
     static let teamAccent = "com.tpak.meridian.teamAccent"
 
-    // Set to true by AppearanceViewController when the user picks a new
-    // team and chooses Restart Now in the relaunch prompt. AppDelegate
-    // checks this on the next applicationDidFinishLaunching, opens
-    // Settings to the Appearance tab, and clears the flag.
-    static let reopenAppearanceOnLaunch = "com.tpak.meridian.reopenAppearanceOnLaunch"
-
     // Tahoe (macOS 26+) silently classifies a third-party NSStatusItem as
     // `.ephemeral` until the user enables the app in Control Center → Menu
     // Bar Only. Set to true after the first-launch onboarding NSAlert has
     // been shown so we don't re-prompt on every launch. See issue #125.
     static let tahoeOnboardingShown = "com.tpak.meridian.tahoeOnboardingShown"
-}
-
-// Centralized timing literals. Putting them here makes the rationale for each
-// delay easy to find (and to revisit) instead of hiding them as bare numbers
-// at call sites.
-enum TimingConstants {
-    /// Delay before terminating the current process during the team-accent
-    /// restart flow. Long enough for `open -n` to register the new launch
-    /// before the old process exits — otherwise macOS treats it as a
-    /// duplicate-launch suppression and the new instance never appears.
-    static let pauseBeforeRelaunchTermination: TimeInterval = 0.2
-
-    /// Delay before opening Settings → Appearance after the team-accent
-    /// relaunch completes. Lets AppDelegate finish constructing the panel
-    /// and status item before we open Settings on top of them.
-    static let openAppearanceAfterRelaunch: TimeInterval = 0.3
 }
 
 // Centralized layout literals shared across menubar text-rendering call sites.
