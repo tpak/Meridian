@@ -7,23 +7,14 @@ import Sparkle
 
 @main
 open class AppDelegate: NSObject, NSApplicationDelegate {
-    internal lazy var panelController = PanelController(windowNibName: .panel)
-    /// v4 "Daybreak" SwiftUI popover. When `useDaybreakPanel` is true the status-item click routes
-    /// here instead of the legacy `panelController`; flip the flag to fall back instantly.
+    /// v4 "Daybreak" SwiftUI popover that the status-item click toggles.
     internal lazy var daybreakPanelController = DaybreakPanelController()
-    private let useDaybreakPanel = true
-    /// v4 SwiftUI Settings window. When `useV4Settings` is true, the Daybreak footer + ⌘, open this
-    /// instead of the legacy storyboard Preferences; flip the flag to fall back.
+    /// v4 SwiftUI Settings window opened by the Daybreak footer and ⌘,.
     internal lazy var settingsWindowController = SettingsWindowController()
-    private let useV4Settings = true
 
-    /// Open Settings, routing to the v4 window or the legacy Preferences per the flag.
+    /// Open the v4 Settings window.
     @objc func openSettingsRouted() {
-        if useV4Settings {
-            settingsWindowController.show()
-        } else {
-            panelController.openPreferencesWindow()
-        }
+        settingsWindowController.show()
     }
 
     /// The app menu's "Preferences… ⌘," item ships from MainMenu.xib with no action connected, so the
@@ -60,7 +51,6 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         wirePreferencesMenuItem()
         continueUsually()
         setupMemoryPressureMonitoring()
-        reopenAppearanceIfRelaunchedForTeamAccent()
         showTahoeOnboardingIfNeeded()
         observeAppActivationForVisibilityRecheck()
     }
@@ -119,22 +109,6 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
             queue: .main
         ) { [weak self] _ in
             self?.statusBarHandler.scheduleVisibilityVerification()
-        }
-    }
-
-    /// If we were just relaunched by the user picking a new accent color
-    /// from Settings → Appearance and clicking Restart Now, land them
-    /// back on the Appearance tab so it doesn't feel like they lost
-    /// their place. The flag is set in
-    /// AppearanceViewController.promptForRestart and consumed exactly
-    /// once here.
-    private func reopenAppearanceIfRelaunchedForTeamAccent() {
-        guard UserDefaults.standard.bool(forKey: UserDefaultKeys.reopenAppearanceOnLaunch) else { return }
-        UserDefaults.standard.removeObject(forKey: UserDefaultKeys.reopenAppearanceOnLaunch)
-        // Brief delay so AppDelegate finishes building the panel /
-        // status item before we open Settings on top.
-        DispatchQueue.main.asyncAfter(deadline: .now() + TimingConstants.openAppearanceAfterRelaunch) { [weak self] in
-            self?.panelController.oneWindow?.openAppearancePane()
         }
     }
 
@@ -372,15 +346,13 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         GlobalShortcutMonitor.shared.register()
     }
 
-    @IBAction open func togglePanel(_ sender: NSButton) {
-        if useDaybreakPanel, let button = sender as? NSStatusBarButton {
-            daybreakPanelController.toggle(relativeTo: button)
-            button.state = (daybreakPanelController.window?.isVisible == true) ? .on : .off
-            return
-        }
-        panelController.showWindow(nil)
-        panelController.setActivePanel(newValue: sender.state == .on)
-        NSApp.activate(ignoringOtherApps: true)
+    /// Toggle the Daybreak popover relative to the menu-bar status button.
+    /// The anchor is always resolved from the status item (not `sender`), so
+    /// the click, global-shortcut, and dock-menu callers all behave the same.
+    @IBAction open func togglePanel(_: Any) {
+        guard let button = statusBarHandler.statusItem.button else { return }
+        daybreakPanelController.toggle(relativeTo: button)
+        button.state = (daybreakPanelController.window?.isVisible == true) ? .on : .off
     }
 
     func statusItemForPanel() -> StatusItemHandler {

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1347E8D5F4CEF31998F70A38 /* AboutUsConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C3F72BC79382FF96EEE5A0 /* AboutUsConstants.swift */; };
 		2B22BBF58EC6EFE2F5159679 /* AppearancePane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 785C05BDFEF43ED0FDCDB4AB /* AppearancePane.swift */; };
 		2C730CF80B07B133FA8FD8E7 /* DaybreakTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A198021445E6EAE46061FEC /* DaybreakTokens.swift */; };
 		3508CC9A259A0001000E3530 /* StatusItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3508CC99259A0001000E3530 /* StatusItemView.swift */; };
@@ -14,13 +15,6 @@
 		3508CCAA259A0027000E3530 /* StatusContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3508CCA9259A0027000E3530 /* StatusContainerView.swift */; };
 		35584D1827F0B019006E3EAD /* DateFormatterManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35584D1727F0B019006E3EAD /* DateFormatterManagerTests.swift */; };
 		35584D1A27F0B64E006E3EAD /* AppDelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35584D1927F0B64E006E3EAD /* AppDelegateTests.swift */; };
-		35621CFC27F66C1900926D5C /* SearchDataSourceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35621CFB27F66C1900926D5C /* SearchDataSourceTests.swift */; };
-		C175C175C175C175C1750003 /* CitySearchServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C175C175C175C175C1750004 /* CitySearchServiceTests.swift */; };
-		357391872507277500D30819 /* TimeMarkerViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357391852507277500D30819 /* TimeMarkerViewItem.swift */; };
-		357391882507277500D30819 /* HourMarkerViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 357391862507277500D30819 /* HourMarkerViewItem.xib */; };
-		3579765E2680208C009DDA6E /* ParentPanelController+ModernSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3579765D2680208C009DDA6E /* ParentPanelController+ModernSlider.swift */; };
-		3579765F2680208C009DDA6E /* ParentPanelController+Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3579765C2680208C009DDA6E /* ParentPanelController+Layout.swift */; };
-		357976602680208C009DDA6E /* ParentPanelController+Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3579765B2680208C009DDA6E /* ParentPanelController+Actions.swift */; };
 		3595FAD0227F88BC0044A12A /* UserDefaults + KVOExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3595FACF227F88BC0044A12A /* UserDefaults + KVOExtensions.swift */; };
 		35B2FEDD259A2291005DA84D /* CoreLoggerKit in Frameworks */ = {isa = PBXBuildFile; productRef = 35B2FEDC259A2291005DA84D /* CoreLoggerKit */; };
 		35B2FEF1259A2DB1005DA84D /* CoreModelKit in Frameworks */ = {isa = PBXBuildFile; productRef = 35B2FEF0259A2DB1005DA84D /* CoreModelKit */; };
@@ -36,37 +30,22 @@
 		35C36F18225961DA002FA5C6 /* Date+Comparators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F08225961DA002FA5C6 /* Date+Comparators.swift */; };
 		35C36F19225961DA002FA5C6 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F09225961DA002FA5C6 /* Enums.swift */; };
 		35C36F1A225961DA002FA5C6 /* Date+Manipulations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F0A225961DA002FA5C6 /* Date+Manipulations.swift */; };
-		35C36F2022596253002FA5C6 /* OneWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F1E22596253002FA5C6 /* OneWindowController.swift */; };
-		35C36F2122596253002FA5C6 /* AppearanceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F1F22596253002FA5C6 /* AppearanceViewController.swift */; };
-		35C36F2B2259D6FA002FA5C6 /* ParentPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F272259D6FA002FA5C6 /* ParentPanelController.swift */; };
-		35C36F2C2259D6FA002FA5C6 /* PanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F282259D6FA002FA5C6 /* PanelController.swift */; };
-		35C36F372259D7C3002FA5C6 /* AddTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F322259D7C3002FA5C6 /* AddTableViewCell.swift */; };
 		35C36F422259D892002FA5C6 /* Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F3A2259D892002FA5C6 /* Timer.swift */; };
 		35C36F452259D892002FA5C6 /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F3D2259D892002FA5C6 /* Strings.swift */; };
 		35C36F462259D892002FA5C6 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F3E2259D892002FA5C6 /* DataStore.swift */; };
 		35C36F482259D892002FA5C6 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F402259D892002FA5C6 /* NetworkManager.swift */; };
 		35C36F4E2259D981002FA5C6 /* DateFormatterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F4C2259D981002FA5C6 /* DateFormatterManager.swift */; };
 		35C36F4F2259D981002FA5C6 /* AppDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F4D2259D981002FA5C6 /* AppDefaults.swift */; };
-		35C36F572259DD8A002FA5C6 /* TimezoneDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F532259DD8A002FA5C6 /* TimezoneDataSource.swift */; };
-		35C36F582259DD8A002FA5C6 /* PanelTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F542259DD8A002FA5C6 /* PanelTableView.swift */; };
-		35C36F592259DD8A002FA5C6 /* TimezoneCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F552259DD8A002FA5C6 /* TimezoneCellView.swift */; };
-		35C36F5A2259DD8A002FA5C6 /* CustomPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F562259DD8A002FA5C6 /* CustomPanel.swift */; };
 		35C36F5D2259DD96002FA5C6 /* TimezoneDataOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F5B2259DD96002FA5C6 /* TimezoneDataOperations.swift */; };
-		35C36F6F2259E185002FA5C6 /* CustomSliderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F6C2259E185002FA5C6 /* CustomSliderCell.swift */; };
-		35C36F702259E185002FA5C6 /* BackgroundPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F6D2259E185002FA5C6 /* BackgroundPanelView.swift */; };
-		35C36F712259E185002FA5C6 /* NoTimezoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F6E2259E185002FA5C6 /* NoTimezoneView.swift */; };
 		35C36F772259E1D0002FA5C6 /* AppKit + Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F742259E1CF002FA5C6 /* AppKit + Additions.swift */; };
 		35C36F782259E1D0002FA5C6 /* Foundation + Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F752259E1CF002FA5C6 /* Foundation + Additions.swift */; };
 		35C36F792259E1D0002FA5C6 /* String + Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F762259E1CF002FA5C6 /* String + Additions.swift */; };
-		35C36F912259EAF4002FA5C6 /* Preferences.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 35C36F902259EAF4002FA5C6 /* Preferences.storyboard */; };
 		35C36FA42259EEC2002FA5C6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36FA32259EEC2002FA5C6 /* AppDelegate.swift */; };
 		35E65125268EDD2E00E3E1E3 /* Toasty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35E65124268EDD2E00E3E1E3 /* Toasty.swift */; };
-		3DEE1440C33BTZSORTINGTST /* TimezoneSortingManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DEE1440C33BTZSORTINGTST2 /* TimezoneSortingManagerTests.swift */; };
 		4726354D81E1NWMGRASYNCTS /* NetworkManagerAsyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */; };
 		5873E7194D70351E2442A779 /* DaybreakDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCC6DFEB0759DC6C7274F3D /* DaybreakDefaults.swift */; };
 		5ADE02988FD148209EA2A70A /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23D856F171624B8EBC360698 /* SettingsManager.swift */; };
 		65DA7585D285375EF297710E /* CitiesPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF07C2896C1B59A4DA2A71D /* CitiesPane.swift */; };
-		C175C175C175C175C1750001 /* CitySearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C175C175C175C175C1750002 /* CitySearchService.swift */; };
 		6A497829581D74BC67D8E0B0 /* CityListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7CA7A6FFF7E03E263EDAAB2 /* CityListModel.swift */; };
 		7D358619731E5E0BB57F42FD /* DaybreakViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F07E77F40B9B35D281AB17B /* DaybreakViewModel.swift */; };
 		818B546B7B8B47D88692CD80 /* GlobalShortcutMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC776853CC4796AD9A1DC6 /* GlobalShortcutMonitor.swift */; };
@@ -76,7 +55,6 @@
 		919639F9D2F3GLOBALSHRTCUT /* GlobalShortcutMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */; };
 		9218AD8C74DEC9F8B61FDE0D /* DaybreakCityRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B267A5521577F184518ED6A /* DaybreakCityRow.swift */; };
 		9A0A1C8C20903DBD0012003B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A9E87651C1FEDC500A7A2DF /* CoreLocation.framework */; };
-		9A13BAD61CA87F08007C6CBE /* Panel.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9A13BAD81CA87F08007C6CBE /* Panel.xib */; };
 		9A13BAE01CA882FA007C6CBE /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = EE11AA0100INFOPLISTXCS1 /* InfoPlist.xcstrings */; };
 		9A13BAEA1CA88A76007C6CBE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = EE11AA0100LOCALIZBLEXCS1 /* Localizable.xcstrings */; };
 		9A20A04B1C4DEED200FB45AB /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A20A04A1C4DEED200FB45AB /* IOKit.framework */; };
@@ -88,45 +66,32 @@
 		9A9E87621C1FEDB500A7A2DF /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A9E87611C1FEDB500A7A2DF /* CFNetwork.framework */; };
 		9A9E876A1C1FEDDB00A7A2DF /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A9E87691C1FEDDB00A7A2DF /* SystemConfiguration.framework */; };
 		9AA522C023415BDD00C9E005 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = EE11AA0100INFOPLISTXCS1 /* InfoPlist.xcstrings */; };
-		9AB6F1582259CFFC00A44663 /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB6F1572259CFFC00A44663 /* AboutViewController.swift */; };
-		9AB6F1612259D1B000A44663 /* PreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB6F15F2259D1B000A44663 /* PreferencesViewController.swift */; };
-		9AB6F1622259D1B000A44663 /* PreferencesDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB6F1602259D1B000A44663 /* PreferencesDataSource.swift */; };
-		9AB6F1642259D1B900A44663 /* ParentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB6F1632259D1B800A44663 /* ParentViewController.swift */; };
 		9AB89E031CE97A4900EC8EB1 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9AB89E021CE97A4900EC8EB1 /* Media.xcassets */; };
 		9ABF455B268FDABA002C779B /* CopyToClipboardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ABF4559268FDABA002C779B /* CopyToClipboardTests.swift */; };
 		9ABFB3801CA6882000E10745 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9ABFB37F1CA6882000E10745 /* ApplicationServices.framework */; };
 		9AC678E41C1ABAB9003B4F6B /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC678E31C1ABAB9003B4F6B /* QuartzCore.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		9ACF469D1DCBD45200C49B51 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9ACF469C1DCBD45200C49B51 /* Quartz.framework */; };
-		9ACF618D231DABAE00F5E51E /* SearchDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF618C231DABAE00F5E51E /* SearchDataSource.swift */; };
 		9AFFEE0001000000MAPKITBF /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AFFEE0002000000MAPKITFR /* MapKit.framework */; };
 		9AFFEE0003000000GEOSVCBF /* GeocodingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFFEE0004000000GEOSVCFR /* GeocodingService.swift */; };
 		9AFFEE0005000000GEOTSTBF /* GeocodingServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFFEE0006000000GEOTSTFR /* GeocodingServiceTests.swift */; };
 		A1B2C3D400000001MOCK0001 /* MockURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D400000002MOCK0002 /* MockURLProtocol.swift */; };
 		A1B2C3D400000003NWTEST01 /* NetworkManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D400000004NWTEST02 /* NetworkManagerTests.swift */; };
-		A1B2C3D4E5F60002SEARCH02 /* TimezoneSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60001SEARCH01 /* TimezoneSearchService.swift */; };
-		A1B2C3D4E5F6A7B8C9D0E1F2 /* PanelDragHandleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F3 /* PanelDragHandleView.swift */; };
 		A3F8F2E857A598EBE486E0BF /* SunMoonDisc.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30F79A6035950B04509CDBC /* SunMoonDisc.swift */; };
 		A57187E72A5C9354E98EDD04 /* DaybreakEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE32A2F3B4B0AACCC2B86DB /* DaybreakEngineTests.swift */; };
-		AA000001SWIFTUI00000001 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000002SWIFTUI00000001 /* AboutView.swift */; };
-		AA00000400000002PREFSTB1 /* PreferencesStoryboardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000400000001PREFSTB2 /* PreferencesStoryboardTests.swift */; };
-		AA000011MODERN00000001 /* ModernSliderViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000010MODERN00000001 /* ModernSliderViews.swift */; };
 		AA000013STARTU00000001 /* StartupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000012STARTU00000001 /* StartupManager.swift */; };
-		AA1B2C3D0002000000000001 /* TimezoneSortingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D0001000000000001 /* TimezoneSortingManager.swift */; };
 		AC11AA0100MBDTESTS00001 /* MenubarBlockDetectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC11AA0100MBDTESTS00002 /* MenubarBlockDetectionTests.swift */; };
-		B1C2D3E40002000000TZADD1 /* TimezoneAdditionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E40001000000TZADD2 /* TimezoneAdditionHandler.swift */; };
 		B4C63196324AE1E678CCDE91 /* DaybreakScrubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39808930164A8404E6C52BE9 /* DaybreakScrubber.swift */; };
 		B730E37E4596MOCKDATASTORE /* MockDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B730E37E4596MOCKDATASTO2 /* MockDataStore.swift */; };
 		BB00000100LOCCTRL00TEST1 /* LocationControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100LOCCTRL00TEST2 /* LocationControllerTests.swift */; };
-		C1C2D3E40002000000CHKBX1 /* CenteredCheckboxCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C2D3E40001000000CHKBX2 /* CenteredCheckboxCell.swift */; };
+		C175C175C175C175C1750001 /* CitySearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C175C175C175C175C1750002 /* CitySearchService.swift */; };
+		C175C175C175C175C1750003 /* CitySearchServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C175C175C175C175C1750004 /* CitySearchServiceTests.swift */; };
 		C20839CA21515C1E00C86589 /* MeridianUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20839C921515C1E00C86589 /* MeridianUnitTests.swift */; };
 		C22F3D802107778A0001D5E1 /* ShortcutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22F3D7F2107778A0001D5E1 /* ShortcutTests.swift */; };
 		C264A0C520B897D800CCD875 /* PreferencesTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C264A0C420B897D800CCD875 /* PreferencesTest.swift */; };
 		C264A0C820B898D600CCD875 /* PanelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C264A0C720B898D600CCD875 /* PanelTests.swift */; };
-		C2C2D3E40002000000VCTFC1 /* VerticallyCenteredTextFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C2D3E40001000000VCTFC2 /* VerticallyCenteredTextFieldCell.swift */; };
 		C2CCCD8220619C4C00F2DFC2 /* LocationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2CCCD8120619C4C00F2DFC2 /* LocationController.swift */; };
 		C2F7821B20B70E3700B6CD07 /* AboutUsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F7821A20B70E3700B6CD07 /* AboutUsTests.swift */; };
 		C31BD08A823D4B94BC9C69AC /* ShortcutRecorderButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0A19BB308FC4CDEA6F6878A /* ShortcutRecorderButton.swift */; };
-		C4A3D93099C54195A921944E /* PanelContextMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527EBAA6C18049AE931DDE49 /* PanelContextMenu.swift */; };
 		C4D1C9B97D359CF25B20A80D /* TimeTravelPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 170C4F75A6E553A4D3A5A788 /* TimeTravelPane.swift */; };
 		CC11AA0100TZDATAOPSTEST1 /* TimezoneDataOperationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC11AA0100TZDATAOPSTEST2 /* TimezoneDataOperationsTests.swift */; };
 		D20426773C34F2E92954A92A /* DaybreakEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E678C0F403D43F32D0A8C97 /* DaybreakEngine.swift */; };
@@ -135,8 +100,6 @@
 		DD4F7C0913C30F9F00825C6E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD4F7C0813C30F9F00825C6E /* Cocoa.framework */; };
 		DDADCE5AAC06C9C49B95437D /* DaybreakPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69CEC060FCB1C9A401226751 /* DaybreakPanelController.swift */; };
 		E0FFE8F0A401DAE3DBC1157D /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59724D2CB4F4C39995843DE /* SettingsWindowController.swift */; };
-		E1F2A3B400TMSCRLRVM0001 /* TimeScrollerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B400TMSCRLRVM0002 /* TimeScrollerViewModel.swift */; };
-		E1F2A3B400TMSCRLRVMTST1 /* TimeScrollerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B400TMSCRLRVMTST2 /* TimeScrollerViewModelTests.swift */; };
 		EB152B4C7DFFC31A76D5A837 /* MenuBarPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B003FDDEFA58885064478B2 /* MenuBarPane.swift */; };
 		EE11AA0100ACCENTSWIZL01 /* AccentColorSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE11AA0100ACCENTSWIZL02 /* AccentColorSwizzler.swift */; };
 		EE689CC81F44B7AF616E49AF /* DaybreakHeroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B012D2C492832014C31EC314 /* DaybreakHeroView.swift */; };
@@ -175,13 +138,6 @@
 		3508CCA9259A0027000E3530 /* StatusContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusContainerView.swift; sourceTree = "<group>"; };
 		35584D1727F0B019006E3EAD /* DateFormatterManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatterManagerTests.swift; sourceTree = "<group>"; };
 		35584D1927F0B64E006E3EAD /* AppDelegateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegateTests.swift; sourceTree = "<group>"; };
-		35621CFB27F66C1900926D5C /* SearchDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchDataSourceTests.swift; sourceTree = "<group>"; };
-		C175C175C175C175C1750004 /* CitySearchServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitySearchServiceTests.swift; sourceTree = "<group>"; };
-		357391852507277500D30819 /* TimeMarkerViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeMarkerViewItem.swift; sourceTree = "<group>"; };
-		357391862507277500D30819 /* HourMarkerViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HourMarkerViewItem.xib; sourceTree = "<group>"; };
-		3579765B2680208C009DDA6E /* ParentPanelController+Actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ParentPanelController+Actions.swift"; sourceTree = "<group>"; };
-		3579765C2680208C009DDA6E /* ParentPanelController+Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ParentPanelController+Layout.swift"; sourceTree = "<group>"; };
-		3579765D2680208C009DDA6E /* ParentPanelController+ModernSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ParentPanelController+ModernSlider.swift"; sourceTree = "<group>"; };
 		3595FACF227F88BC0044A12A /* UserDefaults + KVOExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults + KVOExtensions.swift"; sourceTree = "<group>"; };
 		35B2FED4259A2244005DA84D /* CoreLoggerKit */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CoreLoggerKit; sourceTree = "<group>"; };
 		35B2FEE4259A2C25005DA84D /* CoreModelKit */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CoreModelKit; sourceTree = "<group>"; };
@@ -197,44 +153,29 @@
 		35C36F08225961DA002FA5C6 /* Date+Comparators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Date+Comparators.swift"; sourceTree = "<group>"; };
 		35C36F09225961DA002FA5C6 /* Enums.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
 		35C36F0A225961DA002FA5C6 /* Date+Manipulations.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Date+Manipulations.swift"; sourceTree = "<group>"; };
-		35C36F1E22596253002FA5C6 /* OneWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OneWindowController.swift; sourceTree = "<group>"; };
-		35C36F1F22596253002FA5C6 /* AppearanceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppearanceViewController.swift; sourceTree = "<group>"; };
-		35C36F272259D6FA002FA5C6 /* ParentPanelController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParentPanelController.swift; sourceTree = "<group>"; };
-		35C36F282259D6FA002FA5C6 /* PanelController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanelController.swift; sourceTree = "<group>"; };
-		35C36F322259D7C3002FA5C6 /* AddTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddTableViewCell.swift; sourceTree = "<group>"; };
 		35C36F3A2259D892002FA5C6 /* Timer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timer.swift; sourceTree = "<group>"; };
 		35C36F3D2259D892002FA5C6 /* Strings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		35C36F3E2259D892002FA5C6 /* DataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
 		35C36F402259D892002FA5C6 /* NetworkManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		35C36F4C2259D981002FA5C6 /* DateFormatterManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateFormatterManager.swift; sourceTree = "<group>"; };
 		35C36F4D2259D981002FA5C6 /* AppDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDefaults.swift; sourceTree = "<group>"; };
-		35C36F532259DD8A002FA5C6 /* TimezoneDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimezoneDataSource.swift; sourceTree = "<group>"; };
-		35C36F542259DD8A002FA5C6 /* PanelTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanelTableView.swift; sourceTree = "<group>"; };
-		35C36F552259DD8A002FA5C6 /* TimezoneCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimezoneCellView.swift; sourceTree = "<group>"; };
-		35C36F562259DD8A002FA5C6 /* CustomPanel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomPanel.swift; sourceTree = "<group>"; };
 		35C36F5B2259DD96002FA5C6 /* TimezoneDataOperations.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimezoneDataOperations.swift; sourceTree = "<group>"; };
-		35C36F6C2259E185002FA5C6 /* CustomSliderCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSliderCell.swift; sourceTree = "<group>"; };
-		35C36F6D2259E185002FA5C6 /* BackgroundPanelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundPanelView.swift; sourceTree = "<group>"; };
-		35C36F6E2259E185002FA5C6 /* NoTimezoneView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoTimezoneView.swift; sourceTree = "<group>"; };
 		35C36F742259E1CF002FA5C6 /* AppKit + Additions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AppKit + Additions.swift"; sourceTree = "<group>"; };
 		35C36F752259E1CF002FA5C6 /* Foundation + Additions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Foundation + Additions.swift"; sourceTree = "<group>"; };
 		35C36F762259E1CF002FA5C6 /* String + Additions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String + Additions.swift"; sourceTree = "<group>"; };
-		35C36F902259EAF4002FA5C6 /* Preferences.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Preferences.storyboard; sourceTree = "<group>"; };
 		35C36FA32259EEC2002FA5C6 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = SOURCE_ROOT; };
 		35E65124268EDD2E00E3E1E3 /* Toasty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toasty.swift; sourceTree = "<group>"; };
 		39808930164A8404E6C52BE9 /* DaybreakScrubber.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakScrubber.swift; sourceTree = "<group>"; };
-		3DEE1440C33BTZSORTINGTST2 /* TimezoneSortingManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneSortingManagerTests.swift; sourceTree = "<group>"; };
 		4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManagerAsyncTests.swift; sourceTree = "<group>"; };
 		4B003FDDEFA58885064478B2 /* MenuBarPane.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MenuBarPane.swift; sourceTree = "<group>"; };
 		521A64985874687A5A3FA691 /* DaybreakComputation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakComputation.swift; sourceTree = "<group>"; };
-		527EBAA6C18049AE931DDE49 /* PanelContextMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelContextMenu.swift; sourceTree = "<group>"; };
+		63C3F72BC79382FF96EEE5A0 /* AboutUsConstants.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AboutUsConstants.swift; sourceTree = "<group>"; };
 		69CEC060FCB1C9A401226751 /* DaybreakPanelController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakPanelController.swift; sourceTree = "<group>"; };
 		785C05BDFEF43ED0FDCDB4AB /* AppearancePane.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppearancePane.swift; sourceTree = "<group>"; };
 		8A198021445E6EAE46061FEC /* DaybreakTokens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakTokens.swift; sourceTree = "<group>"; };
 		8CE32A2F3B4B0AACCC2B86DB /* DaybreakEngineTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakEngineTests.swift; sourceTree = "<group>"; };
 		8F07E77F40B9B35D281AB17B /* DaybreakViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakViewModel.swift; sourceTree = "<group>"; };
 		919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalShortcutMonitorTests.swift; sourceTree = "<group>"; };
-		9A13BAD71CA87F08007C6CBE /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/Panel.xib; sourceTree = "<group>"; };
 		9A20A04A1C4DEED200FB45AB /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		9A20A06F1C4E804D00FB45AB /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
 		9A3169C01D2CC5AA0079FDF8 /* com.tpak.MeridianHelper.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = com.tpak.MeridianHelper.plist; path = App/com.tpak.MeridianHelper.plist; sourceTree = "<group>"; };
@@ -250,16 +191,11 @@
 		9A9E87671C1FEDD300A7A2DF /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		9A9E87691C1FEDDB00A7A2DF /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		9A9E876B1C1FEDE700A7A2DF /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
-		9AB6F1572259CFFC00A44663 /* AboutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
-		9AB6F15F2259D1B000A44663 /* PreferencesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferencesViewController.swift; sourceTree = "<group>"; };
-		9AB6F1602259D1B000A44663 /* PreferencesDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferencesDataSource.swift; sourceTree = "<group>"; };
-		9AB6F1632259D1B800A44663 /* ParentViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParentViewController.swift; sourceTree = "<group>"; };
 		9AB89E021CE97A4900EC8EB1 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 		9ABF4559268FDABA002C779B /* CopyToClipboardTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CopyToClipboardTests.swift; sourceTree = "<group>"; };
 		9ABFB37F1CA6882000E10745 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
 		9AC678E31C1ABAB9003B4F6B /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		9ACF469C1DCBD45200C49B51 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
-		9ACF618C231DABAE00F5E51E /* SearchDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchDataSource.swift; sourceTree = "<group>"; };
 		9AFFEE0002000000MAPKITFR /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		9AFFEE0004000000GEOSVCFR /* GeocodingService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeocodingService.swift; sourceTree = "<group>"; };
 		9AFFEE0006000000GEOTSTFR /* GeocodingServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeocodingServiceTests.swift; sourceTree = "<group>"; };
@@ -267,24 +203,17 @@
 		9FEC776853CC4796AD9A1DC6 /* GlobalShortcutMonitor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlobalShortcutMonitor.swift; sourceTree = "<group>"; };
 		A1B2C3D400000002MOCK0002 /* MockURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockURLProtocol.swift; sourceTree = "<group>"; };
 		A1B2C3D400000004NWTEST02 /* NetworkManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManagerTests.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F60001SEARCH01 /* TimezoneSearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneSearchService.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6A7B8C9D0E1F3 /* PanelDragHandleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanelDragHandleView.swift; sourceTree = "<group>"; };
-		AA000002SWIFTUI00000001 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
-		AA00000400000001PREFSTB2 /* PreferencesStoryboardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesStoryboardTests.swift; sourceTree = "<group>"; };
-		AA000010MODERN00000001 /* ModernSliderViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModernSliderViews.swift; sourceTree = "<group>"; };
 		AA000012STARTU00000001 /* StartupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupManager.swift; sourceTree = "<group>"; };
-		AA1B2C3D0001000000000001 /* TimezoneSortingManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimezoneSortingManager.swift; sourceTree = "<group>"; };
 		ABCC6DFEB0759DC6C7274F3D /* DaybreakDefaults.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakDefaults.swift; sourceTree = "<group>"; };
 		ABF07C2896C1B59A4DA2A71D /* CitiesPane.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CitiesPane.swift; sourceTree = "<group>"; };
-		C175C175C175C175C1750002 /* CitySearchService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CitySearchService.swift; sourceTree = "<group>"; };
 		AC11AA0100MBDTESTS00002 /* MenubarBlockDetectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarBlockDetectionTests.swift; sourceTree = "<group>"; };
 		B012D2C492832014C31EC314 /* DaybreakHeroView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakHeroView.swift; sourceTree = "<group>"; };
-		B1C2D3E40001000000TZADD2 /* TimezoneAdditionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneAdditionHandler.swift; sourceTree = "<group>"; };
 		B30F79A6035950B04509CDBC /* SunMoonDisc.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SunMoonDisc.swift; sourceTree = "<group>"; };
 		B59724D2CB4F4C39995843DE /* SettingsWindowController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
 		B730E37E4596MOCKDATASTO2 /* MockDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDataStore.swift; sourceTree = "<group>"; };
 		BB00000100LOCCTRL00TEST2 /* LocationControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationControllerTests.swift; sourceTree = "<group>"; };
-		C1C2D3E40001000000CHKBX2 /* CenteredCheckboxCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CenteredCheckboxCell.swift; sourceTree = "<group>"; };
+		C175C175C175C175C1750002 /* CitySearchService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CitySearchService.swift; sourceTree = "<group>"; };
+		C175C175C175C175C1750004 /* CitySearchServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitySearchServiceTests.swift; sourceTree = "<group>"; };
 		C20839C721515C1E00C86589 /* MeridianUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeridianUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C20839C921515C1E00C86589 /* MeridianUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeridianUnitTests.swift; sourceTree = "<group>"; };
 		C20839CB21515C1F00C86589 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -293,7 +222,6 @@
 		C264A0C720B898D600CCD875 /* PanelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelTests.swift; sourceTree = "<group>"; };
 		C2BFE3E32049F82300825BE5 /* MeridianUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeridianUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2BFE3E72049F82300825BE5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C2C2D3E40001000000VCTFC2 /* VerticallyCenteredTextFieldCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticallyCenteredTextFieldCell.swift; sourceTree = "<group>"; };
 		C2CCCD8120619C4C00F2DFC2 /* LocationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LocationController.swift; path = App/LocationController.swift; sourceTree = "<group>"; };
 		C2F7821A20B70E3700B6CD07 /* AboutUsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutUsTests.swift; sourceTree = "<group>"; };
 		C3D5CD384414D1E2250F108B /* GeneralPane.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GeneralPane.swift; sourceTree = "<group>"; };
@@ -303,8 +231,6 @@
 		DD4F7C0813C30F9F00825C6E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		DD4F7C0B13C30F9F00825C6E /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		E0A19BB308FC4CDEA6F6878A /* ShortcutRecorderButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcutRecorderButton.swift; sourceTree = "<group>"; };
-		E1F2A3B400TMSCRLRVM0002 /* TimeScrollerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeScrollerViewModel.swift; sourceTree = "<group>"; };
-		E1F2A3B400TMSCRLRVMTST2 /* TimeScrollerViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeScrollerViewModelTests.swift; sourceTree = "<group>"; };
 		E7CA7A6FFF7E03E263EDAAB2 /* CityListModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CityListModel.swift; sourceTree = "<group>"; };
 		EE11AA0100ACCENTSWIZL02 /* AccentColorSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AccentColorSwizzler.swift; path = App/AccentColorSwizzler.swift; sourceTree = "<group>"; };
 		EE11AA0100INFOPLISTXCS1 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = InfoPlist.xcstrings; path = App/InfoPlist.xcstrings; sourceTree = "<group>"; };
@@ -404,9 +330,6 @@
 				9AB6F1532259CF0300A44663 /* General */,
 				9AB6F1522259CEF400A44663 /* Appearance */,
 				9AB6F1512259CEE300A44663 /* Calendar */,
-				35C36F1E22596253002FA5C6 /* OneWindowController.swift */,
-				9AB6F1632259D1B800A44663 /* ParentViewController.swift */,
-				35C36F902259EAF4002FA5C6 /* Preferences.storyboard */,
 				35C36EDF22595D9C002FA5C6 /* Menu Bar */,
 				AA000012STARTU00000001 /* StartupManager.swift */,
 				BAC94748EBD100EB552FBB12 /* V4Settings */,
@@ -422,12 +345,6 @@
 				35C36F522259DC9B002FA5C6 /* UI */,
 				35C36F512259DC85002FA5C6 /* Data Layer */,
 				35C36F502259DC7C002FA5C6 /* Notes Popover */,
-				35C36F282259D6FA002FA5C6 /* PanelController.swift */,
-				35C36F272259D6FA002FA5C6 /* ParentPanelController.swift */,
-				3579765D2680208C009DDA6E /* ParentPanelController+ModernSlider.swift */,
-				3579765C2680208C009DDA6E /* ParentPanelController+Layout.swift */,
-				3579765B2680208C009DDA6E /* ParentPanelController+Actions.swift */,
-				527EBAA6C18049AE931DDE49 /* PanelContextMenu.swift */,
 				8D286B7FC0DDC82B3D3E9F8B /* Daybreak */,
 			);
 			path = Panel;
@@ -448,7 +365,6 @@
 				35C36F402259D892002FA5C6 /* NetworkManager.swift */,
 				9AFFEE0004000000GEOSVCFR /* GeocodingService.swift */,
 				35C36F3D2259D892002FA5C6 /* Strings.swift */,
-				A1B2C3D4E5F60001SEARCH01 /* TimezoneSearchService.swift */,
 				35C36F3A2259D892002FA5C6 /* Timer.swift */,
 				3595FACF227F88BC0044A12A /* UserDefaults + KVOExtensions.swift */,
 			);
@@ -466,7 +382,6 @@
 			isa = PBXGroup;
 			children = (
 				35C36F5B2259DD96002FA5C6 /* TimezoneDataOperations.swift */,
-				E1F2A3B400TMSCRLRVM0002 /* TimeScrollerViewModel.swift */,
 			);
 			path = "Data Layer";
 			sourceTree = "<group>";
@@ -474,17 +389,6 @@
 		35C36F522259DC9B002FA5C6 /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				35C36F6D2259E185002FA5C6 /* BackgroundPanelView.swift */,
-				A1B2C3D4E5F6A7B8C9D0E1F3 /* PanelDragHandleView.swift */,
-				35C36F6C2259E185002FA5C6 /* CustomSliderCell.swift */,
-				35C36F6E2259E185002FA5C6 /* NoTimezoneView.swift */,
-				35C36F562259DD8A002FA5C6 /* CustomPanel.swift */,
-				35C36F542259DD8A002FA5C6 /* PanelTableView.swift */,
-				35C36F552259DD8A002FA5C6 /* TimezoneCellView.swift */,
-				35C36F532259DD8A002FA5C6 /* TimezoneDataSource.swift */,
-				35C36F322259D7C3002FA5C6 /* AddTableViewCell.swift */,
-				357391852507277500D30819 /* TimeMarkerViewItem.swift */,
-				357391862507277500D30819 /* HourMarkerViewItem.xib */,
 				35E65124268EDD2E00E3E1E3 /* Toasty.swift */,
 			);
 			path = UI;
@@ -493,7 +397,6 @@
 		35C36F632259DE9D002FA5C6 /* Modern Slider */ = {
 			isa = PBXGroup;
 			children = (
-				AA000010MODERN00000001 /* ModernSliderViews.swift */,
 			);
 			path = "Modern Slider";
 			sourceTree = "<group>";
@@ -535,7 +438,6 @@
 			isa = PBXGroup;
 			children = (
 				9A56DB7D1C1CFB73004CE6AF /* MainMenu.xib */,
-				9A13BAD81CA87F08007C6CBE /* Panel.xib */,
 			);
 			name = XIB;
 			sourceTree = "<group>";
@@ -557,7 +459,6 @@
 		9AB6F1522259CEF400A44663 /* Appearance */ = {
 			isa = PBXGroup;
 			children = (
-				35C36F1F22596253002FA5C6 /* AppearanceViewController.swift */,
 			);
 			path = Appearance;
 			sourceTree = "<group>";
@@ -566,14 +467,7 @@
 			isa = PBXGroup;
 			children = (
 				9AB6F1682259D26400A44663 /* Models */,
-				9AB6F1602259D1B000A44663 /* PreferencesDataSource.swift */,
-				9AB6F15F2259D1B000A44663 /* PreferencesViewController.swift */,
 				E0A19BB308FC4CDEA6F6878A /* ShortcutRecorderButton.swift */,
-				9ACF618C231DABAE00F5E51E /* SearchDataSource.swift */,
-				AA1B2C3D0001000000000001 /* TimezoneSortingManager.swift */,
-				B1C2D3E40001000000TZADD2 /* TimezoneAdditionHandler.swift */,
-				C1C2D3E40001000000CHKBX2 /* CenteredCheckboxCell.swift */,
-				C2C2D3E40001000000VCTFC2 /* VerticallyCenteredTextFieldCell.swift */,
 			);
 			path = General;
 			sourceTree = "<group>";
@@ -581,8 +475,6 @@
 		9AB6F1542259CF1B00A44663 /* About */ = {
 			isa = PBXGroup;
 			children = (
-				9AB6F1572259CFFC00A44663 /* AboutViewController.swift */,
-				AA000002SWIFTUI00000001 /* AboutView.swift */,
 			);
 			path = About;
 			sourceTree = "<group>";
@@ -620,6 +512,7 @@
 				785C05BDFEF43ED0FDCDB4AB /* AppearancePane.swift */,
 				170C4F75A6E553A4D3A5A788 /* TimeTravelPane.swift */,
 				C3D5CD384414D1E2250F108B /* GeneralPane.swift */,
+				63C3F72BC79382FF96EEE5A0 /* AboutUsConstants.swift */,
 			);
 			name = V4Settings;
 			path = V4Settings;
@@ -633,19 +526,15 @@
 				35584D1727F0B019006E3EAD /* DateFormatterManagerTests.swift */,
 				35584D1927F0B64E006E3EAD /* AppDelegateTests.swift */,
 				BB00000100LOCCTRL00TEST2 /* LocationControllerTests.swift */,
-				35621CFB27F66C1900926D5C /* SearchDataSourceTests.swift */,
 				C175C175C175C175C1750004 /* CitySearchServiceTests.swift */,
 				A1B2C3D400000002MOCK0002 /* MockURLProtocol.swift */,
 				A1B2C3D400000004NWTEST02 /* NetworkManagerTests.swift */,
 				B730E37E4596MOCKDATASTO2 /* MockDataStore.swift */,
 				FF11AA0100TESTFIXTURES02 /* TestFixtures.swift */,
 				AC11AA0100MBDTESTS00002 /* MenubarBlockDetectionTests.swift */,
-				3DEE1440C33BTZSORTINGTST2 /* TimezoneSortingManagerTests.swift */,
 				919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */,
 				4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */,
 				9AFFEE0006000000GEOTSTFR /* GeocodingServiceTests.swift */,
-				E1F2A3B400TMSCRLRVMTST2 /* TimeScrollerViewModelTests.swift */,
-				AA00000400000001PREFSTB2 /* PreferencesStoryboardTests.swift */,
 				CC11AA0100TZDATAOPSTEST2 /* TimezoneDataOperationsTests.swift */,
 				DD11AA0100LOCALIZTNTEST2 /* LocalizationTests.swift */,
 				8CE32A2F3B4B0AACCC2B86DB /* DaybreakEngineTests.swift */,
@@ -876,11 +765,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A13BAEA1CA88A76007C6CBE /* Localizable.xcstrings in Resources */,
-				357391882507277500D30819 /* HourMarkerViewItem.xib in Resources */,
 				9A13BAE01CA882FA007C6CBE /* InfoPlist.xcstrings in Resources */,
-				35C36F912259EAF4002FA5C6 /* Preferences.storyboard in Resources */,
 				9AB89E031CE97A4900EC8EB1 /* Media.xcassets in Resources */,
-				9A13BAD61CA87F08007C6CBE /* Panel.xib in Resources */,
 				35C36F17225961DA002FA5C6 /* DateTools.bundle in Resources */,
 				9A3169C11D2CC5AA0079FDF8 /* com.tpak.MeridianHelper.plist in Resources */,
 				9A56DB801C1CFB73004CE6AF /* MainMenu.xib in Resources */,
@@ -896,7 +782,6 @@
 			files = (
 				35584D1A27F0B64E006E3EAD /* AppDelegateTests.swift in Sources */,
 				BB00000100LOCCTRL00TEST1 /* LocationControllerTests.swift in Sources */,
-				35621CFC27F66C1900926D5C /* SearchDataSourceTests.swift in Sources */,
 				C175C175C175C175C1750003 /* CitySearchServiceTests.swift in Sources */,
 				35584D1827F0B019006E3EAD /* DateFormatterManagerTests.swift in Sources */,
 				C20839CA21515C1E00C86589 /* MeridianUnitTests.swift in Sources */,
@@ -905,12 +790,9 @@
 				B730E37E4596MOCKDATASTORE /* MockDataStore.swift in Sources */,
 				FF11AA0100TESTFIXTURES01 /* TestFixtures.swift in Sources */,
 				AC11AA0100MBDTESTS00001 /* MenubarBlockDetectionTests.swift in Sources */,
-				3DEE1440C33BTZSORTINGTST /* TimezoneSortingManagerTests.swift in Sources */,
 				919639F9D2F3GLOBALSHRTCUT /* GlobalShortcutMonitorTests.swift in Sources */,
 				4726354D81E1NWMGRASYNCTS /* NetworkManagerAsyncTests.swift in Sources */,
 				9AFFEE0005000000GEOTSTBF /* GeocodingServiceTests.swift in Sources */,
-				E1F2A3B400TMSCRLRVMTST1 /* TimeScrollerViewModelTests.swift in Sources */,
-				AA00000400000002PREFSTB1 /* PreferencesStoryboardTests.swift in Sources */,
 				CC11AA0100TZDATAOPSTEST1 /* TimezoneDataOperationsTests.swift in Sources */,
 				DD11AA0100LOCALIZTNTEST1 /* LocalizationTests.swift in Sources */,
 				A57187E72A5C9354E98EDD04 /* DaybreakEngineTests.swift in Sources */,
@@ -933,70 +815,39 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9AB6F1622259D1B000A44663 /* PreferencesDataSource.swift in Sources */,
 				3508CC9A259A0001000E3530 /* StatusItemView.swift in Sources */,
-				35C36F6F2259E185002FA5C6 /* CustomSliderCell.swift in Sources */,
 				35C36F13225961DA002FA5C6 /* Date+TimeAgo.swift in Sources */,
 				35C36F14225961DA002FA5C6 /* Integer+DateTools.swift in Sources */,
 				35C36F15225961DA002FA5C6 /* TimeChunk.swift in Sources */,
 				35C36F19225961DA002FA5C6 /* Enums.swift in Sources */,
 				5ADE02988FD148209EA2A70A /* SettingsManager.swift in Sources */,
 				35C36F452259D892002FA5C6 /* Strings.swift in Sources */,
-				357391872507277500D30819 /* TimeMarkerViewItem.swift in Sources */,
 				35C36F782259E1D0002FA5C6 /* Foundation + Additions.swift in Sources */,
 				35C36F16225961DA002FA5C6 /* Date+Inits.swift in Sources */,
 				35C36F4F2259D981002FA5C6 /* AppDefaults.swift in Sources */,
 				35C36F5D2259DD96002FA5C6 /* TimezoneDataOperations.swift in Sources */,
-				E1F2A3B400TMSCRLRVM0001 /* TimeScrollerViewModel.swift in Sources */,
 				35C36F792259E1D0002FA5C6 /* String + Additions.swift in Sources */,
 				35C36F422259D892002FA5C6 /* Timer.swift in Sources */,
 				35C36F772259E1D0002FA5C6 /* AppKit + Additions.swift in Sources */,
-				35C36F702259E185002FA5C6 /* BackgroundPanelView.swift in Sources */,
-				A1B2C3D4E5F6A7B8C9D0E1F2 /* PanelDragHandleView.swift in Sources */,
-				9AB6F1582259CFFC00A44663 /* AboutViewController.swift in Sources */,
-				AA000001SWIFTUI00000001 /* AboutView.swift in Sources */,
-				35C36F2122596253002FA5C6 /* AppearanceViewController.swift in Sources */,
-				35C36F372259D7C3002FA5C6 /* AddTableViewCell.swift in Sources */,
 				35C36F12225961DA002FA5C6 /* Date+Components.swift in Sources */,
-				35C36F2C2259D6FA002FA5C6 /* PanelController.swift in Sources */,
 				35C36F10225961DA002FA5C6 /* Constants.swift in Sources */,
 				35C36FA42259EEC2002FA5C6 /* AppDelegate.swift in Sources */,
-				35C36F5A2259DD8A002FA5C6 /* CustomPanel.swift in Sources */,
-				35C36F712259E185002FA5C6 /* NoTimezoneView.swift in Sources */,
-				35C36F2B2259D6FA002FA5C6 /* ParentPanelController.swift in Sources */,
-				35C36F582259DD8A002FA5C6 /* PanelTableView.swift in Sources */,
 				35C36F18225961DA002FA5C6 /* Date+Comparators.swift in Sources */,
 				35C36F1A225961DA002FA5C6 /* Date+Manipulations.swift in Sources */,
-				35C36F572259DD8A002FA5C6 /* TimezoneDataSource.swift in Sources */,
 				35C36F462259D892002FA5C6 /* DataStore.swift in Sources */,
-				9ACF618D231DABAE00F5E51E /* SearchDataSource.swift in Sources */,
 				3508CC9F259A000E000E3530 /* StatusItemHandler.swift in Sources */,
 				35E65125268EDD2E00E3E1E3 /* Toasty.swift in Sources */,
 				C2CCCD8220619C4C00F2DFC2 /* LocationController.swift in Sources */,
 				EE11AA0100ACCENTSWIZL01 /* AccentColorSwizzler.swift in Sources */,
 				3595FAD0227F88BC0044A12A /* UserDefaults + KVOExtensions.swift in Sources */,
-				9AB6F1612259D1B000A44663 /* PreferencesViewController.swift in Sources */,
 				818B546B7B8B47D88692CD80 /* GlobalShortcutMonitor.swift in Sources */,
 				C31BD08A823D4B94BC9C69AC /* ShortcutRecorderButton.swift in Sources */,
-				AA1B2C3D0002000000000001 /* TimezoneSortingManager.swift in Sources */,
-				B1C2D3E40002000000TZADD1 /* TimezoneAdditionHandler.swift in Sources */,
-				C1C2D3E40002000000CHKBX1 /* CenteredCheckboxCell.swift in Sources */,
-				C2C2D3E40002000000VCTFC1 /* VerticallyCenteredTextFieldCell.swift in Sources */,
-				35C36F2022596253002FA5C6 /* OneWindowController.swift in Sources */,
 				35C36F0E225961DA002FA5C6 /* Date+Bundle.swift in Sources */,
-				9AB6F1642259D1B900A44663 /* ParentViewController.swift in Sources */,
 				3508CCAA259A0027000E3530 /* StatusContainerView.swift in Sources */,
 				35C36F4E2259D981002FA5C6 /* DateFormatterManager.swift in Sources */,
 				35C36EFB2259616B002FA5C6 /* Solar.swift in Sources */,
-				35C36F592259DD8A002FA5C6 /* TimezoneCellView.swift in Sources */,
 				35C36F482259D892002FA5C6 /* NetworkManager.swift in Sources */,
 				9AFFEE0003000000GEOSVCBF /* GeocodingService.swift in Sources */,
-				A1B2C3D4E5F60002SEARCH02 /* TimezoneSearchService.swift in Sources */,
-				3579765E2680208C009DDA6E /* ParentPanelController+ModernSlider.swift in Sources */,
-				3579765F2680208C009DDA6E /* ParentPanelController+Layout.swift in Sources */,
-				357976602680208C009DDA6E /* ParentPanelController+Actions.swift in Sources */,
-				C4A3D93099C54195A921944E /* PanelContextMenu.swift in Sources */,
-				AA000011MODERN00000001 /* ModernSliderViews.swift in Sources */,
 				AA000013STARTU00000001 /* StartupManager.swift in Sources */,
 				D20426773C34F2E92954A92A /* DaybreakEngine.swift in Sources */,
 				2C730CF80B07B133FA8FD8E7 /* DaybreakTokens.swift in Sources */,
@@ -1020,6 +871,7 @@
 				2B22BBF58EC6EFE2F5159679 /* AppearancePane.swift in Sources */,
 				C4D1C9B97D359CF25B20A80D /* TimeTravelPane.swift in Sources */,
 				F732F2590122C6FC0ED5FC2E /* GeneralPane.swift in Sources */,
+				1347E8D5F4CEF31998F70A38 /* AboutUsConstants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1037,18 +889,6 @@
 			targetProxy = C2BFE3E82049F82300825BE5 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin PBXVariantGroup section */
-		9A13BAD81CA87F08007C6CBE /* Panel.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				9A13BAD71CA87F08007C6CBE /* en */,
-			);
-			name = Panel.xib;
-			path = App;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		9A5B1A8B1BECDB5B00A77C68 /* Distribution */ = {

@@ -24,8 +24,8 @@ import Cocoa
 // resize) forces a re-render.
 //
 // `NSApplication.mer_invalidateAccentEverywhere` posts the
-// accentColorDidChange notification; observers (PanelController,
-// AppearanceViewController preview) repaint the surfaces we
+// accentColorDidChange notification; observers (the Daybreak panel and
+// the v4 Settings Appearance preview) repaint the surfaces we
 // explicitly tint with the team color.
 
 enum AccentColorSwizzler {
@@ -59,10 +59,10 @@ extension NSColor {
 }
 
 extension NSApplication {
-    /// Lets observers (PanelController, OneWindowController) repaint
-    /// the surfaces we explicitly tint with the team color: panel pin
-    /// button, slider chevrons + reset button, Preferences toolbar
-    /// icons (palette-baked SF Symbols).
+    /// Lets observers (the Daybreak panel and the v4 Settings Appearance
+    /// pane) repaint the surfaces we explicitly tint with the team color:
+    /// panel pin button, scrubber chevrons, Settings toolbar icons
+    /// (palette-baked SF Symbols).
     ///
     /// We do NOT attempt to invalidate AppKit's NSDynamicSystemColor
     /// caches here. Every approach we tried (window.appearance
@@ -71,8 +71,8 @@ extension NSApplication {
     /// expose a runtime API for changing controlAccentColor and
     /// expecting AppKit's cached renderings to follow. The reliable
     /// path is the one Apple takes for the system-wide accent change:
-    /// quit and relaunch. AppearanceViewController offers that as a
-    /// modal choice when the user picks a team.
+    /// quit and relaunch. We no longer surface that as a prompt — the
+    /// surfaces we tint explicitly (above) update live.
     func mer_invalidateAccentEverywhere() {
         NotificationCenter.default.post(name: .accentColorDidChange, object: nil)
     }
