@@ -19,6 +19,10 @@ enum MenubarLayoutConstants {
     static let secondsBuffer = 15
     static let dateBuffer = 20
     static let colorDotPadding: CGFloat = 14
+    // Extra room added to the font-measured two-line width when seconds are
+    // shown, so the trailing ":58" isn't clipped. Distinct from secondsBuffer
+    // above, which pads the pre-calculated width budget.
+    static let measuredSecondsBuffer: CGFloat = 7
 }
 
 private enum MenubarTimerConstants {
