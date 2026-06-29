@@ -79,11 +79,10 @@ enum DaybreakDefaults {
     }
 
     /// The scrubber's travel window, in minutes, spanning the user's Travel forward / back **day**
-    /// window (Settings → Time Travel). `DaybreakEngine.handleFraction` pins "now" to the visual
-    /// centre, so the past fills the left half of the track and the future the right half regardless
-    /// of how asymmetric the window is. The ruler is a decorative tick comb (no dated day labels), so
-    /// a multi-day span no longer crams illegible markers — this retires the earlier fixed
-    /// hour-scale interim window and connects the previously-inert day sliders.
+    /// window (Settings → Time Travel). The treadmill scrubber renders this range at a constant drag
+    /// rate (a fixed visible window that scrolls under the handle), so the full span is reachable no
+    /// matter how many days it covers — this retires the earlier fixed hour-scale interim window and
+    /// connects the previously-inert day sliders.
     static var travelRangeMinutes: ClosedRange<Int> {
         DaybreakEngine.travelRange(forwardDays: travelForwardDays, backDays: travelBackDays)
     }

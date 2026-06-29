@@ -228,31 +228,6 @@ enum DaybreakEngine {
         return back...forward
     }
 
-    /// Track position (0…1) for a travel offset, with "now" (0) pinned to the CENTRE (0.5). The past
-    /// fills the left half, the future the right half — so the handle starts centred even though the
-    /// range is asymmetric (e.g. -2d back / +14d forward map to equal halves of the track).
-    static func handleFraction(offsetMinutes offset: Int, range: ClosedRange<Int>) -> Double {
-        let lo = Double(range.lowerBound), hi = Double(range.upperBound), o = Double(offset)
-        if o <= 0 {
-            guard lo < 0 else { return 0.5 }
-            return (0.5 * (o - lo) / -lo).clampedUnit       // lo → 0, 0 → 0.5
-        } else {
-            guard hi > 0 else { return 0.5 }
-            return (0.5 + 0.5 * (o / hi)).clampedUnit        // 0 → 0.5, hi → 1
-        }
-    }
-
-    /// Inverse of `handleFraction`: the travel offset (minutes) for a track fraction (0…1).
-    static func offsetMinutes(fraction: Double, range: ClosedRange<Int>) -> Int {
-        let lo = Double(range.lowerBound), hi = Double(range.upperBound)
-        let f = fraction.clampedUnit
-        if f <= 0.5 {
-            return Int((lo * (1 - f / 0.5)).rounded())       // f=0 → lo, f=0.5 → 0
-        } else {
-            return Int((hi * ((f - 0.5) / 0.5)).rounded())   // f=0.5 → 0, f=1 → hi
-        }
-    }
-
     // MARK: - Sky-color ramp (README Design Tokens)
 
     /// Hour-of-day → RGB stops for the piecewise-linear sky ramp.
@@ -279,9 +254,4 @@ enum DaybreakEngine {
         let first = s[0].rgb
         return (first.0, first.1, first.2)
     }
-}
-
-private extension Double {
-    /// Clamp into the unit interval [0, 1].
-    var clampedUnit: Double { Swift.min(1, Swift.max(0, self)) }
 }

@@ -188,8 +188,9 @@ Meridian lets you slide time forward and back to find a moment that works everyw
 
 ### In the popover
 
-- **Drag the sun/moon handle** along the ruler below the city cards to glide across your travel window — the full **Travel forward / back** range you set in Settings (by default about **2 days back to 6 days ahead**). "Now" sits at the center of the ruler, the past to its left and the future to its right. A pill above the track shows the offset and the resulting time (e.g. `+3:00 · 10:47 PM`, or `+2d · Wed 8:00 AM` further out). The handle's glyph flips between sun and moon as cities cross sunrise/sunset. A deliberate drag is required, so a stray click won't move it.
-- **Nudge arrows (‹ ›)** step the time by your **snap step** (5, 15, 30, or 60 minutes) — the precise way to land on an exact moment when the ruler spans many days.
+- **Drag the sun/moon handle** along the ruler below the city cards to scrub through time. It moves at a steady, gentle rate — the same finger distance always covers about a day — no matter how wide your **Travel forward / back** range is. The tick ruler scrolls beneath the handle with a bright **"now" marker** so you can feel how far you've moved; a pill above the track shows the exact offset and resulting time (e.g. `+3:00 · 10:47 PM`, or `+2d · Wed 8:00 AM` further out). The handle's glyph flips between sun and moon as cities cross sunrise/sunset. A deliberate drag is required, so a stray click won't move it.
+- **Hold at either end to keep going.** Drag the handle to the edge of the ruler and hold — it keeps scrolling in that direction (with a glowing edge) until you let go or reach the end of your Travel range, where the glow turns to a solid bar. Great for jumping several days without a huge swipe.
+- **Nudge arrows (‹ ›)** step the time by your **snap step** (5, 15, 30, or 60 minutes) — the precise way to land on an exact moment.
 - **Type a time to jump to it.** Double-click any time in the popover — the hero time or a city's time — and type a new one (`3:30 PM`, `15:30`, `3pm` all work). Press **Return** and every clock recomputes so that city reads the time you entered.
 - **↺ Back to now** appears while you're traveling — click it to snap back to the present. Closing and reopening the popover also resets to now.
 
@@ -202,7 +203,7 @@ Meridian lets you slide time forward and back to find a moment that works everyw
 - **Arrow / snap step** — the increment for the nudge arrows and grid alignment: **5 / 15 / 30 / 60 minutes** (default 15).
 - **Show Time Scroller** — show or hide the scrubber in the popover.
 
-> The scrubber spans your whole **Travel forward / back** window. A wide range (say 14 days forward) packs a lot of time into a small ruler, so dragging makes big, quick jumps — use the **‹ ›** arrows, or type a time directly, to land on an exact moment.
+> The scrubber drags at a constant rate regardless of how wide your **Travel forward / back** window is — a wide range no longer makes dragging hyper-sensitive. To cover a lot of days, hold the handle at the edge to keep scrolling; to land on an exact moment, use the **‹ ›** arrows or type a time directly.
 
 ---
 
