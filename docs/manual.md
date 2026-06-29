@@ -197,8 +197,8 @@ Meridian lets you slide time forward and back to find a moment that works everyw
 
 ![Settings → Time Travel](screenshots/settings-timetravel.png)
 
-- **Travel forward** — how far ahead the scrubber reaches (and how far a typed time can jump): **1–30 days**; default 6.
-- **Travel back** — how far back the scrubber reaches: **0–7 days**; `0` turns travel into the past off; default 2.
+- **Travel forward** — how far ahead the scrubber reaches (and how far a typed time can jump): **1–30 days**; default 7.
+- **Travel back** — how far back the scrubber reaches: **0–30 days**; `0` turns travel into the past off; default 1.
 - **Arrow / snap step** — the increment for the nudge arrows and grid alignment: **5 / 15 / 30 / 60 minutes** (default 15).
 - **Show Time Scroller** — show or hide the scrubber in the popover.
 

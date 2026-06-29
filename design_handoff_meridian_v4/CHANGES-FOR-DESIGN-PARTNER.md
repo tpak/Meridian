@@ -121,8 +121,9 @@ Grouped by surface. Each row: the original prototype, what shipped, and why.
 
 | Area | Original spec | Shipped v4 | Why |
 |---|---|---|---|
-| **Time Travel day sliders** | "Travel forward / back" bound the scrubber range | **Wired — both sliders now bound the scrubber's travel range** (forward 1–30 days, back 0–7 days; "back 0" disables travel into the past) | Matches the original spec; the day-window scrubber rework landed. |
-| **Travel forward default** | 14 days | 6 days | Carries the existing app-wide default. |
+| **Time Travel day sliders** | "Travel forward / back" bound the scrubber range | **Wired — both sliders now bound the scrubber's travel range** (forward 1–30 days, back 0–30 days; "back 0" disables travel into the past) | Matches the original spec; the day-window scrubber rework landed. |
+| **Travel forward default** | 14 days | 7 days | A balanced default for the day-window scrubber. |
+| **Travel back default** | 2 days | 1 day | A balanced default for the day-window scrubber. |
 | **Receive beta releases default** | On (in the prototype state) | Off | Shipping beta-on to everyone isn't the default we want. |
 | **Export Log button** | Always enabled | Disabled until Debug logging is on | Export Log is only meaningful when logging is on. |
 | **Command buttons + About links** | Bordered command buttons; About links as plain accent text | All use a shaded button style (subtle fill + hairline border) | The system bordered/plain-link styles read nearly invisibly on the dark Settings canvas. |

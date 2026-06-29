@@ -47,19 +47,20 @@ enum DaybreakDefaults {
         set { standard.set(newValue ?? "", forKey: Keys.homeTimezoneID) }
     }
 
-    /// Forward travel range in days. Reuses the existing symmetric range pref as the forward bound.
+    /// Forward travel range in days (1–30; default 7). Reuses the existing symmetric range pref as
+    /// the forward bound.
     static var travelForwardDays: Int {
         let value = standard.object(forKey: UserDefaultKeys.futureSliderRange) as? Int
-        return clampDays(value ?? 6, min: 1, max: 30)
+        return clampDays(value ?? 7, min: 1, max: 30)
     }
 
-    /// Backward travel range in days (new in v4).
+    /// Backward travel range in days (new in v4; 0–30, where 0 disables travel into the past; default 1).
     static var travelBackDays: Int {
         get {
             let value = standard.object(forKey: Keys.travelPastDays) as? Int
-            return clampDays(value ?? 2, min: 0, max: 7)
+            return clampDays(value ?? 1, min: 0, max: 30)
         }
-        set { standard.set(clampDays(newValue, min: 0, max: 7), forKey: Keys.travelPastDays) }
+        set { standard.set(clampDays(newValue, min: 0, max: 30), forKey: Keys.travelPastDays) }
     }
 
     /// Pin the current-location row to the top of the city list (default true).

@@ -8,8 +8,8 @@ import SwiftUI
 struct TimeTravelPane: View {
     let accent: Color
 
-    @AppStorage("sliderDayRange") private var forwardDays = 6
-    @AppStorage(DaybreakDefaults.Keys.travelPastDays) private var backDays = 2
+    @AppStorage("sliderDayRange") private var forwardDays = 7
+    @AppStorage(DaybreakDefaults.Keys.travelPastDays) private var backDays = 1
     @AppStorage(DaybreakDefaults.Keys.snapStep) private var snapStep = 15
     @AppStorage("showFutureSlider") private var showFutureSlider = true
 
@@ -86,7 +86,7 @@ private struct BackDaysRow: View {
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
             FormLabel(String(localized: "Travel back"))
-            Slider(value: doubleBinding, in: 0...7, step: 1)
+            Slider(value: doubleBinding, in: 0...30, step: 1)
                 .tint(accent)
                 .frame(maxWidth: .infinity)
             readout(label)
