@@ -1,17 +1,24 @@
 // Copyright © 2026 Chris Tirpak
 //
 // DaybreakScrubber — the time-travel control (README §F). A readout pill, ‹ › nudge buttons, and a
-// ruler of major + minor hashes with a draggable sun/moon handle. The handle's glyph reflects the
-// current location's phase; dragging sets the travel offset (snapped via the view model). The
-// decorative rainbow band and the dated day labels from the prototype are intentionally dropped —
-// the ruler is a plain major/minor hash scale and only the handle carries position.
+// ruler of major + minor hashes with a draggable sun/moon handle.
+//
+// EXPERIMENT (branch `experiment/scrubber-treadmill`): the ruler is a *treadmill*. Instead of mapping
+// the handle's absolute position to the entire Travel range — which crams many days into a few pixels
+// and makes the drag hyper-sensitive — the handle tracks a fixed visible window (±`visibleHalfSpan`)
+// and then PINS to the edge while the tick ruler scrolls underneath it. Drag sensitivity is therefore
+// constant (one day is always the same finger distance) no matter how large the Travel range is, and
+// the scrolling ticks plus the accent "now" marker convey the sense of movement. The readout pill
+// remains the precise position; the ‹ › buttons step an exact snap-step.
 
 import SwiftUI
 
 struct DaybreakScrubber: View {
     let data: DaybreakScrubberData
     let palette: DaybreakPalette
-    var onScrubFraction: (Double) -> Void
+    /// Set the absolute travel offset (minutes). The view computes this from a *relative* drag, so
+    /// sensitivity no longer depends on the total range. The view model clamps + snaps.
+    var onScrubToOffset: (Int) -> Void
     var onNudge: (_ forward: Bool) -> Void
     var onReset: () -> Void
 
@@ -20,9 +27,15 @@ struct DaybreakScrubber: View {
     private let handleDiameter: CGFloat = 21
     /// Vertical centre of the ruler within `trackHeight`; everything (line, hashes, handle) sits on it.
     private var baselineY: CGFloat { trackHeight / 2 }
-    /// Minor-hash count across the ruler (design comb ≈ 32 divisions). Every 8th, offset by 4, is a
-    /// taller/brighter major hash → 4 evenly inset majors (12.5 / 37.5 / 62.5 / 87.5%), like the design.
-    private let combDivisions = 32
+
+    /// Minutes from the ruler's centre to each visible edge. The handle reaches the edge after this
+    /// much travel; beyond it the handle pins and the ruler scrolls. One day is a deliberate, legible
+    /// rate — this single constant tunes the whole feel.
+    private let visibleHalfSpanMinutes = 1440
+
+    /// Tracks the offset at the moment a drag began, so each `onChanged` maps the *cumulative*
+    /// translation to a new absolute offset (stable even as the published offset updates mid-drag).
+    @State private var dragStartOffset: Int?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -88,50 +101,99 @@ struct DaybreakScrubber: View {
     private var track: some View {
         GeometryReader { geo in
             let w = geo.size.width
-            let handleX = data.handleFraction * w
+            let pxPerMinute = (w / 2) / CGFloat(visibleHalfSpanMinutes)
+            let offset = data.offsetMinutes
+            // The handle moves within ±visibleHalfSpan, then pins to the edge.
+            let dotDisplacementMin = max(-visibleHalfSpanMinutes, min(visibleHalfSpanMinutes, offset))
+            let dotX = w / 2 + CGFloat(dotDisplacementMin) * pxPerMinute
+            // Traveled-minutes value sitting at the viewport centre. 0 while the handle is still inside
+            // the window (ruler fixed, handle moves); grows once the handle pins (ruler scrolls).
+            let centerTimeMin = offset - dotDisplacementMin
 
             ZStack(alignment: .topLeading) {
-                // Centerline.
-                Rectangle().fill(palette.tick)
-                    .frame(width: w, height: 1)
-                    .offset(y: baselineY)
-
-                // Ruler hashes: a fine comb of MINOR ticks with taller, brighter MAJOR ticks at even
-                // intervals — the design's "major + minor hash" scale. Decorative (no day labels);
-                // only the handle carries position. Every hash is centred on the baseline.
-                ForEach(0..<combDivisions, id: \.self) { i in
-                    let isMajor = i % 8 == 4
-                    Rectangle().fill(isMajor ? palette.dayTick : palette.tick)
-                        .frame(width: 1, height: isMajor ? 14 : 10)
-                        .offset(x: CGFloat(i) / CGFloat(combDivisions) * w, y: baselineY - (isMajor ? 7 : 5))
+                // Centerline + scrolling ticks, faded at the edges for the treadmill feel. The handle
+                // is drawn OUTSIDE this mask so it stays crisp even when pinned at an edge.
+                ZStack(alignment: .topLeading) {
+                    Rectangle().fill(palette.tick)
+                        .frame(width: w, height: 1)
+                        .offset(y: baselineY)
+                    tickMarks(w: w, pxPerMinute: pxPerMinute, centerTimeMin: centerTimeMin)
                 }
+                .mask(edgeFade)
 
-                // Handle stem + disc, centred on the baseline.
+                // Handle stem + disc at the computed dot position.
                 Rectangle().fill(palette.accent).opacity(0.45)
                     .frame(width: 2, height: 16)
-                    .offset(x: handleX - 1, y: baselineY - 8)
+                    .offset(x: dotX - 1, y: baselineY - 8)
                 SunMoonDisc(isNight: data.handleIsNight, diameter: handleDiameter, context: .handle, isDark: palette.isDark)
                     .overlay(Circle().stroke(handleRing, lineWidth: 2))
-                    .offset(x: handleX - handleDiameter / 2, y: baselineY - handleDiameter / 2)
+                    .offset(x: dotX - handleDiameter / 2, y: baselineY - handleDiameter / 2)
             }
-            // Pin the ruler content to the top of the band so `baselineY` is measured from y=0 (true
-            // centre). Without `.topLeading` the frame centres the content block (≈ the 21pt disc) and
-            // the whole ruler drifts down ~5pt, leaving the chevrons sitting visibly ABOVE the line.
             .frame(width: w, height: trackHeight, alignment: .topLeading)
             .contentShape(Rectangle())
             .gesture(
-                // Require a real drag (not a bare tap/click) to scrub. With minimumDistance 0 a stray
-                // click anywhere on the panel that landed here teleported the handle and silently put
-                // the panel into time-travel, so the current location stopped matching the system
-                // clock. A deliberate drag of the handle still scrubs; ‹ › nudge for fine steps.
-                DragGesture(minimumDistance: 5)
+                // Relative drag: cumulative translation → minutes at a CONSTANT px/minute rate, added
+                // to the offset captured at drag start. A real drag (≥4pt) is required so a stray click
+                // can't teleport the handle / silently enter time-travel.
+                DragGesture(minimumDistance: 4)
                     .onChanged { value in
-                        guard w > 0 else { return }
-                        onScrubFraction(value.location.x / w)
+                        guard pxPerMinute > 0 else { return }
+                        let start = dragStartOffset ?? offset
+                        if dragStartOffset == nil { dragStartOffset = start }
+                        let deltaMin = Int((value.translation.width / pxPerMinute).rounded())
+                        onScrubToOffset(start + deltaMin)
                     }
+                    .onEnded { _ in dragStartOffset = nil }
             )
         }
         .frame(height: trackHeight)
+    }
+
+    /// Ruler hashes anchored to absolute traveled-time, so they slide under the handle as it pins and
+    /// the window scrolls. Minor ticks at a legible cadence (≥ the snap step), taller MAJOR ticks at
+    /// day boundaries, and an accent "now" tick at offset 0 — the reference that scrolls away as you
+    /// travel, giving the sense of movement.
+    @ViewBuilder
+    private func tickMarks(w: CGFloat, pxPerMinute: CGFloat, centerTimeMin: Int) -> some View {
+        let minorMin = minorTickMinutes(pxPerMinute: pxPerMinute)
+        let half = visibleHalfSpanMinutes
+        let lo = centerTimeMin - half
+        let hi = centerTimeMin + half
+        let firstK = Int((Double(lo) / Double(minorMin)).rounded(.up))
+        let lastK = Int((Double(hi) / Double(minorMin)).rounded(.down))
+        if firstK <= lastK {
+            ForEach(Array(firstK...lastK), id: \.self) { k in
+                let t = k * minorMin
+                let x = w / 2 + CGFloat(t - centerTimeMin) * pxPerMinute
+                let isNow = t == 0
+                let isDay = t % 1440 == 0
+                let height: CGFloat = isNow ? 16 : (isDay ? 14 : 10)
+                let color = isNow ? palette.accent : (isDay ? palette.dayTick : palette.tick)
+                Rectangle().fill(color)
+                    .frame(width: isNow ? 2 : 1, height: height)
+                    .offset(x: x - (isNow ? 1 : 0.5), y: baselineY - height / 2)
+            }
+        }
+    }
+
+    /// Smallest "nice" minute interval whose on-screen spacing is legible (≥ 9pt), never finer than the
+    /// snap step. Keeps the ruler readable whether the step is 5 or 60 minutes.
+    private func minorTickMinutes(pxPerMinute: CGFloat) -> Int {
+        let candidates = [data.stepMinutes, 15, 30, 60, 120, 180, 360, 720, 1440].filter { $0 >= data.stepMinutes }
+        return candidates.first { CGFloat($0) * pxPerMinute >= 9 } ?? 1440
+    }
+
+    /// Horizontal fade so ticks dissolve in/out at the track ends — reinforces the treadmill scroll.
+    private var edgeFade: some View {
+        LinearGradient(
+            stops: [
+                .init(color: .clear, location: 0),
+                .init(color: .black, location: 0.07),
+                .init(color: .black, location: 0.93),
+                .init(color: .clear, location: 1)
+            ],
+            startPoint: .leading, endPoint: .trailing
+        )
     }
 
     private var handleRing: Color {

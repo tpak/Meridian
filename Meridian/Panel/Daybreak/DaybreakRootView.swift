@@ -63,7 +63,7 @@ struct DaybreakRootView: View {
                 DaybreakScrubber(
                     data: snapshot.scrubber,
                     palette: palette,
-                    onScrubFraction: { viewModel.setOffsetFromFraction($0) },
+                    onScrubToOffset: { viewModel.setOffset($0) },
                     onNudge: { viewModel.nudge(forward: $0) },
                     onReset: { viewModel.reset() }
                 )
