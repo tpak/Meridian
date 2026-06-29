@@ -47,6 +47,8 @@ struct DaybreakScrubberData: Equatable {
     var traveling: Bool
     var handleFraction: Double
     var offsetMinutes: Int       // current travel offset — drives the treadmill ruler position
+    var rangeLowerBound: Int     // travel range floor (minutes) — drag clamp + "at the end" feedback
+    var rangeUpperBound: Int     // travel range ceiling (minutes)
     var handleIsNight: Bool
     var stepMinutes: Int         // nudge/snap step (5/15/30/60) — drives the ‹ › tooltips
 }
@@ -332,6 +334,8 @@ final class DaybreakViewModel: ObservableObject {
             traveling: travelOffsetMinutes != 0,
             handleFraction: fraction,
             offsetMinutes: travelOffsetMinutes,
+            rangeLowerBound: travelRange.lowerBound,
+            rangeUpperBound: travelRange.upperBound,
             handleIsNight: heroPhase.isNight,
             stepMinutes: snapStep
         )
@@ -406,7 +410,8 @@ final class DaybreakViewModel: ObservableObject {
                                    phase: .day, localMinutes: 0),
             cities: [],
             scrubber: DaybreakScrubberData(readout: String(localized: "Now"), traveling: false, handleFraction: 0.5,
-                                           offsetMinutes: 0, handleIsNight: false, stepMinutes: 15),
+                                           offsetMinutes: 0, rangeLowerBound: 0, rangeUpperBound: 0,
+                                           handleIsNight: false, stepMinutes: 15),
             locationTraveling: false,
             versionText: versionText()
         )

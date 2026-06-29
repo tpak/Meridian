@@ -4,20 +4,26 @@
 // ruler of major + minor hashes with a draggable sun/moon handle.
 //
 // EXPERIMENT (branch `experiment/scrubber-treadmill`): the ruler is a *treadmill*. Instead of mapping
-// the handle's absolute position to the entire Travel range — which crams many days into a few pixels
-// and makes the drag hyper-sensitive — the handle tracks a fixed visible window (±`visibleHalfSpan`)
-// and then PINS to the edge while the tick ruler scrolls underneath it. Drag sensitivity is therefore
-// constant (one day is always the same finger distance) no matter how large the Travel range is, and
-// the scrolling ticks plus the accent "now" marker convey the sense of movement. The readout pill
-// remains the precise position; the ‹ › buttons step an exact snap-step.
+// the handle's absolute position to the entire Travel range — which crammed many days into a few
+// pixels and made the drag hyper-sensitive — the handle tracks a fixed visible window (±`visibleHalfSpan`)
+// then PINS a couple of ticks short of the edge while the tick ruler scrolls underneath it. Drag
+// sensitivity is therefore constant (one day is always the same finger distance) no matter how large
+// the Travel range is, and the scrolling ticks plus the accent "now" marker convey movement.
+//
+// The track drag is handled by a small AppKit surface (`ScrubberDragSurface`) rather than a SwiftUI
+// gesture, for two reasons: (1) the floating popover sets `isMovableByWindowBackground`, which steals
+// a SwiftUI drag to move the window — the AppKit view declares `mouseDownCanMoveWindow = false` so the
+// handle stays draggable while floating; (2) it owns a timer, so holding the handle at an edge keeps
+// scrolling (with edge feedback) instead of dead-stopping until you reach for the ‹ › buttons.
 
 import SwiftUI
+import AppKit
 
 struct DaybreakScrubber: View {
     let data: DaybreakScrubberData
     let palette: DaybreakPalette
-    /// Set the absolute travel offset (minutes). The view computes this from a *relative* drag, so
-    /// sensitivity no longer depends on the total range. The view model clamps + snaps.
+    /// Set the absolute travel offset (minutes). Computed from a *relative* drag, so sensitivity no
+    /// longer depends on the total range. The view model clamps + snaps.
     var onScrubToOffset: (Int) -> Void
     var onNudge: (_ forward: Bool) -> Void
     var onReset: () -> Void
@@ -28,14 +34,19 @@ struct DaybreakScrubber: View {
     /// Vertical centre of the ruler within `trackHeight`; everything (line, hashes, handle) sits on it.
     private var baselineY: CGFloat { trackHeight / 2 }
 
-    /// Minutes from the ruler's centre to each visible edge. The handle reaches the edge after this
-    /// much travel; beyond it the handle pins and the ruler scrolls. One day is a deliberate, legible
-    /// rate — this single constant tunes the whole feel.
+    /// Minutes from the ruler's centre to each visible edge. The handle reaches its pinned position
+    /// after this much travel; beyond it the ruler scrolls. One day is a deliberate, legible rate —
+    /// this single constant tunes the whole feel.
     private let visibleHalfSpanMinutes = 1440
 
-    /// Tracks the offset at the moment a drag began, so each `onChanged` maps the *cumulative*
-    /// translation to a new absolute offset (stable even as the published offset updates mid-drag).
-    @State private var dragStartOffset: Int?
+    /// Keep the handle this far from the track ends so its disc never overlaps the ‹ › arrows
+    /// (≈ two tick marks of breathing room, as requested).
+    private let edgeBuffer: CGFloat = 18
+
+    /// Live edge-scroll feedback from the AppKit drag surface: -1 scrolling back, +1 forward, 0 idle;
+    /// `edgeAtLimit` when the Travel range end has been reached and it can't scroll further.
+    @State private var edgeDir = 0
+    @State private var edgeAtLimit = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -103,9 +114,10 @@ struct DaybreakScrubber: View {
             let w = geo.size.width
             let pxPerMinute = (w / 2) / CGFloat(visibleHalfSpanMinutes)
             let offset = data.offsetMinutes
-            // The handle moves within ±visibleHalfSpan, then pins to the edge.
+            // The handle moves within ±visibleHalfSpan, then pins a couple of ticks short of the edge.
             let dotDisplacementMin = max(-visibleHalfSpanMinutes, min(visibleHalfSpanMinutes, offset))
-            let dotX = w / 2 + CGFloat(dotDisplacementMin) * pxPerMinute
+            let rawDotX = w / 2 + CGFloat(dotDisplacementMin) * pxPerMinute
+            let dotX = min(w - edgeBuffer, max(edgeBuffer, rawDotX))
             // Traveled-minutes value sitting at the viewport centre. 0 while the handle is still inside
             // the window (ruler fixed, handle moves); grows once the handle pins (ruler scrolls).
             let centerTimeMin = offset - dotDisplacementMin
@@ -121,6 +133,8 @@ struct DaybreakScrubber: View {
                 }
                 .mask(edgeFade)
 
+                edgeGlow(w: w)
+
                 // Handle stem + disc at the computed dot position.
                 Rectangle().fill(palette.accent).opacity(0.45)
                     .frame(width: 2, height: 16)
@@ -128,23 +142,24 @@ struct DaybreakScrubber: View {
                 SunMoonDisc(isNight: data.handleIsNight, diameter: handleDiameter, context: .handle, isDark: palette.isDark)
                     .overlay(Circle().stroke(handleRing, lineWidth: 2))
                     .offset(x: dotX - handleDiameter / 2, y: baselineY - handleDiameter / 2)
+
+                // AppKit drag surface on top (transparent): owns the scrub drag + edge auto-scroll and
+                // keeps the handle draggable while the popover is floating.
+                ScrubberDragSurface(
+                    visibleHalfSpanMinutes: visibleHalfSpanMinutes,
+                    stepMinutes: data.stepMinutes,
+                    offsetMinutes: offset,
+                    rangeLower: data.rangeLowerBound,
+                    rangeUpper: data.rangeUpperBound,
+                    setOffset: onScrubToOffset,
+                    onEdge: { dir, atLimit in
+                        edgeDir = dir
+                        edgeAtLimit = atLimit
+                    }
+                )
             }
             .frame(width: w, height: trackHeight, alignment: .topLeading)
             .contentShape(Rectangle())
-            .gesture(
-                // Relative drag: cumulative translation → minutes at a CONSTANT px/minute rate, added
-                // to the offset captured at drag start. A real drag (≥4pt) is required so a stray click
-                // can't teleport the handle / silently enter time-travel.
-                DragGesture(minimumDistance: 4)
-                    .onChanged { value in
-                        guard pxPerMinute > 0 else { return }
-                        let start = dragStartOffset ?? offset
-                        if dragStartOffset == nil { dragStartOffset = start }
-                        let deltaMin = Int((value.translation.width / pxPerMinute).rounded())
-                        onScrubToOffset(start + deltaMin)
-                    }
-                    .onEnded { _ in dragStartOffset = nil }
-            )
         }
         .frame(height: trackHeight)
     }
@@ -183,6 +198,28 @@ struct DaybreakScrubber: View {
         return candidates.first { CGFloat($0) * pxPerMinute >= 9 } ?? 1440
     }
 
+    /// Accent glow at the active edge while auto-scrolling; a brighter solid bar when the Travel range
+    /// end is reached, so "still scrolling" and "that's as far as it goes" read differently.
+    @ViewBuilder
+    private func edgeGlow(w: CGFloat) -> some View {
+        if edgeDir != 0 {
+            let leading = edgeDir < 0
+            let barWidth: CGFloat = edgeAtLimit ? 4 : 14
+            Rectangle()
+                .fill(
+                    LinearGradient(
+                        colors: edgeAtLimit
+                            ? [palette.accent, palette.accent]
+                            : [palette.accent.opacity(0.55), palette.accent.opacity(0)],
+                        startPoint: leading ? .leading : .trailing,
+                        endPoint: leading ? .trailing : .leading
+                    )
+                )
+                .frame(width: barWidth, height: trackHeight)
+                .offset(x: leading ? 0 : w - barWidth)
+        }
+    }
+
     /// Horizontal fade so ticks dissolve in/out at the track ends — reinforces the treadmill scroll.
     private var edgeFade: some View {
         LinearGradient(
@@ -198,5 +235,134 @@ struct DaybreakScrubber: View {
 
     private var handleRing: Color {
         palette.isDark ? Color.white.opacity(0.85) : Color.black.opacity(0.15)
+    }
+}
+
+// MARK: - AppKit drag surface
+
+/// A transparent AppKit overlay that handles the scrubber's drag. Using AppKit (not a SwiftUI gesture)
+/// lets us (1) keep the handle draggable while the floating popover has `isMovableByWindowBackground`
+/// on — by declaring `mouseDownCanMoveWindow = false` — and (2) run an auto-scroll timer so holding at
+/// an edge keeps traveling. The visuals (ticks, handle, glow) are drawn by SwiftUI underneath.
+private struct ScrubberDragSurface: NSViewRepresentable {
+    let visibleHalfSpanMinutes: Int
+    let stepMinutes: Int
+    let offsetMinutes: Int
+    let rangeLower: Int
+    let rangeUpper: Int
+    let setOffset: (Int) -> Void
+    let onEdge: (Int, Bool) -> Void
+
+    func makeNSView(context: Context) -> ScrubberDragNSView {
+        let view = ScrubberDragNSView()
+        apply(to: view)
+        return view
+    }
+
+    func updateNSView(_ view: ScrubberDragNSView, context: Context) {
+        apply(to: view)
+    }
+
+    private func apply(to view: ScrubberDragNSView) {
+        view.visibleHalfSpanMinutes = visibleHalfSpanMinutes
+        view.stepMinutes = stepMinutes
+        view.liveOffset = offsetMinutes
+        view.rangeLower = rangeLower
+        view.rangeUpper = rangeUpper
+        view.setOffset = setOffset
+        view.onEdge = onEdge
+    }
+}
+
+private final class ScrubberDragNSView: NSView {
+    var visibleHalfSpanMinutes = 1440
+    var stepMinutes = 15
+    var liveOffset = 0
+    var rangeLower = 0
+    var rangeUpper = 0
+    var setOffset: (Int) -> Void = { _ in }
+    var onEdge: (Int, Bool) -> Void = { _, _ in }
+
+    private var dragStartOffset = 0
+    private var dragStartX: CGFloat = 0
+    private var autoTimer: Timer?
+    private var autoDir = 0
+    /// Local accumulator while auto-scrolling, so progress doesn't depend on the SwiftUI offset
+    /// round-trip landing between timer ticks.
+    private var autoOffset = 0
+
+    /// The whole point: don't let a drag here move the floating window.
+    override var mouseDownCanMoveWindow: Bool { false }
+    /// Respond on the first click even when the floating panel isn't key.
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+
+    private let edgeZone: CGFloat = 24
+
+    private var pxPerMinute: CGFloat {
+        let half = CGFloat(max(1, visibleHalfSpanMinutes))
+        return (bounds.width / 2) / half
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        rebase(at: convert(event.locationInWindow, from: nil).x)
+    }
+
+    override func mouseDragged(with event: NSEvent) {
+        guard pxPerMinute > 0 else { return }
+        let x = convert(event.locationInWindow, from: nil).x
+        let w = bounds.width
+
+        if x >= w - edgeZone {
+            beginAutoScroll(dir: 1)
+        } else if x <= edgeZone {
+            beginAutoScroll(dir: -1)
+        } else {
+            if autoTimer != nil { stopAutoScroll(); rebase(at: x) }   // resume relative drag without a jump
+            let deltaMin = Int(((x - dragStartX) / pxPerMinute).rounded())
+            setOffset(clampToRange(dragStartOffset + deltaMin))
+        }
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        stopAutoScroll()
+    }
+
+    private func rebase(at x: CGFloat) {
+        dragStartOffset = liveOffset
+        dragStartX = x
+    }
+
+    private func clampToRange(_ value: Int) -> Int { min(rangeUpper, max(rangeLower, value)) }
+
+    private func atLimit(_ value: Int, _ dir: Int) -> Bool {
+        dir > 0 ? value >= rangeUpper : value <= rangeLower
+    }
+
+    private func beginAutoScroll(dir: Int) {
+        if autoDir == dir, autoTimer != nil { return }
+        stopAutoScroll()
+        autoDir = dir
+        autoOffset = liveOffset
+        onEdge(dir, atLimit(autoOffset, dir))
+        let timer = Timer(timeInterval: 0.04, repeats: true) { [weak self] _ in self?.autoTick() }
+        RunLoop.main.add(timer, forMode: .common)
+        autoTimer = timer
+    }
+
+    private func autoTick() {
+        // ~1 day per second, but never less than one snap step per tick.
+        let perTick = max(stepMinutes, Int((1440.0 * 0.04).rounded()))
+        autoOffset = clampToRange(autoOffset + autoDir * perTick)
+        setOffset(autoOffset)
+        onEdge(autoDir, atLimit(autoOffset, autoDir))
+    }
+
+    private func stopAutoScroll() {
+        autoTimer?.invalidate()
+        autoTimer = nil
+        if autoDir != 0 {
+            autoDir = 0
+            onEdge(0, false)
+        }
     }
 }
