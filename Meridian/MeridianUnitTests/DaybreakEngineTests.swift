@@ -228,31 +228,27 @@ final class DaybreakEngineTests: XCTestCase {
         XCTAssertEqual(w.r, 27); XCTAssertEqual(w.g, 33); XCTAssertEqual(w.b, 56)
     }
 
-    // MARK: - Scrubber handle mapping (now centred on an asymmetric range)
+    // MARK: - Travel range from day settings (the day-window scrubber)
 
-    func testHandleFractionPinsNowToCentre() {
-        let range = (-2 * 60)...(12 * 60)   // -2h … +12h, asymmetric
-        XCTAssertEqual(DaybreakEngine.handleFraction(offsetMinutes: 0, range: range), 0.5, accuracy: 0.0001)
-        XCTAssertEqual(DaybreakEngine.handleFraction(offsetMinutes: range.lowerBound, range: range), 0.0, accuracy: 0.0001)
-        XCTAssertEqual(DaybreakEngine.handleFraction(offsetMinutes: range.upperBound, range: range), 1.0, accuracy: 0.0001)
-        // Past fills the left half, future the right half regardless of their different spans.
-        XCTAssertEqual(DaybreakEngine.handleFraction(offsetMinutes: -60, range: range), 0.25, accuracy: 0.0001)  // half of -2h
-        XCTAssertEqual(DaybreakEngine.handleFraction(offsetMinutes: 360, range: range), 0.75, accuracy: 0.0001)  // half of +12h
+    func testTravelRangeSpansFullDayWindow() {
+        // The scrubber must reach the user's whole Travel forward / back window, not a fixed cap.
+        let range = DaybreakEngine.travelRange(forwardDays: 14, backDays: 2)
+        XCTAssertEqual(range.lowerBound, -2 * 24 * 60)   // −2 days
+        XCTAssertEqual(range.upperBound, 14 * 24 * 60)   // +14 days
     }
 
-    func testOffsetFractionRoundTrips() {
-        let range = (-2 * 60)...(12 * 60)
-        XCTAssertEqual(DaybreakEngine.offsetMinutes(fraction: 0.5, range: range), 0)
-        XCTAssertEqual(DaybreakEngine.offsetMinutes(fraction: 0.0, range: range), range.lowerBound)
-        XCTAssertEqual(DaybreakEngine.offsetMinutes(fraction: 1.0, range: range), range.upperBound)
-        XCTAssertEqual(DaybreakEngine.offsetMinutes(fraction: 0.25, range: range), -60)
-        XCTAssertEqual(DaybreakEngine.offsetMinutes(fraction: 0.75, range: range), 360)
+    func testTravelRangeBackOffStartsAtNow() {
+        // "Travel back: Off" (0 days) → the range starts at now; only the future is reachable.
+        let range = DaybreakEngine.travelRange(forwardDays: 6, backDays: 0)
+        XCTAssertEqual(range.lowerBound, 0)
+        XCTAssertEqual(range.upperBound, 6 * 24 * 60)
     }
 
-    func testHandleFractionClampsOutOfRange() {
-        let range = (-2 * 60)...(12 * 60)
-        XCTAssertEqual(DaybreakEngine.handleFraction(offsetMinutes: -9999, range: range), 0.0, accuracy: 0.0001)
-        XCTAssertEqual(DaybreakEngine.handleFraction(offsetMinutes: 9999, range: range), 1.0, accuracy: 0.0001)
+    func testTravelRangeClampsNegativeInputs() {
+        // Defensive: never produce an inverted range from stray negative inputs.
+        let range = DaybreakEngine.travelRange(forwardDays: -5, backDays: -5)
+        XCTAssertEqual(range.lowerBound, 0)
+        XCTAssertEqual(range.upperBound, 0)
     }
 }
 

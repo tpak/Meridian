@@ -6,7 +6,7 @@ import CoreModelKit
 
 private enum AppDefaultValues {
     static let defaultUserFontSize: Int = 4
-    static let defaultFutureSliderRange: Int = 6
+    static let defaultFutureSliderRange: Int = 7
     static let defaultTruncateTextLength: Int = 30
 }
 

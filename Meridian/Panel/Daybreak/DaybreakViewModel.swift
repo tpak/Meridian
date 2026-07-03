@@ -45,7 +45,9 @@ struct DaybreakCityData: Identifiable, Equatable {
 struct DaybreakScrubberData: Equatable {
     var readout: String          // "Now · 8:17 PM"
     var traveling: Bool
-    var handleFraction: Double
+    var offsetMinutes: Int       // current travel offset — drives the treadmill ruler position
+    var rangeLowerBound: Int     // travel range floor (minutes) — drag clamp + "at the end" feedback
+    var rangeUpperBound: Int     // travel range ceiling (minutes)
     var handleIsNight: Bool
     var stepMinutes: Int         // nudge/snap step (5/15/30/60) — drives the ‹ › tooltips
 }
@@ -128,10 +130,6 @@ final class DaybreakViewModel: ObservableObject {
         let clamped = DaybreakEngine.clampAndSnap(minutes, range: travelRange, snapStep: snapStep)
         guard clamped != travelOffsetMinutes else { return }
         applyTravel(offset: clamped)
-    }
-
-    func setOffsetFromFraction(_ fraction: Double) {
-        setOffset(DaybreakEngine.offsetMinutes(fraction: fraction, range: travelRange))
     }
 
     func nudge(forward: Bool) {
@@ -322,14 +320,15 @@ final class DaybreakViewModel: ObservableObject {
     }
 
     private func makeScrubber(heroTZ: TimeZone, heroLocalMinutes: Int, heroPhase: DayPhase) -> DaybreakScrubberData {
-        let fraction = DaybreakEngine.handleFraction(offsetMinutes: travelOffsetMinutes, range: travelRange)
         let readout = DaybreakEngine.readout(deltaMinutes: travelOffsetMinutes,
                                              currentLocalMinutes: heroLocalMinutes,
                                              weekdayShort: string(shortWeekday, referenceDate(), heroTZ))
         return DaybreakScrubberData(
             readout: readout,
             traveling: travelOffsetMinutes != 0,
-            handleFraction: fraction,
+            offsetMinutes: travelOffsetMinutes,
+            rangeLowerBound: travelRange.lowerBound,
+            rangeUpperBound: travelRange.upperBound,
             handleIsNight: heroPhase.isNight,
             stepMinutes: snapStep
         )
@@ -403,7 +402,8 @@ final class DaybreakViewModel: ObservableObject {
             hero: DaybreakHeroData(eyebrow: "", time: "", period: "", subline: "", hoverSubline: "",
                                    phase: .day, localMinutes: 0),
             cities: [],
-            scrubber: DaybreakScrubberData(readout: String(localized: "Now"), traveling: false, handleFraction: 0.5,
+            scrubber: DaybreakScrubberData(readout: String(localized: "Now"), traveling: false,
+                                           offsetMinutes: 0, rangeLowerBound: 0, rangeUpperBound: 0,
                                            handleIsNight: false, stepMinutes: 15),
             locationTraveling: false,
             versionText: versionText()

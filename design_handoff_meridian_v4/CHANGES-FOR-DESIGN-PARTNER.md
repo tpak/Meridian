@@ -71,10 +71,10 @@ Grouped by surface. Each row: the original prototype, what shipped, and why.
 
 | Area | Original spec | Shipped v4 | Why |
 |---|---|---|---|
-| **Time-travel scrubber range** | Spans the Travel forward/back **day window** (14 fwd / 2 back) with dated day-boundary markers | Fixed to **~2h back / 12h forward**; the Settings day sliders don't drive it | Interim hour-scale window; the day-window model was deferred. |
-| **Scrubber day-boundary markers** | Dated midnight markers along the track, "today" accent-tinted | A plain tick comb — no dated markers, no date labels, no accent tint | Simplified ruler for the hour-scale window. |
-| **Scrubber interaction** | Clicking anywhere on the track jumps the handle there | Drag-only (a deliberate drag of ≥5pt scrubs; a plain click does nothing) | Prevents stray clicks from silently entering time-travel. |
-| **Handle mapping** | Linear across a symmetric range, so "now" sits centered | "Now" is pinned to the visual center; past compresses into the left half, future into the right (non-proportional) | Keeps "now" centered on the asymmetric −2h..+12h range. |
+| **Time-travel scrubber range** | Spans the Travel forward/back **day window** (14 fwd / 2 back) with dated day-boundary markers | **Spans the Travel forward/back day window** — the Settings day sliders drive it directly (default forward 7 / back 1; each settable 1–30 / 0–30). Rendered as a *treadmill* (see the next two rows). | The deferred day-window rework landed; the scrubber reaches the full configured range regardless of how many days it covers. |
+| **Scrubber markers** | Dated midnight markers along the track, "today" accent-tinted | A scrolling tick comb: minor ticks at a legible cadence, taller **day-boundary** ticks, and an accent **"now" marker** that scrolls away as you travel. No dated labels; the readout pill carries the exact position. | Conveys motion on the treadmill without crowding a multi-day span with dated labels. |
+| **Scrubber interaction** | Clicking anywhere on the track jumps the handle there | **Treadmill drag at a constant rate** (~1 day per half-track of finger travel, independent of range) — a deliberate drag is required; a plain click does nothing. **Hold at an edge to keep scrolling** (~1 day/sec) with an accent edge glow; a solid bar marks the range end. ‹ › step an exact snap-step (5/15/30/60 min); the drag is handled by an AppKit surface so it also works while the popover is floating. | Prevents stray-click time-travel; keeps far travel reachable without hyper-sensitive drags; fixes the float-mode drag. |
+| **Handle mapping** | Linear across a symmetric range, so "now" sits centered | **Treadmill**: the handle tracks a fixed ±1-day visible window (so "now" is centered at rest), then pins a couple of ticks short of the edge while the tick ruler scrolls underneath. Drag sensitivity is constant no matter how wide the Travel range is. | An absolute-position mapping crammed a multi-day range into a few pixels, making far-range drags hyper-sensitive; the treadmill fixes that. |
 | **Scrubber visibility** | Always shown | Hidden when Settings → Time Travel → "Show Time Scroller" is off (popover collapses to hero + cities + footer) | Honors the existing show/hide toggle. |
 | **Time-travel persistence** | Travel delta persists across interactions | Resets to "Now" each time the popover opens | The hero must match the live system clock on open. |
 | **Traveled minute grid** | Snap the offset to 15 min | Traveled times land on a clean quarter-hour grid frozen at travel-start | Cleaner displayed minutes while traveling. |
@@ -121,8 +121,9 @@ Grouped by surface. Each row: the original prototype, what shipped, and why.
 
 | Area | Original spec | Shipped v4 | Why |
 |---|---|---|---|
-| **Time Travel day sliders** | "Travel forward / back" bound the scrubber range | Currently inert — the scrubber range is fixed (see Daybreak above); the sliders are shown but not yet wired | Pending the day-window scrubber rework. |
-| **Travel forward default** | 14 days | 6 days | Carries the existing app-wide default. |
+| **Time Travel day sliders** | "Travel forward / back" bound the scrubber range | **Wired — both sliders now bound the scrubber's travel range** (forward 1–30 days, back 0–30 days; "back 0" disables travel into the past) | Matches the original spec; the day-window scrubber rework landed. |
+| **Travel forward default** | 14 days | 7 days | A balanced default for the day-window scrubber. |
+| **Travel back default** | 2 days | 1 day | A balanced default for the day-window scrubber. |
 | **Receive beta releases default** | On (in the prototype state) | Off | Shipping beta-on to everyone isn't the default we want. |
 | **Export Log button** | Always enabled | Disabled until Debug logging is on | Export Log is only meaningful when logging is on. |
 | **Command buttons + About links** | Bordered command buttons; About links as plain accent text | All use a shaded button style (subtle fill + hairline border) | The system bordered/plain-link styles read nearly invisibly on the dark Settings canvas. |
