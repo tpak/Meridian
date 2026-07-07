@@ -94,11 +94,11 @@ fi
 # ── 3. Version-bump push deferred until after notarization ──────────
 # Match actual push COMMANDS (top-level or 'if ! ...'), not echo'd recovery text.
 NOTARIZE_LINE="$(first_line 'notarytool submit' "$RS")"
-PUSH_LINE="$(first_line -E '^(if ! )?git push origin main' "$RS")"
+PUSH_LINE="$(first_line -E '^(if ! )?git push origin "\$CURRENT_BRANCH"' "$RS")"
 if [[ "$PUSH_LINE" -gt 0 && "$NOTARIZE_LINE" -gt 0 && "$PUSH_LINE" -gt "$NOTARIZE_LINE" ]]; then
-  ok "first 'git push origin main' happens AFTER notarization (line $PUSH_LINE > $NOTARIZE_LINE)"
+  ok "first bump/appcast push happens AFTER notarization (line $PUSH_LINE > $NOTARIZE_LINE)"
 else
-  bad "first 'git push origin main' happens AFTER notarization (push@$PUSH_LINE, notarize@$NOTARIZE_LINE)"
+  bad "first bump/appcast push happens AFTER notarization (push@$PUSH_LINE, notarize@$NOTARIZE_LINE)"
 fi
 
 GHREL_LINE="$(first_line -E '^[[:space:]]*gh release create' "$RS")"

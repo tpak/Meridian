@@ -299,7 +299,7 @@ report_release_state() {
     if [[ $APPCAST_COMMITTED -eq 1 && $APPCAST_PUSHED -eq 1 ]]; then
         echo "  * appcast.xml WAS updated and pushed (Sparkle clients can see v$VERSION)."
     elif [[ $APPCAST_COMMITTED -eq 1 ]]; then
-        echo "  * appcast.xml WAS committed locally but NOT pushed (push with: git push origin main)."
+        echo "  * appcast.xml WAS committed locally but NOT pushed (push with: git push origin $CURRENT_BRANCH)."
     else
         echo "  * appcast.xml was NOT updated."
     fi
@@ -453,12 +453,13 @@ echo "  Length: $LENGTH"
 # ── Phase 4: Push version bump + GitHub release ─────────────────────
 
 # Deferred from Phase 2: only publish the bump commit now that build,
-# signing, notarization, and stapling have all succeeded.
+# signing, notarization, and stapling have all succeeded. Push the CURRENT
+# branch (main for stable releases, the feature branch for branch betas) so
+# the built commit exists on origin — `gh release create --target` below
+# fails if the target SHA is unknown to the remote.
 echo "── Pushing version bump..."
-git push origin main
-if [[ "$CURRENT_BRANCH" == "main" ]]; then
-    BUMP_PUSHED=1
-fi
+git push origin "$CURRENT_BRANCH"
+BUMP_PUSHED=1
 
 echo "── Creating GitHub release..."
 RELEASE_BODY="$(echo "$NOTES" | while IFS= read -r line; do echo "- $line"; done)"
@@ -548,10 +549,10 @@ git add "$APPCAST"
 git commit -m "Update appcast.xml for v$VERSION"
 APPCAST_COMMITTED=1
 
-if ! git push origin main; then
+if ! git push origin "$CURRENT_BRANCH"; then
     echo ""
     echo "WARNING: Failed to push appcast update. The release is live but appcast.xml needs manual push:"
-    echo "  git push origin main"
+    echo "  git push origin $CURRENT_BRANCH"
     exit 1
 fi
 APPCAST_PUSHED=1
