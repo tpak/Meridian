@@ -1,11 +1,20 @@
 #!/usr/bin/env bash
 #
-# validate_feature.sh — TDD checks for issue #142: "bring back stacked time in
-# compact menu bar" as an opt-in 6th menu-bar preset ("Stacked").
+# validate_feature.sh — TDD checks for the backfill data-loss audit fixes:
+#   1. AppDelegate.backfillMissingCoordinates merges by stable identity into a
+#      FRESH store read instead of writing back the launch-time snapshot.
+#   2. StatusItemHandler derives the .second calendar component per call (the
+#      old instance-level set only ever gained .second, never lost it).
+#   3. The dead NotificationCenter.default didWake observer is deleted
+#      (NSWorkspace posts on NSWorkspace.shared.notificationCenter).
+#   4. runHomeRowMigrationV1 keeps the FIRST flagged row when no row matches
+#      the current system timezone (instead of clearing the flag everywhere).
+#   5. migrateInvertedBool writes nothing when the legacy value can't be
+#      interpreted (instead of defaulting to 1 == feature hidden).
 #
 # Run BEFORE implementing (expect failures), then again after (expect all green).
 #
-#   bash scripts/validate_feature.sh            # static checks + Debug build
+#   bash scripts/validate_feature.sh            # static checks + build + new tests
 #   bash scripts/validate_feature.sh --no-build # static checks only (fast)
 #
 set -uo pipefail
@@ -14,12 +23,11 @@ cd "$(dirname "$0")/.." || exit 2
 
 PASS=0
 FAIL=0
-SIV="Meridian/Preferences/Menu Bar/StatusItemView.swift"
-SCV="Meridian/Preferences/Menu Bar/StatusContainerView.swift"
-PANE="Meridian/Preferences/V4Settings/MenuBarPane.swift"
-GP="Meridian/Preferences/V4Settings/GeneralPane.swift"
 APPD="Meridian/AppDelegate.swift"
-KEY="com.tpak.meridian.v4.menubarStacked"
+SIH="Meridian/Preferences/Menu Bar/StatusItemHandler.swift"
+DEFAULTS="Meridian/Overall App/AppDefaults.swift"
+UNIT="Meridian/MeridianUnitTests/MeridianUnitTests.swift"
+APPD_TESTS="Meridian/MeridianUnitTests/AppDelegateTests.swift"
 
 ok()  { printf "  \033[32mOK:\033[0m   %s\n" "$1"; PASS=$((PASS+1)); }
 bad() { printf "  \033[31mFAIL:\033[0m %s\n" "$1" >&2; FAIL=$((FAIL+1)); }
@@ -29,128 +37,109 @@ check() { # check "description" <grep-args...>
   if grep -q "$@"; then ok "$desc"; else bad "$desc"; fi
 }
 
-echo "Issue #142 — Stacked menu-bar preset — validation"
-echo "------------------------------------------------"
+absent() { # absent "description" <grep-args...>
+  local desc="$1"; shift
+  if grep -q "$@"; then bad "$desc"; else ok "$desc"; fi
+}
 
-# 1. The single-line switch is no longer a hard-coded constant.
-if grep -Eq '^[[:space:]]*let[[:space:]]+kMenubarV4SingleLine[[:space:]]*=[[:space:]]*true' "$SIV"; then
-  bad "kMenubarV4SingleLine is no longer a hard-coded 'let ... = true'"
-else
-  ok "kMenubarV4SingleLine is no longer a hard-coded 'let ... = true'"
-fi
+echo "Backfill data-loss + timer/migration audit fixes — validation"
+echo "--------------------------------------------------------------"
 
-# 2. It is now a computed value (var with a Bool body).
-check "kMenubarV4SingleLine is now computed (var ...: Bool {)" -Eq 'var[[:space:]]+kMenubarV4SingleLine[[:space:]]*:[[:space:]]*Bool[[:space:]]*\{' "$SIV"
+# --- Fix 1: coordinate backfill must not clobber concurrent edits ------------
 
-# 3. The render path reads the new UserDefault key.
-check "render path (StatusItemView) references the new key" -Fq "$KEY" "$SIV"
+# The merge is a pure, unit-testable function keyed by stable identity.
+check "AppDelegate has mergeBackfilledCoordinates(current:...)" \
+  -Eq 'static func mergeBackfilledCoordinates\(current:' "$APPD"
 
-# 4. A reader exists for the stacked layout flag.
-check "menubarStackedLayoutEnabled reader exists" -Eq 'menubarStackedLayoutEnabled' "$SIV"
+# The identity used for the merge is derived from the model, not the array index.
+check "AppDelegate derives a stable backfill identity from TimezoneData" \
+  -Eq 'func backfillIdentity\(for' "$APPD"
 
-# 5. Default is OFF (single-line preserved for everyone) — reader falls back to false.
-check "stacked default is false (?? false)" -Eq 'as\? Bool \?\? false' "$SIV"
+# The write path re-reads the store AFTER the awaits (fresh read feeding the merge).
+check "backfill merges into a fresh store.timezones() read" \
+  -Eq 'mergeBackfilledCoordinates\(current: store\.timezones\(\)' "$APPD"
 
-# 6. MenuBarPane exposes a 6th "Stacked" preset.
-check "MenuBarPane has a 'stacked' preset id" -Eq 'id:[[:space:]]*"stacked"' "$PANE"
-check "MenuBarPane has a 'Stacked' preset label" -Fq 'String(localized: "Stacked")' "$PANE"
+# The old positional write-back of the pre-await snapshot is gone.
+absent "no positional snapshot write-back (timezones[index] = encoded)" \
+  -Fq 'timezones[index] = encoded' "$APPD"
 
-# 7. MenuBarPane persists the new key via @AppStorage.
-check "MenuBarPane binds the new key via @AppStorage" -Fq "@AppStorage(\"$KEY\")" "$PANE"
+# Unit test: user edits during backfill survive the merge.
+check "unit test covers add+remove during backfill" \
+  -Eq 'func testMergeBackfilledCoordinates.*(KeepsUserEdits|PreservesConcurrentEdits)' "$APPD_TESTS"
 
-# 8. Selecting a preset applies the stacked flag.
-check "applyPreset writes the stacked flag" -Eq 'menubarStacked[[:space:]]*=[[:space:]]*preset\.stacked' "$PANE"
+# --- Fix 2: .second component derived fresh per calculation ------------------
 
-# 9. The preset model carries a 'stacked' field.
-check "MenuBarPreset model has a 'stacked' field" -Eq 'let[[:space:]]+stacked:[[:space:]]*Bool' "$PANE"
+# The sticky instance-level set is gone (a plain local 'var units' is fine)…
+absent "no instance-level 'units' property on StatusItemHandler" \
+  -Eq 'private (lazy )?var units' "$SIH"
 
-# 10. Preview can render a two-line (stacked) chip.
-check "preview supports a two-line/stacked chip (bottomLabel)" -Eq 'bottomLabel' "$PANE"
+# …and the once-only sticky insert guard with it.
+absent "no sticky '!units.contains(.second)' insert guard" \
+  -Fq '!units.contains(.second)' "$SIH"
 
-# 11. UAT r5: stacked menu-bar item height tracks the live bar thickness (a fixed/oversized height
-#     overflows the 22pt bar and crams the time onto the bottom edge).
-check "menubarItemHeight tracks bar thickness" -Eq 'var menubarItemHeight: CGFloat \{ NSStatusBar\.system\.thickness \}' "$SCV"
+# The component set is rebuilt locally on every calculation.
+check "component set derived fresh per call" \
+  -Eq 'var units: Set<Calendar\.Component> = \[\.era' "$SIH"
 
-# 12. UAT fix: preset cards reserve two sample lines so the Stacked card doesn't grow its row.
-check "preset card reserves two sample lines" -Fq 'reservesSpace: true' "$PANE"
+# The minute-boundary branch pins seconds to zero.
+check "minute-branch fire date has second == 0" \
+  -Fq 'components.second = 0' "$SIH"
 
-# 13. UAT r2: stacked menu-bar name line uses semibold (matches the cleaner preview), not bold.
-check "menu-bar name font is semibold" -Eq 'systemFont\(ofSize: 10, weight: .semibold\)' "$SIV"
-if grep -q 'boldSystemFont(ofSize: 10)' "$SIV"; then bad "menu-bar name still uses boldSystemFont"; else ok "menu-bar name no longer boldSystemFont"; fi
+# --- Fix 3: dead default-center didWake observer deleted ---------------------
 
-# 14. UAT r2: preset card sample is right-justified.
-check "preset card sample is right-justified" -Fq 'multilineTextAlignment(.trailing)' "$PANE"
+absent "no NotificationCenter.default subscription to NSWorkspace.didWakeNotification" \
+  -Fq 'NotificationCenter.default.publisher(for: NSWorkspace.didWakeNotification)' "$SIH"
 
-# 15. UAT r2: 'Check Now' lives on its own row (empty-label FormRow under the segment).
-check "Check Now is on its own FormRow" -Eq 'FormRow\(label: ""\)' "$GP"
+# The correct workspace-center subscriptions must remain intact.
+check "workspace-center didWake subscription still present" \
+  -Fq 'NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didWakeNotification)' "$SIH"
+check "workspace-center willSleep subscription still present" \
+  -Fq 'NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.willSleepNotification)' "$SIH"
 
-# 16. UAT r2: fresh-install start-at-login default.
-check "enableStartAtLoginByDefault exists" -Eq 'func enableStartAtLoginByDefault' "$APPD"
-check "start-at-login wired into launch" -Eq 'enableStartAtLoginByDefault\(\)' "$APPD"
+# --- Fix 4: home-row migration keeps first flagged row as fallback -----------
 
-# 17. UAT r2: fresh-install daily update cadence.
-check "fresh-install sets daily update interval (86400)" -Eq 'updateCheckInterval = 86400' "$APPD"
+check "runHomeRowMigrationV1 falls back to the first flagged row" \
+  -Eq 'keepIndex = flaggedIndices\.first$' "$DEFAULTS"
 
-# 18. UAT r5: stacked lines have their text centres placed symmetrically about the bar middle
-#     (verified by screenshot: tight, centred pair, time off the bottom edge).
-check "stacked name text centred above the middle" -Fq 'locationView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -halfGap)' "$SIV"
-check "stacked time text centred below the middle" -Fq 'timeView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: halfGap)' "$SIV"
-if grep -q 'multiplier: 0.35\|multiplier: 0.5' "$SIV"; then bad "stacked still uses a proportional split"; else ok "stacked no longer uses a proportional split"; fi
+check "unit test covers two flagged rows with no system match" \
+  -Eq 'func testHomeRowMigration.*(NoMatch|NeitherMatches)' "$UNIT"
 
-# 19. UAT r5: General-pane command buttons use the visible ShadedButtonStyle (the system .bordered
-#     style was near-invisible on the dark canvas); no .plain command buttons remain.
-check "command buttons use ShadedButtonStyle" -Fq 'buttonStyle(ShadedButtonStyle())' "$GP"
-check "ShadedButtonStyle is defined" -Fq 'struct ShadedButtonStyle: ButtonStyle' "$GP"
-if grep -q 'buttonStyle(.plain)' "$GP"; then bad "GeneralPane still has a .plain command button"; else ok "no .plain command buttons remain in GeneralPane"; fi
+# --- Fix 5: migrateInvertedBool skips uninterpretable legacy values ----------
 
-# 20. UAT r5: stacked menu-bar item height matches the bar (no fixed 30pt that overflowed the 22pt bar).
-if grep -q 'stackedMenubarItemHeight\|multiplier: 0.5\|: 30' "$SCV"; then bad "stacked item still uses a fixed/oversized height"; else ok "stacked item height matches the bar thickness"; fi
+absent "migrateInvertedBool no longer defaults garbage to 1 (hidden)" \
+  -Fq '?? (object as? Int) ?? 1' "$DEFAULTS"
 
-# 21. UAT r6: the Daybreak panel sits below the bar (gap), not flush against it.
-DPC="Meridian/Panel/Daybreak/DaybreakPanelController.swift"
-check "panel anchors with a gap below the bar" -Fq 'buttonRect.minY + bodyTopInset - bodyGapBelowBar' "$DPC"
+check "migrateInvertedBool guards on an interpretable legacy value" \
+  -Eq 'guard let legacyInt' "$DEFAULTS"
 
-# --- New "Midnight Sundial" icons ---
-AIS="Meridian/Media.xcassets/AppIcon.appiconset"
-MBI="Meridian/Media.xcassets/MenuBarIcon.imageset"
-SIH="Meridian/Preferences/Menu Bar/StatusItemHandler.swift"
-FAD="Meridian/Overall App/Foundation + Additions.swift"
+check "unit test covers garbage legacy value leaving registered default" \
+  -Eq 'func testInvertedBool_garbageLegacyValue' "$UNIT"
 
-# 22. New AppIcon iconset present (all 10), old Clocker/meridian-* art gone.
-if [ "$(find "$AIS" -name 'icon_*.png' | wc -l | tr -d ' ')" = "10" ]; then ok "AppIcon has the 10 new icon_*.png"; else bad "AppIcon missing new icon_*.png"; fi
-if find "$AIS" -iname '*clocker*' -o -iname 'meridian-*.png' 2>/dev/null | grep -q .; then bad "old Clocker/meridian-* app-icon art still present"; else ok "old app-icon art removed"; fi
-check "AppIcon Contents.json maps the new files" -Fq 'icon_512x512@2x.png' "$AIS/Contents.json"
+# --- Build + targeted tests ---------------------------------------------------
 
-# 23. MenuBarIcon template imageset present and rendered as template.
-if [ -f "$MBI/MenuBarIcon.png" ] && [ -f "$MBI/MenuBarIcon@2x.png" ]; then ok "MenuBarIcon imageset has the template pair"; else bad "MenuBarIcon imageset PNGs missing"; fi
-check "MenuBarIcon renders as a template image" -Fq '"template-rendering-intent" : "template"' "$MBI/Contents.json"
-
-# 24. Old unused menu-bar icon asset removed.
-if [ -d "Meridian/Media.xcassets/Menubar Icons" ]; then bad "old 'Menubar Icons' (LightModeIcon) folder still present"; else ok "old 'Menubar Icons' folder removed"; fi
-
-# 25. Code loads the template glyph (not the old clock.fill SF Symbol).
-check "menubarIcon name points at MenuBarIcon" -Fq 'NSImage.Name("MenuBarIcon")' "$FAD"
-check "status item loads the template icon" -Fq 'NSImage(named: .menubarIcon)' "$SIH"
-check "status item icon is set as a template" -Eq 'image\?\.isTemplate = true' "$SIH"
-if grep -q 'clock.fill' "$SIH"; then bad "still references the clock.fill SF Symbol"; else ok "no clock.fill reference remains"; fi
-
-echo ""
-if [[ "${1:-}" == "--no-build" ]]; then
-  echo "Skipping build (--no-build)."
-else
-  echo "Building (Debug, no code signing)…"
-  BUILD_LOG=$(mktemp)
+if [[ "${1:-}" != "--no-build" ]]; then
+  echo ""
+  echo "Building Debug configuration…"
   if xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug build \
-       CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY= \
-       >"$BUILD_LOG" 2>&1; then
-    ok "Debug build succeeded"
+      CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY= > /tmp/validate_build.log 2>&1; then
+    ok "Debug build succeeds"
   else
-    bad "Debug build FAILED — see $BUILD_LOG"
-    tail -25 "$BUILD_LOG" >&2
+    bad "Debug build failed (see /tmp/validate_build.log)"
+  fi
+
+  echo "Running the new unit tests (serial)…"
+  if xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug test \
+      -only-testing:MeridianUnitTests/AppDelegateTests \
+      -only-testing:MeridianUnitTests/MeridianUnitTests \
+      -only-testing:MeridianUnitTests/BoolSemanticsMigrationTests \
+      -parallel-testing-enabled NO -disable-concurrent-destination-testing \
+      CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY= > /tmp/validate_tests.log 2>&1; then
+    ok "New + surrounding unit tests pass"
+  else
+    bad "Unit tests failed (see /tmp/validate_tests.log)"
   fi
 fi
 
 echo ""
-echo "------------------------------------------------"
-echo "PASS=$PASS  FAIL=$FAIL"
-[[ "$FAIL" -eq 0 ]] && { echo "ALL GREEN"; exit 0; } || { echo "FAILURES PRESENT"; exit 1; }
+echo "Passed: $PASS  Failed: $FAIL"
+[[ $FAIL -eq 0 ]] || exit 1

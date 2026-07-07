@@ -429,6 +429,39 @@ class MeridianUnitTests: XCTestCase {
         defaults.removePersistentDomain(forName: "HomeRowMigrationTest_Dedup")
     }
 
+    func testHomeRowMigrationKeepsFirstFlaggedRowWhenNoMatch() throws {
+        let defaults = UserDefaults(suiteName: "HomeRowMigrationTest_NoMatch")!
+        defaults.removePersistentDomain(forName: "HomeRowMigrationTest_NoMatch")
+
+        // Both rows flagged, NEITHER matches the machine's current timezone
+        // (candidates are filtered so the test stays hermetic wherever it runs).
+        // Documented contract: keep the first flagged row rather than clearing
+        // the flag on every row and leaving no current-location marker at all.
+        let systemTimezoneID = TimeZone.autoupdatingCurrent.identifier
+        let staleZones = ["Asia/Tokyo", "Europe/Paris", "Australia/Melbourne"]
+            .filter { $0 != systemTimezoneID }
+
+        let first = TimezoneData()
+        first.timezoneID = staleZones[0]
+        first.isSystemTimezone = true
+
+        let second = TimezoneData()
+        second.timezoneID = staleZones[1]
+        second.isSystemTimezone = true
+
+        let firstBlob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: first))
+        let secondBlob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: second))
+
+        let healed = AppDefaults.runHomeRowMigrationV1(on: [firstBlob, secondBlob], defaults: defaults)
+        let healedFirst = try XCTUnwrap(TimezoneData.customObject(from: healed[0]))
+        let healedSecond = try XCTUnwrap(TimezoneData.customObject(from: healed[1]))
+
+        XCTAssertTrue(healedFirst.isSystemTimezone, "first flagged row keeps the flag when nothing matches")
+        XCTAssertFalse(healedSecond.isSystemTimezone, "every other flagged row is cleared")
+
+        defaults.removePersistentDomain(forName: "HomeRowMigrationTest_NoMatch")
+    }
+
     func testSeedsCurrentTimezoneAsCurrentLocationWhenEmpty() {
         let suite = "SeedTest_Empty"
         let defaults = UserDefaults(suiteName: suite)!
@@ -957,6 +990,21 @@ class BoolSemanticsMigrationTests: XCTestCase {
 
         XCTAssertNil(defaults.object(forKey: UserDefaultKeys.sunriseSunsetTime))
         XCTAssertNil(defaults.object(forKey: UserDefaultKeys.showDayInMenu))
+    }
+
+    func testInvertedBool_garbageLegacyValueLeavesModernKeyAtDefault() {
+        // An unexpected legacy value type used to fall back to 1 (= hidden),
+        // silently disabling a feature the user may have had on. It must
+        // instead write nothing so the registered default applies.
+        defaults.set("not a number", forKey: UserDefaultKeys.displayFutureSliderKey)
+
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+
+        let p = persistent()
+        XCTAssertNil(p[UserDefaultKeys.showFutureSlider],
+                     "uninterpretable legacy value must not write the modern key")
+        XCTAssertNil(defaults.object(forKey: UserDefaultKeys.displayFutureSliderKey),
+                     "the garbage legacy key is still cleaned up")
     }
 
     // MARK: non-inverted bool
