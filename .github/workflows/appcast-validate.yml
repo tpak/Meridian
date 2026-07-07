@@ -1,0 +1,50 @@
+name: Appcast Validate
+
+# The main CI workflow ignores appcast.xml (full app builds on every appcast
+# push would be wasteful), so release.sh's direct-to-main appcast pushes ran
+# no CI at all. This lightweight check fills that gap: it validates that the
+# feed is well-formed XML and that every enclosure carries the attributes
+# Sparkle needs to verify and install an update.
+
+on:
+  push:
+    paths:
+      - 'appcast.xml'
+  pull_request:
+    paths:
+      - 'appcast.xml'
+
+jobs:
+  validate:
+    name: Validate appcast.xml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install xmllint
+        run: |
+          if ! command -v xmllint >/dev/null 2>&1; then
+            sudo apt-get update -q
+            sudo apt-get install -y -q libxml2-utils
+          fi
+
+      - name: Validate XML well-formedness
+        run: xmllint --noout appcast.xml
+
+      - name: Check enclosures have signatures and lengths
+        run: |
+          # Every <enclosure> must carry a non-empty sparkle:edSignature and a
+          # non-empty length, or Sparkle clients can't verify the download.
+          # local-name() sidesteps xmllint's lack of namespace registration
+          # for the sparkle: attribute prefix.
+          total="$(xmllint --xpath 'count(//enclosure)' appcast.xml)"
+          valid="$(xmllint --xpath 'count(//enclosure[string-length(@*[local-name()="edSignature"]) > 0 and string-length(@length) > 0])' appcast.xml)"
+          echo "enclosures: $total, with non-empty edSignature+length: $valid"
+          if [ "$total" -eq 0 ]; then
+            echo "Error: appcast.xml contains no <enclosure> elements"
+            exit 1
+          fi
+          if [ "$total" -ne "$valid" ]; then
+            echo "Error: $((total - valid)) enclosure(s) missing a non-empty sparkle:edSignature or length attribute"
+            exit 1
+          fi

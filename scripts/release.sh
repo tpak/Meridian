@@ -25,6 +25,20 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# HTML-escape one line of release-note text for embedding in the appcast's
+# CDATA block (Sparkle renders that content as HTML). Escape & first so the
+# entities themselves don't get re-escaped. Escaping > also neutralizes a
+# literal "]]>" that would otherwise terminate the CDATA section early.
+# NOTE: only the appcast path uses this — the GitHub release body is
+# markdown and must stay unescaped.
+html_escape() {
+    local s="$1"
+    s="${s//&/&amp;}"
+    s="${s//</&lt;}"
+    s="${s//>/&gt;}"
+    printf '%s' "$s"
+}
+
 # ── Phase 1: Validate ──────────────────────────────────────────────
 
 if [[ -z "$VERSION" ]]; then
@@ -73,6 +87,30 @@ else
 fi
 echo "── Build number derived from VERSION=$VERSION → $BUILD_NUMBER"
 
+# Version monotonicity gate: a typo'd lower version would silently downgrade
+# the Homebrew cask and write an out-of-order appcast item. The build-number
+# encoding above is strictly increasing across stable and beta releases
+# (stable X.Y.Z > any X.Y.Z-betaN because BETA_N=100 for stable), so a
+# numeric compare against the newest (top-most) <sparkle:version> in the
+# appcast covers both cases.
+if [[ ! -f appcast.xml ]]; then
+    echo "Error: appcast.xml not found — run from the repository root."
+    exit 1
+fi
+LATEST_APPCAST_BUILD="$(grep -Eo '<sparkle:version>[0-9]+</sparkle:version>' appcast.xml | head -1 | tr -dc '0-9' || true)"
+if [[ -n "$LATEST_APPCAST_BUILD" ]]; then
+    if (( BUILD_NUMBER <= LATEST_APPCAST_BUILD )); then
+        echo "Error: build number $BUILD_NUMBER (v$VERSION) is not strictly greater than the"
+        echo "       newest appcast item's <sparkle:version> ($LATEST_APPCAST_BUILD)."
+        echo "       Releasing it would downgrade Sparkle users and/or the Homebrew cask."
+        echo "       Double-check VERSION."
+        exit 1
+    fi
+    echo "── Monotonicity check passed: $BUILD_NUMBER > $LATEST_APPCAST_BUILD (newest appcast item)."
+else
+    echo "── No existing <sparkle:version> found in appcast.xml; skipping monotonicity check."
+fi
+
 CURRENT_BRANCH="$(git branch --show-current)"
 if [[ "$CURRENT_BRANCH" != "main" ]]; then
     if [[ "$IS_BETA" == "1" ]]; then
@@ -95,7 +133,7 @@ if git tag -l "v$VERSION" | grep -q "v$VERSION"; then
     exit 1
 fi
 
-for cmd in xcodebuild gh ditto xcrun; do
+for cmd in xcodebuild gh ditto xcrun xmllint; do
     if ! command -v "$cmd" &>/dev/null; then
         echo "Error: Required tool '$cmd' not found"
         exit 1
@@ -212,7 +250,9 @@ echo "Release notes:"
 echo "$NOTES" | while IFS= read -r line; do echo "  - $line"; done
 echo ""
 
-# ── Phase 2: Bump version + commit ─────────────────────────────────
+# ── Phase 2: Bump version + commit (push deferred) ─────────────────
+# The bump commit stays LOCAL until build/sign/notarize/staple all succeed,
+# so a failed release can't leave a phantom version bump on origin.
 
 echo "── Bumping version to $VERSION (build $BUILD_NUMBER)..."
 PBXPROJ="Meridian/Meridian.xcodeproj/project.pbxproj"
@@ -224,14 +264,54 @@ if git diff --cached --quiet; then
     echo "── Version already set to $VERSION, skipping commit."
 else
     git commit -m "Bump version to $VERSION [skip ci]"
-    git push origin main
-    echo "── Version bumped and pushed."
+    echo "── Version bumped (commit kept local until notarization succeeds)."
 fi
+
+# Pin the exact commit this release is built from. Passed to
+# `gh release create --target` so the tag points at this commit even if
+# the remote branch moves during the multi-minute build/notarize.
+RELEASE_REV="$(git rev-parse HEAD)"
+
+# From here on a bump commit exists that origin may not have. If anything
+# fails before the flow completes, report exactly what state things are in.
+BUMP_PUSHED=0
+GH_RELEASE_CREATED=0
+APPCAST_COMMITTED=0
+APPCAST_PUSHED=0
+RELEASE_COMPLETE=0
+
+report_release_state() {
+    local exit_code=$?
+    [[ $RELEASE_COMPLETE -eq 1 ]] && return 0
+    echo ""
+    echo "=== Release v$VERSION did NOT complete (exit $exit_code) — current state ==="
+    if [[ $BUMP_PUSHED -eq 1 ]]; then
+        echo "  * Version bump commit ($RELEASE_REV) is committed and PUSHED to origin."
+    else
+        echo "  * Version bump commit ($RELEASE_REV) exists LOCALLY only; origin is untouched."
+        echo "    To abandon this release: git reset --hard origin/$CURRENT_BRANCH"
+    fi
+    if [[ $GH_RELEASE_CREATED -eq 1 ]]; then
+        echo "  * GitHub release v$VERSION WAS created (undo: gh release delete v$VERSION --cleanup-tag)."
+    else
+        echo "  * GitHub release v$VERSION was NOT created."
+    fi
+    if [[ $APPCAST_COMMITTED -eq 1 && $APPCAST_PUSHED -eq 1 ]]; then
+        echo "  * appcast.xml WAS updated and pushed (Sparkle clients can see v$VERSION)."
+    elif [[ $APPCAST_COMMITTED -eq 1 ]]; then
+        echo "  * appcast.xml WAS committed locally but NOT pushed (push with: git push origin main)."
+    else
+        echo "  * appcast.xml was NOT updated."
+    fi
+    echo "  Re-running the same release command resumes safely: the existing bump commit"
+    echo "  is detected and skipped, and the push happens only after notarization."
+}
+trap report_release_state EXIT
 
 # ── Phase 3: Build + sign ──────────────────────────────────────────
 
-RELEASE_DIR="/tmp/meridian-release"
-rm -rf "$RELEASE_DIR"
+RELEASE_DIR="$(mktemp -d /tmp/meridian-release.XXXXXX)"
+echo "── Release staging dir: $RELEASE_DIR"
 
 echo "── Building release..."
 xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Release \
@@ -267,17 +347,62 @@ xattr -rc "$APP_PATH"
 # Re-sign Sparkle components (SPM pre-built binaries need our identity)
 echo "── Re-signing Sparkle framework components..."
 SPARKLE_FW="$APP_PATH/Contents/Frameworks/Sparkle.framework"
-if [[ -d "$SPARKLE_FW" ]]; then
-    # Sign inside-out: XPC services first, then helper apps, then framework, then main app
-    for xpc in "$SPARKLE_FW"/Versions/B/XPCServices/*.xpc; do
-        [[ -d "$xpc" ]] && codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$xpc"
-    done
-    for helper in "$SPARKLE_FW"/Versions/B/*.app; do
-        [[ -d "$helper" ]] && codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$helper"
-    done
-    codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$SPARKLE_FW/Versions/B/Autoupdate"
-    codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$SPARKLE_FW"
+if [[ ! -d "$SPARKLE_FW" ]]; then
+    echo "Error: Sparkle.framework not found at $SPARKLE_FW"
+    echo "       The app cannot self-update without it — aborting."
+    exit 1
 fi
+
+# Resolve the framework version dir dynamically (Sparkle currently names its
+# single version "B" — don't hardcode that) so a Sparkle bump that changes
+# the layout can't silently skip re-signing.
+SPARKLE_VDIR=""
+if [[ -d "$SPARKLE_FW/Versions/Current/" ]]; then
+    SPARKLE_VDIR="$(cd "$SPARKLE_FW/Versions/Current" && pwd -P)"
+else
+    for candidate in "$SPARKLE_FW"/Versions/*/; do
+        candidate="${candidate%/}"
+        [[ -d "$candidate" ]] || continue
+        [[ "$(basename "$candidate")" == "Current" ]] && continue
+        SPARKLE_VDIR="$candidate"
+        break
+    done
+fi
+if [[ -z "$SPARKLE_VDIR" || ! -d "$SPARKLE_VDIR" ]]; then
+    echo "Error: could not resolve a version directory under $SPARKLE_FW/Versions"
+    exit 1
+fi
+echo "  Sparkle version dir: $SPARKLE_VDIR"
+
+# Sign inside-out: XPC services first, then helper apps, then framework, then main app.
+# Count what we sign and FAIL LOUDLY if a glob matches nothing — a Sparkle
+# layout change must never silently ship unsigned installer components.
+XPC_COUNT=0
+for xpc in "$SPARKLE_VDIR"/XPCServices/*.xpc; do
+    [[ -d "$xpc" ]] || continue
+    codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$xpc"
+    XPC_COUNT=$((XPC_COUNT + 1))
+done
+HELPER_COUNT=0
+for helper in "$SPARKLE_VDIR"/*.app; do
+    [[ -d "$helper" ]] || continue
+    codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$helper"
+    HELPER_COUNT=$((HELPER_COUNT + 1))
+done
+if [[ $XPC_COUNT -eq 0 || $HELPER_COUNT -eq 0 ]]; then
+    echo "Error: expected Sparkle installer components were not found under $SPARKLE_VDIR"
+    echo "       (XPC services signed: $XPC_COUNT, helper apps signed: $HELPER_COUNT)."
+    echo "       The Sparkle framework layout has likely changed — update the signing"
+    echo "       paths in scripts/release.sh before releasing."
+    exit 1
+fi
+if [[ ! -e "$SPARKLE_VDIR/Autoupdate" ]]; then
+    echo "Error: Sparkle Autoupdate binary not found at $SPARKLE_VDIR/Autoupdate"
+    exit 1
+fi
+codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$SPARKLE_VDIR/Autoupdate"
+codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$SPARKLE_FW"
+echo "  Signed $XPC_COUNT XPC service(s), $HELPER_COUNT helper app(s), Autoupdate, and the framework."
 
 # Re-sign the main app (picks up entitlements, ensures timestamp)
 ENTITLEMENTS="Meridian/App/Meridian.entitlements"
@@ -325,17 +450,28 @@ fi
 echo "  Signature: ${ED_SIGNATURE:0:20}..."
 echo "  Length: $LENGTH"
 
-# ── Phase 4: GitHub release ─────────────────────────────────────────
+# ── Phase 4: Push version bump + GitHub release ─────────────────────
+
+# Deferred from Phase 2: only publish the bump commit now that build,
+# signing, notarization, and stapling have all succeeded.
+echo "── Pushing version bump..."
+git push origin main
+if [[ "$CURRENT_BRANCH" == "main" ]]; then
+    BUMP_PUSHED=1
+fi
 
 echo "── Creating GitHub release..."
 RELEASE_BODY="$(echo "$NOTES" | while IFS= read -r line; do echo "- $line"; done)"
 # macOS bash 3.x trips on expanding empty arrays under `set -u`, so split the
 # command on whether the prerelease flag applies instead of using an array.
+# --target pins the tag to the commit this release was built from (captured
+# in Phase 2), not whatever the remote branch head happens to be by now.
 if [[ $IS_BETA -eq 1 ]]; then
-    gh release create "v$VERSION" "$ZIP_PATH" --title "v$VERSION" --notes "$RELEASE_BODY" --prerelease
+    gh release create "v$VERSION" "$ZIP_PATH" --title "v$VERSION" --notes "$RELEASE_BODY" --target "$RELEASE_REV" --prerelease
 else
-    gh release create "v$VERSION" "$ZIP_PATH" --title "v$VERSION" --notes "$RELEASE_BODY"
+    gh release create "v$VERSION" "$ZIP_PATH" --title "v$VERSION" --notes "$RELEASE_BODY" --target "$RELEASE_REV"
 fi
+GH_RELEASE_CREATED=1
 
 echo "── GitHub release created."
 
@@ -344,11 +480,13 @@ echo "── GitHub release created."
 echo "── Updating appcast.xml..."
 PUB_DATE="$(LC_ALL=C date -u '+%a, %d %b %Y %H:%M:%S %z')"
 
-# Build <li> items from notes
+# Build <li> items from notes. Each line is HTML-escaped: the CDATA content
+# is rendered as HTML by Sparkle, and an unescaped "]]>" in a note would
+# terminate the CDATA block and corrupt the feed.
 LI_ITEMS=""
 while IFS= read -r line; do
     if [[ -n "$line" ]]; then
-        LI_ITEMS="$LI_ITEMS                    <li>$line</li>
+        LI_ITEMS="$LI_ITEMS                    <li>$(html_escape "$line")</li>
 "
     fi
 done <<< "$NOTES"
@@ -394,11 +532,21 @@ awk '
     }
     { print }
 ' "$APPCAST" > "$TMPAPPCAST"
-mv "$TMPAPPCAST" "$APPCAST"
 rm -f "$TMPITEM"
+
+# Validate the generated feed BEFORE it replaces appcast.xml or gets
+# committed — a malformed appcast would break updates for every user.
+if ! xmllint --noout "$TMPAPPCAST"; then
+    echo "Error: generated appcast is not well-formed XML — aborting before commit."
+    echo "       Inspect the generated file at: $TMPAPPCAST"
+    echo "       appcast.xml in the working tree is unchanged."
+    exit 1
+fi
+mv "$TMPAPPCAST" "$APPCAST"
 
 git add "$APPCAST"
 git commit -m "Update appcast.xml for v$VERSION"
+APPCAST_COMMITTED=1
 
 if ! git push origin main; then
     echo ""
@@ -406,6 +554,7 @@ if ! git push origin main; then
     echo "  git push origin main"
     exit 1
 fi
+APPCAST_PUSHED=1
 
 echo "── Appcast updated and pushed."
 
@@ -441,6 +590,8 @@ else
 fi
 
 # ── Phase 7: Summary ────────────────────────────────────────────────
+
+RELEASE_COMPLETE=1
 
 echo ""
 echo "=== Release v$VERSION complete! ==="
