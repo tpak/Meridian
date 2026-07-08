@@ -100,6 +100,9 @@ struct MenuBarPane: View {
     @AppStorage("showDayInMenubar") private var showDay = false
     @AppStorage("showDateInMenubar") private var showDate = false
     @AppStorage("timeFormat") private var timeFormat: TimeFormat = .twelveHour
+    // Menu-bar-only seconds (default off). Independent of Appearance › Show
+    // seconds, which drives the popover via `timeFormat`.
+    @AppStorage(UserDefaultKeys.showSecondsInMenubar) private var menubarShowSeconds = false
     @AppStorage(DaybreakDefaults.Keys.menubarColorDots) private var menubarColorDots = true
     // Legacy two-line stacked layout, opt-in via the "Stacked" preset (issue #142). Default off.
     @AppStorage(DaybreakDefaults.Keys.menubarStacked) private var menubarStacked = false
@@ -167,9 +170,10 @@ struct MenuBarPane: View {
 
     private var previewItems: [PreviewChipItem] {
         previewSamples.map { sample in
-            // Seconds formats tick live in the real menu bar; the static
-            // sample just shows a representative seconds value.
-            let seconds = timeFormat.includesSeconds ? ":32" : ""
+            // Seconds tick live in the real menu bar; the static sample just
+            // shows a representative value. Keyed off the menu-bar-only pref,
+            // not the Appearance format (which drives the popover).
+            let seconds = menubarShowSeconds ? ":32" : ""
             let time = timeFormat.isTwentyFourHour
                 ? "\(sample.t24)\(seconds)"
                 : "\(sample.t12)\(seconds) \(sample.ampm)"
@@ -265,6 +269,14 @@ struct MenuBarPane: View {
             }
             formRow(String(localized: "24-hour time")) {
                 Toggle("", isOn: twentyFourBinding)
+                    .labelsHidden()
+                    .toggleStyle(AccentSwitchToggleStyle(accent: accent))
+            }
+            // Menu-bar-only seconds. Presets don't define a seconds choice
+            // (it's orthogonal, like Appearance's Show seconds), so flipping
+            // it neither marks the preset "custom" nor is touched by presets.
+            formRow(String(localized: "Seconds")) {
+                Toggle("", isOn: $menubarShowSeconds)
                     .labelsHidden()
                     .toggleStyle(AccentSwitchToggleStyle(accent: accent))
             }

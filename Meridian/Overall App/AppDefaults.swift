@@ -261,6 +261,11 @@ class AppDefaults {
             UserDefaultKeys.floatOnTop: false,
             UserDefaultKeys.timeFormat: TimeFormat.twelveHour.rawValue,
 
+            // Menu-bar-only seconds toggle (Settings › Menu Bar). Off by
+            // default — seconds crowd the menu bar; the popover's seconds
+            // stay on `timeFormat` (Appearance › Show seconds).
+            UserDefaultKeys.showSecondsInMenubar: false,
+
             // Untouched.
             UserDefaultKeys.startAtLogin: 0,
             UserDefaultKeys.userFontSizePreference: AppDefaultValues.defaultUserFontSize,

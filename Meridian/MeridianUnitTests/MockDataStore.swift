@@ -61,6 +61,15 @@ class MockDataStore: DataStoring {
         return preferences[UserDefaultKeys.selectedTimeZoneFormatKey] as? NSNumber ?? NSNumber(integerLiteral: 0)
     }
 
+    // Mirrors DataStore.menubarTimezoneFormat(): hour style from the global
+    // format, seconds from the menu-bar-only pref (default false).
+    func menubarTimezoneFormat() -> NSNumber {
+        let base = TimeFormat(rawValue: timezoneFormat().intValue) ?? .twelveHour
+        let seconds = preferences[UserDefaultKeys.showSecondsInMenubar] as? Bool ?? false
+        let format = TimeFormat.standard(twentyFourHour: base.isTwentyFourHour, seconds: seconds)
+        return NSNumber(value: format.rawValue)
+    }
+
     func isBufferRequiredForTwelveHourFormats() -> Bool {
         let timeFormatsWithSuffix: Set<NSNumber> = Set([
             NSNumber(integerLiteral: 0),
@@ -69,7 +78,8 @@ class MockDataStore: DataStoring {
             NSNumber(integerLiteral: 6),
             NSNumber(integerLiteral: 7)
         ])
-        return timeFormatsWithSuffix.contains(timezoneFormat())
+        // Menu-bar-only width heuristic — keys off the menu-bar format, like DataStore.
+        return timeFormatsWithSuffix.contains(menubarTimezoneFormat())
     }
 
     func shouldShowDateInMenubar() -> Bool {

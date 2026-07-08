@@ -26,6 +26,7 @@ protocol DataStoring: AnyObject {
     func addTimezone(_ timezone: TimezoneData)
     func removeLastTimezone()
     func timezoneFormat() -> NSNumber
+    func menubarTimezoneFormat() -> NSNumber
     func isBufferRequiredForTwelveHourFormats() -> Bool
     func shouldShowDateInMenubar() -> Bool
     func shouldShowDayInMenubar() -> Bool
@@ -148,8 +149,22 @@ class DataStore: NSObject, DataStoring {
         return NSNumber(value: timeFormat.rawValue)
     }
 
+    /// The global time format for the MENU BAR clock. Hour style (12/24)
+    /// follows `timeFormat` (Settings › Appearance), but seconds come from
+    /// the menu-bar-only `menubarShowSeconds` pref (Settings › Menu Bar ›
+    /// Seconds) so the crowded menu bar and the roomier Daybreak popover can
+    /// show seconds independently. Per-city `overrideFormat` still wins —
+    /// callers pass this number into `TimezoneData.timezoneFormat(_:)` /
+    /// `shouldShowSeconds(_:)` exactly like `timezoneFormat()`.
+    func menubarTimezoneFormat() -> NSNumber {
+        let format = TimeFormat.standard(twentyFourHour: timeFormat.isTwentyFourHour, seconds: menubarShowSeconds)
+        return NSNumber(value: format.rawValue)
+    }
+
+    // Menu-bar-only width heuristic (StatusItemHandler.bufferCalculatedWidth),
+    // so it keys off the menu-bar format, not the popover's.
     func isBufferRequiredForTwelveHourFormats() -> Bool {
-        return DataStore.timeFormatsWithSuffix.contains(timezoneFormat())
+        return DataStore.timeFormatsWithSuffix.contains(menubarTimezoneFormat())
     }
 
     // shouldDisplay(_:) is the legacy entry point — kept for source-compat
@@ -363,6 +378,13 @@ extension DataStore {
     var floatOnTop: Bool {
         get { userDefaults.bool(forKey: UserDefaultKeys.floatOnTop) }
         set { userDefaults.set(newValue, forKey: UserDefaultKeys.floatOnTop) }
+    }
+
+    // Seconds in the menu-bar clock only (Settings › Menu Bar › Seconds;
+    // default false). The popover's seconds live in `timeFormat` below.
+    var menubarShowSeconds: Bool {
+        get { userDefaults.bool(forKey: UserDefaultKeys.showSecondsInMenubar) }
+        set { userDefaults.set(newValue, forKey: UserDefaultKeys.showSecondsInMenubar) }
     }
 
     // Enums (Int-backed; raw values match the popup/segment selectedIndex).

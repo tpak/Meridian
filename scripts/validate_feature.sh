@@ -5,6 +5,13 @@
 # Appearance, keep the seconds choice flowing through the Menu Bar pane's
 # preview / 24-hour toggle / presets, and document it in the user manual.
 #
+# Extension (UAT feedback): seconds are controlled INDEPENDENTLY per surface —
+# Appearance › Show seconds keeps driving the Daybreak popover + preview via
+# `timeFormat`, while a new Menu Bar › Seconds toggle (UserDefaults bool
+# `showSecondsInMenubar`, default false) drives only the menu-bar clock via
+# `DataStore.menubarTimezoneFormat()` (hour style from timeFormat, seconds
+# from the menubar pref). Sections 8–10 below validate the split.
+#
 # Run BEFORE implementing (expect failures), then again after (expect all green).
 #
 #   bash scripts/validate_feature.sh            # static checks + Debug build
@@ -74,6 +81,54 @@ check "applyPreset preserves seconds" -Fq '.standard(twentyFourHour: preset.twen
 # 7. User manual documents the new toggle and the per-second tick.
 check "manual documents the Show seconds toggle" -Fq '**Show seconds**' "$MANUAL"
 check "manual mentions the menu-bar clock ticking every second" -Fq 'ticks every second' "$MANUAL"
+
+# ------------------------------------------------------------------
+# Independent menu-bar seconds (UAT follow-up) — sections 8–10.
+# ------------------------------------------------------------------
+STR="Meridian/Overall App/Strings.swift"
+AD="Meridian/Overall App/AppDefaults.swift"
+SIH="Meridian/Preferences/Menu Bar/StatusItemHandler.swift"
+SCV="Meridian/Preferences/Menu Bar/StatusContainerView.swift"
+TDO="Meridian/Panel/Data Layer/TimezoneDataOperations.swift"
+SM="Meridian/Overall App/SettingsManager.swift"
+TESTS="Meridian/MeridianUnitTests/MeridianUnitTests.swift"
+
+# 8. New pref: key constant, registered default (false), typed accessor, and
+#    the derived menu-bar format on DataStore.
+check "UserDefaultKeys has showSecondsInMenubar" -Fq 'static let showSecondsInMenubar = "showSecondsInMenubar"' "$STR"
+check "AppDefaults registers showSecondsInMenubar default false" -Fq 'UserDefaultKeys.showSecondsInMenubar: false' "$AD"
+check "DataStore.menubarShowSeconds typed accessor exists" -Eq 'var[[:space:]]+menubarShowSeconds:[[:space:]]*Bool' "$DS"
+check "DataStore.menubarTimezoneFormat() exists" -Fq 'func menubarTimezoneFormat() -> NSNumber' "$DS"
+check "menubarTimezoneFormat derives hour style from timeFormat + seconds from menubarShowSeconds" \
+  -Fq 'standard(twentyFourHour: timeFormat.isTwentyFourHour, seconds: menubarShowSeconds)' "$DS"
+
+# 9. Menu-bar render paths use the menubar format; popover/panel paths don't.
+check "StatusItemHandler seconds check uses menubarTimezoneFormat" -Fq 'shouldShowSeconds(store.menubarTimezoneFormat())' "$SIH"
+check "StatusContainerView width/seconds logic uses menubarTimezoneFormat" -Fq 'store.menubarTimezoneFormat()' "$SCV"
+if grep -Fq 'store.timezoneFormat()' "$SCV"; then
+  bad "StatusContainerView still reads the popover format (store.timezoneFormat())"
+else
+  ok "StatusContainerView no longer reads the popover format"
+fi
+check "TimezoneDataOperations exposes a menubarTime(with:) variant" -Fq 'func menubarTime(with' "$TDO"
+check "compact menu strings render via menubarTime" -Fq 'menubarTime(with: 0)' "$TDO"
+check "popover secondsSuffix still keyed off timeFormat (unchanged)" -Fq 'store.timeFormat.includesSeconds' "$DVM"
+
+# 10. Settings UI, preview, export/import, catalog, manual, tests.
+check "MenuBarPane has a Seconds row" -Fq 'String(localized: "Seconds")' "$MBP"
+check "MenuBarPane Seconds toggle binds the menubar pref" -Fq '$menubarShowSeconds' "$MBP"
+if grep -Fq 'timeFormat.includesSeconds ? ":32"' "$MBP"; then
+  bad "MenuBarPane preview strip still keys seconds off the Appearance timeFormat"
+else
+  ok "MenuBarPane preview strip no longer keys seconds off the Appearance timeFormat"
+fi
+check "MenuBarPane preview strip uses the menubar pref for the :32 sample" -Fq 'menubarShowSeconds ? ":32"' "$MBP"
+check "'Seconds' key exists in the string catalog" -Fq '"Seconds": {' "Meridian/App/Localizable.xcstrings"
+check "SettingsManager v2 exports showSecondsInMenubar" -Fq 'V2Key.showSecondsInMenubar: store.menubarShowSeconds' "$SM"
+check "SettingsManager v2 imports showSecondsInMenubar" -Fq 'prefs[V2Key.showSecondsInMenubar] as? Bool' "$SM"
+check "manual: Appearance Show seconds is popover-only and points at Menu Bar pane" -Fq 'popover only' "$MANUAL"
+check "manual: Menu Bar fine-tune list documents the Seconds toggle" -Fq '**Seconds**' "$MANUAL"
+check "unit test covers menubarTimezoneFormat derivation" -Fq 'func testMenubarTimezoneFormat' "$TESTS"
 
 echo ""
 if [[ "${1:-}" == "--no-build" ]]; then

@@ -772,6 +772,16 @@
         }
       }
     },
+    "Seconds": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seconds"
+          }
+        }
+      }
+    },
     "Set color": {
       "localizations": {
         "en": {
