@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 #
-# validate_feature.sh — TDD checks for the backfill data-loss audit fixes:
-#   1. AppDelegate.backfillMissingCoordinates merges by stable identity into a
-#      FRESH store read instead of writing back the launch-time snapshot.
-#   2. StatusItemHandler derives the .second calendar component per call (the
-#      old instance-level set only ever gained .second, never lost it).
-#   3. The dead NotificationCenter.default didWake observer is deleted
-#      (NSWorkspace posts on NSWorkspace.shared.notificationCenter).
-#   4. runHomeRowMigrationV1 keeps the FIRST flagged row when no row matches
-#      the current system timezone (instead of clearing the flag everywhere).
-#   5. migrateInvertedBool writes nothing when the legacy value can't be
-#      interpreted (instead of defaulting to 1 == feature hidden).
+# validate_feature.sh — TDD checks for "seconds time formats in v4 Settings":
+# expose 12-hour/24-hour "with seconds" (TimeFormat raw 3/4) in Settings ›
+# Appearance, keep the seconds choice flowing through the Menu Bar pane's
+# preview / 24-hour toggle / presets, and document it in the user manual.
+#
+# Extension (UAT feedback): seconds are controlled INDEPENDENTLY per surface —
+# Appearance › Show seconds keeps driving the Daybreak popover + preview via
+# `timeFormat`, while a new Menu Bar › Seconds toggle (UserDefaults bool
+# `showSecondsInMenubar`, default false) drives only the menu-bar clock via
+# `DataStore.menubarTimezoneFormat()` (hour style from timeFormat, seconds
+# from the menubar pref). Sections 8–10 below validate the split.
 #
 # Run BEFORE implementing (expect failures), then again after (expect all green).
 #
-#   bash scripts/validate_feature.sh            # static checks + build + new tests
+#   bash scripts/validate_feature.sh            # static checks + Debug build
 #   bash scripts/validate_feature.sh --no-build # static checks only (fast)
 #
 set -uo pipefail
@@ -23,11 +23,10 @@ cd "$(dirname "$0")/.." || exit 2
 
 PASS=0
 FAIL=0
-APPD="Meridian/AppDelegate.swift"
-SIH="Meridian/Preferences/Menu Bar/StatusItemHandler.swift"
-DEFAULTS="Meridian/Overall App/AppDefaults.swift"
-UNIT="Meridian/MeridianUnitTests/MeridianUnitTests.swift"
-APPD_TESTS="Meridian/MeridianUnitTests/AppDelegateTests.swift"
+AP="Meridian/Preferences/V4Settings/AppearancePane.swift"
+MBP="Meridian/Preferences/V4Settings/MenuBarPane.swift"
+DS="Meridian/Overall App/DataStore.swift"
+MANUAL="docs/manual.md"
 
 ok()  { printf "  \033[32mOK:\033[0m   %s\n" "$1"; PASS=$((PASS+1)); }
 bad() { printf "  \033[31mFAIL:\033[0m %s\n" "$1" >&2; FAIL=$((FAIL+1)); }
@@ -37,109 +36,117 @@ check() { # check "description" <grep-args...>
   if grep -q "$@"; then ok "$desc"; else bad "$desc"; fi
 }
 
-absent() { # absent "description" <grep-args...>
-  local desc="$1"; shift
-  if grep -q "$@"; then bad "$desc"; else ok "$desc"; fi
-}
+echo "Seconds time formats in v4 Settings — validation"
+echo "------------------------------------------------"
 
-echo "Backfill data-loss + timer/migration audit fixes — validation"
-echo "--------------------------------------------------------------"
+# 1. Appearance pane splits the format into a 12/24 segment + seconds toggle.
+check "AppearancePane has a Show seconds row" -Fq 'String(localized: "Show seconds")' "$AP"
+check "seconds toggle binding preserves hour style" -Fq 'timeFormat = .standard(twentyFourHour: timeFormat.isTwentyFourHour, seconds: $0)' "$AP"
+check "hour segment binding preserves seconds" -Fq 'seconds: timeFormat.includesSeconds)' "$AP"
 
-# --- Fix 1: coordinate backfill must not clobber concurrent edits ------------
+# 2. The toggle label is in the string catalog.
+check "'Show seconds' key exists in the string catalog" -Fq '"Show seconds"' "Meridian/App/Localizable.xcstrings"
 
-# The merge is a pure, unit-testable function keyed by stable identity.
-check "AppDelegate has mergeBackfilledCoordinates(current:...)" \
-  -Eq 'static func mergeBackfilledCoordinates\(current:' "$APPD"
+# 2b. The Daybreak popover honors the setting (hero + city rows tick seconds).
+DVM="Meridian/Panel/Daybreak/DaybreakViewModel.swift"
+check "DaybreakViewModel derives a seconds suffix from the setting" -Fq 'store.timeFormat.includesSeconds' "$DVM"
+check "hero time appends the seconds suffix" -Fq 'time += secondsSuffix(reference)' "$DVM"
+check "city rows append the seconds suffix" -Fq 'time + secondsSuffix(reference)' "$DVM"
+check "unit test covers popover seconds display" -Fq 'testHeroSecondsFollowShowSecondsSetting' "Meridian/MeridianUnitTests/DaybreakEngineTests.swift"
 
-# The identity used for the merge is derived from the model, not the array index.
-check "AppDelegate derives a stable backfill identity from TimezoneData" \
-  -Eq 'func backfillIdentity\(for' "$APPD"
+# 3. The live PREVIEW card renders seconds for the new formats.
+check "preview shows a 24-hour seconds sample (20:17:45)" -Fq '20:17:45' "$AP"
+check "preview shows a 12-hour seconds sample (8:17:45 PM)" -Fq '8:17:45 PM' "$AP"
 
-# The write path re-reads the store AFTER the awaits (fresh read feeding the merge).
-check "backfill merges into a fresh store.timezones() read" \
-  -Eq 'mergeBackfilledCoordinates\(current: store\.timezones\(\)' "$APPD"
+# 4. TimeFormat helpers exist so panes share one definition of "has seconds" / "is 24h".
+check "TimeFormat.includesSeconds helper exists" -Eq 'var[[:space:]]+includesSeconds:[[:space:]]*Bool' "$DS"
+check "TimeFormat.isTwentyFourHour helper exists" -Eq 'var[[:space:]]+isTwentyFourHour:[[:space:]]*Bool' "$DS"
+check "TimeFormat.standard(twentyFourHour:seconds:) exists" -Eq 'static func standard\(twentyFourHour: Bool, seconds: Bool\)' "$DS"
 
-# The old positional write-back of the pre-await snapshot is gone.
-absent "no positional snapshot write-back (timezones[index] = encoded)" \
-  -Fq 'timezones[index] = encoded' "$APPD"
+# 5. Menu Bar pane's preview strip renders raw values 3/4 correctly (24h check
+#    no longer equates "not .twentyFourHour" with 12-hour; seconds appear).
+check "MenuBarPane preview uses includesSeconds" -Fq 'timeFormat.includesSeconds' "$MBP"
+check "MenuBarPane preview uses isTwentyFourHour" -Fq 'timeFormat.isTwentyFourHour' "$MBP"
+if grep -Fq 'timeFormat == .twentyFourHour ? sample.t24' "$MBP"; then
+  bad "MenuBarPane preview still hard-codes the two-format ternary"
+else
+  ok "MenuBarPane preview no longer hard-codes the two-format ternary"
+fi
 
-# Unit test: user edits during backfill survive the merge.
-check "unit test covers add+remove during backfill" \
-  -Eq 'func testMergeBackfilledCoordinates.*(KeepsUserEdits|PreservesConcurrentEdits)' "$APPD_TESTS"
+# 6. The Menu Bar pane's 24-hour toggle and presets preserve the seconds choice
+#    instead of clamping raw 3/4 back to 0/1.
+check "24-hour toggle preserves seconds" -Fq '.standard(twentyFourHour: on, seconds: timeFormat.includesSeconds)' "$MBP"
+check "applyPreset preserves seconds" -Fq '.standard(twentyFourHour: preset.twentyFourHour, seconds: timeFormat.includesSeconds)' "$MBP"
 
-# --- Fix 2: .second component derived fresh per calculation ------------------
+# 7. User manual documents the new toggle and the per-second tick.
+check "manual documents the Show seconds toggle" -Fq '**Show seconds**' "$MANUAL"
+check "manual mentions the menu-bar clock ticking every second" -Fq 'ticks every second' "$MANUAL"
 
-# The sticky instance-level set is gone (a plain local 'var units' is fine)…
-absent "no instance-level 'units' property on StatusItemHandler" \
-  -Eq 'private (lazy )?var units' "$SIH"
+# ------------------------------------------------------------------
+# Independent menu-bar seconds (UAT follow-up) — sections 8–10.
+# ------------------------------------------------------------------
+STR="Meridian/Overall App/Strings.swift"
+AD="Meridian/Overall App/AppDefaults.swift"
+SIH="Meridian/Preferences/Menu Bar/StatusItemHandler.swift"
+SCV="Meridian/Preferences/Menu Bar/StatusContainerView.swift"
+TDO="Meridian/Panel/Data Layer/TimezoneDataOperations.swift"
+SM="Meridian/Overall App/SettingsManager.swift"
+TESTS="Meridian/MeridianUnitTests/MeridianUnitTests.swift"
 
-# …and the once-only sticky insert guard with it.
-absent "no sticky '!units.contains(.second)' insert guard" \
-  -Fq '!units.contains(.second)' "$SIH"
+# 8. New pref: key constant, registered default (false), typed accessor, and
+#    the derived menu-bar format on DataStore.
+check "UserDefaultKeys has showSecondsInMenubar" -Fq 'static let showSecondsInMenubar = "showSecondsInMenubar"' "$STR"
+check "AppDefaults registers showSecondsInMenubar default false" -Fq 'UserDefaultKeys.showSecondsInMenubar: false' "$AD"
+check "DataStore.menubarShowSeconds typed accessor exists" -Eq 'var[[:space:]]+menubarShowSeconds:[[:space:]]*Bool' "$DS"
+check "DataStore.menubarTimezoneFormat() exists" -Fq 'func menubarTimezoneFormat() -> NSNumber' "$DS"
+check "menubarTimezoneFormat derives hour style from timeFormat + seconds from menubarShowSeconds" \
+  -Fq 'standard(twentyFourHour: timeFormat.isTwentyFourHour, seconds: menubarShowSeconds)' "$DS"
 
-# The component set is rebuilt locally on every calculation.
-check "component set derived fresh per call" \
-  -Eq 'var units: Set<Calendar\.Component> = \[\.era' "$SIH"
+# 9. Menu-bar render paths use the menubar format; popover/panel paths don't.
+check "StatusItemHandler seconds check uses menubarTimezoneFormat" -Fq 'shouldShowSeconds(store.menubarTimezoneFormat())' "$SIH"
+check "StatusContainerView width/seconds logic uses menubarTimezoneFormat" -Fq 'store.menubarTimezoneFormat()' "$SCV"
+if grep -Fq 'store.timezoneFormat()' "$SCV"; then
+  bad "StatusContainerView still reads the popover format (store.timezoneFormat())"
+else
+  ok "StatusContainerView no longer reads the popover format"
+fi
+check "TimezoneDataOperations exposes a menubarTime(with:) variant" -Fq 'func menubarTime(with' "$TDO"
+check "compact menu strings render via menubarTime" -Fq 'menubarTime(with: 0)' "$TDO"
+check "popover secondsSuffix still keyed off timeFormat (unchanged)" -Fq 'store.timeFormat.includesSeconds' "$DVM"
 
-# The minute-boundary branch pins seconds to zero.
-check "minute-branch fire date has second == 0" \
-  -Fq 'components.second = 0' "$SIH"
+# 10. Settings UI, preview, export/import, catalog, manual, tests.
+check "MenuBarPane has a Seconds row" -Fq 'String(localized: "Seconds")' "$MBP"
+check "MenuBarPane Seconds toggle binds the menubar pref" -Fq '$menubarShowSeconds' "$MBP"
+if grep -Fq 'timeFormat.includesSeconds ? ":32"' "$MBP"; then
+  bad "MenuBarPane preview strip still keys seconds off the Appearance timeFormat"
+else
+  ok "MenuBarPane preview strip no longer keys seconds off the Appearance timeFormat"
+fi
+check "MenuBarPane preview strip uses the menubar pref for the :32 sample" -Fq 'menubarShowSeconds ? ":32"' "$MBP"
+check "'Seconds' key exists in the string catalog" -Fq '"Seconds": {' "Meridian/App/Localizable.xcstrings"
+check "SettingsManager v2 exports showSecondsInMenubar" -Fq 'V2Key.showSecondsInMenubar: store.menubarShowSeconds' "$SM"
+check "SettingsManager v2 imports showSecondsInMenubar" -Fq 'prefs[V2Key.showSecondsInMenubar] as? Bool' "$SM"
+check "manual: Appearance Show seconds is popover-only and points at Menu Bar pane" -Fq 'popover only' "$MANUAL"
+check "manual: Menu Bar fine-tune list documents the Seconds toggle" -Fq '**Seconds**' "$MANUAL"
+check "unit test covers menubarTimezoneFormat derivation" -Fq 'func testMenubarTimezoneFormat' "$TESTS"
 
-# --- Fix 3: dead default-center didWake observer deleted ---------------------
-
-absent "no NotificationCenter.default subscription to NSWorkspace.didWakeNotification" \
-  -Fq 'NotificationCenter.default.publisher(for: NSWorkspace.didWakeNotification)' "$SIH"
-
-# The correct workspace-center subscriptions must remain intact.
-check "workspace-center didWake subscription still present" \
-  -Fq 'NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didWakeNotification)' "$SIH"
-check "workspace-center willSleep subscription still present" \
-  -Fq 'NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.willSleepNotification)' "$SIH"
-
-# --- Fix 4: home-row migration keeps first flagged row as fallback -----------
-
-check "runHomeRowMigrationV1 falls back to the first flagged row" \
-  -Eq 'keepIndex = flaggedIndices\.first$' "$DEFAULTS"
-
-check "unit test covers two flagged rows with no system match" \
-  -Eq 'func testHomeRowMigration.*(NoMatch|NeitherMatches)' "$UNIT"
-
-# --- Fix 5: migrateInvertedBool skips uninterpretable legacy values ----------
-
-absent "migrateInvertedBool no longer defaults garbage to 1 (hidden)" \
-  -Fq '?? (object as? Int) ?? 1' "$DEFAULTS"
-
-check "migrateInvertedBool guards on an interpretable legacy value" \
-  -Eq 'guard let legacyInt' "$DEFAULTS"
-
-check "unit test covers garbage legacy value leaving registered default" \
-  -Eq 'func testInvertedBool_garbageLegacyValue' "$UNIT"
-
-# --- Build + targeted tests ---------------------------------------------------
-
-if [[ "${1:-}" != "--no-build" ]]; then
-  echo ""
-  echo "Building Debug configuration…"
+echo ""
+if [[ "${1:-}" == "--no-build" ]]; then
+  echo "Skipping build (--no-build)."
+else
+  echo "Building (Debug, no code signing)…"
+  BUILD_LOG=$(mktemp)
   if xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug build \
-      CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY= > /tmp/validate_build.log 2>&1; then
-    ok "Debug build succeeds"
+       CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY= \
+       >"$BUILD_LOG" 2>&1; then
+    ok "Debug build succeeded"
   else
-    bad "Debug build failed (see /tmp/validate_build.log)"
-  fi
-
-  echo "Running the new unit tests (serial)…"
-  if xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug test \
-      -only-testing:MeridianUnitTests/AppDelegateTests \
-      -only-testing:MeridianUnitTests/MeridianUnitTests \
-      -only-testing:MeridianUnitTests/BoolSemanticsMigrationTests \
-      -parallel-testing-enabled NO -disable-concurrent-destination-testing \
-      CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY= > /tmp/validate_tests.log 2>&1; then
-    ok "New + surrounding unit tests pass"
-  else
-    bad "Unit tests failed (see /tmp/validate_tests.log)"
+    bad "Debug build FAILED — see $BUILD_LOG"
+    tail -25 "$BUILD_LOG" >&2
   fi
 fi
 
 echo ""
-echo "Passed: $PASS  Failed: $FAIL"
-[[ $FAIL -eq 0 ]] || exit 1
+echo "------------------------------------------------"
+echo "PASS=$PASS  FAIL=$FAIL"
+[[ "$FAIL" -eq 0 ]] && { echo "ALL GREEN"; exit 0; } || { echo "FAILURES PRESENT"; exit 1; }

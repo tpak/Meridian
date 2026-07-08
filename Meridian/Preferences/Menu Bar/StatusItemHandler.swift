@@ -354,8 +354,11 @@ class StatusItemHandler: NSObject {
     }
 
     private func shouldDisplaySecondsInMenubar() -> Bool {
+        // Menu-bar seconds are governed by the menu-bar format (Settings ›
+        // Menu Bar › Seconds), not the popover's Appearance format —
+        // per-city overrideFormat still wins inside shouldShowSeconds.
         let syncedTimezones = store.menubarTimezoneObjects()
-        return syncedTimezones.contains { $0.shouldShowSeconds(store.timezoneFormat()) }
+        return syncedTimezones.contains { $0.shouldShowSeconds(store.menubarTimezoneFormat()) }
     }
 
     private func calculateFireDate() -> Date? {

@@ -274,7 +274,8 @@ final class DaybreakViewModel: ObservableObject {
 
     private func makeHero(name: String, locationTraveling: Bool, timeZone: TimeZone, reference: Date,
                           localMinutes: Int, window: SunWindow, phase: DayPhase) -> DaybreakHeroData {
-        let (time, period) = formatTime(localMinutes)
+        var (time, period) = formatTime(localMinutes)
+        time += secondsSuffix(reference)
         let event = DaybreakEngine.nextSunEvent(localMinutes: localMinutes, sunrise: window.sunrise, sunset: window.sunset)
         let eventString = eventLabel(event)
         let dateString = string(fullDate, reference, timeZone)
@@ -311,7 +312,7 @@ final class DaybreakViewModel: ObservableObject {
             name: city.formattedTimezoneLabel(),
             isHome: tz.identifier == homeID,
             phase: phase,
-            time: time, period: period,
+            time: time + secondsSuffix(reference), period: period,
             offsetLabel: offsetLabel,
             nextEventLabel: showSunriseSunset ? eventLabel(event) : hover,
             hoverLabel: hover,
@@ -348,6 +349,17 @@ final class DaybreakViewModel: ObservableObject {
     /// Settings → Appearance → "Sunrise / sunset". When off, the next-sun-event sub-labels are
     /// suppressed (rows fall back to the UTC line; the hero subline shows just the date).
     private var showSunriseSunset: Bool { store.showSunriseSunset }
+
+    /// ":SS" for the hero and city-row clocks when Settings › Appearance has
+    /// "Show seconds" on. The 1s ticker keeps it live while the panel is open.
+    /// Suppressed while time-traveling — scrubbed times are minute-granular
+    /// hypotheticals, so live seconds would be noise. Timezone offsets are
+    /// whole minutes, so one seconds component serves every city. Sun-event
+    /// and scrubber labels stay minute-granular by design.
+    private func secondsSuffix(_ reference: Date) -> String {
+        guard travelOffsetMinutes == 0, store.timeFormat.includesSeconds else { return "" }
+        return String(format: ":%02d", Calendar.current.component(.second, from: reference))
+    }
 
     private func formatTime(_ minutes: Int) -> (time: String, period: String) {
         switch store.timeFormat {

@@ -772,6 +772,16 @@
         }
       }
     },
+    "Seconds": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seconds"
+          }
+        }
+      }
+    },
     "Set color": {
       "localizations": {
         "en": {
@@ -818,6 +828,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Show in menu bar"
+          }
+        }
+      }
+    },
+    "Show seconds": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show seconds"
           }
         }
       }

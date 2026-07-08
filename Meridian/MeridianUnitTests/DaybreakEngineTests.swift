@@ -281,6 +281,36 @@ final class DaybreakViewModelTravelTests: XCTestCase {
         XCTAssertEqual(vm.travelOffsetMinutes, 0)
     }
 
+    /// The popover clocks honor Settings › Appearance → "Show seconds": the hero time carries a
+    /// live ":SS" suffix when the format includes seconds, drops it for plain formats, and
+    /// suppresses it while time-traveling (scrubbed times are minute-granular hypotheticals).
+    func testHeroSecondsFollowShowSecondsSetting() {
+        // Fixed instant; derive the expected suffix the same way the VM does.
+        let now = Date(timeIntervalSinceReferenceDate: 700_000_000)
+        let expectedSuffix = String(format: ":%02d", Calendar.current.component(.second, from: now))
+
+        let suite = "DaybreakSecondsTest"
+        let defaults = UserDefaults(suiteName: suite)!
+        defaults.removePersistentDomain(forName: suite)
+        let store = DataStore(with: defaults)
+
+        store.timeFormat = .twelveHourWithSeconds
+        // init() recomputes with the injected `now` — do NOT call refresh(),
+        // which deliberately resets `now` to the live wall clock.
+        let vm = DaybreakViewModel(store: store, now: now)
+        XCTAssertTrue(vm.snapshot.hero.time.hasSuffix(expectedSuffix),
+                      "hero time '\(vm.snapshot.hero.time)' should end with '\(expectedSuffix)'")
+
+        vm.setOffset(90)                                   // time travel suppresses seconds
+        XCTAssertEqual(vm.snapshot.hero.time.filter { $0 == ":" }.count, 1,
+                       "traveled hero time '\(vm.snapshot.hero.time)' must stay minute-granular (H:MM)")
+
+        store.timeFormat = .twelveHour                     // plain format shows no seconds
+        let plainVM = DaybreakViewModel(store: store, now: now)
+        XCTAssertEqual(plainVM.snapshot.hero.time.filter { $0 == ":" }.count, 1,
+                       "plain 12-hour hero time '\(plainVM.snapshot.hero.time)' should be H:MM")
+    }
+
     /// Sliding from an off-grid wall clock (e.g. 1:46) must land the traveled time on a clean
     /// snap-step boundary (3:15, not 3:16) — the legacy quarter-hour base, recreated. The grid anchor
     /// is frozen at travel start, so every real zone (a whole number of 15-min steps from UTC) shows

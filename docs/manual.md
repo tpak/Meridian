@@ -167,7 +167,9 @@ The **Stacked** preset puts each city's name above its time, roughly halving the
 
 ### Fine-tune toggles
 
-Below the presets you can switch individual elements on or off: **Place name**, **Day of week**, **Date**, **24-hour time**, and **Color dots**. Adjusting any of these marks the active preset as "custom."
+Below the presets you can switch individual elements on or off: **Place name**, **Day of week**, **Date**, **24-hour time**, **Seconds**, and **Color dots**. Adjusting any of these marks the active preset as "custom."
+
+- **Seconds** — show seconds in the menu-bar clock, which then ticks every second (this may use slightly more energy). (Default: off.) This is independent of **Appearance → Show seconds**, which controls the popover — so seconds can tick in the roomy popover while the menu bar stays compact.
 
 ### Where Meridian appears
 
@@ -216,6 +218,7 @@ Open **Settings → Appearance**. A **PREVIEW** card at the bottom shows your ch
 - **Theme** — **Auto** (follow macOS), **Light**, or **Dark**. (Default: Light.)
 - **Accent color** — pick from a grid of **Formula 1 livery-inspired** palettes (Alpine, Aston Martin, Audi, Cadillac, Ferrari, Haas, McLaren, Mercedes, Racing Bulls, Red Bull Racing, Williams). The accent tints switches, selections, and scrubber highlights. (Default: Aston Martin.) *The palette names and colors are stylized tributes and are not affiliated with or endorsed by any Formula 1 team.* Changing the accent may prompt a quick restart so every control repaints.
 - **Time format** — **12-hour** or **24-hour**, applied everywhere (popover, menu bar, copied text). This is the same setting as the Menu Bar pane's 24-hour toggle.
+- **Show seconds** — display seconds in the popover only. (Default: off.) The menu-bar clock has its own **Seconds** toggle in the Menu Bar pane, so you can keep the menu bar compact while the popover ticks.
 - **Day display** — how each city's day/date label reads: **Relative** (Today/Tomorrow/Yesterday-style), **Actual** (weekday), **Date**, or **Hide**.
 - **Sunrise / sunset** — show each city's next sun event (see below). (Default: off.)
 - **Text size** — scale the popover's text from **85% to 130%** (default 100%).

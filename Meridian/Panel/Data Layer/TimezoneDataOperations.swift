@@ -41,11 +41,23 @@ class TimezoneDataOperations {
 
 extension TimezoneDataOperations {
     func time(with sliderValue: Int) -> String {
+        return formattedTime(with: sliderValue, globalFormat: store.timezoneFormat())
+    }
+
+    /// Menu-bar variant of `time(with:)` — identical rendering, but driven by
+    /// `DataStore.menubarTimezoneFormat()` (hour style from Appearance,
+    /// seconds from the Menu Bar pane's Seconds toggle) instead of the
+    /// popover/panel format. Used by the compactMenu* strings only.
+    func menubarTime(with sliderValue: Int) -> String {
+        return formattedTime(with: sliderValue, globalFormat: store.menubarTimezoneFormat())
+    }
+
+    private func formattedTime(with sliderValue: Int, globalFormat: NSNumber) -> String {
         let newDate = TimezoneDataOperations.gregorianCalendar.date(byAdding: .minute,
                                                                      value: sliderValue,
                                                                      to: Date()) ?? Date()
 
-        if dataObject.timezoneFormat(store.timezoneFormat()) == DateFormat.epochTime {
+        if dataObject.timezoneFormat(globalFormat) == DateFormat.epochTime {
             let timezone = TimeZone(identifier: dataObject.timezone())
             let offset = timezone?.secondsFromGMT(for: newDate) ?? 0
             let value = Int(Date().timeIntervalSince1970 + Double(offset))
@@ -53,7 +65,7 @@ extension TimezoneDataOperations {
         }
 
         let dateFormatter = DateFormatterManager.dateFormatterWithFormat(with: .none,
-                                                                         format: dataObject.timezoneFormat(store.timezoneFormat()),
+                                                                         format: dataObject.timezoneFormat(globalFormat),
                                                                          timezoneIdentifier: dataObject.timezone(),
                                                                          locale: Locale.autoupdatingCurrent)
 
@@ -150,9 +162,9 @@ extension TimezoneDataOperations {
         }
 
         if subtitle.isEmpty {
-            subtitle.append(time(with: 0))
+            subtitle.append(menubarTime(with: 0))
         } else {
-            subtitle.append(" \(time(with: 0))")
+            subtitle.append(" \(menubarTime(with: 0))")
         }
 
         return subtitle
@@ -169,7 +181,7 @@ extension TimezoneDataOperations {
         if store.shouldShowDayInMenubar() {
             parts.append(date(with: 0, displayType: .menu)) // short weekday, e.g. "Mon"
         }
-        parts.append(time(with: 0))
+        parts.append(menubarTime(with: 0))
         if store.shouldShowDateInMenubar() {
             parts.append(Date().formatter(with: "d MMM", timeZone: dataObject.timezone()))
         }

@@ -100,6 +100,9 @@ struct MenuBarPane: View {
     @AppStorage("showDayInMenubar") private var showDay = false
     @AppStorage("showDateInMenubar") private var showDate = false
     @AppStorage("timeFormat") private var timeFormat: TimeFormat = .twelveHour
+    // Menu-bar-only seconds (default off). Independent of Appearance › Show
+    // seconds, which drives the popover via `timeFormat`.
+    @AppStorage(UserDefaultKeys.showSecondsInMenubar) private var menubarShowSeconds = false
     @AppStorage(DaybreakDefaults.Keys.menubarColorDots) private var menubarColorDots = true
     // Legacy two-line stacked layout, opt-in via the "Stacked" preset (issue #142). Default off.
     @AppStorage(DaybreakDefaults.Keys.menubarStacked) private var menubarStacked = false
@@ -167,7 +170,13 @@ struct MenuBarPane: View {
 
     private var previewItems: [PreviewChipItem] {
         previewSamples.map { sample in
-            let time = timeFormat == .twentyFourHour ? sample.t24 : "\(sample.t12) \(sample.ampm)"
+            // Seconds tick live in the real menu bar; the static sample just
+            // shows a representative value. Keyed off the menu-bar-only pref,
+            // not the Appearance format (which drives the popover).
+            let seconds = menubarShowSeconds ? ":32" : ""
+            let time = timeFormat.isTwentyFourHour
+                ? "\(sample.t24)\(seconds)"
+                : "\(sample.t12)\(seconds) \(sample.ampm)"
 
             if menubarStacked {
                 // Legacy two-line item: city name on top, time (with optional day/date) below —
@@ -227,7 +236,9 @@ struct MenuBarPane: View {
         showDay = preset.day
         showDate = preset.date
         menubarColorDots = preset.dots
-        timeFormat = preset.twentyFourHour ? .twentyFourHour : .twelveHour
+        // Presets pick the 12/24-hour axis only; a "… with seconds" choice
+        // made in Settings › Appearance is orthogonal and survives them.
+        timeFormat = .standard(twentyFourHour: preset.twentyFourHour, seconds: timeFormat.includesSeconds)
         // Switching to/from the Stacked preset flips the menu-bar layout; the write triggers a
         // menu-bar rebuild via StatusItemHandler's UserDefaults observer.
         menubarStacked = preset.stacked
@@ -244,20 +255,29 @@ struct MenuBarPane: View {
                     .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                     .onChange(of: showPlaceName) { _, _ in activePresetID = "custom" }
             }
+            // Related toggles share a row (UAT: six single-toggle rows pushed
+            // the pane past the bottom of smaller screens).
             formRow(String(localized: "Day of week")) {
                 Toggle("", isOn: $showDay)
                     .labelsHidden()
                     .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                     .onChange(of: showDay) { _, _ in activePresetID = "custom" }
-            }
-            formRow(String(localized: "Date")) {
+                pairedLabel(String(localized: "Date"))
                 Toggle("", isOn: $showDate)
                     .labelsHidden()
                     .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                     .onChange(of: showDate) { _, _ in activePresetID = "custom" }
             }
+            // Menu-bar-only seconds rides with the hour style. Presets don't
+            // define a seconds choice (it's orthogonal, like Appearance's
+            // Show seconds), so flipping it neither marks the preset
+            // "custom" nor is touched by presets.
             formRow(String(localized: "24-hour time")) {
                 Toggle("", isOn: twentyFourBinding)
+                    .labelsHidden()
+                    .toggleStyle(AccentSwitchToggleStyle(accent: accent))
+                pairedLabel(String(localized: "Seconds"))
+                Toggle("", isOn: $menubarShowSeconds)
                     .labelsHidden()
                     .toggleStyle(AccentSwitchToggleStyle(accent: accent))
             }
@@ -272,9 +292,11 @@ struct MenuBarPane: View {
 
     private var twentyFourBinding: Binding<Bool> {
         Binding(
-            get: { timeFormat == .twentyFourHour },
+            get: { timeFormat.isTwentyFourHour },
             set: { on in
-                timeFormat = on ? .twentyFourHour : .twelveHour
+                // Flip only the hour style; keep the seconds half of the
+                // format chosen in Settings › Appearance.
+                timeFormat = .standard(twentyFourHour: on, seconds: timeFormat.includesSeconds)
                 activePresetID = "custom"
             }
         )
@@ -323,6 +345,18 @@ struct MenuBarPane: View {
 
     private func formRow<C: View>(_ label: String, @ViewBuilder control: @escaping () -> C) -> some View {
         FormRow(label: label, control: control)
+    }
+
+    /// Trailing label of a paired fine-tune row — same face as the leading
+    /// FormRow label. Fixed-width and right-aligned (mirroring the 150pt
+    /// leading label column) so the second toggle column lines up vertically
+    /// across paired rows regardless of label length.
+    private func pairedLabel(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 12.5))
+            .foregroundStyle(.secondary)
+            .frame(width: 84, alignment: .trailing)
+            .padding(.leading, 8)
     }
 }
 
