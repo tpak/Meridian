@@ -180,21 +180,26 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func backfillMissingCoordinates() {
         let store = DataStore.shared()
-        var timezones = store.timezones()
-        var indicesToBackfill: [(Int, TimezoneData)] = []
+        var timezonesToBackfill: [TimezoneData] = []
 
-        for (index, data) in timezones.enumerated() {
+        for data in store.timezones() {
             guard let timezone = TimezoneData.customObject(from: data) else { continue }
             if timezone.latitude == nil || timezone.longitude == nil,
                let timezoneID = timezone.timezoneID, !timezoneID.isEmpty {
-                indicesToBackfill.append((index, timezone))
+                timezonesToBackfill.append(timezone)
             }
         }
 
-        guard !indicesToBackfill.isEmpty else { return }
+        guard !timezonesToBackfill.isEmpty else { return }
 
         backfillTask = Task { @MainActor in
-            for (index, timezone) in indicesToBackfill {
+            // Geocode first, accumulating results keyed by stable identity. Each
+            // await can take seconds; writing the launch-time snapshot back after
+            // that window would silently wipe any city the user added, removed,
+            // or reordered in the meantime (CityListModel.add stores plain
+            // timezones with nil coordinates precisely for this backfill).
+            var geocoded: [String: (latitude: Double, longitude: Double)] = [:]
+            for timezone in timezonesToBackfill {
                 let components = (timezone.timezoneID ?? "").split(separator: "/")
                 guard let cityComponent = components.last else { continue }
                 let cityName = cityComponent.replacingOccurrences(of: "_", with: " ")
@@ -202,12 +207,44 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
                     Logger.debug("Coordinate backfill skipped for \(cityName)")
                     continue
                 }
-                timezone.latitude = place.coordinate.latitude
-                timezone.longitude = place.coordinate.longitude
-                guard let encoded = NSKeyedArchiver.secureArchive(with: timezone) else { continue }
-                timezones[index] = encoded
+                geocoded[Self.backfillIdentity(for: timezone)] = (place.coordinate.latitude,
+                                                                  place.coordinate.longitude)
             }
-            store.setTimezones(timezones)
+
+            guard !geocoded.isEmpty else { return }
+
+            // Re-read fresh and merge with no suspension point between the read
+            // and the write — DataStore mutations are main-actor serialized, so
+            // this read-merge-write is atomic with respect to user edits.
+            let merged = Self.mergeBackfilledCoordinates(current: store.timezones(),
+                                                         geocoded: geocoded)
+            store.setTimezones(merged)
+        }
+    }
+
+    /// Stable identity used to match a geocoded result back to a row that may
+    /// have moved while the geocoder was running. placeID + timezoneID mirrors
+    /// `TimezoneData.isEqual` — plain timezones can share a placeID, so the
+    /// timezoneID disambiguates.
+    static func backfillIdentity(for timezone: TimezoneData) -> String {
+        "\(timezone.placeID ?? "")|\(timezone.timezoneID ?? "")"
+    }
+
+    /// Pure merge step for the coordinate backfill: for every current entry
+    /// that still lacks coordinates and has a geocoded match, fill them in.
+    /// Entries added, removed, or reordered since geocoding started pass
+    /// through untouched. Static (no state) so unit tests can drive it directly.
+    static func mergeBackfilledCoordinates(current: [Data],
+                                           geocoded: [String: (latitude: Double, longitude: Double)]) -> [Data] {
+        return current.map { blob in
+            guard let timezone = TimezoneData.customObject(from: blob),
+                  timezone.latitude == nil || timezone.longitude == nil,
+                  let coordinate = geocoded[backfillIdentity(for: timezone)] else {
+                return blob
+            }
+            timezone.latitude = coordinate.latitude
+            timezone.longitude = coordinate.longitude
+            return NSKeyedArchiver.secureArchive(with: timezone) ?? blob
         }
     }
 
