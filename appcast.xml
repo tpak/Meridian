@@ -3,6 +3,21 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>4.1.1-beta9</title>
+            <pubDate>Wed, 08 Jul 2026 22:21:17 +0000</pubDate>
+            <sparkle:channel>beta</sparkle:channel>
+            <sparkle:version>4011009</sparkle:version>
+            <sparkle:shortVersionString>4.1.1-beta9</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Update the built-in update engine (Sparkle 2.9.4)</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v4.1.1-beta9/Meridian.app.zip" length="2247399" type="application/octet-stream" sparkle:edSignature="H1yZTQNlmcb6Xkig9hmxHZOewEp2nhrfZKSHsTZ5UJNdVzc/fDClAyqb+9+Aod4tpsRGn3GDUvcbs9ivZmRPDg=="/>
+        </item>
+        <item>
             <title>4.1.1-beta8</title>
             <pubDate>Wed, 08 Jul 2026 13:47:00 +0000</pubDate>
             <sparkle:channel>beta</sparkle:channel>
