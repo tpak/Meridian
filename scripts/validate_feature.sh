@@ -40,6 +40,13 @@ check "hour segment binding preserves seconds" -Fq 'seconds: timeFormat.includes
 # 2. The toggle label is in the string catalog.
 check "'Show seconds' key exists in the string catalog" -Fq '"Show seconds"' "Meridian/App/Localizable.xcstrings"
 
+# 2b. The Daybreak popover honors the setting (hero + city rows tick seconds).
+DVM="Meridian/Panel/Daybreak/DaybreakViewModel.swift"
+check "DaybreakViewModel derives a seconds suffix from the setting" -Fq 'store.timeFormat.includesSeconds' "$DVM"
+check "hero time appends the seconds suffix" -Fq 'time += secondsSuffix(reference)' "$DVM"
+check "city rows append the seconds suffix" -Fq 'time + secondsSuffix(reference)' "$DVM"
+check "unit test covers popover seconds display" -Fq 'testHeroSecondsFollowShowSecondsSetting' "Meridian/MeridianUnitTests/DaybreakEngineTests.swift"
+
 # 3. The live PREVIEW card renders seconds for the new formats.
 check "preview shows a 24-hour seconds sample (20:17:45)" -Fq '20:17:45' "$AP"
 check "preview shows a 12-hour seconds sample (8:17:45 PM)" -Fq '8:17:45 PM' "$AP"
