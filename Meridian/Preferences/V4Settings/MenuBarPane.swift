@@ -255,27 +255,28 @@ struct MenuBarPane: View {
                     .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                     .onChange(of: showPlaceName) { _, _ in activePresetID = "custom" }
             }
+            // Related toggles share a row (UAT: six single-toggle rows pushed
+            // the pane past the bottom of smaller screens).
             formRow(String(localized: "Day of week")) {
                 Toggle("", isOn: $showDay)
                     .labelsHidden()
                     .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                     .onChange(of: showDay) { _, _ in activePresetID = "custom" }
-            }
-            formRow(String(localized: "Date")) {
+                pairedLabel(String(localized: "Date"))
                 Toggle("", isOn: $showDate)
                     .labelsHidden()
                     .toggleStyle(AccentSwitchToggleStyle(accent: accent))
                     .onChange(of: showDate) { _, _ in activePresetID = "custom" }
             }
+            // Menu-bar-only seconds rides with the hour style. Presets don't
+            // define a seconds choice (it's orthogonal, like Appearance's
+            // Show seconds), so flipping it neither marks the preset
+            // "custom" nor is touched by presets.
             formRow(String(localized: "24-hour time")) {
                 Toggle("", isOn: twentyFourBinding)
                     .labelsHidden()
                     .toggleStyle(AccentSwitchToggleStyle(accent: accent))
-            }
-            // Menu-bar-only seconds. Presets don't define a seconds choice
-            // (it's orthogonal, like Appearance's Show seconds), so flipping
-            // it neither marks the preset "custom" nor is touched by presets.
-            formRow(String(localized: "Seconds")) {
+                pairedLabel(String(localized: "Seconds"))
                 Toggle("", isOn: $menubarShowSeconds)
                     .labelsHidden()
                     .toggleStyle(AccentSwitchToggleStyle(accent: accent))
@@ -344,6 +345,16 @@ struct MenuBarPane: View {
 
     private func formRow<C: View>(_ label: String, @ViewBuilder control: @escaping () -> C) -> some View {
         FormRow(label: label, control: control)
+    }
+
+    /// Trailing label of a paired fine-tune row — same face as the leading
+    /// FormRow label, with breathing room after the first toggle so the pair
+    /// reads as two distinct controls.
+    private func pairedLabel(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 12.5))
+            .foregroundStyle(.secondary)
+            .padding(.leading, 20)
     }
 }
 
