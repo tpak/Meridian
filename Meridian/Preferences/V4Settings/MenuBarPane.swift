@@ -348,13 +348,15 @@ struct MenuBarPane: View {
     }
 
     /// Trailing label of a paired fine-tune row — same face as the leading
-    /// FormRow label, with breathing room after the first toggle so the pair
-    /// reads as two distinct controls.
+    /// FormRow label. Fixed-width and right-aligned (mirroring the 150pt
+    /// leading label column) so the second toggle column lines up vertically
+    /// across paired rows regardless of label length.
     private func pairedLabel(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 12.5))
             .foregroundStyle(.secondary)
-            .padding(.leading, 20)
+            .frame(width: 84, alignment: .trailing)
+            .padding(.leading, 8)
     }
 }
 
