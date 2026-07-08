@@ -429,6 +429,39 @@ class MeridianUnitTests: XCTestCase {
         defaults.removePersistentDomain(forName: "HomeRowMigrationTest_Dedup")
     }
 
+    func testHomeRowMigrationKeepsFirstFlaggedRowWhenNoMatch() throws {
+        let defaults = UserDefaults(suiteName: "HomeRowMigrationTest_NoMatch")!
+        defaults.removePersistentDomain(forName: "HomeRowMigrationTest_NoMatch")
+
+        // Both rows flagged, NEITHER matches the machine's current timezone
+        // (candidates are filtered so the test stays hermetic wherever it runs).
+        // Documented contract: keep the first flagged row rather than clearing
+        // the flag on every row and leaving no current-location marker at all.
+        let systemTimezoneID = TimeZone.autoupdatingCurrent.identifier
+        let staleZones = ["Asia/Tokyo", "Europe/Paris", "Australia/Melbourne"]
+            .filter { $0 != systemTimezoneID }
+
+        let first = TimezoneData()
+        first.timezoneID = staleZones[0]
+        first.isSystemTimezone = true
+
+        let second = TimezoneData()
+        second.timezoneID = staleZones[1]
+        second.isSystemTimezone = true
+
+        let firstBlob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: first))
+        let secondBlob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: second))
+
+        let healed = AppDefaults.runHomeRowMigrationV1(on: [firstBlob, secondBlob], defaults: defaults)
+        let healedFirst = try XCTUnwrap(TimezoneData.customObject(from: healed[0]))
+        let healedSecond = try XCTUnwrap(TimezoneData.customObject(from: healed[1]))
+
+        XCTAssertTrue(healedFirst.isSystemTimezone, "first flagged row keeps the flag when nothing matches")
+        XCTAssertFalse(healedSecond.isSystemTimezone, "every other flagged row is cleared")
+
+        defaults.removePersistentDomain(forName: "HomeRowMigrationTest_NoMatch")
+    }
+
     func testSeedsCurrentTimezoneAsCurrentLocationWhenEmpty() {
         let suite = "SeedTest_Empty"
         let defaults = UserDefaults(suiteName: suite)!
@@ -799,6 +832,47 @@ class DataStoreTypedAccessorsTests: XCTestCase {
         }
     }
 
+    // MARK: menu-bar seconds (independent of the popover's timeFormat)
+
+    func testMenubarShowSeconds_roundTrip() {
+        XCTAssertFalse(store.menubarShowSeconds, "unset key should read false (registered default is false)")
+        store.menubarShowSeconds = true
+        XCTAssertTrue(defaults.bool(forKey: UserDefaultKeys.showSecondsInMenubar))
+        XCTAssertTrue(store.menubarShowSeconds)
+        store.menubarShowSeconds = false
+        XCTAssertFalse(store.menubarShowSeconds)
+    }
+
+    func testMenubarTimezoneFormat_hourStyleFromTimeFormatSecondsFromMenubarPref() {
+        // (Appearance timeFormat, menubarShowSeconds) → expected menu-bar format.
+        let matrix: [(TimeFormat, Bool, TimeFormat)] = [
+            (.twelveHour, false, .twelveHour),
+            (.twelveHour, true, .twelveHourWithSeconds),
+            (.twentyFourHour, false, .twentyFourHour),
+            (.twentyFourHour, true, .twentyFourHourWithSeconds),
+            // Appearance seconds (popover) must NOT leak into the menu bar…
+            (.twelveHourWithSeconds, false, .twelveHour),
+            (.twentyFourHourWithSeconds, false, .twentyFourHour),
+            // …while both surfaces can show seconds together when asked.
+            (.twelveHourWithSeconds, true, .twelveHourWithSeconds),
+            (.twentyFourHourWithSeconds, true, .twentyFourHourWithSeconds),
+        ]
+        for (appearance, menubarSeconds, expected) in matrix {
+            store.timeFormat = appearance
+            store.menubarShowSeconds = menubarSeconds
+            XCTAssertEqual(store.menubarTimezoneFormat(), NSNumber(value: expected.rawValue),
+                           "timeFormat=\(appearance), menubarShowSeconds=\(menubarSeconds)")
+        }
+    }
+
+    func testMenubarTimezoneFormat_leavesPopoverFormatAlone() {
+        store.timeFormat = .twelveHourWithSeconds
+        store.menubarShowSeconds = false
+        // The popover keeps its seconds; only the menu bar drops them.
+        XCTAssertEqual(store.timezoneFormat(), NSNumber(value: TimeFormat.twelveHourWithSeconds.rawValue))
+        XCTAssertEqual(store.menubarTimezoneFormat(), NSNumber(value: TimeFormat.twelveHour.rawValue))
+    }
+
     // MARK: parity with shouldDisplay()
 
     // shouldDisplay(_:) now delegates to typed accessors; these asserts make
@@ -959,6 +1033,21 @@ class BoolSemanticsMigrationTests: XCTestCase {
         XCTAssertNil(defaults.object(forKey: UserDefaultKeys.showDayInMenu))
     }
 
+    func testInvertedBool_garbageLegacyValueLeavesModernKeyAtDefault() {
+        // An unexpected legacy value type used to fall back to 1 (= hidden),
+        // silently disabling a feature the user may have had on. It must
+        // instead write nothing so the registered default applies.
+        defaults.set("not a number", forKey: UserDefaultKeys.displayFutureSliderKey)
+
+        AppDefaults.runBoolSemanticsMigration(on: defaults)
+
+        let p = persistent()
+        XCTAssertNil(p[UserDefaultKeys.showFutureSlider],
+                     "uninterpretable legacy value must not write the modern key")
+        XCTAssertNil(defaults.object(forKey: UserDefaultKeys.displayFutureSliderKey),
+                     "the garbage legacy key is still cleaned up")
+    }
+
     // MARK: non-inverted bool
 
     func testFloatOnTop_legacyOneBecomesTrue() {
@@ -1099,6 +1188,7 @@ class SettingsManagerVersioningTests: XCTestCase {
         let showDayInMenubar: Bool
         let showDateInMenubar: Bool
         let showPlaceNameInMenubar: Bool
+        let menubarShowSeconds: Bool
         let floatOnTop: Bool
         let theme: Theme
         let relativeDateDisplay: RelativeDateDisplay
@@ -1117,6 +1207,7 @@ class SettingsManagerVersioningTests: XCTestCase {
             showDayInMenubar: s.showDayInMenubar,
             showDateInMenubar: s.showDateInMenubar,
             showPlaceNameInMenubar: s.showPlaceNameInMenubar,
+            menubarShowSeconds: s.menubarShowSeconds,
             floatOnTop: s.floatOnTop,
             theme: s.theme,
             relativeDateDisplay: s.relativeDateDisplay,
@@ -1132,6 +1223,7 @@ class SettingsManagerVersioningTests: XCTestCase {
         s.showDayInMenubar = preserved.showDayInMenubar
         s.showDateInMenubar = preserved.showDateInMenubar
         s.showPlaceNameInMenubar = preserved.showPlaceNameInMenubar
+        s.menubarShowSeconds = preserved.menubarShowSeconds
         s.floatOnTop = preserved.floatOnTop
         s.theme = preserved.theme
         s.relativeDateDisplay = preserved.relativeDateDisplay
@@ -1265,6 +1357,42 @@ class SettingsManagerVersioningTests: XCTestCase {
         UserDefaults.standard.set(false, forKey: UserDefaultKeys.betaUpdatesEnabled)
         try SettingsManager.applySettings(from: data)
         XCTAssertTrue(UserDefaults.standard.bool(forKey: UserDefaultKeys.betaUpdatesEnabled))
+    }
+
+    // MARK: menu-bar seconds (independent of timeFormat's popover seconds)
+
+    func testExport_menubarShowSecondsRoundTrip() throws {
+        let s = DataStore.shared()
+        s.menubarShowSeconds = true
+        guard let data = SettingsManager.buildJSON(),
+              let json = parse(data),
+              let prefs = json["preferences"] as? [String: Any] else {
+            XCTFail("export failed")
+            return
+        }
+        XCTAssertEqual(prefs["showSecondsInMenubar"] as? Bool, true)
+
+        // Mutate to confirm import actually overwrites.
+        s.menubarShowSeconds = false
+        try SettingsManager.applySettings(from: data)
+        XCTAssertTrue(s.menubarShowSeconds)
+    }
+
+    func testImport_missingMenubarSecondsKeyLeavesValueAlone() throws {
+        // Older v2 exports predate the key; like the other bools, an absent
+        // key must leave the current value untouched.
+        let s = DataStore.shared()
+        s.menubarShowSeconds = true
+        let payload: [String: Any] = [
+            "version": 2,
+            "preferences": ["showDayInMenubar": true],
+            "timezones": [String](),
+            "startAtLogin": false,
+            "sparkle": [String: Any]()
+        ]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        try SettingsManager.applySettings(from: data)
+        XCTAssertTrue(s.menubarShowSeconds)
     }
 
     // MARK: global shortcut export/import (round-trips the universal hot key)

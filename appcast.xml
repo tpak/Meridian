@@ -3,6 +3,26 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>4.1.1-beta8</title>
+            <pubDate>Wed, 08 Jul 2026 13:47:00 +0000</pubDate>
+            <sparkle:channel>beta</sparkle:channel>
+            <sparkle:version>4011008</sparkle:version>
+            <sparkle:shortVersionString>4.1.1-beta8</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Add a Show seconds option for the popover clocks (Settings → Appearance)</li>
+                    <li>Add a separate Seconds toggle for the menu-bar clock (Settings → Menu Bar)</li>
+                    <li>Fix cities added right after launch being removed by the automatic location lookup</li>
+                    <li>Fix the menu-bar clock lagging up to a minute after turning off seconds display</li>
+                    <li>Fix the Home city losing its flag after migration for some users</li>
+                    <li>Improve the reliability of update delivery</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v4.1.1-beta8/Meridian.app.zip" length="2247564" type="application/octet-stream" sparkle:edSignature="fjz1IwGGW1EkjN11bHy47LkzF2N0D4f3xhhRKb6KkxNtwVE4EDCQYTJttDq4MPZ0C5Fbav+AcjyCoI52O82ECw=="/>
+        </item>
+        <item>
             <title>4.1.0</title>
             <pubDate>Fri, 03 Jul 2026 14:58:34 +0000</pubDate>
             <sparkle:version>4010100</sparkle:version>

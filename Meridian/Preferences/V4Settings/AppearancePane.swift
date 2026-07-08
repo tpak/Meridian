@@ -30,6 +30,13 @@ struct AppearancePane: View {
             FormRow(label: String(localized: "Time format")) { timeFormatSegment }
                 .padding(.bottom, 16)
 
+            FormRow(label: String(localized: "Show seconds")) {
+                Toggle("", isOn: showSecondsBinding)
+                    .labelsHidden()
+                    .toggleStyle(AccentSwitchToggleStyle(accent: accent))
+            }
+            .padding(.bottom, 16)
+
             FormRow(label: String(localized: "Day display")) { dayDisplaySegment }
                 .padding(.bottom, 16)
 
@@ -67,10 +74,27 @@ struct AppearancePane: View {
     }
 
     private var timeFormatSegment: some View {
+        // The stored TimeFormat folds hour style and seconds together; the UI
+        // splits them into this 12/24 segment plus the "Show seconds" toggle
+        // below. The derived bindings flip one axis while preserving the other.
         SegmentedControl(
             options: [(TimeFormat.twelveHour, String(localized: "12-hour")), (.twentyFourHour, String(localized: "24-hour"))],
-            selection: $timeFormat,
+            selection: hourStyleBinding,
             accent: accent
+        )
+    }
+
+    private var hourStyleBinding: Binding<TimeFormat> {
+        Binding(
+            get: { timeFormat.isTwentyFourHour ? .twentyFourHour : .twelveHour },
+            set: { timeFormat = .standard(twentyFourHour: $0 == .twentyFourHour, seconds: timeFormat.includesSeconds) }
+        )
+    }
+
+    private var showSecondsBinding: Binding<Bool> {
+        Binding(
+            get: { timeFormat.includesSeconds },
+            set: { timeFormat = .standard(twentyFourHour: timeFormat.isTwentyFourHour, seconds: $0) }
         )
     }
 
@@ -265,7 +289,13 @@ private struct PreviewCard: View {
     let accent: Color
 
     private var timeString: String {
-        timeFormat == .twentyFourHour ? "20:17" : "8:17 PM"
+        switch timeFormat {
+        case .twentyFourHour: return "20:17"
+        case .twentyFourHourWithSeconds: return "20:17:45"
+        case .twelveHourWithSeconds: return "8:17:45 PM"
+        // .twelveHour, plus the legacy formats the picker doesn't offer.
+        default: return "8:17 PM"
+        }
     }
 
     private var subString: String {

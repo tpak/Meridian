@@ -6,7 +6,9 @@ import CoreModelKit
 
 func compactWidth(for timezone: TimezoneData, with store: DataStore) -> Int {
     var totalWidth = MenubarLayoutConstants.baseWidth
-    let timeFormat = timezone.timezoneFormat(store.timezoneFormat())
+    // Menu-bar-only geometry — width follows the menu-bar format (12/24 from
+    // Appearance, seconds from the Menu Bar pane's Seconds toggle).
+    let timeFormat = timezone.timezoneFormat(store.menubarTimezoneFormat())
 
     if store.shouldShowDayInMenubar() {
         totalWidth += MenubarLayoutConstants.dayBuffer
@@ -22,7 +24,7 @@ func compactWidth(for timezone: TimezoneData, with store: DataStore) -> Int {
         totalWidth += 0
     }
 
-    if timezone.shouldShowSeconds(store.timezoneFormat()) {
+    if timezone.shouldShowSeconds(store.menubarTimezoneFormat()) {
         // Slight buffer needed when the Menubar supplementary text was Mon 9:27:58 AM
         totalWidth += MenubarLayoutConstants.secondsBuffer
     }
@@ -107,7 +109,7 @@ class StatusContainerView: NSView {
                 let calculatedTitleSize = compactModeTimeFont.size(for: operationObject.compactMenuTitle(),
                                                                    width: precalculatedWidth,
                                                                    attributes: timeBasedAttributes)
-                let showSeconds = timezoneObject.shouldShowSeconds(store.timezoneFormat())
+                let showSeconds = timezoneObject.shouldShowSeconds(store.menubarTimezoneFormat())
                 let secondsBuffer: CGFloat = showSeconds ? MenubarLayoutConstants.measuredSecondsBuffer : 0
                 return result + max(calculatedTitleSize.width, calculatedSubtitleSize.width) + bufferWidth + secondsBuffer
             }

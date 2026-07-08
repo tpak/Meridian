@@ -100,6 +100,7 @@ struct SettingsManager {
         static let showDayInMenubar = "showDayInMenubar"
         static let showDateInMenubar = "showDateInMenubar"
         static let showPlaceNameInMenubar = "showPlaceNameInMenubar"
+        static let showSecondsInMenubar = "showSecondsInMenubar"
         static let floatOnTop = "floatOnTop"
         static let theme = "theme"
         static let relativeDateDisplay = "relativeDateDisplay"
@@ -131,6 +132,7 @@ struct SettingsManager {
             V2Key.showDayInMenubar: store.showDayInMenubar,
             V2Key.showDateInMenubar: store.showDateInMenubar,
             V2Key.showPlaceNameInMenubar: store.showPlaceNameInMenubar,
+            V2Key.showSecondsInMenubar: store.menubarShowSeconds,
             V2Key.floatOnTop: store.floatOnTop,
             V2Key.theme: store.theme.jsonName,
             V2Key.relativeDateDisplay: store.relativeDateDisplay.jsonName,
@@ -313,6 +315,9 @@ struct SettingsManager {
         if let v = prefs[V2Key.showDayInMenubar] as? Bool { store.showDayInMenubar = v }
         if let v = prefs[V2Key.showDateInMenubar] as? Bool { store.showDateInMenubar = v }
         if let v = prefs[V2Key.showPlaceNameInMenubar] as? Bool { store.showPlaceNameInMenubar = v }
+        // Absent in pre-4.2 exports — like the other bools, a missing key
+        // leaves the current value (registered default false on fresh installs).
+        if let seconds = prefs[V2Key.showSecondsInMenubar] as? Bool { store.menubarShowSeconds = seconds }
         if let v = prefs[V2Key.floatOnTop] as? Bool { store.floatOnTop = v }
 
         // Enums — parse the case name string. Unknown names fall through to
