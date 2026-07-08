@@ -167,7 +167,12 @@ struct MenuBarPane: View {
 
     private var previewItems: [PreviewChipItem] {
         previewSamples.map { sample in
-            let time = timeFormat == .twentyFourHour ? sample.t24 : "\(sample.t12) \(sample.ampm)"
+            // Seconds formats tick live in the real menu bar; the static
+            // sample just shows a representative seconds value.
+            let seconds = timeFormat.includesSeconds ? ":32" : ""
+            let time = timeFormat.isTwentyFourHour
+                ? "\(sample.t24)\(seconds)"
+                : "\(sample.t12)\(seconds) \(sample.ampm)"
 
             if menubarStacked {
                 // Legacy two-line item: city name on top, time (with optional day/date) below —
@@ -227,7 +232,9 @@ struct MenuBarPane: View {
         showDay = preset.day
         showDate = preset.date
         menubarColorDots = preset.dots
-        timeFormat = preset.twentyFourHour ? .twentyFourHour : .twelveHour
+        // Presets pick the 12/24-hour axis only; a "… with seconds" choice
+        // made in Settings › Appearance is orthogonal and survives them.
+        timeFormat = .standard(twentyFourHour: preset.twentyFourHour, seconds: timeFormat.includesSeconds)
         // Switching to/from the Stacked preset flips the menu-bar layout; the write triggers a
         // menu-bar rebuild via StatusItemHandler's UserDefaults observer.
         menubarStacked = preset.stacked
@@ -272,9 +279,11 @@ struct MenuBarPane: View {
 
     private var twentyFourBinding: Binding<Bool> {
         Binding(
-            get: { timeFormat == .twentyFourHour },
+            get: { timeFormat.isTwentyFourHour },
             set: { on in
-                timeFormat = on ? .twentyFourHour : .twelveHour
+                // Flip only the hour style; keep the seconds half of the
+                // format chosen in Settings › Appearance.
+                timeFormat = .standard(twentyFourHour: on, seconds: timeFormat.includesSeconds)
                 activePresetID = "custom"
             }
         )

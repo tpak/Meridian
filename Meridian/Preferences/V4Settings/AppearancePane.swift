@@ -67,10 +67,20 @@ struct AppearancePane: View {
     }
 
     private var timeFormatSegment: some View {
+        // Four options now that the seconds formats are back; the "… with
+        // seconds" labels are too long for a single 4-up strip, so the same
+        // segment cells wrap into a 2×2 grid (columns = hour style, rows =
+        // seconds on/off). Container + cell styling match the other rows.
         SegmentedControl(
-            options: [(TimeFormat.twelveHour, String(localized: "12-hour")), (.twentyFourHour, String(localized: "24-hour"))],
+            options: [
+                (TimeFormat.twelveHour, String(localized: "12-hour")),
+                (.twentyFourHour, String(localized: "24-hour")),
+                (.twelveHourWithSeconds, String(localized: "12-hour with seconds")),
+                (.twentyFourHourWithSeconds, String(localized: "24-hour with seconds"))
+            ],
             selection: $timeFormat,
-            accent: accent
+            accent: accent,
+            columns: 2
         )
     }
 
@@ -199,30 +209,51 @@ private struct SegmentedControl<Value: Hashable>: View {
     let options: [(Value, String)]
     @Binding var selection: Value
     let accent: Color
+    /// When set, the segments wrap into a fixed-column grid of equal-width
+    /// cells instead of a single row — for rows whose labels don't fit a
+    /// one-line strip (Time format's "… with seconds" options). Nil keeps
+    /// the classic single-row layout.
+    var columns: Int?
 
     var body: some View {
-        HStack(spacing: 2) {
-            ForEach(options, id: \.0) { value, label in
-                let isSelected = value == selection
-                Button { selection = value } label: {
-                    Text(label)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(isSelected ? Color.white : Color.secondary)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 5)
-                        .background(
-                            RoundedRectangle(cornerRadius: 7, style: .continuous)
-                                .fill(isSelected ? accent : Color.clear)
-                        )
-                }
-                .buttonStyle(.plain)
+        segmentLayout
+            .padding(2)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(Color.primary.opacity(0.06))
+            )
+    }
+
+    @ViewBuilder private var segmentLayout: some View {
+        if let columns {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 2), count: columns), spacing: 2) {
+                segments(fillWidth: true)
+            }
+            .frame(maxWidth: 340)
+        } else {
+            HStack(spacing: 2) {
+                segments(fillWidth: false)
             }
         }
-        .padding(2)
-        .background(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(Color.primary.opacity(0.06))
-        )
+    }
+
+    private func segments(fillWidth: Bool) -> some View {
+        ForEach(options, id: \.0) { value, label in
+            let isSelected = value == selection
+            Button { selection = value } label: {
+                Text(label)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(isSelected ? Color.white : Color.secondary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 5)
+                    .frame(maxWidth: fillWidth ? .infinity : nil)
+                    .background(
+                        RoundedRectangle(cornerRadius: 7, style: .continuous)
+                            .fill(isSelected ? accent : Color.clear)
+                    )
+            }
+            .buttonStyle(.plain)
+        }
     }
 }
 
@@ -265,7 +296,13 @@ private struct PreviewCard: View {
     let accent: Color
 
     private var timeString: String {
-        timeFormat == .twentyFourHour ? "20:17" : "8:17 PM"
+        switch timeFormat {
+        case .twentyFourHour: return "20:17"
+        case .twentyFourHourWithSeconds: return "20:17:45"
+        case .twelveHourWithSeconds: return "8:17:45 PM"
+        // .twelveHour, plus the legacy formats the picker doesn't offer.
+        default: return "8:17 PM"
+        }
     }
 
     private var subString: String {

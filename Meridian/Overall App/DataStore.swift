@@ -284,6 +284,39 @@ enum TimeFormat: Int, Codable, CaseIterable {
     case epoch = 11
 }
 
+extension TimeFormat {
+    /// Formats whose rendered time includes seconds ("ss"). These are the
+    /// formats that put StatusItemHandler's menubar timer on a per-second tick.
+    var includesSeconds: Bool {
+        switch self {
+        case .twelveHourWithSeconds, .twentyFourHourWithSeconds,
+             .twelveHourWithLeadingZeroAndSeconds, .twelveHourWithoutAmPmAndSeconds:
+            return true
+        case .twelveHour, .twentyFourHour, .twelveHourWithLeadingZero,
+             .twelveHourWithoutAmPm, .epoch:
+            return false
+        }
+    }
+
+    /// True for the 24-hour clock formats.
+    var isTwentyFourHour: Bool {
+        self == .twentyFourHour || self == .twentyFourHourWithSeconds
+    }
+
+    /// The v4-picker format for a 12/24-hour choice, carrying the seconds
+    /// preference along. Lets the Menu Bar pane's 24-hour toggle and presets
+    /// flip the hour style without discarding a "… with seconds" selection
+    /// made in Settings › Appearance.
+    static func standard(twentyFourHour: Bool, seconds: Bool) -> TimeFormat {
+        switch (twentyFourHour, seconds) {
+        case (false, false): return .twelveHour
+        case (false, true): return .twelveHourWithSeconds
+        case (true, false): return .twentyFourHour
+        case (true, true): return .twentyFourHourWithSeconds
+        }
+    }
+}
+
 // Stable string name for typed preference enums via the JSONNameDecodable
 // protocol (declared near the top of this file). Used by SettingsManager v2
 // JSON export ("compact" instead of 0). Names are derived from the Swift
