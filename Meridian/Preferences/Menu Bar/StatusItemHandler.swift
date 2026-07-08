@@ -85,8 +85,6 @@ class StatusItemHandler: NSObject {
 
     private var calendar = Calendar.autoupdatingCurrent
 
-    private lazy var units: Set<Calendar.Component> = Set([.era, .year, .month, .day, .hour, .minute])
-
     private var cancellables = Set<AnyCancellable>()
 
     private let store: DataStore
@@ -241,11 +239,6 @@ class StatusItemHandler: NSObject {
     }
 
     private func setupNotificationObservers() {
-        NotificationCenter.default.publisher(for: NSWorkspace.didWakeNotification)
-            .receive(on: RunLoop.main)
-            .sink { [weak self] _ in self?.updateMenubar() }
-            .store(in: &cancellables)
-
         DistributedNotificationCenter.default.publisher(for: .interfaceStyleDidChange)
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in self?.respondToInterfaceStyleChange() }
@@ -361,15 +354,24 @@ class StatusItemHandler: NSObject {
     }
 
     private func shouldDisplaySecondsInMenubar() -> Bool {
+        // Menu-bar seconds are governed by the menu-bar format (Settings ›
+        // Menu Bar › Seconds), not the popover's Appearance format —
+        // per-city overrideFormat still wins inside shouldShowSeconds.
         let syncedTimezones = store.menubarTimezoneObjects()
-        return syncedTimezones.contains { $0.shouldShowSeconds(store.timezoneFormat()) }
+        return syncedTimezones.contains { $0.shouldShowSeconds(store.menubarTimezoneFormat()) }
     }
 
     private func calculateFireDate() -> Date? {
         let shouldDisplaySeconds = shouldDisplaySecondsInMenubar()
         let menubarFavourites = store.menubarTimezones()
 
-        if !units.contains(.second), shouldDisplaySeconds {
+        // Derive the component set fresh on every calculation. An instance-level
+        // set that only ever gains .second keeps carrying the current seconds
+        // after the user switches to a no-seconds format, landing the "next
+        // minute" fire date at :SS instead of :00 — the menubar time then lags
+        // by up to a minute until relaunch.
+        var units: Set<Calendar.Component> = [.era, .year, .month, .day, .hour, .minute]
+        if shouldDisplaySeconds {
             units.insert(.second)
         }
 
@@ -380,6 +382,9 @@ class StatusItemHandler: NSObject {
             components.second = seconds + 1
         } else if let minutes = components.minute {
             components.minute = minutes + 1
+            // Fire exactly on the minute boundary regardless of whether .second
+            // made it into the component set above.
+            components.second = 0
         } else {
             Logger.production("Unable to create date components for menubar timer")
             return nil

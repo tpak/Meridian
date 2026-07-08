@@ -54,6 +54,11 @@ public enum UserDefaultKeys {
     static let showPlaceNameInMenubar = "showPlaceNameInMenubar"
     static let floatOnTop = "floatOnTop"
     static let timeFormat = "timeFormat"
+    // Seconds in the menu-bar clock only (Settings › Menu Bar › Seconds).
+    // Independent of `timeFormat`'s seconds, which drives the Daybreak
+    // popover — UAT: seconds crowd the menu bar but are fine in the popover.
+    // Read via DataStore.menubarShowSeconds / menubarTimezoneFormat().
+    static let showSecondsInMenubar = "showSecondsInMenubar"
 
     // One-time migration flag. Set after runBoolSemanticsMigration completes
     // its first successful pass; read on every launch to make the migration

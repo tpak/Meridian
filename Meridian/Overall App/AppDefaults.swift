@@ -204,9 +204,10 @@ class AppDefaults {
         }
 
         // Decide which single row (if any) should keep the flag. Prefer a
-        // flagged row that matches the current system tz; otherwise prefer
-        // the first flagged row whose stored timezoneID matches; otherwise
-        // an unflagged row whose timezoneID matches the system tz.
+        // flagged row that matches the current system tz; otherwise an
+        // unflagged row whose timezoneID matches the system tz; otherwise
+        // fall back to the first flagged row (contract item 2) so the flag
+        // is never cleared everywhere when nothing matches.
         var keepIndex: Int? = flaggedIndices.first { idx in
             decoded[idx].model?.timezoneID == currentSystemTimezone
         }
@@ -215,6 +216,10 @@ class AppDefaults {
             keepIndex = decoded.first { entry in
                 entry.model?.timezoneID == currentSystemTimezone && entry.model?.isSystemTimezone == false
             }?.idx
+        }
+
+        if keepIndex == nil {
+            keepIndex = flaggedIndices.first
         }
 
         // Walk all rows and rewrite as needed.
@@ -240,7 +245,13 @@ class AppDefaults {
         // this key explicitly. In that case we leave both keys untouched and
         // let the new key's registered default take over below.
         guard let object = defaults.object(forKey: legacy) else { return }
-        let legacyInt = (object as? NSNumber)?.intValue ?? (object as? Int) ?? 1
+        // An uninterpretable legacy value (unexpected type) tells us nothing
+        // about the user's choice — drop it and leave the modern key at its
+        // registered default rather than silently disabling the feature.
+        guard let legacyInt = (object as? NSNumber)?.intValue else {
+            defaults.removeObject(forKey: legacy)
+            return
+        }
         defaults.set(legacyInt == 0, forKey: target)
         defaults.removeObject(forKey: legacy)
     }
@@ -260,6 +271,11 @@ class AppDefaults {
             UserDefaultKeys.showPlaceNameInMenubar: true,
             UserDefaultKeys.floatOnTop: false,
             UserDefaultKeys.timeFormat: TimeFormat.twelveHour.rawValue,
+
+            // Menu-bar-only seconds toggle (Settings › Menu Bar). Off by
+            // default — seconds crowd the menu bar; the popover's seconds
+            // stay on `timeFormat` (Appearance › Show seconds).
+            UserDefaultKeys.showSecondsInMenubar: false,
 
             // Untouched.
             UserDefaultKeys.startAtLogin: 0,
