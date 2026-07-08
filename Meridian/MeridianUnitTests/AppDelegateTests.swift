@@ -137,4 +137,52 @@ class AppDelegateTests: XCTestCase {
                        "Beta opt-in must allow the \"beta\" channel")
     }
 
+    // Coordinate backfill merge. Geocoding a city takes seconds per await, so
+    // the user can add/remove cities while the backfill task is suspended. The
+    // merge must apply geocoded coordinates onto a FRESH read of the store —
+    // matched by stable identity, not array position — so those edits survive.
+    func testMergeBackfilledCoordinatesKeepsUserEdits() throws {
+        // Launch state: two plain-timezone rows awaiting coordinates.
+        let tokyo = TimezoneData()
+        tokyo.timezoneID = "Asia/Tokyo"
+        tokyo.formattedAddress = "Tokyo"
+
+        let paris = TimezoneData()
+        paris.timezoneID = "Europe/Paris"
+        paris.formattedAddress = "Paris"
+
+        // While the geocoder ran, the user removed Paris and added Auckland
+        // (a geocoded search result that already carries real coordinates).
+        let auckland = TimezoneData()
+        auckland.timezoneID = "Pacific/Auckland"
+        auckland.formattedAddress = "Auckland"
+        auckland.latitude = -36.8485
+        auckland.longitude = 174.7633
+
+        let tokyoBlob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: tokyo))
+        let aucklandBlob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: auckland))
+
+        // Both launch-time rows finished geocoding, including the removed one.
+        let geocoded: [String: (latitude: Double, longitude: Double)] = [
+            AppDelegate.backfillIdentity(for: tokyo): (35.6762, 139.6503),
+            AppDelegate.backfillIdentity(for: paris): (48.8566, 2.3522)
+        ]
+
+        let merged = AppDelegate.mergeBackfilledCoordinates(current: [tokyoBlob, aucklandBlob],
+                                                            geocoded: geocoded)
+
+        XCTAssertEqual(merged.count, 2, "merge must preserve the current list, not the launch snapshot")
+
+        let mergedTokyo = try XCTUnwrap(TimezoneData.customObject(from: merged[0]))
+        XCTAssertEqual(mergedTokyo.timezoneID, "Asia/Tokyo")
+        XCTAssertEqual(mergedTokyo.latitude, 35.6762, "surviving row gains its geocoded coordinates")
+        XCTAssertEqual(mergedTokyo.longitude, 139.6503)
+
+        let mergedAuckland = try XCTUnwrap(TimezoneData.customObject(from: merged[1]))
+        XCTAssertEqual(mergedAuckland.timezoneID, "Pacific/Auckland", "city added during backfill must survive")
+        XCTAssertEqual(mergedAuckland.latitude, -36.8485, "existing coordinates are left untouched")
+
+        XCTAssertFalse(merged.contains { TimezoneData.customObject(from: $0)?.timezoneID == "Europe/Paris" },
+                       "city removed during backfill must not be resurrected")
+    }
 }
