@@ -72,16 +72,6 @@
         }
       }
     },
-    "12-hour with seconds": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "12-hour with seconds"
-          }
-        }
-      }
-    },
     "15 min": {
       "localizations": {
         "en": {
@@ -108,16 +98,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "24-hour time"
-          }
-        }
-      }
-    },
-    "24-hour with seconds": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "24-hour with seconds"
           }
         }
       }
@@ -838,6 +818,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Show in menu bar"
+          }
+        }
+      }
+    },
+    "Show seconds": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show seconds"
           }
         }
       }

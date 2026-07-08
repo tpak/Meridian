@@ -215,7 +215,8 @@ Open **Settings → Appearance**. A **PREVIEW** card at the bottom shows your ch
 
 - **Theme** — **Auto** (follow macOS), **Light**, or **Dark**. (Default: Light.)
 - **Accent color** — pick from a grid of **Formula 1 livery-inspired** palettes (Alpine, Aston Martin, Audi, Cadillac, Ferrari, Haas, McLaren, Mercedes, Racing Bulls, Red Bull Racing, Williams). The accent tints switches, selections, and scrubber highlights. (Default: Aston Martin.) *The palette names and colors are stylized tributes and are not affiliated with or endorsed by any Formula 1 team.* Changing the accent may prompt a quick restart so every control repaints.
-- **Time format** — **12-hour**, **24-hour**, **12-hour with seconds**, or **24-hour with seconds**, applied everywhere (popover, menu bar, copied text). The Menu Bar pane's 24-hour toggle flips the same setting and keeps your seconds choice. With a seconds format the menu-bar clock ticks every second, which may use slightly more energy.
+- **Time format** — **12-hour** or **24-hour**, applied everywhere (popover, menu bar, copied text). This is the same setting as the Menu Bar pane's 24-hour toggle.
+- **Show seconds** — display seconds in every time, including the menu-bar clock, which then ticks every second (this may use slightly more energy). (Default: off.)
 - **Day display** — how each city's day/date label reads: **Relative** (Today/Tomorrow/Yesterday-style), **Actual** (weekday), **Date**, or **Hide**.
 - **Sunrise / sunset** — show each city's next sun event (see below). (Default: off.)
 - **Text size** — scale the popover's text from **85% to 130%** (default 100%).

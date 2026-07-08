@@ -32,13 +32,13 @@ check() { # check "description" <grep-args...>
 echo "Seconds time formats in v4 Settings — validation"
 echo "------------------------------------------------"
 
-# 1. Appearance pane offers both seconds enum cases as selectable options.
-check "AppearancePane references .twelveHourWithSeconds" -Fq '.twelveHourWithSeconds' "$AP"
-check "AppearancePane references .twentyFourHourWithSeconds" -Fq '.twentyFourHourWithSeconds' "$AP"
+# 1. Appearance pane splits the format into a 12/24 segment + seconds toggle.
+check "AppearancePane has a Show seconds row" -Fq 'String(localized: "Show seconds")' "$AP"
+check "seconds toggle binding preserves hour style" -Fq 'timeFormat = .standard(twentyFourHour: timeFormat.isTwentyFourHour, seconds: $0)' "$AP"
+check "hour segment binding preserves seconds" -Fq 'seconds: timeFormat.includesSeconds)' "$AP"
 
-# 2. New user-facing labels are localizable via String(localized:).
-check "'12-hour with seconds' label is localized" -Fq 'String(localized: "12-hour with seconds")' "$AP"
-check "'24-hour with seconds' label is localized" -Fq 'String(localized: "24-hour with seconds")' "$AP"
+# 2. The toggle label is in the string catalog.
+check "'Show seconds' key exists in the string catalog" -Fq '"Show seconds"' "Meridian/App/Localizable.xcstrings"
 
 # 3. The live PREVIEW card renders seconds for the new formats.
 check "preview shows a 24-hour seconds sample (20:17:45)" -Fq '20:17:45' "$AP"
@@ -64,10 +64,9 @@ fi
 check "24-hour toggle preserves seconds" -Fq '.standard(twentyFourHour: on, seconds: timeFormat.includesSeconds)' "$MBP"
 check "applyPreset preserves seconds" -Fq '.standard(twentyFourHour: preset.twentyFourHour, seconds: timeFormat.includesSeconds)' "$MBP"
 
-# 7. User manual documents the new choices and the per-second tick.
-check "manual lists '12-hour with seconds'" -Fq '12-hour with seconds' "$MANUAL"
-check "manual lists '24-hour with seconds'" -Fq '24-hour with seconds' "$MANUAL"
-check "manual mentions the menu-bar clock ticking every second" -Fq 'menu-bar clock ticks every second' "$MANUAL"
+# 7. User manual documents the new toggle and the per-second tick.
+check "manual documents the Show seconds toggle" -Fq '**Show seconds**' "$MANUAL"
+check "manual mentions the menu-bar clock ticking every second" -Fq 'ticks every second' "$MANUAL"
 
 echo ""
 if [[ "${1:-}" == "--no-build" ]]; then
