@@ -95,12 +95,3 @@ public enum UserDefaultKeys {
     // been shown so we don't re-prompt on every launch. See issue #125.
     static let tahoeOnboardingShown = "com.tpak.meridian.tahoeOnboardingShown"
 }
-
-// Centralized layout literals shared across menubar text-rendering call sites.
-// Per-file layout values that aren't shared stay where they're used.
-enum LayoutConstants {
-    /// Line-height multiple applied to monospaced status-bar text in English
-    /// locales. Slightly compresses leading so descenders (p, q, y, g) read
-    /// well in the menubar. Non-English locales use 1.0 (no compression).
-    static let englishMenubarLineHeightMultiple: CGFloat = 0.92
-}

@@ -80,6 +80,7 @@
 		A57187E72A5C9354E98EDD04 /* DaybreakEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE32A2F3B4B0AACCC2B86DB /* DaybreakEngineTests.swift */; };
 		AA000013STARTU00000001 /* StartupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000012STARTU00000001 /* StartupManager.swift */; };
 		AC11AA0100MBDTESTS00001 /* MenubarBlockDetectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC11AA0100MBDTESTS00002 /* MenubarBlockDetectionTests.swift */; };
+		AC11AA0100MIRTESTS00001 /* MenubarImageRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC11AA0100MIRTESTS00002 /* MenubarImageRendererTests.swift */; };
 		B4C63196324AE1E678CCDE91 /* DaybreakScrubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39808930164A8404E6C52BE9 /* DaybreakScrubber.swift */; };
 		B730E37E4596MOCKDATASTORE /* MockDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B730E37E4596MOCKDATASTO2 /* MockDataStore.swift */; };
 		BB00000100LOCCTRL00TEST1 /* LocationControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100LOCCTRL00TEST2 /* LocationControllerTests.swift */; };
@@ -207,6 +208,7 @@
 		ABCC6DFEB0759DC6C7274F3D /* DaybreakDefaults.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakDefaults.swift; sourceTree = "<group>"; };
 		ABF07C2896C1B59A4DA2A71D /* CitiesPane.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CitiesPane.swift; sourceTree = "<group>"; };
 		AC11AA0100MBDTESTS00002 /* MenubarBlockDetectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarBlockDetectionTests.swift; sourceTree = "<group>"; };
+		AC11AA0100MIRTESTS00002 /* MenubarImageRendererTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarImageRendererTests.swift; sourceTree = "<group>"; };
 		B012D2C492832014C31EC314 /* DaybreakHeroView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakHeroView.swift; sourceTree = "<group>"; };
 		B30F79A6035950B04509CDBC /* SunMoonDisc.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SunMoonDisc.swift; sourceTree = "<group>"; };
 		B59724D2CB4F4C39995843DE /* SettingsWindowController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
@@ -532,6 +534,7 @@
 				B730E37E4596MOCKDATASTO2 /* MockDataStore.swift */,
 				FF11AA0100TESTFIXTURES02 /* TestFixtures.swift */,
 				AC11AA0100MBDTESTS00002 /* MenubarBlockDetectionTests.swift */,
+				AC11AA0100MIRTESTS00002 /* MenubarImageRendererTests.swift */,
 				919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */,
 				4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */,
 				9AFFEE0006000000GEOTSTFR /* GeocodingServiceTests.swift */,
@@ -790,6 +793,7 @@
 				B730E37E4596MOCKDATASTORE /* MockDataStore.swift in Sources */,
 				FF11AA0100TESTFIXTURES01 /* TestFixtures.swift in Sources */,
 				AC11AA0100MBDTESTS00001 /* MenubarBlockDetectionTests.swift in Sources */,
+				AC11AA0100MIRTESTS00001 /* MenubarImageRendererTests.swift in Sources */,
 				919639F9D2F3GLOBALSHRTCUT /* GlobalShortcutMonitorTests.swift in Sources */,
 				4726354D81E1NWMGRASYNCTS /* NetworkManagerAsyncTests.swift in Sources */,
 				9AFFEE0005000000GEOTSTBF /* GeocodingServiceTests.swift in Sources */,

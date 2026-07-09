@@ -70,18 +70,6 @@ class MockDataStore: DataStoring {
         return NSNumber(value: format.rawValue)
     }
 
-    func isBufferRequiredForTwelveHourFormats() -> Bool {
-        let timeFormatsWithSuffix: Set<NSNumber> = Set([
-            NSNumber(integerLiteral: 0),
-            NSNumber(integerLiteral: 3),
-            NSNumber(integerLiteral: 4),
-            NSNumber(integerLiteral: 6),
-            NSNumber(integerLiteral: 7)
-        ])
-        // Menu-bar-only width heuristic — keys off the menu-bar format, like DataStore.
-        return timeFormatsWithSuffix.contains(menubarTimezoneFormat())
-    }
-
     func shouldShowDateInMenubar() -> Bool {
         return shouldDisplay(.dateInMenubar)
     }

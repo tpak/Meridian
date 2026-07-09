@@ -27,7 +27,6 @@ protocol DataStoring: AnyObject {
     func removeLastTimezone()
     func timezoneFormat() -> NSNumber
     func menubarTimezoneFormat() -> NSNumber
-    func isBufferRequiredForTwelveHourFormats() -> Bool
     func shouldShowDateInMenubar() -> Bool
     func shouldShowDayInMenubar() -> Bool
 }
@@ -56,11 +55,6 @@ class DataStore: NSObject, DataStoring {
     private var cachedMenubarTimezones: [Data]
     private var cachedTimezoneObjects: [TimezoneData]
     private var cachedMenubarTimezoneObjects: [TimezoneData]
-    private static let timeFormatsWithSuffix: Set<NSNumber> = Set([NSNumber(value: 0),
-                                                                   NSNumber(value: 3),
-                                                                   NSNumber(value: 4),
-                                                                   NSNumber(value: 6),
-                                                                   NSNumber(value: 7)])
 
     class func shared() -> DataStore {
         return sharedStore
@@ -159,12 +153,6 @@ class DataStore: NSObject, DataStoring {
     func menubarTimezoneFormat() -> NSNumber {
         let format = TimeFormat.standard(twentyFourHour: timeFormat.isTwentyFourHour, seconds: menubarShowSeconds)
         return NSNumber(value: format.rawValue)
-    }
-
-    // Menu-bar-only width heuristic (StatusItemHandler.bufferCalculatedWidth),
-    // so it keys off the menu-bar format, not the popover's.
-    func isBufferRequiredForTwelveHourFormats() -> Bool {
-        return DataStore.timeFormatsWithSuffix.contains(menubarTimezoneFormat())
     }
 
     // shouldDisplay(_:) is the legacy entry point — kept for source-compat
