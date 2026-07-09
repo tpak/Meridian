@@ -44,15 +44,15 @@ var menubarColorDotsEnabled: Bool {
     UserDefaults.standard.object(forKey: DaybreakDefaults.Keys.menubarColorDots) as? Bool ?? true
 }
 
-extension NSView {
-    var hasDarkAppearance: Bool {
-        switch effectiveAppearance.name {
-        case .darkAqua, .vibrantDark, .accessibilityHighContrastDarkAqua, .accessibilityHighContrastVibrantDark:
-            return true
-        default:
-            return false
-        }
-    }
+/// Menu-bar text color. Dynamic — resolves against the effective appearance active at draw
+/// time — so one attributed string renders correctly on every screen's menu bar, including the
+/// replicant snapshots AppKit draws for additional displays under each screen's own appearance.
+/// Baking white/black in at string-construction time required rebuilding content on every
+/// appearance change, and AppKit flips the view's appearance during every replicant snapshot,
+/// so that rebuild re-dirtied the item and scheduled the next snapshot — a hot loop pinning the
+/// main thread whenever 2+ displays were active (#191).
+let menubarTextColor = NSColor(name: nil) { appearance in
+    appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua ? .white : .black
 }
 
 class StatusItemView: NSView {
@@ -73,37 +73,28 @@ class StatusItemView: NSView {
         return paragraphStyle
     }()
 
-    // Cached per appearance mode; invalidated in viewDidChangeEffectiveAppearance.
-    private var cachedTimeAttributes: [NSAttributedString.Key: AnyObject]?
-    private var cachedTextFontAttributes: [NSAttributedString.Key: Any]?
+    // Appearance-independent (the text color is dynamic), so built once per view.
+    private lazy var timeAttributes: [NSAttributedString.Key: AnyObject] = [
+        NSAttributedString.Key.font: compactModeTimeFont,
+        NSAttributedString.Key.foregroundColor: menubarTextColor,
+        NSAttributedString.Key.backgroundColor: NSColor.clear,
+        NSAttributedString.Key.paragraphStyle: paragraphStyle
+    ]
 
-    private var timeAttributes: [NSAttributedString.Key: AnyObject] {
-        if let cached = cachedTimeAttributes { return cached }
-        let textColor = hasDarkAppearance ? NSColor.white : NSColor.black
-        let attributes: [NSAttributedString.Key: AnyObject] = [
-            NSAttributedString.Key.font: compactModeTimeFont,
-            NSAttributedString.Key.foregroundColor: textColor,
-            NSAttributedString.Key.backgroundColor: NSColor.clear,
-            NSAttributedString.Key.paragraphStyle: paragraphStyle
-        ]
-        cachedTimeAttributes = attributes
-        return attributes
-    }
+    private lazy var textFontAttributes: [NSAttributedString.Key: Any] = [
+        // Semibold (not bold) for the stacked name line — matches the cleaner Settings preview
+        // chip; full bold read heavier/chunkier in the menu bar (issue #142 UAT).
+        NSAttributedString.Key.font: NSFont.systemFont(ofSize: 10, weight: .semibold),
+        NSAttributedString.Key.foregroundColor: menubarTextColor,
+        NSAttributedString.Key.backgroundColor: NSColor.clear,
+        NSAttributedString.Key.paragraphStyle: paragraphStyle
+    ]
 
-    private var textFontAttributes: [NSAttributedString.Key: Any] {
-        if let cached = cachedTextFontAttributes { return cached }
-        let textColor = hasDarkAppearance ? NSColor.white : NSColor.black
-        let attributes: [NSAttributedString.Key: Any] = [
-            // Semibold (not bold) for the stacked name line — matches the cleaner Settings preview
-            // chip; full bold read heavier/chunkier in the menu bar (issue #142 UAT).
-            NSAttributedString.Key.font: NSFont.systemFont(ofSize: 10, weight: .semibold),
-            NSAttributedString.Key.foregroundColor: textColor,
-            NSAttributedString.Key.backgroundColor: NSColor.clear,
-            NSAttributedString.Key.paragraphStyle: paragraphStyle
-        ]
-        cachedTextFontAttributes = attributes
-        return attributes
-    }
+    // Last content written to each field. Setting attributedStringValue dirties the field even
+    // when the value is identical, and on a multi-display setup every dirty schedules an
+    // NSStatusItem replicant re-snapshot — so no-op refreshes must not write (#191).
+    private var lastAppliedTitle: NSAttributedString?
+    private var lastAppliedTime: NSAttributedString?
 
     // MARK: Public
 
@@ -182,19 +173,23 @@ class StatusItemView: NSView {
     /// Apply the current content to the views, honoring the single-line vs two-line mode.
     private func applyContent() {
         if kMenubarV4SingleLine {
-            timeView.attributedStringValue = oneLineAttributedString()
+            let line = oneLineAttributedString()
+            if line != lastAppliedTime {
+                lastAppliedTime = line
+                timeView.attributedStringValue = line
+            }
             return
         }
-        locationView.attributedStringValue = NSAttributedString(string: operationsObject.compactMenuTitle(), attributes: textFontAttributes)
-        timeView.attributedStringValue = NSAttributedString(string: operationsObject.compactMenuSubtitle(), attributes: timeAttributes)
-    }
-
-    override func viewDidChangeEffectiveAppearance() {
-        super.viewDidChangeEffectiveAppearance()
-        // Invalidate appearance-dependent attribute caches so they are rebuilt for the new appearance.
-        cachedTimeAttributes = nil
-        cachedTextFontAttributes = nil
-        statusItemViewSetNeedsDisplay()
+        let title = NSAttributedString(string: operationsObject.compactMenuTitle(), attributes: textFontAttributes)
+        if title != lastAppliedTitle {
+            lastAppliedTitle = title
+            locationView.attributedStringValue = title
+        }
+        let time = NSAttributedString(string: operationsObject.compactMenuSubtitle(), attributes: timeAttributes)
+        if time != lastAppliedTime {
+            lastAppliedTime = time
+            timeView.attributedStringValue = time
+        }
     }
 
     private func initialSetup() {
