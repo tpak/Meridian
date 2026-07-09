@@ -3,6 +3,21 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>4.1.1-beta11</title>
+            <pubDate>Thu, 09 Jul 2026 13:58:04 +0000</pubDate>
+            <sparkle:channel>beta</sparkle:channel>
+            <sparkle:version>4011011</sparkle:version>
+            <sparkle:shortVersionString>4.1.1-beta11</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Fix high CPU usage when a second display is connected (#191)</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v4.1.1-beta11/Meridian.app.zip" length="2233753" type="application/octet-stream" sparkle:edSignature="0MUbpsKgn7E9OLIedF4IsfH9pjM8LsxsNeGG6odvrFpmo2wxouquhQIipbpHHw9Itr3XDf5vXDVMNml3oiznDQ=="/>
+        </item>
+        <item>
             <title>4.1.1-beta10</title>
             <pubDate>Thu, 09 Jul 2026 11:41:32 +0000</pubDate>
             <sparkle:channel>beta</sparkle:channel>
