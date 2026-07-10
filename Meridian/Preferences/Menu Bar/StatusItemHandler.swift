@@ -10,8 +10,7 @@ internal enum MenubarState {
     case icon
 }
 
-/// Shared menu-bar width geometry, referenced by both `bufferCalculatedWidth()` here and
-/// `compactWidth(for:with:)` in StatusContainerView so the two stay in sync.
+/// Shared menu-bar width geometry used by MenubarImageRenderer's per-city measurements.
 enum MenubarLayoutConstants {
     static let baseWidth = 55
     static let dayBuffer = 12
@@ -81,7 +80,11 @@ class StatusItemHandler: NSObject {
         return statusItem
     }()
 
-    private var statusContainerView: StatusContainerView?
+    /// Change-detection key of the last rendered compact image; nil when nothing is rendered.
+    /// Refresh ticks whose content hasn't changed (e.g. per-minute display between ticks) skip
+    /// the button entirely — an untouched image button never wakes the multi-display replicant
+    /// machinery (#191).
+    private var lastRenderSignature: String?
 
     private var calendar = Calendar.autoupdatingCurrent
 
@@ -107,23 +110,10 @@ class StatusItemHandler: NSObject {
     // The debounced UserDefaults observer coalesces these into a single update.
     private var currentState: MenubarState = .icon {
         didSet {
-            // Do some cleanup
-            switch oldValue {
-            case .compactText:
-                statusItem.button?.subviews = []
-                statusContainerView = nil
-                // constructCompactView pins `statusItem.length` to the
-                // container width so AppKit reserves the full slot for the
-                // compact subviews. The pinned length sticks across state
-                // changes, so leaving compact for icon mode without resetting
-                // it makes the icon-only slot stay as wide as the previous
-                // compact container — visually a too-wide gap around the
-                // icon. Hand the slot back to AppKit so it auto-sizes from
-                // image again.
-                statusItem.length = NSStatusItem.variableLength
-            case .icon:
-                statusItem.button?.image = nil
-            }
+            // Both states render into the button's image slot — clear the previous state's
+            // image and cached signature so the new state starts clean.
+            statusItem.button?.image = nil
+            lastRenderSignature = nil
 
             // Now setup for the new menubar state
             switch currentState {
@@ -153,11 +143,8 @@ class StatusItemHandler: NSObject {
             currentState = menubarState
         } else if menubarState == .compactText {
             // Same state, but the favorite list may have changed (toggle
-            // on/off without a mode change). The compact container's
-            // subviews are decided at construction time, so refresh() —
-            // which only re-renders time text on existing subviews — would
-            // miss the add/remove. Rebuild the container to pick up the
-            // new menubar timezone list.
+            // on/off without a mode change). Force a fresh render so the
+            // strip picks up the new menubar timezone list.
             setupForCompactTextMode()
         } else {
             // Same state, icon mode. The first call from init() lands here
@@ -266,54 +253,37 @@ class StatusItemHandler: NSObject {
             .store(in: &cancellables)
     }
 
-    private func constructCompactView() {
-        statusItem.button?.subviews = []
-        statusContainerView = nil
-
+    /// Render the compact strip into the button's image (#191 — no live subviews; an image
+    /// button is replicated natively onto additional displays' menu bars).
+    private func renderCompactImage(forceRebuild: Bool) {
         let menubarTimezones = store.menubarTimezoneObjects()
         if menubarTimezones.isEmpty {
             currentState = .icon
             return
         }
 
-        statusContainerView = StatusContainerView(with: menubarTimezones,
-                                                  store: store,
-                                                  bufferContainerWidth: bufferCalculatedWidth())
-        statusContainerView?.wantsLayer = true
-        if let containerView = statusContainerView {
-            statusItem.button?.addSubview(containerView)
-            statusItem.button?.frame = containerView.bounds
-            // NSStatusItem with `.variableLength` auto-sizes from its button's
-            // title/image, *not* from added subviews. Without an explicit
-            // length the system holds the visible status-bar slot at its
-            // single-item default and clips any subview past that width — so
-            // a second favourite timezone is rendered into the container but
-            // never shown. Pin the slot width to the container so every
-            // subview survives. Inherited bug from upstream Clocker; the
-            // symptom only surfaces on recent macOS versions that tightened
-            // status-bar slot sizing.
-            statusItem.length = containerView.bounds.size.width
+        let strips = MenubarImageRenderer.contents(for: menubarTimezones, store: store)
+        let signature = MenubarImageRenderer.signature(of: strips)
+        if !forceRebuild, signature == lastRenderSignature {
+            return
         }
+        lastRenderSignature = signature
 
-        // For OS < 11, we need to fix the sizing (width) on the button's window
-        // Otherwise, we won't be able to see the menu bar option at all.
-        if let window = statusItem.button?.window {
-            let currentFrame = window.frame
-            let newFrame = NSRect(x: currentFrame.origin.x,
-                                  y: currentFrame.origin.y,
-                                  width: statusItem.button?.bounds.size.width ?? 0,
-                                  height: currentFrame.size.height)
-            window.setFrame(newFrame, display: true)
-        }
-        statusItem.button?.subviews.first?.window?.backgroundColor = NSColor.clear
+        statusItem.button?.title = UserDefaultKeys.emptyString
+        statusItem.button?.image = MenubarImageRenderer.image(for: strips)
+        statusItem.button?.imagePosition = .imageOnly
+        statusItem.button?.imageScaling = .scaleNone
+        // The drawn image (unlike the old NSTextField hierarchy) exposes no text of its own.
+        statusItem.button?.setAccessibilityLabel(MenubarImageRenderer.accessibilityText(of: strips))
     }
 
-    // This is called when the Apple interface style pre-Mojave is changed.
-    // In High Sierra and before, we could have a dark or light menubar and dock
-    // Our icon is template, so it changes automatically; only need to repaint
-    // the compact container.
+    // Interface style (dark/light) changed. The icon glyph is a template image and the compact
+    // strip resolves `menubarTextColor` at draw time, but NSImage caches rasterized reps —
+    // force a fresh image so no pre-switch rendering lingers.
     @objc func respondToInterfaceStyleChange() {
-        updateCompactMenubar()
+        if currentState == .compactText {
+            renderCompactImage(forceRebuild: true)
+        }
     }
 
     @objc func menubarIconClicked(_ sender: NSStatusBarButton) {
@@ -399,8 +369,8 @@ class StatusItemHandler: NSObject {
     }
 
     func updateCompactMenubar() {
-        // This will internally call `statusItemViewSetNeedsDisplay` on all subviews ensuring all text in the menubar is up-to-date.
-        statusContainerView?.updateTime()
+        // Re-render the strip if (and only if) its content changed since the last render.
+        renderCompactImage(forceRebuild: false)
     }
 
     func refresh() {
@@ -444,13 +414,10 @@ class StatusItemHandler: NSObject {
     }
 
     private func setMenubarIcon() {
-        if statusItem.button?.subviews.isEmpty == false {
-            statusItem.button?.subviews = []
-        }
-
         statusItem.button?.title = UserDefaultKeys.emptyString
         statusItem.button?.image = meridianMenubarIcon
         statusItem.button?.imagePosition = .imageOnly
+        statusItem.button?.setAccessibilityLabel("Meridian")
         statusItem.button?.toolTip = "Meridian"
     }
 
@@ -459,25 +426,7 @@ class StatusItemHandler: NSObject {
         menubarTimer?.invalidate()
         menubarTimer = nil
 
-        constructCompactView()
+        renderCompactImage(forceRebuild: true)
         updateMenubar()
-    }
-
-    private func bufferCalculatedWidth() -> Int {
-        var totalWidth = MenubarLayoutConstants.baseWidth
-
-        if store.shouldShowDayInMenubar() {
-            totalWidth += MenubarLayoutConstants.dayBuffer
-        }
-
-        if store.isBufferRequiredForTwelveHourFormats() {
-            totalWidth += MenubarLayoutConstants.twelveHourBuffer
-        }
-
-        if store.shouldShowDateInMenubar() {
-            totalWidth += MenubarLayoutConstants.dateBuffer
-        }
-
-        return totalWidth
     }
 }

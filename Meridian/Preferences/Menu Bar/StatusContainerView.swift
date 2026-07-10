@@ -1,10 +1,9 @@
 // Copyright © 2015 Abhishek Banthia, © 2026 Chris Tirpak
 
 import Cocoa
-import CoreLoggerKit
 import CoreModelKit
 
-func compactWidth(for timezone: TimezoneData, with store: DataStore) -> Int {
+func compactWidth(for timezone: TimezoneData, with store: DataStoring) -> Int {
     var totalWidth = MenubarLayoutConstants.baseWidth
     // Menu-bar-only geometry — width follows the menu-bar format (12/24 from
     // Appearance, seconds from the Menu Bar pane's Seconds toggle).
@@ -45,186 +44,153 @@ let bufferWidth: CGFloat = 9.5
 /// and the stacked pair vertically centred (#142 UAT).
 var menubarItemHeight: CGFloat { NSStatusBar.system.thickness }
 
-protocol StatusItemViewConforming {
-    /// Mark that we need to refresh the text we're showing in the menubar
-    func statusItemViewSetNeedsDisplay()
-
-    /// Distinguish between different status items view through this identifier
-    func statusItemViewIdentifier() -> String
-}
-
-/// Observe for User Default changes for timezones in App Delegate and reconstruct the Status View if neccesary
-/// We'll inject the menubar timezones into Status Container View which'll pass it to StatusItemView
-/// The benefit of doing so is reducing time-spent calculating menubar timezones and deserialization through `TimezoneData.customObject`
-///  Also inject, `shouldDisplaySecondsInMenubar`
+/// Renders the compact menu-bar strip (every favourited city) into a single image (#191).
 ///
+/// The strip used to be a live NSView hierarchy added as a subview of the status item's button.
+/// AppKit only mirrors plain image/title buttons onto additional displays' menu bars natively;
+/// custom subviews force the replicant *snapshot* path, which flips `setAppearance:` on the live
+/// view for every snapshot so it renders under the target screen's appearance. On Macs whose menu
+/// bars resolve different appearances per display, each flip re-dirtied the views (AppKit's own
+/// `_viewDidChangeAppearance:` → `setNeedsDisplay`) and scheduled the next snapshot — an infinite
+/// loop pinning a core whenever 2+ displays were active. An image in the button replicates
+/// natively, so the snapshot machinery (and with it the loop) never runs.
+enum MenubarImageRenderer {
+    /// Everything needed to draw one city, captured eagerly: the image's drawing handler runs on
+    /// later AppKit draw passes (including replicant draws for other displays) and must not touch
+    /// DataStore or recompute times.
+    struct CityStrip {
+        /// Stacked mode: the city-name line. Single-line mode: nil.
+        let title: String?
+        /// The time line (stacked) or the whole "NAME TIME" line (single-line).
+        let line: String
+        /// Leading "●" color; nil when color dots are off or in stacked mode.
+        let dotColor: NSColor?
+        let width: CGFloat
+    }
 
-class StatusContainerView: NSView {
-    private var previousX: Int = 0
-    private let store: DataStore
-    private var cachedBestWidth: [String: Int] = [:]
-    private lazy var paragraphStyle: NSMutableParagraphStyle = {
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.alignment = .center
-        paragraphStyle.lineBreakMode = .byTruncatingTail
-        // Better readability for p,q,y,g in the status bar.
-        let userPreferredLanguage = Locale.preferredLanguages.first ?? "en-US"
-        let lineHeight = userPreferredLanguage.contains("en") ? LayoutConstants.englishMenubarLineHeightMultiple : 1
-        paragraphStyle.lineHeightMultiple = CGFloat(lineHeight)
-        return paragraphStyle
+    // Semibold (not bold) for the stacked name line — matches the cleaner Settings preview
+    // chip; full bold read heavier/chunkier in the menu bar (issue #142 UAT).
+    private static let titleFont = NSFont.systemFont(ofSize: 10, weight: .semibold)
+    private static let dotFont = NSFont.systemFont(ofSize: 9)
+
+    // Half the vertical gap between the stacked lines; same ±6pt centerline offsets the
+    // stacked NSView layout used (#142 UAT).
+    private static let stackedHalfGap: CGFloat = 6
+
+    private static let paragraphStyle: NSParagraphStyle = {
+        let style = NSMutableParagraphStyle()
+        style.alignment = .center
+        style.lineBreakMode = .byTruncatingTail
+        style.lineHeightMultiple = 1
+        return style
     }()
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        wantsLayer = true
-        layer?.backgroundColor = NSColor.clear.cgColor
+    private static var measurementAttributes: [NSAttributedString.Key: AnyObject] {
+        [NSAttributedString.Key.paragraphStyle: paragraphStyle]
     }
 
-    init(with timezones: [TimezoneData],
-         store: DataStore,
-         bufferContainerWidth: Int) {
-        self.store = store
+    /// Identity used to look up a city's color dot.
+    private static func dotIdentity(for timezone: TimezoneData) -> String {
+        if let pid = timezone.placeID, !pid.isEmpty { return pid }
+        if let tid = timezone.timezoneID, !tid.isEmpty { return tid }
+        return timezone.timezone()
+    }
 
-        let timeBasedAttributes = [
-            NSAttributedString.Key.font: compactModeTimeFont,
-            NSAttributedString.Key.backgroundColor: NSColor.clear,
-            NSAttributedString.Key.paragraphStyle: defaultParagraphStyle
-        ]
+    /// Compute the drawable content and slot width for each city.
+    static func contents(for timezones: [TimezoneData], store: DataStoring) -> [CityStrip] {
+        timezones.map { timezone in
+            let operations = TimezoneDataOperations(with: timezone, store: store)
 
-        func containerWidth(for timezones: [TimezoneData]) -> CGFloat {
-            let compressedWidth = timezones.reduce(0.0) { result, timezoneObject -> CGFloat in
-                let operationObject = TimezoneDataOperations(with: timezoneObject, store: store)
-                if kMenubarV4SingleLine {
-                    // Measure the actual single line ("● NAME TIME"); a generous width avoids
-                    // truncating the measurement itself.
-                    let lineSize = compactModeTimeFont.size(for: operationObject.compactMenuOneLine(),
-                                                            width: 1000, attributes: timeBasedAttributes)
-                    let dotPad: CGFloat = menubarColorDotsEnabled ? MenubarLayoutConstants.colorDotPadding : 0
-                    return result + lineSize.width + dotPad + bufferWidth
-                }
-                let precalculatedWidth = Double(compactWidth(for: timezoneObject, with: store))
-                let calculatedSubtitleSize = compactModeTimeFont.size(for: operationObject.compactMenuSubtitle(),
-                                                                      width: precalculatedWidth,
-                                                                      attributes: timeBasedAttributes)
-                let calculatedTitleSize = compactModeTimeFont.size(for: operationObject.compactMenuTitle(),
-                                                                   width: precalculatedWidth,
-                                                                   attributes: timeBasedAttributes)
-                let showSeconds = timezoneObject.shouldShowSeconds(store.menubarTimezoneFormat())
-                let secondsBuffer: CGFloat = showSeconds ? MenubarLayoutConstants.measuredSecondsBuffer : 0
-                return result + max(calculatedTitleSize.width, calculatedSubtitleSize.width) + bufferWidth + secondsBuffer
+            if kMenubarV4SingleLine {
+                // Measure the actual single line ("● NAME TIME"); a generous width avoids
+                // truncating the measurement itself.
+                let line = operations.compactMenuOneLine()
+                let lineSize = compactModeTimeFont.size(for: line, width: 1000, attributes: measurementAttributes)
+                let dotColor = menubarColorDotsEnabled ? CityColorStore.nsColor(for: dotIdentity(for: timezone)) : nil
+                let dotPad: CGFloat = dotColor != nil ? MenubarLayoutConstants.colorDotPadding : 0
+                return CityStrip(title: nil, line: line, dotColor: dotColor,
+                                 width: lineSize.width + dotPad + bufferWidth)
             }
 
-            // The single-line width is measured directly, so don't clamp to the two-line cap.
-            if kMenubarV4SingleLine { return compressedWidth }
-            return min(compressedWidth, CGFloat(timezones.count * bufferContainerWidth))
+            let title = operations.compactMenuTitle()
+            let line = operations.compactMenuSubtitle()
+            let widthBudget = Double(compactWidth(for: timezone, with: store))
+            let lineSize = compactModeTimeFont.size(for: line, width: widthBudget, attributes: measurementAttributes)
+            let titleSize = compactModeTimeFont.size(for: title, width: widthBudget, attributes: measurementAttributes)
+            let showSeconds = timezone.shouldShowSeconds(store.menubarTimezoneFormat())
+            let secondsBuffer: CGFloat = showSeconds ? MenubarLayoutConstants.measuredSecondsBuffer : 0
+            return CityStrip(title: title, line: line, dotColor: nil,
+                             width: max(lineSize.width, titleSize.width) + bufferWidth + secondsBuffer)
         }
-
-        let statusItemWidth = containerWidth(for: timezones)
-        let frame = NSRect(x: 0, y: 0, width: statusItemWidth, height: menubarItemHeight)
-        super.init(frame: frame)
-
-        timezones.forEach { addTimezone($0) }
     }
 
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    /// Cheap change-detection key: rebuilding the image is skipped when this is unchanged, so a
+    /// no-op refresh tick never touches the button (and never wakes the replicant machinery).
+    static func signature(of strips: [CityStrip]) -> String {
+        strips.map { "\($0.title ?? "")|\($0.line)|\($0.dotColor?.description ?? "-")|\($0.width)" }
+            .joined(separator: "§")
     }
 
-    func addTimezone(_ timezone: TimezoneData) {
-        let calculatedWidth = bestWidth(for: timezone)
-        let frame = NSRect(x: previousX, y: 0, width: calculatedWidth, height: Int(menubarItemHeight))
-
-        let statusItemView = StatusItemView(frame: frame)
-        statusItemView.dataObject = timezone
-
-        addSubview(statusItemView)
-
-        previousX += calculatedWidth
+    /// Concatenated plain-text content, exposed to accessibility since the drawn image (unlike
+    /// the old NSTextField hierarchy) has no text of its own for VoiceOver to read.
+    static func accessibilityText(of strips: [CityStrip]) -> String {
+        strips.map { [$0.title, $0.line].compactMap { $0 }.joined(separator: " ") }
+            .joined(separator: ", ")
     }
 
-    private func bestWidth(for timezone: TimezoneData) -> Int {
-        let cacheKey = timezone.timezone()
-        if let cached = cachedBestWidth[cacheKey] {
-            return cached
-        }
-
-        let textColor = NSColor.white
-
-        let timeBasedAttributes = [
-            NSAttributedString.Key.font: compactModeTimeFont,
-            NSAttributedString.Key.foregroundColor: textColor,
-            NSAttributedString.Key.backgroundColor: NSColor.clear,
-            NSAttributedString.Key.paragraphStyle: paragraphStyle
-        ]
-
-        let operation = TimezoneDataOperations(with: timezone, store: store)
-        let result: Int
-        if kMenubarV4SingleLine {
-            let lineSize = compactModeTimeFont.size(for: operation.compactMenuOneLine(),
-                                                    width: 1000, attributes: timeBasedAttributes)
-            let dotPad: CGFloat = menubarColorDotsEnabled ? MenubarLayoutConstants.colorDotPadding : 0
-            result = Int(lineSize.width + dotPad + bufferWidth)
-        } else {
-            let bestSize = compactModeTimeFont.size(for: operation.compactMenuSubtitle(),
-                                                    width: Double(compactWidth(for: timezone, with: store)),
-                                                    attributes: timeBasedAttributes)
-            let bestTitleSize = compactModeTimeFont.size(for: operation.compactMenuTitle(),
-                                                         width: Double(compactWidth(for: timezone, with: store)),
-                                                         attributes: timeBasedAttributes)
-            result = Int(max(bestSize.width, bestTitleSize.width) + bufferWidth)
-        }
-        cachedBestWidth[cacheKey] = result
-        return result
-    }
-
-    override func setNeedsDisplay(_ invalidRect: NSRect) {
-        cachedBestWidth.removeAll()
-        super.setNeedsDisplay(invalidRect)
-    }
-
-    func updateTime() {
-        if subviews.isEmpty {
-            Logger.debug("Subviews count should > 0")
-        }
-
-        for view in subviews {
-            if let conformingView = view as? StatusItemViewConforming {
-                conformingView.statusItemViewSetNeedsDisplay()
+    /// Render all cities side by side into one menu-bar-height image. Text color resolves via
+    /// `menubarTextColor` inside the drawing handler, i.e. against the appearance active where
+    /// the image is actually drawn — each display's menu bar gets the right variant.
+    static func image(for strips: [CityStrip]) -> NSImage {
+        let height = menubarItemHeight
+        let totalWidth = max(strips.reduce(0) { $0 + $1.width }, 1)
+        let image = NSImage(size: NSSize(width: totalWidth, height: height), flipped: false) { _ in
+            var x: CGFloat = 0
+            for strip in strips {
+                draw(strip, at: x, height: height)
+                x += strip.width
             }
+            return true
         }
-
-        // See if frame's width needs any adjustment
-        adjustWidthIfNeccessary()
+        image.isTemplate = false
+        return image
     }
 
-    private func adjustWidthIfNeccessary() {
-        var newWidth: CGFloat = 0
-
-        subviews.forEach {
-            if let statusItem = $0 as? StatusItemView, statusItem.isHidden == false {
-                // Determine what's the best width required to display the current string.
-                let newBestWidth = CGFloat(bestWidth(for: statusItem.dataObject))
-
-                // Let's note if the current width is too small/correct
-                newWidth += statusItem.frame.size.width != newBestWidth ? newBestWidth : statusItem.frame.size.width
-
-                statusItem.frame = CGRect(x: statusItem.frame.origin.x,
-                                          y: statusItem.frame.origin.y,
-                                          width: newBestWidth,
-                                          height: statusItem.frame.size.height)
-            }
+    private static func draw(_ strip: CityStrip, at x: CGFloat, height: CGFloat) {
+        if let title = strip.title {
+            let titleString = NSAttributedString(string: title, attributes: [
+                .font: titleFont,
+                .foregroundColor: menubarTextColor,
+                .paragraphStyle: paragraphStyle
+            ])
+            let lineString = NSAttributedString(string: strip.line, attributes: [
+                .font: compactModeTimeFont,
+                .foregroundColor: menubarTextColor,
+                .paragraphStyle: paragraphStyle
+            ])
+            drawCentered(titleString, x: x, width: strip.width, centerY: height / 2 + stackedHalfGap)
+            drawCentered(lineString, x: x, width: strip.width, centerY: height / 2 - stackedHalfGap)
+            return
         }
 
-        if newWidth != frame.size.width, newWidth > frame.size.width + 2.0 {
-            Logger.debug("Correcting our width to \(newWidth) and the previous width was \(frame.size.width)")
-            // NSView move animation
-            NSAnimationContext.runAnimationGroup { context in
-                context.duration = 0.2
-                context.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeIn)
-                let newFrame = CGRect(x: frame.origin.x, y: frame.origin.y, width: newWidth, height: frame.size.height)
-                self.animator().frame = newFrame
-            }
+        let line = NSMutableAttributedString()
+        if let dotColor = strip.dotColor {
+            line.append(NSAttributedString(string: "\u{25CF} ", attributes: [
+                .font: dotFont,
+                .foregroundColor: dotColor,
+                .paragraphStyle: paragraphStyle
+            ]))
         }
+        line.append(NSAttributedString(string: strip.line, attributes: [
+            .font: compactModeTimeFont,
+            .foregroundColor: menubarTextColor,
+            .paragraphStyle: paragraphStyle
+        ]))
+        drawCentered(line, x: x, width: strip.width, centerY: height / 2)
+    }
+
+    private static func drawCentered(_ string: NSAttributedString, x: CGFloat, width: CGFloat, centerY: CGFloat) {
+        let textHeight = string.size().height
+        string.draw(in: NSRect(x: x, y: centerY - textHeight / 2, width: width, height: textHeight))
     }
 }
