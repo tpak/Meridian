@@ -9,7 +9,8 @@ A macOS menu-bar world clock. Keep the cities you care about a click away, see w
 ## Documentation
 
 - **[User Manual](manual.html)** — the complete guide to every setting and feature
-- **[What's new in 4.0.0 — "Daybreak"](RELEASE_NOTES_4.0.0.html)** — the latest release
+- **[About the 4.0 "Daybreak" redesign](RELEASE_NOTES_4.0.0.html)** — what changed in the big 4.0 release
+- **[Latest release notes](https://github.com/tpak/Meridian/releases/latest)** — what's new in the current version
 
 ## Install
 
