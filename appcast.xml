@@ -3,6 +3,20 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>4.1.2</title>
+            <pubDate>Sat, 15 Aug 2026 14:58:25 +0000</pubDate>
+            <sparkle:version>4012100</sparkle:version>
+            <sparkle:shortVersionString>4.1.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Update the built-in auto-update framework to the latest version</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v4.1.2/Meridian.app.zip" length="2234349" type="application/octet-stream" sparkle:edSignature="6MXsVaSoPshuOn1rpZIvIE1f5vkBzQ6ffSbHxrT6AQetRf07gAGE46KQTRY08RGaxbS07+zWvQHV3fiHA5CNBA=="/>
+        </item>
+        <item>
             <title>4.1.1</title>
             <pubDate>Fri, 10 Jul 2026 10:40:36 +0000</pubDate>
             <sparkle:version>4011100</sparkle:version>
