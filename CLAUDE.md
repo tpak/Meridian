@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## App Identity
 
-**Meridian** (formerly Clocker) — macOS menu bar world clock app. ~9.9K lines of Swift across 60 source files (~14K including tests). Bundle ID: `com.tpak.Meridian`. Forked from [Clocker](https://github.com/n0shake/Clocker) by Abhishek Banthia.
+**Meridian** (formerly Clocker) — macOS menu bar world clock app. ~9.8K lines of Swift across 53 source files (~14.8K including tests). Bundle ID: `com.tpak.Meridian`. Forked from [Clocker](https://github.com/n0shake/Clocker) by Abhishek Banthia.
 
 GitHub repository: [`tpak/Meridian`](https://github.com/tpak/Meridian) — always use this URL for issues, PRs, and releases. The old Clocker repo is upstream and unrelated.
 
@@ -405,7 +405,7 @@ All in `Meridian/Dependencies/`.
 
 ## Test Notes
 
-- Unit tests in `Meridian/MeridianUnitTests/` (263 tests)
+- Unit tests in `Meridian/MeridianUnitTests/` (248 tests)
 - `MockDataStore` available for DI; `MockGeocodingService` for geocoding
 - UI tests in `Meridian/MeridianUITests/` (panel interactions)
 - `@testable import Meridian` (module follows PRODUCT_NAME)
