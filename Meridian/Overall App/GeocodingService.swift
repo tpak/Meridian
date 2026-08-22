@@ -30,23 +30,18 @@ enum GeocodingError: LocalizedError {
 
 enum GeocodingConstants {
     /// Cap geocoding waits at 10 seconds. Without one, a stalled network
-    /// during location-permission grant or first-launch reverse geocode
-    /// can hang the calling Task forever.
+    /// during the first-launch coordinate backfill or a city search can
+    /// hang the calling Task forever.
     static let timeout: TimeInterval = 10
 }
 
 protocol GeocodingServicing: Sendable {
     func forward(addressString: String, timeout: TimeInterval) async throws -> [GeocodedPlace]
-    func reverse(location: CLLocation, timeout: TimeInterval) async throws -> [GeocodedPlace]
 }
 
 extension GeocodingServicing {
     func forward(addressString: String) async throws -> [GeocodedPlace] {
         try await forward(addressString: addressString, timeout: GeocodingConstants.timeout)
-    }
-
-    func reverse(location: CLLocation) async throws -> [GeocodedPlace] {
-        try await reverse(location: location, timeout: GeocodingConstants.timeout)
     }
 }
 
@@ -65,19 +60,6 @@ struct MapKitGeocodingService: GeocodingServicing {
         )
     }
 
-    func reverse(location: CLLocation, timeout: TimeInterval) async throws -> [GeocodedPlace] {
-        guard let request = MKReverseGeocodingRequest(location: location) else {
-            throw GeocodingError.invalidInput
-        }
-        return try await runWithTimeout(
-            timeout: timeout,
-            cancel: { request.cancel() },
-            operation: {
-                let mapItems = try await request.mapItems
-                return mapItems.map(GeocodedPlace.init(mapItem:))
-            }
-        )
-    }
 }
 
 extension GeocodedPlace {

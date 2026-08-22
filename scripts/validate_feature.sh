@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
-# Validation for issue #200 — "Stale references to removed legacy UI (kill-switches, deleted
-# classes) in CLAUDE.md and comments".
+# Validation for issue #199 — remove LocationController.
 #
-# The legacy storyboard UI and its useV4Settings / useDaybreakPanel kill-switches were deleted in
-# #166 (98e4135). This script asserts that no *current* guidance — CLAUDE.md, source comments, or
-# the LocalizationTests key inventory — still describes them as if they exist.
-#
-# Historical records are exempt: REDESIGN-V4.md and docs/CODE_REVIEW_4.0.0.md are dated build /
-# review logs, not statements about the code as it stands today.
+# LocationController requested location permission and reverse-geocoded the user's position onto
+# the home row. It was never instantiated in app code (only in its own unit test), and the app is
+# sandboxed without `com.apple.security.personal-information.location`, so CoreLocation would have
+# been denied even if it had run. Removing it also lets the NSLocation* usage strings come out of
+# Info.plist, so the app stops declaring a privacy capability it never exercises.
 
 set -uo pipefail
 cd "$(dirname "$0")/.."
@@ -16,161 +14,100 @@ FAIL=0
 pass() { printf '  \033[32m✓\033[0m %s\n' "$1"; }
 fail() { printf '  \033[31m✗\033[0m %s\n' "$1"; FAIL=1; }
 
-# Classes/files removed in #166 that must no longer be referenced as if they exist.
-REMOVED_SYMBOLS=(
-  useV4Settings
-  useDaybreakPanel
-  ParentPanelController
-  PreferencesViewController
-  AppearanceViewController
-  TimezoneAdditionHandler
-  TimezoneSearchService
-  TimezoneDataSource
-  TimezoneCellView
-  NoTimezoneView
-  CustomPanel
-  "Preferences.storyboard"
-  "Panel.xib"
-  "HourMarkerViewItem"
-)
+PLIST=Meridian/App/Meridian-Info.plist
+ENTITLEMENTS=Meridian/App/Meridian.entitlements
 
-# A line that names a removed symbol *while citing #166* is a deliberate tombstone ("these are
-# gone, don't go looking for them"), not stale guidance. Everything else is a finding.
-
-echo "== 1. CLAUDE.md has no references to symbols removed in #166 =="
-MD_HITS=0
-for sym in "${REMOVED_SYMBOLS[@]}"; do
-  hits=$(grep -n -F -- "$sym" CLAUDE.md | grep -v '#166' || true)
-  if [ -n "$hits" ]; then
-    fail "CLAUDE.md still mentions '$sym' outside a #166 tombstone"
-    echo "$hits" | sed 's/^/      /'
-    MD_HITS=1
-  fi
+echo "== 1. LocationController and its test are gone =="
+for f in Meridian/App/LocationController.swift Meridian/MeridianUnitTests/LocationControllerTests.swift; do
+  [ -e "$f" ] && fail "$f still exists" || pass "$f removed"
 done
-# `PanelController` needs a word-boundary match so DaybreakPanelController doesn't trip it.
-hits=$(grep -nE '(^|[^a-zA-Z])PanelController' CLAUDE.md | grep -v 'DaybreakPanelController' | grep -v '#166' || true)
-if [ -n "$hits" ]; then
-  fail "CLAUDE.md still mentions the removed 'PanelController'"
-  echo "$hits" | sed 's/^/      /'
-  MD_HITS=1
-fi
-[ "$MD_HITS" -eq 0 ] && pass "no stale removed-symbol references in CLAUDE.md"
 
-echo "== 2. Every file path in CLAUDE.md's Key Files table exists =="
-MISSING=0
-while read -r path; do
-  [ -z "$path" ] && continue
-  if [ ! -e "Meridian/$path" ]; then
-    fail "Key Files table lists a non-existent path: Meridian/$path"
-    MISSING=1
-  fi
-done < <(awk '/^## Key Files/{f=1} f&&/^\| `/{gsub(/^\| `/,"");sub(/`.*/,"");print} /^## Test Notes/{f=0}' CLAUDE.md)
-[ "$MISSING" -eq 0 ] && pass "all Key Files paths resolve"
-
-echo "== 3. CLAUDE.md documents the shipping V4Settings / Daybreak structure =="
-for expected in "Panel/Daybreak/DaybreakPanelController.swift" \
-                "Panel/Daybreak/DaybreakViewModel.swift" \
-                "Preferences/V4Settings/SettingsRootView.swift" \
-                "Preferences/V4Settings/CitiesPane.swift"; do
-  if grep -q -F -- "$expected" CLAUDE.md; then
-    pass "CLAUDE.md references $expected"
+echo "== 2. No source or project file still references the symbols =="
+for sym in LocationController LocationControllerDelegate CLLocationManager determineAndRequestLocationAuthorization; do
+  hits=$(grep -rn --include="*.swift" -F -- "$sym" Meridian/ || true)
+  if [ -n "$hits" ]; then
+    fail "Swift sources still reference '$sym'"
+    echo "$hits" | sed 's/^/      /'
   else
-    fail "CLAUDE.md never mentions $expected"
+    pass "no Swift reference to $sym"
   fi
 done
-
-echo "== 4. No Swift source comment references a symbol removed in #166 =="
-SWIFT_HITS=0
-for sym in "${REMOVED_SYMBOLS[@]}"; do
-  hits=$(grep -rn --include="*.swift" -F -- "$sym" Meridian/ | grep -v '#166' || true)
-  if [ -n "$hits" ]; then
-    fail "Swift sources still mention '$sym' outside a #166 tombstone"
-    echo "$hits" | sed 's/^/      /'
-    SWIFT_HITS=1
-  fi
-done
-hits=$(grep -rnE --include="*.swift" '(^|[^a-zA-Z])PanelController' Meridian/ | grep -v 'DaybreakPanelController' | grep -v '#166' || true)
-if [ -n "$hits" ]; then
-  fail "Swift sources still mention the removed 'PanelController'"
-  echo "$hits" | sed 's/^/      /'
-  SWIFT_HITS=1
-fi
-# The flags are gone, so no comment should describe behavior as gated by one, or promise the
-# legacy UI as a fallback. (`kMenubarV4SingleLine` is NOT one of these — it survives as the
-# Settings → Menu Bar "Stacked" user preference, issue #142.)
-hits=$(grep -rniE --include="*.swift" 'v4 flag|kill-?switch|instant fallback|(legacy|old) (panel|preferences|settings)[^.]{0,40}fallback' Meridian/ || true)
-if [ -n "$hits" ]; then
-  fail "Swift comments still describe a v4 rollback flag / legacy-UI fallback"
-  echo "$hits" | sed 's/^/      /'
-  SWIFT_HITS=1
-fi
-[ "$SWIFT_HITS" -eq 0 ] && pass "no removed symbols or rollback-flag phrasing in Swift sources"
-
-echo "== 5. LocalizationTests keys are actually used by shipping code =="
-TESTFILE="Meridian/MeridianUnitTests/LocalizationTests.swift"
-KEYS=$(awk '/private let activeKeys/{f=1;next} f&&/^[[:space:]]*\]/{exit} f&&/^[[:space:]]*"/{sub(/^[[:space:]]*"/,"");sub(/",?[[:space:]]*$/,"");print}' "$TESTFILE")
-if [ -z "$KEYS" ]; then
-  fail "could not parse activeKeys out of $TESTFILE"
+if grep -q "LocationController" Meridian/Meridian.xcodeproj/project.pbxproj; then
+  fail "project.pbxproj still lists LocationController (build phase or file ref)"
+  grep -n "LocationController" Meridian/Meridian.xcodeproj/project.pbxproj | sed 's/^/      /'
 else
-  UNUSED=0
-  while IFS= read -r key; do
-    [ -z "$key" ] && continue
-    if ! grep -rq --include="*.swift" --exclude-dir=MeridianUnitTests --exclude-dir=MeridianUITests \
-         -F -- "\"$key\"" Meridian/; then
-      fail "activeKeys lists '$key', which no shipping source uses"
-      UNUSED=1
-    fi
-  done <<< "$KEYS"
-  [ "$UNUSED" -eq 0 ] && pass "every activeKeys entry ($(echo "$KEYS" | grep -c .) keys) is used by shipping code"
+  pass "project.pbxproj has no LocationController entries"
 fi
 
-echo "== 5b. Every localized literal in shipping code has a catalog entry =="
-python3 - <<'PY' || FAIL=1
-import json, os, re, sys
+echo "== 3. The reverse-geocoding API it was the only caller of is gone =="
+hits=$(grep -rn --include="*.swift" "reverse(location" Meridian/ || true)
+if [ -n "$hits" ]; then
+  fail "reverse(location:) survives with no caller"
+  echo "$hits" | sed 's/^/      /'
+else
+  pass "GeocodingServicing.reverse and its MapKit implementation removed"
+fi
+# forward() must stay — NetworkManager.geocodeAddress uses it.
+if grep -q "func forward(addressString" "Meridian/Overall App/GeocodingService.swift"; then
+  pass "forward(addressString:) still present (still used by geocodeAddress)"
+else
+  fail "forward(addressString:) was removed — that one is live"
+fi
 
-catalog = json.load(open('Meridian/App/Localizable.xcstrings'))['strings']
-# String(localized: "x") | "x".localized() | NSLocalizedString("x", ...)
-pat = re.compile(r'String\(localized:\s*"((?:[^"\\]|\\.)*)"'
-                 r'|"((?:[^"\\]|\\.)*)"\.localized\(\)'
-                 r'|NSLocalizedString\(\s*"((?:[^"\\]|\\.)*)"')
-missing = []
-for root, _, files in os.walk('Meridian'):
-    if any(skip in root for skip in ('MeridianUnitTests', 'MeridianUITests', 'Dependencies')):
-        continue
-    for name in (f for f in files if f.endswith('.swift')):
-        path = os.path.join(root, name)
-        for m in pat.finditer(open(path).read()):
-            key = next(g for g in m.groups() if g is not None)
-            if '\\(' in key:          # interpolated — not a literal catalog key
-                continue
-            if key not in catalog:
-                missing.append((path, key))
-if missing:
-    for path, key in missing:
-        print("  \033[31m✗\033[0m %r used in %s has no Localizable.xcstrings entry" % (key, path))
-    sys.exit(1)
-print("  \033[32m✓\033[0m every localized literal resolves to a catalog entry")
-PY
+echo "== 4. Info.plist no longer declares location usage =="
+if grep -q -i "NSLocation" "$PLIST"; then
+  fail "$PLIST still declares a location usage description"
+  grep -n -i "NSLocation" "$PLIST" | sed 's/^/      /'
+else
+  pass "no NSLocation* keys in $PLIST"
+fi
+if python3 -c "import plistlib,sys; plistlib.load(open(sys.argv[1],'rb'))" "$PLIST" 2>/dev/null; then
+  pass "$PLIST is still a valid plist"
+else
+  fail "$PLIST is malformed"
+fi
 
-echo "== 6. Build =="
+echo "== 5. No location entitlement was introduced =="
+if grep -q -i "location" "$ENTITLEMENTS"; then
+  fail "$ENTITLEMENTS gained a location entitlement — removal shouldn't add one"
+else
+  pass "entitlements unchanged w.r.t. location"
+fi
+
+echo "== 6. The AppDefaults comment no longer promises LocationController =="
+if grep -n "LocationController" "Meridian/Overall App/AppDefaults.swift" >/dev/null; then
+  fail "AppDefaults.swift still cites LocationController as a coordinate source"
+  grep -n "LocationController" "Meridian/Overall App/AppDefaults.swift" | sed 's/^/      /'
+else
+  pass "AppDefaults comment updated"
+fi
+
+echo "== 7. The coordinate path that DOES run is untouched =="
+if grep -q "backfillMissingCoordinates" Meridian/AppDelegate.swift; then
+  pass "AppDelegate.backfillMissingCoordinates still present (the live coordinate source)"
+else
+  fail "backfillMissingCoordinates disappeared — that's the path users actually rely on"
+fi
+
+echo "== 8. Build =="
 if xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug build \
      CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY= \
-     >/tmp/meridian-200-build.log 2>&1; then
+     >/tmp/meridian-199-build.log 2>&1; then
   pass "xcodebuild build succeeded"
 else
-  fail "xcodebuild build FAILED (see /tmp/meridian-200-build.log)"
-  tail -30 /tmp/meridian-200-build.log | sed 's/^/      /'
+  fail "xcodebuild build FAILED (see /tmp/meridian-199-build.log)"
+  grep -E "error:" /tmp/meridian-199-build.log | head -20 | sed 's/^/      /'
 fi
 
-echo "== 7. Unit tests =="
+echo "== 9. Unit tests =="
 if xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug test \
      -only-testing:MeridianUnitTests -parallel-testing-enabled NO -disable-concurrent-destination-testing \
      CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY= \
-     >/tmp/meridian-200-test.log 2>&1; then
-  pass "unit tests passed ($(grep -cE "^Test Case '.*' passed" /tmp/meridian-200-test.log) cases)"
+     >/tmp/meridian-199-test.log 2>&1; then
+  pass "unit tests passed ($(grep -cE "^Test Case '.*' passed" /tmp/meridian-199-test.log) cases)"
 else
-  fail "unit tests FAILED (see /tmp/meridian-200-test.log)"
-  grep -E "error:|failed" /tmp/meridian-200-test.log | head -20 | sed 's/^/      /'
+  fail "unit tests FAILED (see /tmp/meridian-199-test.log)"
+  grep -E "error:|failed" /tmp/meridian-199-test.log | head -20 | sed 's/^/      /'
 fi
 
 echo

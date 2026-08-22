@@ -83,14 +83,12 @@
 		AC11AA0100MIRTESTS00001 /* MenubarImageRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC11AA0100MIRTESTS00002 /* MenubarImageRendererTests.swift */; };
 		B4C63196324AE1E678CCDE91 /* DaybreakScrubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39808930164A8404E6C52BE9 /* DaybreakScrubber.swift */; };
 		B730E37E4596MOCKDATASTORE /* MockDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B730E37E4596MOCKDATASTO2 /* MockDataStore.swift */; };
-		BB00000100LOCCTRL00TEST1 /* LocationControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100LOCCTRL00TEST2 /* LocationControllerTests.swift */; };
 		C175C175C175C175C1750001 /* CitySearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C175C175C175C175C1750002 /* CitySearchService.swift */; };
 		C175C175C175C175C1750003 /* CitySearchServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C175C175C175C175C1750004 /* CitySearchServiceTests.swift */; };
 		C20839CA21515C1E00C86589 /* MeridianUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20839C921515C1E00C86589 /* MeridianUnitTests.swift */; };
 		C22F3D802107778A0001D5E1 /* ShortcutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22F3D7F2107778A0001D5E1 /* ShortcutTests.swift */; };
 		C264A0C520B897D800CCD875 /* PreferencesTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C264A0C420B897D800CCD875 /* PreferencesTest.swift */; };
 		C264A0C820B898D600CCD875 /* PanelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C264A0C720B898D600CCD875 /* PanelTests.swift */; };
-		C2CCCD8220619C4C00F2DFC2 /* LocationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2CCCD8120619C4C00F2DFC2 /* LocationController.swift */; };
 		C2F7821B20B70E3700B6CD07 /* AboutUsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F7821A20B70E3700B6CD07 /* AboutUsTests.swift */; };
 		C31BD08A823D4B94BC9C69AC /* ShortcutRecorderButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0A19BB308FC4CDEA6F6878A /* ShortcutRecorderButton.swift */; };
 		C4D1C9B97D359CF25B20A80D /* TimeTravelPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 170C4F75A6E553A4D3A5A788 /* TimeTravelPane.swift */; };
@@ -213,7 +211,6 @@
 		B30F79A6035950B04509CDBC /* SunMoonDisc.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SunMoonDisc.swift; sourceTree = "<group>"; };
 		B59724D2CB4F4C39995843DE /* SettingsWindowController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
 		B730E37E4596MOCKDATASTO2 /* MockDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDataStore.swift; sourceTree = "<group>"; };
-		BB00000100LOCCTRL00TEST2 /* LocationControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationControllerTests.swift; sourceTree = "<group>"; };
 		C175C175C175C175C1750002 /* CitySearchService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CitySearchService.swift; sourceTree = "<group>"; };
 		C175C175C175C175C1750004 /* CitySearchServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitySearchServiceTests.swift; sourceTree = "<group>"; };
 		C20839C721515C1E00C86589 /* MeridianUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeridianUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -224,7 +221,6 @@
 		C264A0C720B898D600CCD875 /* PanelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelTests.swift; sourceTree = "<group>"; };
 		C2BFE3E32049F82300825BE5 /* MeridianUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeridianUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2BFE3E72049F82300825BE5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C2CCCD8120619C4C00F2DFC2 /* LocationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LocationController.swift; path = App/LocationController.swift; sourceTree = "<group>"; };
 		C2F7821A20B70E3700B6CD07 /* AboutUsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutUsTests.swift; sourceTree = "<group>"; };
 		C3D5CD384414D1E2250F108B /* GeneralPane.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GeneralPane.swift; sourceTree = "<group>"; };
 		CC11AA0100TZDATAOPSTEST2 /* TimezoneDataOperationsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneDataOperationsTests.swift; sourceTree = "<group>"; };
@@ -430,7 +426,6 @@
 				9A3169C01D2CC5AA0079FDF8 /* com.tpak.MeridianHelper.plist */,
 				EE11AA0100INFOPLISTXCS1 /* InfoPlist.xcstrings */,
 				EE11AA0100LOCALIZBLEXCS1 /* Localizable.xcstrings */,
-				C2CCCD8120619C4C00F2DFC2 /* LocationController.swift */,
 				EE11AA0100ACCENTSWIZL02 /* AccentColorSwizzler.swift */,
 			);
 			name = Utilties;
@@ -527,7 +522,6 @@
 				C20839CB21515C1F00C86589 /* Info.plist */,
 				35584D1727F0B019006E3EAD /* DateFormatterManagerTests.swift */,
 				35584D1927F0B64E006E3EAD /* AppDelegateTests.swift */,
-				BB00000100LOCCTRL00TEST2 /* LocationControllerTests.swift */,
 				C175C175C175C175C1750004 /* CitySearchServiceTests.swift */,
 				A1B2C3D400000002MOCK0002 /* MockURLProtocol.swift */,
 				A1B2C3D400000004NWTEST02 /* NetworkManagerTests.swift */,
@@ -784,7 +778,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				35584D1A27F0B64E006E3EAD /* AppDelegateTests.swift in Sources */,
-				BB00000100LOCCTRL00TEST1 /* LocationControllerTests.swift in Sources */,
 				C175C175C175C175C1750003 /* CitySearchServiceTests.swift in Sources */,
 				35584D1827F0B019006E3EAD /* DateFormatterManagerTests.swift in Sources */,
 				C20839CA21515C1E00C86589 /* MeridianUnitTests.swift in Sources */,
@@ -841,7 +834,6 @@
 				35C36F462259D892002FA5C6 /* DataStore.swift in Sources */,
 				3508CC9F259A000E000E3530 /* StatusItemHandler.swift in Sources */,
 				35E65125268EDD2E00E3E1E3 /* Toasty.swift in Sources */,
-				C2CCCD8220619C4C00F2DFC2 /* LocationController.swift in Sources */,
 				EE11AA0100ACCENTSWIZL01 /* AccentColorSwizzler.swift in Sources */,
 				3595FAD0227F88BC0044A12A /* UserDefaults + KVOExtensions.swift in Sources */,
 				818B546B7B8B47D88692CD80 /* GlobalShortcutMonitor.swift in Sources */,

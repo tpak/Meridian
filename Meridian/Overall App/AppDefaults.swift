@@ -86,8 +86,8 @@ class AppDefaults {
         let seeded = TimezoneData.make(timezoneID: identifier, name: friendlyName, customLabel: "",
                                        latitude: 0, longitude: 0, placeIdentifier: UUID().uuidString)
         seeded.isSystemTimezone = true
-        // Leave coordinates nil so AppDelegate.backfillMissingCoordinates (and LocationController,
-        // once location permission is granted) fill in real ones for sunrise/sunset.
+        // Leave coordinates nil so AppDelegate.backfillMissingCoordinates geocodes the city name
+        // into real ones for sunrise/sunset.
         seeded.latitude = nil
         seeded.longitude = nil
         store.addTimezone(seeded)

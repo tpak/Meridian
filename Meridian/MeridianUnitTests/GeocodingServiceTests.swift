@@ -9,19 +9,12 @@ import XCTest
 /// assert on what the call site asked for.
 final class MockGeocodingService: GeocodingServicing, @unchecked Sendable {
     var forwardResult: Result<[GeocodedPlace], Error> = .success([])
-    var reverseResult: Result<[GeocodedPlace], Error> = .success([])
 
     private(set) var forwardCalls: [(address: String, timeout: TimeInterval)] = []
-    private(set) var reverseCalls: [(location: CLLocation, timeout: TimeInterval)] = []
 
     func forward(addressString: String, timeout: TimeInterval) async throws -> [GeocodedPlace] {
         forwardCalls.append((addressString, timeout))
         return try forwardResult.get()
-    }
-
-    func reverse(location: CLLocation, timeout: TimeInterval) async throws -> [GeocodedPlace] {
-        reverseCalls.append((location, timeout))
-        return try reverseResult.get()
     }
 }
 
@@ -54,16 +47,6 @@ class GeocodingServiceTests: XCTestCase {
 
         XCTAssertEqual(mock.forwardCalls.count, 1)
         XCTAssertEqual(mock.forwardCalls[0].timeout, GeocodingConstants.timeout)
-    }
-
-    func testReverseDefaultTimeoutUsesGeocodingConstantsTimeout() async throws {
-        let mock = MockGeocodingService()
-        mock.reverseResult = .success([makePlace(cityName: "Anywhere")])
-
-        _ = try await mock.reverse(location: CLLocation(latitude: 0, longitude: 0))
-
-        XCTAssertEqual(mock.reverseCalls.count, 1)
-        XCTAssertEqual(mock.reverseCalls[0].timeout, GeocodingConstants.timeout)
     }
 
     // MARK: - NetworkManager.geocodeAddress wraps GeocodingServicing
