@@ -1,5 +1,12 @@
 # Meridian v4 Redesign — Autonomous Build Log
 
+> **Historical — completed.** v4 shipped GA as 4.0.0 on 2026-06-20. The `useDaybreakPanel` and
+> `useV4Settings` rollback flags — and the legacy AppKit panel / storyboard Preferences stack they
+> gated — were deleted in #166, so the fallback instructions below no longer apply.
+> (`kMenubarV4SingleLine` survives, but as a user preference: the Settings → Menu Bar "Stacked"
+> preset, issue #142.) Kept as a record of how the redesign was built. For the current architecture
+> see `CLAUDE.md`.
+
 This document tracks the v4 visual redesign (the "Daybreak" refresh). It is maintained by
 Claude Code during the autonomous build so the state of the work is legible at a glance.
 

@@ -1,8 +1,7 @@
 // Copyright © 2026 Chris Tirpak
 //
-// DaybreakPanel — the borderless NSPanel that hosts the v4 SwiftUI popover. Mirrors the legacy
-// CustomPanel's key handling (⌘Q/⌘W/⌘,/⌘C, Esc) so the redesign keeps the same shortcuts, but is a
-// fresh window so the original panel stays untouched.
+// DaybreakPanel — the borderless NSPanel that hosts the SwiftUI popover. Handles the panel-level
+// shortcuts (⌘Q/⌘W/⌘,/⌘C, Esc) itself, since a borderless panel gets no menu-bar key equivalents.
 
 import AppKit
 
