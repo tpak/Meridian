@@ -34,9 +34,17 @@ clean:
 	rm -rf $(BUILD_DIR)
 	xcodebuild -project $(PROJECT) -scheme $(SCHEME) clean 2>/dev/null || true
 
+# Hand the arguments to the recipe through the environment rather than interpolating them into the
+# command text. A make variable expanded inline is parsed by the shell, so quotes, backticks or
+# $(...) in NOTES/PR/VERSION would run as code on the machine holding the signing certificate and
+# the notarization keychain (issue #196). As environment variables they are only ever read, and
+# `set -- "$$@" ...` builds a real argv list, so release.sh receives them as literal text.
+release: export MERIDIAN_NOTES = $(NOTES)
+release: export MERIDIAN_PR = $(PR)
+release: export MERIDIAN_VERSION = $(VERSION)
 release:
-	@if [ -z "$(VERSION)" ]; then echo "Usage: make release VERSION=X.Y.Z [PR=123] [NOTES=\"...\"]"; exit 1; fi
-	@args=""; \
-	if [ -n "$(NOTES)" ]; then args="$$args -n \"$(NOTES)\""; fi; \
-	if [ -n "$(PR)" ]; then args="$$args -p $(PR)"; fi; \
-	eval bash scripts/release.sh $$args "$(VERSION)"
+	@if [ -z "$$MERIDIAN_VERSION" ]; then echo "Usage: make release VERSION=X.Y.Z [PR=123] [NOTES=\"...\"]"; exit 1; fi
+	@set --; \
+	if [ -n "$$MERIDIAN_NOTES" ]; then set -- "$$@" -n "$$MERIDIAN_NOTES"; fi; \
+	if [ -n "$$MERIDIAN_PR" ]; then set -- "$$@" -p "$$MERIDIAN_PR"; fi; \
+	bash scripts/release.sh "$$@" "$$MERIDIAN_VERSION"
