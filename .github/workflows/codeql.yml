@@ -5,17 +5,24 @@ on:
     - cron: '0 6 * * 1'  # Weekly on Monday at 6am UTC
   workflow_dispatch: # Allow manual runs
 
+# Default for the workflow; the analyze job widens it below.
+permissions:
+  contents: read
+
 jobs:
   analyze:
     name: CodeQL Analysis
     runs-on: macos-26
+    # A job-level block replaces the top-level set outright rather than adding to
+    # it, so contents: read has to be repeated here for actions/checkout.
     permissions:
+      contents: read
       security-events: write
       issues: write  # Allow the failure-notification step to open/comment an issue
     env:
       NSUnbufferedIO: "YES"
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
@@ -28,7 +35,7 @@ jobs:
       # Package.resolved changes — safe here because these are dependency
       # source checkouts, not compiled modules.
       - name: Cache Swift packages
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .spm-cache
           key: spm-${{ runner.os }}-${{ hashFiles('Meridian/Meridian.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
@@ -58,7 +65,7 @@ jobs:
           exit 1
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4.37.8
         with:
           languages: swift
 
@@ -70,7 +77,7 @@ jobs:
             CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4.37.8
 
       # The flaky 504 is now handled above, so a failure here means a real
       # problem (a genuine CodeQL alert or a true build break) on a silent
