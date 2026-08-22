@@ -492,6 +492,16 @@
         }
       }
     },
+    "Global shortcut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Global shortcut"
+          }
+        }
+      }
+    },
     "Here": {
       "localizations": {
         "en": {
@@ -682,6 +692,26 @@
         }
       }
     },
+    "Open Manual": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Manual"
+          }
+        }
+      }
+    },
+    "Open Meridian from anywhere": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Meridian from anywhere"
+          }
+        }
+      }
+    },
     "Open an issue": {
       "localizations": {
         "en": {
@@ -868,6 +898,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sort by %@"
+          }
+        }
+      }
+    },
+    "Stacked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stacked"
           }
         }
       }
