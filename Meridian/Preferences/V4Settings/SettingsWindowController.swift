@@ -1,8 +1,7 @@
 // Copyright © 2026 Chris Tirpak
 //
-// SettingsWindowController — hosts the v4 SwiftUI Settings window (replacing the storyboard
-// NSTabViewController). Opened from the Daybreak footer and ⌘,. Behind AppDelegate's flag so the
-// legacy Preferences window stays available as a fallback.
+// SettingsWindowController — hosts the SwiftUI Settings window (`SettingsRootView`). Opened from
+// the Daybreak footer, the dock menu, and ⌘,.
 
 import AppKit
 import SwiftUI

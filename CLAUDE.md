@@ -327,21 +327,30 @@ make release VERSION=X.Y.Z
 
 ### UI Layers
 
-**Menu bar panel** (main UI):
-- `PanelController` → `ParentPanelController` (base class, manages table + slider)
-- `TimezoneDataSource` drives the NSTableView of `TimezoneCellView` rows
-- Modern slider scrubs ±N days (default 6, configurable in Appearance → Future Slider Range); extensions in `ParentPanelController+ModernSlider.swift`
+The whole UI is SwiftUI. The v4 "Daybreak" redesign shipped in 4.0.0; the legacy storyboard/AppKit panel and Preferences stack — and the `useDaybreakPanel` / `useV4Settings` rollback flags that gated it — were deleted in #166. `Meridian/App/MainMenu.xib` is the only remaining Interface Builder file.
 
-**Preferences** (3 tabs: General, Appearance, About):
-- `PreferencesViewController` manages timezone list add/remove/reorder
-- `TimezoneAdditionHandler` and `TimezoneSearchService` handle search (`@MainActor`, async/await)
-- `AppearanceViewController` — time format, menubar mode, display options
-- `AboutView` (SwiftUI) — version info and links
+**Daybreak popover** (`Panel/Daybreak/`, main UI):
+- `DaybreakPanelController` owns the window: positioning, show/hide, float mode, ⌘, / ⌘C actions
+- `DaybreakPanel` is the borderless `NSPanel`; it hosts `DaybreakRootView` (hero + city rows + scrubber + footer, plus the popover chrome and light/dark resolution)
+- `DaybreakViewModel` reads `DataStore` + prefs on a 1-second tick and publishes one immutable `DaybreakSnapshot` per recompute; `DaybreakEngine` and `DaybreakComputation` hold the pure phase/sky/offset math (no UIKit/AppKit)
+- `DaybreakTokens` — design tokens transcribed from the handoff; `SunMoonDisc`, `DaybreakHeroView`, `DaybreakCityRow`, `DaybreakScrubber` are the leaf views
+- `DaybreakScrubber` time-travels ±N days (range configurable in Settings → Time Travel); `DaybreakDefaults` holds the v4-only preference keys and accessors
+- `CityColorStore` maps each city to an accent hex, stored additively in UserDefaults so `TimezoneData` is untouched
+
+**Settings window** (`Preferences/V4Settings/`, 5 panes):
+- `SettingsWindowController` hosts `SettingsRootView` — a `NavigationSplitView` with Cities · Menu Bar · Appearance · Time Travel · General, tinted by the user's `TeamAccent` livery
+- `CitiesPane` — tracked timezone list (add/star/color/label/reorder, Home and current location), backed by `CityListModel` and `CitySearchService`
+- `MenuBarPane` — density presets + fine-tuning; `AppearancePane` — theme, accent, time/day format, sunrise·sunset, text size; `TimeTravelPane` — scrubber range and snap step; `GeneralPane` — login item, Sparkle updates + beta opt-in, debug logging, settings export/import, About block (URLs in `AboutUsConstants`)
+- Panes bind straight to `@AppStorage`/`DataStore`; only Cities needs a stateful model
+
+**Menu bar item** (`Preferences/Menu Bar/`):
+- `StatusItemHandler` owns the `NSStatusItem` and its refresh timer; `StatusItemView` / `StatusContainerView` render each favourite as "● NAME TIME" with a per-city color dot
 
 ### Network & Geocoding
 
-- `NetworkManager` — async/await HTTP client + `CLGeocoder` wrapper for address geocoding
-- `TimezoneSearchService` — searches `TimeZone.knownTimeZoneIdentifiers` locally + geocodes via CLGeocoder
+- `GeocodingService` — `GeocodingServicing` protocol over MapKit's `MKGeocodingRequest` / `MKReverseGeocodingRequest`, with a timeout wrapper; injectable for tests
+- `NetworkManager` — async/await HTTP client plus `geocodeAddress(_:geocoder:)`, which defaults to `MapKitGeocodingService`
+- `CitySearchService` — instant, ranked local search over `TimeZone.knownTimeZoneIdentifiers` plus a UTC entry and a common-city alias table
 - No external API keys or third-party services required
 
 ### Localization
@@ -376,13 +385,17 @@ All in `Meridian/Dependencies/`.
 
 | File | Role |
 |------|------|
-| `Panel/PanelController.swift` | Concrete panel controller (window, show/hide, ±N day scrubber) |
-| `Panel/ParentPanelController.swift` | Base class — table view + slider plumbing |
+| `Panel/Daybreak/DaybreakPanelController.swift` | Owns the popover window (positioning, show/hide, float mode) |
+| `Panel/Daybreak/DaybreakRootView.swift` | SwiftUI root — hero, city rows, scrubber, footer, popover chrome |
+| `Panel/Daybreak/DaybreakViewModel.swift` | Builds the `DaybreakSnapshot` the views render |
+| `Panel/Daybreak/DaybreakEngine.swift` | Pure phase/sky/offset math (no AppKit) |
+| `Panel/Daybreak/DaybreakDefaults.swift` | v4-only preference keys + typed accessors |
 | `Panel/Data Layer/TimezoneDataOperations.swift` | Time/date formatting + sunrise/sunset |
-| `Preferences/General/PreferencesViewController.swift` | Timezone list (add/remove/reorder, favorites) |
-| `Preferences/General/TimezoneAdditionHandler.swift` | Search + add timezone logic |
-| `Preferences/Appearance/AppearanceViewController.swift` | Time format, menubar mode, display options |
-| `Preferences/About/AboutView.swift` | SwiftUI About tab (version, debug logging, beta opt-in) |
+| `Preferences/V4Settings/SettingsRootView.swift` | Settings `NavigationSplitView` shell (5 panes) |
+| `Preferences/V4Settings/CitiesPane.swift` | Timezone list (add/star/color/label/reorder, Home) |
+| `Preferences/V4Settings/CityListModel.swift` | Stateful model behind the Cities list |
+| `Preferences/V4Settings/CitySearchService.swift` | Ranked local city/timezone search |
+| `Preferences/V4Settings/GeneralPane.swift` | Login item, updates + beta opt-in, debug logging, export/import, About |
 | `Preferences/Menu Bar/StatusItemHandler.swift` | NSStatusBar item + menubar timer |
 | `Overall App/DataStore.swift` | Singleton state hub (protocol `DataStoring` for DI) |
 | `Overall App/AppDefaults.swift` | Default registration + one-time migrations (bool-semantics, home-row, legacy-defaults cleanup) |
@@ -392,7 +405,7 @@ All in `Meridian/Dependencies/`.
 
 ## Test Notes
 
-- Unit tests in `Meridian/MeridianUnitTests/` (227 tests)
+- Unit tests in `Meridian/MeridianUnitTests/` (263 tests)
 - `MockDataStore` available for DI; `MockURLProtocol` for network mocking
 - UI tests in `Meridian/MeridianUITests/` (panel interactions)
 - `@testable import Meridian` (module follows PRODUCT_NAME)
@@ -421,7 +434,7 @@ Before any release, run a full pre-release check and **show the status of each i
 
 The end-user manual lives at **`docs/manual.md`** (a single page) and is published to **GitHub Pages**. Themed release notes live at `docs/RELEASE_NOTES_<version>.md`.
 
-**Keep the manual in sync with every real change — not only at release time.** Whenever *any* PR adds, removes, or changes a user-facing setting, option, button or link, panel/menu-bar behavior, or keyboard shortcut, update `docs/manual.md` in that *same* PR. Do not defer manual updates to "release time" — the manual should never lag `main`. Treat a stale manual as a release blocker (Release Checklist item 6). When you document a new screen, also add a matching `<!-- screenshot: screenshots/… -->` placeholder so the image can be captured before the manual is published. Note that the shipping UI is the v4 SwiftUI Settings (`Preferences/V4Settings/*`) and Daybreak popover (`Panel/Daybreak/*`) — **not** the legacy storyboard settings behind the `useV4Settings`/`useDaybreakPanel` kill-switches — so document the v4 panes. The in-app **Settings → General → Open Manual** button links to this page (`AboutUsConstants.ManualURL`).
+**Keep the manual in sync with every real change — not only at release time.** Whenever *any* PR adds, removes, or changes a user-facing setting, option, button or link, panel/menu-bar behavior, or keyboard shortcut, update `docs/manual.md` in that *same* PR. Do not defer manual updates to "release time" — the manual should never lag `main`. Treat a stale manual as a release blocker (Release Checklist item 6). When you document a new screen, also add a matching `<!-- screenshot: screenshots/… -->` placeholder so the image can be captured before the manual is published. The UI to document is the SwiftUI Settings window (`Preferences/V4Settings/*`) and the Daybreak popover (`Panel/Daybreak/*`) — the only UI there is. The in-app **Settings → General → Open Manual** button links to this page (`AboutUsConstants.ManualURL`).
 
 ## Test-Driven Implementation
 

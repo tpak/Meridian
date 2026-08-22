@@ -1,8 +1,8 @@
 // Copyright © 2026 Chris Tirpak
 //
-// DaybreakPanelController — owns the v4 popover window and its view model. Self-contained: it ports
-// the positioning + show/hide + float-mode behavior from the legacy PanelController without touching
-// it, so the old panel remains an instant fallback (toggle `AppDelegate.useDaybreakPanel`).
+// DaybreakPanelController — owns the menu-bar popover window and its view model, and is the only
+// panel controller in the app. It handles positioning, show/hide, and float-mode behavior; the
+// window itself is `DaybreakPanel`.
 
 import AppKit
 import Combine

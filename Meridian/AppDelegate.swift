@@ -323,7 +323,7 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openPreferencesWindow() {
-        // Dock-menu "Settings" routes through the v4 flag too (not just the Daybreak footer).
+        // Dock-menu "Settings" goes through the same opener as the Daybreak footer and ⌘,.
         openSettingsRouted()
     }
 

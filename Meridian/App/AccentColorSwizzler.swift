@@ -24,9 +24,9 @@ import Cocoa
 // resize) forces a re-render.
 //
 // `NSApplication.mer_invalidateAccentEverywhere` posts the
-// accentColorDidChange notification; observers (the Daybreak panel and
-// the v4 Settings Appearance preview) repaint the surfaces we
-// explicitly tint with the team color.
+// accentColorDidChange notification, which `SettingsRootView` observes to
+// bump a refresh id and force AppKit-backed controls in the Settings window
+// to repaint with the new team color.
 
 enum AccentColorSwizzler {
     /// Idempotent — guarded with a static flag so repeated calls are no-ops.
@@ -80,7 +80,7 @@ extension NSApplication {
 
 extension Notification.Name {
     /// Posted when the user changes the team accent in Appearance settings.
-    /// PanelController observes this and triggers a redraw of the slider
-    /// fill + pin button tint.
+    /// `SettingsRootView` observes this and bumps its refresh id so the
+    /// accent-tinted controls redraw.
     static let accentColorDidChange = Notification.Name("com.tpak.meridian.accentColorDidChange")
 }
