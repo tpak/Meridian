@@ -124,6 +124,34 @@ else
   [ "$UNUSED" -eq 0 ] && pass "every activeKeys entry ($(echo "$KEYS" | grep -c .) keys) is used by shipping code"
 fi
 
+echo "== 5b. Every localized literal in shipping code has a catalog entry =="
+python3 - <<'PY' || FAIL=1
+import json, os, re, sys
+
+catalog = json.load(open('Meridian/App/Localizable.xcstrings'))['strings']
+# String(localized: "x") | "x".localized() | NSLocalizedString("x", ...)
+pat = re.compile(r'String\(localized:\s*"((?:[^"\\]|\\.)*)"'
+                 r'|"((?:[^"\\]|\\.)*)"\.localized\(\)'
+                 r'|NSLocalizedString\(\s*"((?:[^"\\]|\\.)*)"')
+missing = []
+for root, _, files in os.walk('Meridian'):
+    if any(skip in root for skip in ('MeridianUnitTests', 'MeridianUITests', 'Dependencies')):
+        continue
+    for name in (f for f in files if f.endswith('.swift')):
+        path = os.path.join(root, name)
+        for m in pat.finditer(open(path).read()):
+            key = next(g for g in m.groups() if g is not None)
+            if '\\(' in key:          # interpolated — not a literal catalog key
+                continue
+            if key not in catalog:
+                missing.append((path, key))
+if missing:
+    for path, key in missing:
+        print("  \033[31m✗\033[0m %r used in %s has no Localizable.xcstrings entry" % (key, path))
+    sys.exit(1)
+print("  \033[32m✓\033[0m every localized literal resolves to a catalog entry")
+PY
+
 echo "== 6. Build =="
 if xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug build \
      CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY= \

@@ -57,6 +57,7 @@ final class LocalizationTests: XCTestCase {
         "Fine-tune",
         "Color dots",
         "Show Meridian in",
+        "Stacked",
         // String(localized:) keys (TimeTravelPane)
         "Travel forward",
         "Travel back",
@@ -69,6 +70,9 @@ final class LocalizationTests: XCTestCase {
         "Debug logging",
         "Export Settings…",
         "Import Settings…",
+        "Global shortcut",
+        "Open Meridian from anywhere",
+        "Open Manual",
     ]
 
     func testAllActiveKeysResolveToNonEmptyStrings() {
