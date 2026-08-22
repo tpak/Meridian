@@ -1,176 +1,122 @@
 #!/usr/bin/env bash
-# Validation for issue #200 — "Stale references to removed legacy UI (kill-switches, deleted
-# classes) in CLAUDE.md and comments".
+# Validation for issue #196 — shell injection in `make release` via NOTES=.
 #
-# The legacy storyboard UI and its useV4Settings / useDaybreakPanel kill-switches were deleted in
-# #166 (98e4135). This script asserts that no *current* guidance — CLAUDE.md, source comments, or
-# the LocalizationTests key inventory — still describes them as if they exist.
+# The `release` recipe used to build a command string and run it through `eval`, so any NOTES value
+# containing a quote plus shell metacharacters executed as shell — on the machine holding the
+# Developer ID certificate and the notarization keychain profile.
 #
-# Historical records are exempt: REDESIGN-V4.md and docs/CODE_REVIEW_4.0.0.md are dated build /
-# review logs, not statements about the code as it stands today.
+# These checks run `make release` in a throwaway copy of the repo whose `scripts/release.sh` is a
+# stub that records its argv. Nothing here touches the real release path, the network, or signing.
 
 set -uo pipefail
 cd "$(dirname "$0")/.."
+REPO="$PWD"
 
 FAIL=0
 pass() { printf '  \033[32m✓\033[0m %s\n' "$1"; }
 fail() { printf '  \033[31m✗\033[0m %s\n' "$1"; FAIL=1; }
 
-# Classes/files removed in #166 that must no longer be referenced as if they exist.
-REMOVED_SYMBOLS=(
-  useV4Settings
-  useDaybreakPanel
-  ParentPanelController
-  PreferencesViewController
-  AppearanceViewController
-  TimezoneAdditionHandler
-  TimezoneSearchService
-  TimezoneDataSource
-  TimezoneCellView
-  NoTimezoneView
-  CustomPanel
-  "Preferences.storyboard"
-  "Panel.xib"
-  "HourMarkerViewItem"
+SANDBOX="$(mktemp -d)"
+trap 'rm -rf "$SANDBOX"' EXIT
+mkdir -p "$SANDBOX/scripts"
+cp "$REPO/Makefile" "$SANDBOX/Makefile"
+
+# Stub release.sh: records each argument on its own line, bracketed so empty args stay visible.
+cat >"$SANDBOX/scripts/release.sh" <<'STUB'
+#!/usr/bin/env bash
+: >"$ARGV_OUT"
+for a in "$@"; do printf '[%s]\n' "$a" >>"$ARGV_OUT"; done
+STUB
+chmod +x "$SANDBOX/scripts/release.sh"
+
+CANARY="$SANDBOX/pwned"
+ARGV_OUT="$SANDBOX/argv"
+export ARGV_OUT
+
+# run_release NOTES PR VERSION → populates $ARGV_OUT
+run_release() {
+  rm -f "$ARGV_OUT"
+  ( cd "$SANDBOX" && make release NOTES="$1" PR="$2" VERSION="$3" ) >/dev/null 2>&1
+}
+
+echo "== 1. Injection payloads in NOTES do not execute =="
+# Each payload tries to create $CANARY through a different escape: quote-break, backticks, $().
+PAYLOADS=(
+  'x" ; touch '"$CANARY"' ; echo "y'
+  'note `touch '"$CANARY"'` end'
+  'note $(touch '"$CANARY"') end'
+  'note '"'"'; touch '"$CANARY"'; #'
 )
-
-# A line that names a removed symbol *while citing #166* is a deliberate tombstone ("these are
-# gone, don't go looking for them"), not stale guidance. Everything else is a finding.
-
-echo "== 1. CLAUDE.md has no references to symbols removed in #166 =="
-MD_HITS=0
-for sym in "${REMOVED_SYMBOLS[@]}"; do
-  hits=$(grep -n -F -- "$sym" CLAUDE.md | grep -v '#166' || true)
-  if [ -n "$hits" ]; then
-    fail "CLAUDE.md still mentions '$sym' outside a #166 tombstone"
-    echo "$hits" | sed 's/^/      /'
-    MD_HITS=1
-  fi
-done
-# `PanelController` needs a word-boundary match so DaybreakPanelController doesn't trip it.
-hits=$(grep -nE '(^|[^a-zA-Z])PanelController' CLAUDE.md | grep -v 'DaybreakPanelController' | grep -v '#166' || true)
-if [ -n "$hits" ]; then
-  fail "CLAUDE.md still mentions the removed 'PanelController'"
-  echo "$hits" | sed 's/^/      /'
-  MD_HITS=1
-fi
-[ "$MD_HITS" -eq 0 ] && pass "no stale removed-symbol references in CLAUDE.md"
-
-echo "== 2. Every file path in CLAUDE.md's Key Files table exists =="
-MISSING=0
-while read -r path; do
-  [ -z "$path" ] && continue
-  if [ ! -e "Meridian/$path" ]; then
-    fail "Key Files table lists a non-existent path: Meridian/$path"
-    MISSING=1
-  fi
-done < <(awk '/^## Key Files/{f=1} f&&/^\| `/{gsub(/^\| `/,"");sub(/`.*/,"");print} /^## Test Notes/{f=0}' CLAUDE.md)
-[ "$MISSING" -eq 0 ] && pass "all Key Files paths resolve"
-
-echo "== 3. CLAUDE.md documents the shipping V4Settings / Daybreak structure =="
-for expected in "Panel/Daybreak/DaybreakPanelController.swift" \
-                "Panel/Daybreak/DaybreakViewModel.swift" \
-                "Preferences/V4Settings/SettingsRootView.swift" \
-                "Preferences/V4Settings/CitiesPane.swift"; do
-  if grep -q -F -- "$expected" CLAUDE.md; then
-    pass "CLAUDE.md references $expected"
+for payload in "${PAYLOADS[@]}"; do
+  rm -f "$CANARY"
+  run_release "$payload" "" "1.2.3"
+  if [ -e "$CANARY" ]; then
+    fail "payload executed: $payload"
   else
-    fail "CLAUDE.md never mentions $expected"
+    pass "inert: $payload"
   fi
 done
+rm -f "$CANARY"
 
-echo "== 4. No Swift source comment references a symbol removed in #166 =="
-SWIFT_HITS=0
-for sym in "${REMOVED_SYMBOLS[@]}"; do
-  hits=$(grep -rn --include="*.swift" -F -- "$sym" Meridian/ | grep -v '#166' || true)
-  if [ -n "$hits" ]; then
-    fail "Swift sources still mention '$sym' outside a #166 tombstone"
-    echo "$hits" | sed 's/^/      /'
-    SWIFT_HITS=1
-  fi
-done
-hits=$(grep -rnE --include="*.swift" '(^|[^a-zA-Z])PanelController' Meridian/ | grep -v 'DaybreakPanelController' | grep -v '#166' || true)
-if [ -n "$hits" ]; then
-  fail "Swift sources still mention the removed 'PanelController'"
-  echo "$hits" | sed 's/^/      /'
-  SWIFT_HITS=1
-fi
-# The flags are gone, so no comment should describe behavior as gated by one, or promise the
-# legacy UI as a fallback. (`kMenubarV4SingleLine` is NOT one of these — it survives as the
-# Settings → Menu Bar "Stacked" user preference, issue #142.)
-hits=$(grep -rniE --include="*.swift" 'v4 flag|kill-?switch|instant fallback|(legacy|old) (panel|preferences|settings)[^.]{0,40}fallback' Meridian/ || true)
-if [ -n "$hits" ]; then
-  fail "Swift comments still describe a v4 rollback flag / legacy-UI fallback"
-  echo "$hits" | sed 's/^/      /'
-  SWIFT_HITS=1
-fi
-[ "$SWIFT_HITS" -eq 0 ] && pass "no removed symbols or rollback-flag phrasing in Swift sources"
-
-echo "== 5. LocalizationTests keys are actually used by shipping code =="
-TESTFILE="Meridian/MeridianUnitTests/LocalizationTests.swift"
-KEYS=$(awk '/private let activeKeys/{f=1;next} f&&/^[[:space:]]*\]/{exit} f&&/^[[:space:]]*"/{sub(/^[[:space:]]*"/,"");sub(/",?[[:space:]]*$/,"");print}' "$TESTFILE")
-if [ -z "$KEYS" ]; then
-  fail "could not parse activeKeys out of $TESTFILE"
+echo "== 2. Hostile NOTES arrives at release.sh verbatim, as one argument =="
+payload='x" ; touch /tmp/nope ; echo "y'
+run_release "$payload" "" "1.2.3"
+expected=$(printf '[-n]\n[%s]\n[1.2.3]\n' "$payload")
+if [ "$(cat "$ARGV_OUT")" = "$expected" ]; then
+  pass "argv is exactly -n <notes> <version>, notes unmangled"
 else
-  UNUSED=0
-  while IFS= read -r key; do
-    [ -z "$key" ] && continue
-    if ! grep -rq --include="*.swift" --exclude-dir=MeridianUnitTests --exclude-dir=MeridianUITests \
-         -F -- "\"$key\"" Meridian/; then
-      fail "activeKeys lists '$key', which no shipping source uses"
-      UNUSED=1
-    fi
-  done <<< "$KEYS"
-  [ "$UNUSED" -eq 0 ] && pass "every activeKeys entry ($(echo "$KEYS" | grep -c .) keys) is used by shipping code"
+  fail "argv mismatch"
+  echo "      expected: $(printf '%s' "$expected" | tr '\n' ' ')"
+  echo "      actual:   $(tr '\n' ' ' <"$ARGV_OUT")"
 fi
 
-echo "== 5b. Every localized literal in shipping code has a catalog entry =="
-python3 - <<'PY' || FAIL=1
-import json, os, re, sys
-
-catalog = json.load(open('Meridian/App/Localizable.xcstrings'))['strings']
-# String(localized: "x") | "x".localized() | NSLocalizedString("x", ...)
-pat = re.compile(r'String\(localized:\s*"((?:[^"\\]|\\.)*)"'
-                 r'|"((?:[^"\\]|\\.)*)"\.localized\(\)'
-                 r'|NSLocalizedString\(\s*"((?:[^"\\]|\\.)*)"')
-missing = []
-for root, _, files in os.walk('Meridian'):
-    if any(skip in root for skip in ('MeridianUnitTests', 'MeridianUITests', 'Dependencies')):
-        continue
-    for name in (f for f in files if f.endswith('.swift')):
-        path = os.path.join(root, name)
-        for m in pat.finditer(open(path).read()):
-            key = next(g for g in m.groups() if g is not None)
-            if '\\(' in key:          # interpolated — not a literal catalog key
-                continue
-            if key not in catalog:
-                missing.append((path, key))
-if missing:
-    for path, key in missing:
-        print("  \033[31m✗\033[0m %r used in %s has no Localizable.xcstrings entry" % (key, path))
-    sys.exit(1)
-print("  \033[32m✓\033[0m every localized literal resolves to a catalog entry")
-PY
-
-echo "== 6. Build =="
-if xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug build \
-     CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY= \
-     >/tmp/meridian-200-build.log 2>&1; then
-  pass "xcodebuild build succeeded"
+echo "== 3. Multiline NOTES survives as a single argument =="
+multi=$'Fix sunrise bug\nAdd keyboard shortcuts (#50)\nTweak "quoted" text'
+run_release "$multi" "" "2.0.0"
+if [ "$(grep -c '^\[' "$ARGV_OUT")" -eq 3 ] && grep -q 'Add keyboard shortcuts (#50)' "$ARGV_OUT"; then
+  pass "3 args, newlines and quotes preserved inside the notes argument"
 else
-  fail "xcodebuild build FAILED (see /tmp/meridian-200-build.log)"
-  tail -30 /tmp/meridian-200-build.log | sed 's/^/      /'
+  fail "multiline notes were split or mangled"
+  sed 's/^/      /' "$ARGV_OUT"
 fi
 
-echo "== 7. Unit tests =="
-if xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug test \
-     -only-testing:MeridianUnitTests -parallel-testing-enabled NO -disable-concurrent-destination-testing \
-     CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY= \
-     >/tmp/meridian-200-test.log 2>&1; then
-  pass "unit tests passed ($(grep -cE "^Test Case '.*' passed" /tmp/meridian-200-test.log) cases)"
+echo "== 4. Ordinary invocations still pass the right argv =="
+run_release "" "" "3.1.4"
+[ "$(cat "$ARGV_OUT")" = "[3.1.4]" ] \
+  && pass "VERSION only → [3.1.4]" || { fail "VERSION-only argv wrong"; sed 's/^/      /' "$ARGV_OUT"; }
+
+run_release "" "42" "3.1.4"
+[ "$(cat "$ARGV_OUT")" = "$(printf '[-p]\n[42]\n[3.1.4]')" ] \
+  && pass "PR=42 → -p 42 3.1.4" || { fail "PR argv wrong"; sed 's/^/      /' "$ARGV_OUT"; }
+
+run_release "Fix a bug" "42" "3.1.4"
+[ "$(cat "$ARGV_OUT")" = "$(printf '[-n]\n[Fix a bug]\n[-p]\n[42]\n[3.1.4]')" ] \
+  && pass "NOTES + PR → -n <notes> -p 42 3.1.4" || { fail "combined argv wrong"; sed 's/^/      /' "$ARGV_OUT"; }
+
+echo "== 5. VERSION and PR are not eval'd either =="
+rm -f "$CANARY"
+run_release "" "" '1.0.0" ; touch '"$CANARY"' ; echo "'
+[ -e "$CANARY" ] && fail "VERSION payload executed" || pass "hostile VERSION is inert"
+rm -f "$CANARY"
+run_release "" '1 ; touch '"$CANARY" "1.0.0"
+[ -e "$CANARY" ] && fail "PR payload executed" || pass "hostile PR is inert"
+rm -f "$CANARY"
+
+echo "== 6. The recipe no longer uses eval =="
+if grep -nE '(^|[[:space:]])eval[[:space:]]' Makefile >/dev/null; then
+  fail "Makefile still runs eval"
+  grep -nE '(^|[[:space:]])eval[[:space:]]' Makefile | sed 's/^/      /'
 else
-  fail "unit tests FAILED (see /tmp/meridian-200-test.log)"
-  grep -E "error:|failed" /tmp/meridian-200-test.log | head -20 | sed 's/^/      /'
+  pass "no eval in Makefile"
+fi
+
+echo "== 7. Missing VERSION still errors with usage =="
+out=$( cd "$SANDBOX" && make release 2>&1 ); rc=$?
+if [ "$rc" -ne 0 ] && printf '%s' "$out" | grep -q "Usage: make release"; then
+  pass "make release with no VERSION exits non-zero with usage"
+else
+  fail "missing-VERSION guard broken (rc=$rc)"
+  printf '%s\n' "$out" | sed 's/^/      /'
 fi
 
 echo

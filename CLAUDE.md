@@ -181,7 +181,7 @@ Only after the user explicitly signs off on the latest beta:
 1. Verify CI is green on the PR
 2. `gh pr merge <N> --merge`
 3. `git checkout main && git pull`
-4. `bash scripts/release.sh -n "..." X.Y.Z` (or `make release VERSION=X.Y.Z` for single-line notes)
+4. `make release VERSION=X.Y.Z NOTES="..."` (multiline and special characters are fine; `bash scripts/release.sh -n "..." X.Y.Z` works too)
 
 The released binary is what Sparkle ships to all users; the beta UAT path makes sure that binary's behavior was confirmed by the user first.
 
@@ -425,7 +425,7 @@ The Xcode project structure has `Package.resolved` inside `Meridian/Meridian.xco
 Before any release, run a full pre-release check and **show the status of each item** before proceeding:
 1. CI passes on the PR branch **and** on main after merge
 2. All file changes (including Info.plist, storyboards) are committed
-3. Release notes don't break shell interpolation (no unescaped special chars in multiline strings passed to `make release`; use `bash scripts/release.sh -n "..."` directly for multiline notes)
+3. Release notes read as user-facing changes (see *Release notes style* above). Quotes, backticks, `$(...)` and newlines in `NOTES=` are safe — the recipe passes them to `release.sh` as a literal argument (#196)
 4. Sparkle appcast configuration is correct (`SUFeedURL`, `SUPublicEDKey` in Info.plist)
 5. After `make release` completes, run `gh run list --branch main --limit 3` and verify the version bump and appcast commits pass CI
 6. **User manual is current** — `docs/manual.md` reflects any new/changed setting, option, or feature in this release (see *User Documentation* below)
