@@ -8,10 +8,6 @@ extension NSNotification.Name {
     static let interfaceStyleDidChange = NSNotification.Name("AppleInterfaceThemeChangedNotification")
 }
 
-extension NSPasteboard.PasteboardType {
-    static let dragSession = NSPasteboard.PasteboardType(rawValue: "public.text")
-}
-
 extension NSImage.Name {
     // "Midnight Sundial" monochrome menu-bar glyph (Assets → MenuBarIcon, Render As: Template).
     // Shown when the user has no starred cities. Tinted by macOS; load with isTemplate = true.
