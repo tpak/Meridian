@@ -20,17 +20,9 @@
 		35B2FEF1259A2DB1005DA84D /* CoreModelKit in Frameworks */ = {isa = PBXBuildFile; productRef = 35B2FEF0259A2DB1005DA84D /* CoreModelKit */; };
 		35C36EFB2259616B002FA5C6 /* Solar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36EFA2259616B002FA5C6 /* Solar.swift */; };
 		35C36F0E225961DA002FA5C6 /* Date+Bundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36EFE225961D9002FA5C6 /* Date+Bundle.swift */; };
-		35C36F10225961DA002FA5C6 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F00225961D9002FA5C6 /* Constants.swift */; };
-		35C36F12225961DA002FA5C6 /* Date+Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F02225961DA002FA5C6 /* Date+Components.swift */; };
 		35C36F13225961DA002FA5C6 /* Date+TimeAgo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F03225961DA002FA5C6 /* Date+TimeAgo.swift */; };
-		35C36F14225961DA002FA5C6 /* Integer+DateTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F04225961DA002FA5C6 /* Integer+DateTools.swift */; };
-		35C36F15225961DA002FA5C6 /* TimeChunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F05225961DA002FA5C6 /* TimeChunk.swift */; };
-		35C36F16225961DA002FA5C6 /* Date+Inits.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F06225961DA002FA5C6 /* Date+Inits.swift */; };
 		35C36F17225961DA002FA5C6 /* DateTools.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 35C36F07225961DA002FA5C6 /* DateTools.bundle */; };
 		35C36F18225961DA002FA5C6 /* Date+Comparators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F08225961DA002FA5C6 /* Date+Comparators.swift */; };
-		35C36F19225961DA002FA5C6 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F09225961DA002FA5C6 /* Enums.swift */; };
-		35C36F1A225961DA002FA5C6 /* Date+Manipulations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F0A225961DA002FA5C6 /* Date+Manipulations.swift */; };
-		35C36F422259D892002FA5C6 /* Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F3A2259D892002FA5C6 /* Timer.swift */; };
 		35C36F452259D892002FA5C6 /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F3D2259D892002FA5C6 /* Strings.swift */; };
 		35C36F462259D892002FA5C6 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F3E2259D892002FA5C6 /* DataStore.swift */; };
 		35C36F482259D892002FA5C6 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F402259D892002FA5C6 /* NetworkManager.swift */; };
@@ -42,7 +34,6 @@
 		35C36F792259E1D0002FA5C6 /* String + Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36F762259E1CF002FA5C6 /* String + Additions.swift */; };
 		35C36FA42259EEC2002FA5C6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C36FA32259EEC2002FA5C6 /* AppDelegate.swift */; };
 		35E65125268EDD2E00E3E1E3 /* Toasty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35E65124268EDD2E00E3E1E3 /* Toasty.swift */; };
-		4726354D81E1NWMGRASYNCTS /* NetworkManagerAsyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */; };
 		5873E7194D70351E2442A779 /* DaybreakDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCC6DFEB0759DC6C7274F3D /* DaybreakDefaults.swift */; };
 		5ADE02988FD148209EA2A70A /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23D856F171624B8EBC360698 /* SettingsManager.swift */; };
 		65DA7585D285375EF297710E /* CitiesPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF07C2896C1B59A4DA2A71D /* CitiesPane.swift */; };
@@ -58,7 +49,6 @@
 		9A13BAE01CA882FA007C6CBE /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = EE11AA0100INFOPLISTXCS1 /* InfoPlist.xcstrings */; };
 		9A13BAEA1CA88A76007C6CBE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = EE11AA0100LOCALIZBLEXCS1 /* Localizable.xcstrings */; };
 		9A20A04B1C4DEED200FB45AB /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A20A04A1C4DEED200FB45AB /* IOKit.framework */; };
-		9A3169C11D2CC5AA0079FDF8 /* com.tpak.MeridianHelper.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9A3169C01D2CC5AA0079FDF8 /* com.tpak.MeridianHelper.plist */; };
 		9A43792A1BEC230A00F4E27F /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A4379291BEC230A00F4E27F /* libc++.tbd */; };
 		9A56DB801C1CFB73004CE6AF /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9A56DB7D1C1CFB73004CE6AF /* MainMenu.xib */; };
 		9A6D93371CF3E82F005A8690 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A6D93361CF3E82F005A8690 /* CoreImage.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -74,8 +64,6 @@
 		9AFFEE0001000000MAPKITBF /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AFFEE0002000000MAPKITFR /* MapKit.framework */; };
 		9AFFEE0003000000GEOSVCBF /* GeocodingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFFEE0004000000GEOSVCFR /* GeocodingService.swift */; };
 		9AFFEE0005000000GEOTSTBF /* GeocodingServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFFEE0006000000GEOTSTFR /* GeocodingServiceTests.swift */; };
-		A1B2C3D400000001MOCK0001 /* MockURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D400000002MOCK0002 /* MockURLProtocol.swift */; };
-		A1B2C3D400000003NWTEST01 /* NetworkManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D400000004NWTEST02 /* NetworkManagerTests.swift */; };
 		A3F8F2E857A598EBE486E0BF /* SunMoonDisc.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30F79A6035950B04509CDBC /* SunMoonDisc.swift */; };
 		A57187E72A5C9354E98EDD04 /* DaybreakEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE32A2F3B4B0AACCC2B86DB /* DaybreakEngineTests.swift */; };
 		AA000013STARTU00000001 /* StartupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000012STARTU00000001 /* StartupManager.swift */; };
@@ -144,17 +132,9 @@
 		35B2FEE4259A2C25005DA84D /* CoreModelKit */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CoreModelKit; sourceTree = "<group>"; };
 		35C36EFA2259616B002FA5C6 /* Solar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Solar.swift; sourceTree = "<group>"; };
 		35C36EFE225961D9002FA5C6 /* Date+Bundle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Date+Bundle.swift"; sourceTree = "<group>"; };
-		35C36F00225961D9002FA5C6 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		35C36F02225961DA002FA5C6 /* Date+Components.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Date+Components.swift"; sourceTree = "<group>"; };
 		35C36F03225961DA002FA5C6 /* Date+TimeAgo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Date+TimeAgo.swift"; sourceTree = "<group>"; };
-		35C36F04225961DA002FA5C6 /* Integer+DateTools.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Integer+DateTools.swift"; sourceTree = "<group>"; };
-		35C36F05225961DA002FA5C6 /* TimeChunk.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeChunk.swift; sourceTree = "<group>"; };
-		35C36F06225961DA002FA5C6 /* Date+Inits.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Date+Inits.swift"; sourceTree = "<group>"; };
 		35C36F07225961DA002FA5C6 /* DateTools.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = DateTools.bundle; sourceTree = "<group>"; };
 		35C36F08225961DA002FA5C6 /* Date+Comparators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Date+Comparators.swift"; sourceTree = "<group>"; };
-		35C36F09225961DA002FA5C6 /* Enums.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
-		35C36F0A225961DA002FA5C6 /* Date+Manipulations.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Date+Manipulations.swift"; sourceTree = "<group>"; };
-		35C36F3A2259D892002FA5C6 /* Timer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timer.swift; sourceTree = "<group>"; };
 		35C36F3D2259D892002FA5C6 /* Strings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		35C36F3E2259D892002FA5C6 /* DataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
 		35C36F402259D892002FA5C6 /* NetworkManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
@@ -167,7 +147,6 @@
 		35C36FA32259EEC2002FA5C6 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = SOURCE_ROOT; };
 		35E65124268EDD2E00E3E1E3 /* Toasty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toasty.swift; sourceTree = "<group>"; };
 		39808930164A8404E6C52BE9 /* DaybreakScrubber.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakScrubber.swift; sourceTree = "<group>"; };
-		4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManagerAsyncTests.swift; sourceTree = "<group>"; };
 		4B003FDDEFA58885064478B2 /* MenuBarPane.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MenuBarPane.swift; sourceTree = "<group>"; };
 		521A64985874687A5A3FA691 /* DaybreakComputation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakComputation.swift; sourceTree = "<group>"; };
 		63C3F72BC79382FF96EEE5A0 /* AboutUsConstants.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AboutUsConstants.swift; sourceTree = "<group>"; };
@@ -179,7 +158,6 @@
 		919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalShortcutMonitorTests.swift; sourceTree = "<group>"; };
 		9A20A04A1C4DEED200FB45AB /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		9A20A06F1C4E804D00FB45AB /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
-		9A3169C01D2CC5AA0079FDF8 /* com.tpak.MeridianHelper.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = com.tpak.MeridianHelper.plist; path = App/com.tpak.MeridianHelper.plist; sourceTree = "<group>"; };
 		9A4379291BEC230A00F4E27F /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		9A43792B1BEC231100F4E27F /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		9A56DB7D1C1CFB73004CE6AF /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = MainMenu.xib; path = App/MainMenu.xib; sourceTree = "<group>"; };
@@ -202,8 +180,6 @@
 		9AFFEE0006000000GEOTSTFR /* GeocodingServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeocodingServiceTests.swift; sourceTree = "<group>"; };
 		9E678C0F403D43F32D0A8C97 /* DaybreakEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakEngine.swift; sourceTree = "<group>"; };
 		9FEC776853CC4796AD9A1DC6 /* GlobalShortcutMonitor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlobalShortcutMonitor.swift; sourceTree = "<group>"; };
-		A1B2C3D400000002MOCK0002 /* MockURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockURLProtocol.swift; sourceTree = "<group>"; };
-		A1B2C3D400000004NWTEST02 /* NetworkManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManagerTests.swift; sourceTree = "<group>"; };
 		AA000012STARTU00000001 /* StartupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupManager.swift; sourceTree = "<group>"; };
 		ABCC6DFEB0759DC6C7274F3D /* DaybreakDefaults.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DaybreakDefaults.swift; sourceTree = "<group>"; };
 		ABF07C2896C1B59A4DA2A71D /* CitiesPane.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CitiesPane.swift; sourceTree = "<group>"; };
@@ -309,17 +285,10 @@
 		35C36EFC225961BC002FA5C6 /* Date Additions */ = {
 			isa = PBXGroup;
 			children = (
-				35C36F00225961D9002FA5C6 /* Constants.swift */,
 				35C36EFE225961D9002FA5C6 /* Date+Bundle.swift */,
 				35C36F08225961DA002FA5C6 /* Date+Comparators.swift */,
-				35C36F02225961DA002FA5C6 /* Date+Components.swift */,
-				35C36F06225961DA002FA5C6 /* Date+Inits.swift */,
-				35C36F0A225961DA002FA5C6 /* Date+Manipulations.swift */,
 				35C36F03225961DA002FA5C6 /* Date+TimeAgo.swift */,
 				35C36F07225961DA002FA5C6 /* DateTools.bundle */,
-				35C36F09225961DA002FA5C6 /* Enums.swift */,
-				35C36F04225961DA002FA5C6 /* Integer+DateTools.swift */,
-				35C36F05225961DA002FA5C6 /* TimeChunk.swift */,
 			);
 			path = "Date Additions";
 			sourceTree = "<group>";
@@ -367,7 +336,6 @@
 				35C36F402259D892002FA5C6 /* NetworkManager.swift */,
 				9AFFEE0004000000GEOSVCFR /* GeocodingService.swift */,
 				35C36F3D2259D892002FA5C6 /* Strings.swift */,
-				35C36F3A2259D892002FA5C6 /* Timer.swift */,
 				3595FACF227F88BC0044A12A /* UserDefaults + KVOExtensions.swift */,
 			);
 			path = "Overall App";
@@ -427,7 +395,6 @@
 		9A2000C61BFBCEF6002BFDE8 /* Utilties */ = {
 			isa = PBXGroup;
 			children = (
-				9A3169C01D2CC5AA0079FDF8 /* com.tpak.MeridianHelper.plist */,
 				EE11AA0100INFOPLISTXCS1 /* InfoPlist.xcstrings */,
 				EE11AA0100LOCALIZBLEXCS1 /* Localizable.xcstrings */,
 				C2CCCD8120619C4C00F2DFC2 /* LocationController.swift */,
@@ -529,14 +496,11 @@
 				35584D1927F0B64E006E3EAD /* AppDelegateTests.swift */,
 				BB00000100LOCCTRL00TEST2 /* LocationControllerTests.swift */,
 				C175C175C175C175C1750004 /* CitySearchServiceTests.swift */,
-				A1B2C3D400000002MOCK0002 /* MockURLProtocol.swift */,
-				A1B2C3D400000004NWTEST02 /* NetworkManagerTests.swift */,
 				B730E37E4596MOCKDATASTO2 /* MockDataStore.swift */,
 				FF11AA0100TESTFIXTURES02 /* TestFixtures.swift */,
 				AC11AA0100MBDTESTS00002 /* MenubarBlockDetectionTests.swift */,
 				AC11AA0100MIRTESTS00002 /* MenubarImageRendererTests.swift */,
 				919639F9D2F3GLOBALSHRTCU2 /* GlobalShortcutMonitorTests.swift */,
-				4726354D81E1NWMGRASYNCT2 /* NetworkManagerAsyncTests.swift */,
 				9AFFEE0006000000GEOTSTFR /* GeocodingServiceTests.swift */,
 				CC11AA0100TZDATAOPSTEST2 /* TimezoneDataOperationsTests.swift */,
 				DD11AA0100LOCALIZTNTEST2 /* LocalizationTests.swift */,
@@ -771,7 +735,6 @@
 				9A13BAE01CA882FA007C6CBE /* InfoPlist.xcstrings in Resources */,
 				9AB89E031CE97A4900EC8EB1 /* Media.xcassets in Resources */,
 				35C36F17225961DA002FA5C6 /* DateTools.bundle in Resources */,
-				9A3169C11D2CC5AA0079FDF8 /* com.tpak.MeridianHelper.plist in Resources */,
 				9A56DB801C1CFB73004CE6AF /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -788,14 +751,11 @@
 				C175C175C175C175C1750003 /* CitySearchServiceTests.swift in Sources */,
 				35584D1827F0B019006E3EAD /* DateFormatterManagerTests.swift in Sources */,
 				C20839CA21515C1E00C86589 /* MeridianUnitTests.swift in Sources */,
-				A1B2C3D400000001MOCK0001 /* MockURLProtocol.swift in Sources */,
-				A1B2C3D400000003NWTEST01 /* NetworkManagerTests.swift in Sources */,
 				B730E37E4596MOCKDATASTORE /* MockDataStore.swift in Sources */,
 				FF11AA0100TESTFIXTURES01 /* TestFixtures.swift in Sources */,
 				AC11AA0100MBDTESTS00001 /* MenubarBlockDetectionTests.swift in Sources */,
 				AC11AA0100MIRTESTS00001 /* MenubarImageRendererTests.swift in Sources */,
 				919639F9D2F3GLOBALSHRTCUT /* GlobalShortcutMonitorTests.swift in Sources */,
-				4726354D81E1NWMGRASYNCTS /* NetworkManagerAsyncTests.swift in Sources */,
 				9AFFEE0005000000GEOTSTBF /* GeocodingServiceTests.swift in Sources */,
 				CC11AA0100TZDATAOPSTEST1 /* TimezoneDataOperationsTests.swift in Sources */,
 				DD11AA0100LOCALIZTNTEST1 /* LocalizationTests.swift in Sources */,
@@ -821,23 +781,15 @@
 			files = (
 				3508CC9A259A0001000E3530 /* StatusItemView.swift in Sources */,
 				35C36F13225961DA002FA5C6 /* Date+TimeAgo.swift in Sources */,
-				35C36F14225961DA002FA5C6 /* Integer+DateTools.swift in Sources */,
-				35C36F15225961DA002FA5C6 /* TimeChunk.swift in Sources */,
-				35C36F19225961DA002FA5C6 /* Enums.swift in Sources */,
 				5ADE02988FD148209EA2A70A /* SettingsManager.swift in Sources */,
 				35C36F452259D892002FA5C6 /* Strings.swift in Sources */,
 				35C36F782259E1D0002FA5C6 /* Foundation + Additions.swift in Sources */,
-				35C36F16225961DA002FA5C6 /* Date+Inits.swift in Sources */,
 				35C36F4F2259D981002FA5C6 /* AppDefaults.swift in Sources */,
 				35C36F5D2259DD96002FA5C6 /* TimezoneDataOperations.swift in Sources */,
 				35C36F792259E1D0002FA5C6 /* String + Additions.swift in Sources */,
-				35C36F422259D892002FA5C6 /* Timer.swift in Sources */,
 				35C36F772259E1D0002FA5C6 /* AppKit + Additions.swift in Sources */,
-				35C36F12225961DA002FA5C6 /* Date+Components.swift in Sources */,
-				35C36F10225961DA002FA5C6 /* Constants.swift in Sources */,
 				35C36FA42259EEC2002FA5C6 /* AppDelegate.swift in Sources */,
 				35C36F18225961DA002FA5C6 /* Date+Comparators.swift in Sources */,
-				35C36F1A225961DA002FA5C6 /* Date+Manipulations.swift in Sources */,
 				35C36F462259D892002FA5C6 /* DataStore.swift in Sources */,
 				3508CC9F259A000E000E3530 /* StatusItemHandler.swift in Sources */,
 				35E65125268EDD2E00E3E1E3 /* Toasty.swift in Sources */,

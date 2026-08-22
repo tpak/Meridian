@@ -66,8 +66,13 @@ public extension Date {
         let latest = (earliest == self) ? date : self // Should be triple equals, but not extended to Date at this time
 
         let components = calendar.dateComponents(unitFlags, from: earliest, to: latest)
-        let yesterday = date.subtract(1.days)
-        let isYesterday = yesterday.day == day
+        // Was `date.subtract(1.days).day == day` via DateTools' Date+Manipulations /
+        // Integer+DateTools / Date+Components helpers. Those files were the only reason ~600 lines
+        // of unused DateTools survived, so this spells the same thing with Foundation. Both helpers
+        // used Calendar.autoupdatingCurrent, so that calendar is used here to keep behavior identical.
+        let dayCalendar = Calendar.autoupdatingCurrent
+        let yesterday = dayCalendar.date(byAdding: .day, value: -1, to: date) ?? date
+        let isYesterday = dayCalendar.component(.day, from: yesterday) == dayCalendar.component(.day, from: self)
 
         // Not Yet Implemented/Optional
         // The following strings are present in the translation files but lack logic as of 2014.04.05
@@ -142,8 +147,13 @@ public extension Date {
         let latest = (earliest == self) ? date : self // Should pbe triple equals, but not extended to Date at this time
 
         let components = calendar.dateComponents(unitFlags, from: earliest, to: latest)
-        let yesterday = date.subtract(1.days)
-        let isYesterday = yesterday.day == day
+        // Was `date.subtract(1.days).day == day` via DateTools' Date+Manipulations /
+        // Integer+DateTools / Date+Components helpers. Those files were the only reason ~600 lines
+        // of unused DateTools survived, so this spells the same thing with Foundation. Both helpers
+        // used Calendar.autoupdatingCurrent, so that calendar is used here to keep behavior identical.
+        let dayCalendar = Calendar.autoupdatingCurrent
+        let yesterday = dayCalendar.date(byAdding: .day, value: -1, to: date) ?? date
+        let isYesterday = dayCalendar.component(.day, from: yesterday) == dayCalendar.component(.day, from: self)
 
         if (components.year ?? 0) >= 1 {
             return logicalLocalizedStringFromFormat(format: "%%d%@y", value: (components.year ?? 0))
@@ -197,9 +207,6 @@ public extension Date {
     // MARK: - Localization
 
     private func dateToolsLocalizedStrings(_ string: String) -> String {
-        // let classBundle = Bundle(for:TimeChunk.self as! AnyClass.Type).resourcePath!.appending("DateTools.bundle")
-
-        // let bundelPath = Bundle(path:classBundle)!
         #if os(Linux)
             // NSLocalizedString() is not available yet, see: https://github.com/apple/swift-corelibs-foundation/blob/16f83ddcd311b768e30a93637af161676b0a5f2f/Foundation/NSData.swift
             // However, a seemingly-equivalent method from NSBundle is: https://github.com/apple/swift-corelibs-foundation/blob/master/Foundation/NSBundle.swift

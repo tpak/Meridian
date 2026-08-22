@@ -2,24 +2,6 @@
 
 import Cocoa
 
-extension NSTextField {
-    func applyDefaultStyle() {
-        backgroundColor = NSColor.clear
-        isEditable = false
-        isBordered = false
-        allowsDefaultTighteningForTruncation = true
-
-        isAutomaticTextCompletionEnabled = false
-        allowsCharacterPickerTouchBarItem = false
-    }
-
-    func disableWrapping() {
-        usesSingleLineMode = false
-        cell?.wraps = false
-        cell?.isScrollable = true
-    }
-}
-
 extension NSFont {
     func size(for string: String, width: Double, attributes: [NSAttributedString.Key: AnyObject]) -> CGSize {
         let size = CGSize(width: width,

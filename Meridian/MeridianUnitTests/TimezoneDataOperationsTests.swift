@@ -314,4 +314,19 @@ class TimezoneDataOperationsTests: XCTestCase {
         let numericOnly = timeString.allSatisfy { $0.isNumber || $0 == "-" }
         XCTAssertTrue(numericOnly, "Epoch time should be numeric but got: \(timeString)")
     }
+
+    // MARK: - DateTools strings bundle
+
+    /// `timeAgo(since:)` reads its phrasing out of DateTools.bundle, reached via
+    /// `Bundle.dateToolsBundle()` — which force-unwraps both the resource path and the bundle. #198
+    /// trimmed DateTools down and had to re-anchor that lookup (it used to hang off a class that no
+    /// longer exists), so exercise it: a wrong anchor crashes here rather than in the panel.
+    func testDateToolsBundleResolvesForTimeAgoStrings() {
+        XCTAssertNotNil(Bundle.dateToolsBundle(), "DateTools.bundle must resolve from the app bundle")
+
+        let now = Date()
+        let twoHoursAgo = now.addingTimeInterval(-2 * 3600)
+        XCTAssertFalse(now.timeAgo(since: twoHoursAgo).isEmpty,
+                       "timeAgo should return a localized phrase, not an empty string")
+    }
 }

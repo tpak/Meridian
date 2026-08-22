@@ -590,16 +590,6 @@ class MeridianUnitTests: XCTestCase {
         }
     }
 
-    func testStringFiltering() {
-        let stringWithComma = "Mumbai, Maharashtra"
-        let stringWithoutComma = "Mumbai"
-        let emptyString = ""
-
-        XCTAssertEqual(stringWithComma.filteredName(), "Mumbai")
-        XCTAssertEqual(stringWithoutComma.filteredName(), "Mumbai")
-        XCTAssertEqual(emptyString.filteredName(), "")
-    }
-
     func testDefaultsWiping() {
         let defaultsDict: [String: Any] = ["test1": "testString", "test2": 24]
         let domainName = "com.test.meridian"

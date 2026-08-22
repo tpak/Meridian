@@ -22,3 +22,8 @@ ANALYSIS_AND_TODO.md
 useful.md
 Claude Code Insights.pdf
 report.html
+
+# Per-task TDD validation scratch script (CLAUDE.md "Test-Driven Implementation").
+# Rewritten from scratch by each task, so tracking it made every parallel PR conflict on it.
+# Durable invariants belong in their own named script (e.g. scripts/check_localization.sh).
+scripts/validate_feature.sh

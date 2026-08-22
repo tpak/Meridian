@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## App Identity
 
-**Meridian** (formerly Clocker) — macOS menu bar world clock app. ~9.9K lines of Swift across 60 source files (~14K including tests). Bundle ID: `com.tpak.Meridian`. Forked from [Clocker](https://github.com/n0shake/Clocker) by Abhishek Banthia.
+**Meridian** (formerly Clocker) — macOS menu bar world clock app. ~9.8K lines of Swift across 53 source files (~14.8K including tests). Bundle ID: `com.tpak.Meridian`. Forked from [Clocker](https://github.com/n0shake/Clocker) by Abhishek Banthia.
 
 GitHub repository: [`tpak/Meridian`](https://github.com/tpak/Meridian) — always use this URL for issues, PRs, and releases. The old Clocker repo is upstream and unrelated.
 
@@ -376,7 +376,7 @@ New SwiftUI strings should use `String(localized:)`.
 
 ### Vendored Dependencies (no package managers)
 
-- **DateTools** (Swift) — date formatting utilities
+- **DateTools** (Swift) — trimmed to what Meridian calls: `timeAgo(since:)`, `earlierDate`/`laterDate`, `days(from:calendar:)`, `hours(from:)` and the localized-strings bundle. The other ~1,600 unused lines were removed in #198; recover from git history if needed.
 - **Solar** (Swift) — sunrise/sunset calculations
 
 All in `Meridian/Dependencies/`.
@@ -405,8 +405,8 @@ All in `Meridian/Dependencies/`.
 
 ## Test Notes
 
-- Unit tests in `Meridian/MeridianUnitTests/` (263 tests)
-- `MockDataStore` available for DI; `MockURLProtocol` for network mocking
+- Unit tests in `Meridian/MeridianUnitTests/` (248 tests)
+- `MockDataStore` available for DI; `MockGeocodingService` for geocoding
 - UI tests in `Meridian/MeridianUITests/` (panel interactions)
 - `@testable import Meridian` (module follows PRODUCT_NAME)
 
@@ -440,7 +440,7 @@ The end-user manual lives at **`docs/manual.md`** (a single page) and is publish
 
 Before implementing any feature or fix, follow this workflow:
 
-1. **Write a validation script** at `scripts/validate_feature.sh` that checks for the expected outcome. For example, if adding an export log feature:
+1. **Write a validation script** at `scripts/validate_feature.sh` that checks for the expected outcome. This path is **gitignored** — it's a scratch file each task rewrites from scratch, so it never lands in a commit and parallel branches can't conflict on it. Paste the passing output into the PR instead. For example, if adding an export log feature:
    - Grep the codebase to confirm the new menu item exists in the storyboard
    - Verify the correct OSLog subsystem/category is used (not a different scope)
    - Confirm the save dialog dimensions are at least 400x300
@@ -450,6 +450,7 @@ Before implementing any feature or fix, follow this workflow:
 3. **Implement the feature.**
 4. **Run the validation script again.** If ANY check fails, fix the issue and re-run. Do not present the result until all checks pass.
 5. **Show the final diff and the passing validation output.**
+6. **Promote anything durable.** If a check encodes an invariant worth keeping — not "did I build this feature" but "is this still true of the repo" — move it into its own named script under `scripts/` before the scratch file is overwritten. `scripts/check_localization.sh` (every localizable literal has a catalog entry) is the current example.
 
 ## Large Refactors — Parallel Agents
 
