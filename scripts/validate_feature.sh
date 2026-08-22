@@ -1,122 +1,110 @@
 #!/usr/bin/env bash
-# Validation for issue #196 — shell injection in `make release` via NOTES=.
+# Validation for issue #197 — pin GitHub Actions to commit SHAs and declare workflow permissions.
 #
-# The `release` recipe used to build a command string and run it through `eval`, so any NOTES value
-# containing a quote plus shell metacharacters executed as shell — on the machine holding the
-# Developer ID certificate and the notarization keychain profile.
+# A tag like `actions/checkout@v7` is mutable: whoever controls the upstream repo can re-point it,
+# and the new code runs with this workflow's GITHUB_TOKEN. Pinning to an immutable commit SHA (with
+# the version as a trailing comment, which Dependabot reads and bumps) removes that.
 #
-# These checks run `make release` in a throwaway copy of the repo whose `scripts/release.sh` is a
-# stub that records its argv. Nothing here touches the real release path, the network, or signing.
+# Checks 1-3 are offline; check 4 verifies against the upstream repos and is skipped without `gh`.
 
 set -uo pipefail
 cd "$(dirname "$0")/.."
-REPO="$PWD"
 
 FAIL=0
 pass() { printf '  \033[32m✓\033[0m %s\n' "$1"; }
 fail() { printf '  \033[31m✗\033[0m %s\n' "$1"; FAIL=1; }
+skip() { printf '  \033[33m—\033[0m %s\n' "$1"; }
 
-SANDBOX="$(mktemp -d)"
-trap 'rm -rf "$SANDBOX"' EXIT
-mkdir -p "$SANDBOX/scripts"
-cp "$REPO/Makefile" "$SANDBOX/Makefile"
+WORKFLOWS=(.github/workflows/*.yml)
 
-# Stub release.sh: records each argument on its own line, bracketed so empty args stay visible.
-cat >"$SANDBOX/scripts/release.sh" <<'STUB'
-#!/usr/bin/env bash
-: >"$ARGV_OUT"
-for a in "$@"; do printf '[%s]\n' "$a" >>"$ARGV_OUT"; done
-STUB
-chmod +x "$SANDBOX/scripts/release.sh"
-
-CANARY="$SANDBOX/pwned"
-ARGV_OUT="$SANDBOX/argv"
-export ARGV_OUT
-
-# run_release NOTES PR VERSION → populates $ARGV_OUT
-run_release() {
-  rm -f "$ARGV_OUT"
-  ( cd "$SANDBOX" && make release NOTES="$1" PR="$2" VERSION="$3" ) >/dev/null 2>&1
-}
-
-echo "== 1. Injection payloads in NOTES do not execute =="
-# Each payload tries to create $CANARY through a different escape: quote-break, backticks, $().
-PAYLOADS=(
-  'x" ; touch '"$CANARY"' ; echo "y'
-  'note `touch '"$CANARY"'` end'
-  'note $(touch '"$CANARY"') end'
-  'note '"'"'; touch '"$CANARY"'; #'
-)
-for payload in "${PAYLOADS[@]}"; do
-  rm -f "$CANARY"
-  run_release "$payload" "" "1.2.3"
-  if [ -e "$CANARY" ]; then
-    fail "payload executed: $payload"
+echo "== 1. Workflows are valid YAML =="
+for wf in "${WORKFLOWS[@]}"; do
+  if python3 -c "import sys,yaml; yaml.safe_load(open(sys.argv[1]))" "$wf" 2>/dev/null; then
+    pass "$(basename "$wf") parses"
   else
-    pass "inert: $payload"
+    # PyYAML isn't guaranteed on every machine; don't fail the run over a missing module.
+    if python3 -c "import yaml" 2>/dev/null; then
+      fail "$(basename "$wf") is not valid YAML"
+    else
+      skip "PyYAML not installed — skipping YAML parse"
+      break
+    fi
   fi
 done
-rm -f "$CANARY"
 
-echo "== 2. Hostile NOTES arrives at release.sh verbatim, as one argument =="
-payload='x" ; touch /tmp/nope ; echo "y'
-run_release "$payload" "" "1.2.3"
-expected=$(printf '[-n]\n[%s]\n[1.2.3]\n' "$payload")
-if [ "$(cat "$ARGV_OUT")" = "$expected" ]; then
-  pass "argv is exactly -n <notes> <version>, notes unmangled"
+echo "== 2. Every 'uses:' is pinned to a 40-hex commit SHA =="
+UNPINNED=0
+while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  file=${line%%:*}; rest=${line#*:}; lineno=${rest%%:*}; text=${rest#*:}
+  ref=$(printf '%s' "$text" | sed -E 's/.*uses:[[:space:]]*//; s/[[:space:]]*(#.*)?$//')
+  sha=${ref##*@}
+  if ! printf '%s' "$sha" | grep -qE '^[0-9a-f]{40}$'; then
+    fail "$file:$lineno pinned to a mutable ref: $ref"
+    UNPINNED=1
+  fi
+done < <(grep -rn "uses:" "${WORKFLOWS[@]}" || true)
+[ "$UNPINNED" -eq 0 ] && pass "all uses: refs are commit SHAs"
+
+echo "== 3. Every pinned SHA carries a '# vX.Y.Z' version comment =="
+NOCOMMENT=0
+while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  file=${line%%:*}; rest=${line#*:}; lineno=${rest%%:*}; text=${rest#*:}
+  if ! printf '%s' "$text" | grep -qE '@[0-9a-f]{40}[[:space:]]+#[[:space:]]*v[0-9]+(\.[0-9]+)*'; then
+    fail "$file:$lineno has no '# vX.Y.Z' comment (Dependabot needs it to bump the pin)"
+    NOCOMMENT=1
+  fi
+done < <(grep -rn "uses:" "${WORKFLOWS[@]}" || true)
+[ "$NOCOMMENT" -eq 0 ] && pass "all pins are annotated with their version"
+
+echo "== 4. Each pin resolves to the upstream tag named in its comment =="
+if ! command -v gh >/dev/null 2>&1 || ! gh auth status >/dev/null 2>&1; then
+  skip "gh unavailable or unauthenticated — skipping upstream verification"
 else
-  fail "argv mismatch"
-  echo "      expected: $(printf '%s' "$expected" | tr '\n' ' ')"
-  echo "      actual:   $(tr '\n' ' ' <"$ARGV_OUT")"
+  BAD=0
+  while IFS= read -r line; do
+    [ -z "$line" ] && continue
+    file=${line%%:*}; rest=${line#*:}; lineno=${rest%%:*}; text=${rest#*:}
+    # Check 3 already reports uncommented pins; skip them here so the message stays readable.
+    printf '%s' "$text" | grep -q '#' || continue
+    ref=$(printf '%s' "$text" | sed -E 's/.*uses:[[:space:]]*//; s/[[:space:]]*#.*$//')
+    tag=$(printf '%s' "$text" | sed -E 's/.*#[[:space:]]*//')
+    action=${ref%@*}; sha=${ref##*@}
+    # github/codeql-action/init → the tags live on the github/codeql-action repo.
+    repo=$(printf '%s' "$action" | cut -d/ -f1,2)
+    actual=$(gh api "repos/$repo/git/ref/tags/$tag" --jq '.object.sha + " " + .object.type' 2>/dev/null)
+    [ -z "$actual" ] && { fail "$file:$lineno tag $tag not found in $repo"; BAD=1; continue; }
+    set -- $actual
+    resolved=$1
+    # Annotated tags point at a tag object; dereference to the commit.
+    if [ "$2" = "tag" ]; then
+      resolved=$(gh api "repos/$repo/git/tags/$1" --jq '.object.sha' 2>/dev/null)
+    fi
+    if [ "$resolved" = "$sha" ]; then
+      pass "$action@$tag → ${sha:0:12}"
+    else
+      fail "$file:$lineno claims $tag but $tag is ${resolved:0:12}, not ${sha:0:12}"
+      BAD=1
+    fi
+  done < <(grep -rn "uses:" "${WORKFLOWS[@]}" || true)
+  [ "$BAD" -eq 0 ] && pass "every pin matches its upstream tag"
 fi
 
-echo "== 3. Multiline NOTES survives as a single argument =="
-multi=$'Fix sunrise bug\nAdd keyboard shortcuts (#50)\nTweak "quoted" text'
-run_release "$multi" "" "2.0.0"
-if [ "$(grep -c '^\[' "$ARGV_OUT")" -eq 3 ] && grep -q 'Add keyboard shortcuts (#50)' "$ARGV_OUT"; then
-  pass "3 args, newlines and quotes preserved inside the notes argument"
+echo "== 5. Every workflow declares top-level permissions =="
+for wf in "${WORKFLOWS[@]}"; do
+  if grep -qE '^permissions:' "$wf"; then
+    pass "$(basename "$wf") declares a top-level permissions block"
+  else
+    fail "$(basename "$wf") has no top-level permissions: block"
+  fi
+done
+
+echo "== 6. Dependabot still watches github-actions =="
+if grep -q 'package-ecosystem: "github-actions"' .github/dependabot.yml; then
+  pass "dependabot.yml keeps the github-actions ecosystem (it bumps SHA pins)"
 else
-  fail "multiline notes were split or mangled"
-  sed 's/^/      /' "$ARGV_OUT"
-fi
-
-echo "== 4. Ordinary invocations still pass the right argv =="
-run_release "" "" "3.1.4"
-[ "$(cat "$ARGV_OUT")" = "[3.1.4]" ] \
-  && pass "VERSION only → [3.1.4]" || { fail "VERSION-only argv wrong"; sed 's/^/      /' "$ARGV_OUT"; }
-
-run_release "" "42" "3.1.4"
-[ "$(cat "$ARGV_OUT")" = "$(printf '[-p]\n[42]\n[3.1.4]')" ] \
-  && pass "PR=42 → -p 42 3.1.4" || { fail "PR argv wrong"; sed 's/^/      /' "$ARGV_OUT"; }
-
-run_release "Fix a bug" "42" "3.1.4"
-[ "$(cat "$ARGV_OUT")" = "$(printf '[-n]\n[Fix a bug]\n[-p]\n[42]\n[3.1.4]')" ] \
-  && pass "NOTES + PR → -n <notes> -p 42 3.1.4" || { fail "combined argv wrong"; sed 's/^/      /' "$ARGV_OUT"; }
-
-echo "== 5. VERSION and PR are not eval'd either =="
-rm -f "$CANARY"
-run_release "" "" '1.0.0" ; touch '"$CANARY"' ; echo "'
-[ -e "$CANARY" ] && fail "VERSION payload executed" || pass "hostile VERSION is inert"
-rm -f "$CANARY"
-run_release "" '1 ; touch '"$CANARY" "1.0.0"
-[ -e "$CANARY" ] && fail "PR payload executed" || pass "hostile PR is inert"
-rm -f "$CANARY"
-
-echo "== 6. The recipe no longer uses eval =="
-if grep -nE '(^|[[:space:]])eval[[:space:]]' Makefile >/dev/null; then
-  fail "Makefile still runs eval"
-  grep -nE '(^|[[:space:]])eval[[:space:]]' Makefile | sed 's/^/      /'
-else
-  pass "no eval in Makefile"
-fi
-
-echo "== 7. Missing VERSION still errors with usage =="
-out=$( cd "$SANDBOX" && make release 2>&1 ); rc=$?
-if [ "$rc" -ne 0 ] && printf '%s' "$out" | grep -q "Usage: make release"; then
-  pass "make release with no VERSION exits non-zero with usage"
-else
-  fail "missing-VERSION guard broken (rc=$rc)"
-  printf '%s\n' "$out" | sed 's/^/      /'
+  fail "dependabot.yml no longer watches github-actions — pins would go stale"
 fi
 
 echo
