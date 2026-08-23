@@ -170,14 +170,40 @@ class LocationControllerTests: XCTestCase {
     /// CoreLocation calls `locationManagerDidChangeAuthorization(_:)` in preference to the
     /// macOS 11-deprecated variant, so the fallback has to hang off the modern one too. This
     /// asserts both entry points reach the same place.
+    ///
+    /// Deliberately compares the two callbacks against each other rather than asserting a fixed
+    /// count: the modern one reads `manager.authorizationStatus`, which is whatever the *machine*
+    /// happens to be set to. An earlier version assumed a fresh CLLocationManager reports
+    /// `.notDetermined` — true on a dev Mac that has already answered the prompt, false on a CI
+    /// runner where location is denied, so it passed locally and broke main. The routing invariant
+    /// is what this test is actually for, and it holds under any ambient status.
     func testModernAuthorizationCallbackRoutesToSameHandler() {
-        let spy = SpyLocationControllerDelegate()
-        controller.delegate = spy
+        let ambient = CLLocationManager().authorizationStatus
 
-        // A default-initialised CLLocationManager reports .notDetermined, which must be a no-op.
+        let viaModern = SpyLocationControllerDelegate()
+        controller.delegate = viaModern
         controller.locationManagerDidChangeAuthorization(CLLocationManager())
 
-        XCTAssertEqual(spy.statusChangeCount, 0, ".notDetermined must not trigger the fallback")
+        let viaLegacy = SpyLocationControllerDelegate()
+        controller.delegate = viaLegacy
+        controller.locationManager(CLLocationManager(), didChangeAuthorization: ambient)
+
+        XCTAssertEqual(viaModern.statusChangeCount, viaLegacy.statusChangeCount,
+                       "both authorization callbacks must route to the same handler (ambient status: \(ambient.rawValue))")
+    }
+
+    /// Belt-and-braces on the same routing question, with statuses we control outright so the
+    /// assertion is exact rather than relative.
+    func testBothCallbackPathsAgreeForEveryExplicitStatus() {
+        for status: CLAuthorizationStatus in [.denied, .restricted, .authorizedAlways, .notDetermined] {
+            let spy = SpyLocationControllerDelegate()
+            controller.delegate = spy
+            controller.locationManager(CLLocationManager(), didChangeAuthorization: status)
+
+            let expected = (status == .denied || status == .restricted) ? 1 : 0
+            XCTAssertEqual(spy.statusChangeCount, expected,
+                           "status \(status.rawValue) should\(expected == 1 ? "" : " not") trigger the fallback")
+        }
     }
 
     func testDelegateIsHeldWeakly() {
