@@ -180,14 +180,51 @@ struct DaybreakScrubber: View {
             ForEach(Array(firstK...lastK), id: \.self) { k in
                 let t = k * minorMin
                 let x = w / 2 + CGFloat(t - centerTimeMin) * pxPerMinute
-                let isNow = t == 0
-                let isDay = t % 1440 == 0
-                let height: CGFloat = isNow ? 16 : (isDay ? 14 : 10)
-                let color = isNow ? palette.accent : (isDay ? palette.dayTick : palette.tick)
-                Rectangle().fill(color)
-                    .frame(width: isNow ? 2 : 1, height: height)
-                    .offset(x: x - (isNow ? 1 : 0.5), y: baselineY - height / 2)
+                let kind = TickKind(minutesFromNow: t)
+                Rectangle().fill(tickColor(kind))
+                    .frame(width: kind.width, height: kind.height)
+                    .offset(x: x - kind.width / 2, y: baselineY - kind.height / 2)
             }
+        }
+    }
+
+    /// Visual weight of a ruler tick. `now` is the accent marker at the current time, `day` marks a
+    /// midnight boundary, and `minor` is every other hash. Replaces a pair of nested ternaries that
+    /// both branched on the same two flags (Sonar swift:S3358).
+    private enum TickKind {
+        case now, day, minor
+
+        init(minutesFromNow minutes: Int) {
+            if minutes == 0 {
+                self = .now
+            } else if minutes % 1440 == 0 {
+                self = .day
+            } else {
+                self = .minor
+            }
+        }
+
+        var height: CGFloat {
+            switch self {
+            case .now: return 16
+            case .day: return 14
+            case .minor: return 10
+            }
+        }
+
+        var width: CGFloat {
+            switch self {
+            case .now: return 2
+            case .day, .minor: return 1
+            }
+        }
+    }
+
+    private func tickColor(_ kind: TickKind) -> Color {
+        switch kind {
+        case .now: return palette.accent
+        case .day: return palette.dayTick
+        case .minor: return palette.tick
         }
     }
 
