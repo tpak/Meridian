@@ -3,6 +3,21 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>4.2.0</title>
+            <pubDate>Sun, 23 Aug 2026 05:08:56 +0000</pubDate>
+            <sparkle:version>4020100</sparkle:version>
+            <sparkle:shortVersionString>4.2.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Sunrise and sunset now use your actual location, so they're right wherever you are — not just in the city your time zone is named after. Meridian asks for location permission once; if you decline, everything keeps working as before.</li>
+                    <li>Fix sunrise and sunset showing for a random location on UTC and GMT rows.</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v4.2.0/Meridian.app.zip" length="2186067" type="application/octet-stream" sparkle:edSignature="vsjI4a3LOhuQiVhaiiA8tQGipyqy8tqpSUP0ohVzXLUl7/FKmPUhMhBhffZlKZ2cwjCydyRHc8T7WzdTjL2fDg=="/>
+        </item>
+        <item>
             <title>4.1.3</title>
             <pubDate>Sun, 23 Aug 2026 03:39:31 +0000</pubDate>
             <sparkle:version>4013100</sparkle:version>
