@@ -7,8 +7,8 @@ import Foundation
 /// scaffolding was removed (issue #166); the legacy `AboutView` is gone,
 /// so only the members still referenced by `GeneralPane` are kept.
 enum AboutUsConstants {
-    static let GitHubURL = "https://github.com/tpak/Meridian"
-    static let GitHubIssuesURL = "https://github.com/tpak/Meridian/issues"
+    static let gitHubURL = "https://github.com/tpak/Meridian"
+    static let gitHubIssuesURL = "https://github.com/tpak/Meridian/issues"
     // The end-user manual published to GitHub Pages (docs/manual.md).
-    static let ManualURL = "https://tpak.github.io/Meridian/manual.html"
+    static let manualURL = "https://tpak.github.io/Meridian/manual.html"
 }

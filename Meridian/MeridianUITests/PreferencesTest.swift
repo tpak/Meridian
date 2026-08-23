@@ -370,7 +370,6 @@ extension XCTestCase {
 
         if spinnerResult != .completed {
             XCTFail("Still seeing Spinner after 25 seconds. Something's wrong")
-            return
         }
     }
 

@@ -146,8 +146,7 @@ public class TimezoneData: NSObject, NSCoding, NSSecureCoding {
                             customLabel: String,
                             latitude: Double,
                             longitude: Double,
-                            placeIdentifier: String,
-                            nextUpdate: String = "") -> TimezoneData {
+                            placeIdentifier: String) -> TimezoneData {
         let data = TimezoneData()
         data.timezoneID = timezoneID
         data.formattedAddress = name

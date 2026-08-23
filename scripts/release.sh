@@ -52,7 +52,7 @@ fi
 # Beta releases publish a prerelease GitHub release, tag the appcast item with
 # <sparkle:channel>beta</sparkle:channel>, and skip the Homebrew cask update.
 if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-beta[0-9]+)?$ ]]; then
-    echo "Error: VERSION must match X.Y.Z or X.Y.Z-betaN pattern (got: $VERSION)"
+    echo "Error: VERSION must match X.Y.Z or X.Y.Z-betaN pattern (got: $VERSION)" >&2
     exit 1
 fi
 
@@ -82,7 +82,7 @@ if [[ "$VERSION" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)(-beta([0-9]+))?$ ]]; then
     V_BETA="${BASH_REMATCH[5]:-100}"
     BUILD_NUMBER=$((V_MAJOR * 1000000 + V_MINOR * 10000 + V_PATCH * 1000 + V_BETA))
 else
-    echo "Error: VERSION '$VERSION' did not parse for build-number derivation"
+    echo "Error: VERSION '$VERSION' did not parse for build-number derivation" >&2
     exit 1
 fi
 echo "── Build number derived from VERSION=$VERSION → $BUILD_NUMBER"
@@ -94,16 +94,16 @@ echo "── Build number derived from VERSION=$VERSION → $BUILD_NUMBER"
 # numeric compare against the newest (top-most) <sparkle:version> in the
 # appcast covers both cases.
 if [[ ! -f appcast.xml ]]; then
-    echo "Error: appcast.xml not found — run from the repository root."
+    echo "Error: appcast.xml not found — run from the repository root." >&2
     exit 1
 fi
 LATEST_APPCAST_BUILD="$(grep -Eo '<sparkle:version>[0-9]+</sparkle:version>' appcast.xml | head -1 | tr -dc '0-9' || true)"
 if [[ -n "$LATEST_APPCAST_BUILD" ]]; then
     if (( BUILD_NUMBER <= LATEST_APPCAST_BUILD )); then
-        echo "Error: build number $BUILD_NUMBER (v$VERSION) is not strictly greater than the"
-        echo "       newest appcast item's <sparkle:version> ($LATEST_APPCAST_BUILD)."
-        echo "       Releasing it would downgrade Sparkle users and/or the Homebrew cask."
-        echo "       Double-check VERSION."
+        echo "Error: build number $BUILD_NUMBER (v$VERSION) is not strictly greater than the" >&2
+        echo "       newest appcast item's <sparkle:version> ($LATEST_APPCAST_BUILD)." >&2
+        echo "       Releasing it would downgrade Sparkle users and/or the Homebrew cask." >&2
+        echo "       Double-check VERSION." >&2
         exit 1
     fi
     echo "── Monotonicity check passed: $BUILD_NUMBER > $LATEST_APPCAST_BUILD (newest appcast item)."
@@ -118,24 +118,24 @@ if [[ "$CURRENT_BRANCH" != "main" ]]; then
         echo "      Beta is OK off any branch (prerelease + beta channel + cask skip)."
         echo "      The version bump and appcast commits will land on '$CURRENT_BRANCH'."
     else
-        echo "Error: Stable releases must be cut from 'main' (currently on '$CURRENT_BRANCH')."
+        echo "Error: Stable releases must be cut from 'main' (currently on '$CURRENT_BRANCH')." >&2
         exit 1
     fi
 fi
 
 if [[ -n "$(git diff --stat HEAD)" ]]; then
-    echo "Error: Working tree has uncommitted changes. Commit or stash changes first."
+    echo "Error: Working tree has uncommitted changes. Commit or stash changes first." >&2
     exit 1
 fi
 
 if git tag -l "v$VERSION" | grep -q "v$VERSION"; then
-    echo "Error: Tag v$VERSION already exists"
+    echo "Error: Tag v$VERSION already exists" >&2
     exit 1
 fi
 
 for cmd in xcodebuild gh ditto xcrun xmllint; do
     if ! command -v "$cmd" &>/dev/null; then
-        echo "Error: Required tool '$cmd' not found"
+        echo "Error: Required tool '$cmd' not found" >&2
         exit 1
     fi
 done
@@ -143,16 +143,16 @@ done
 # Verify Developer ID certificate is available
 SIGN_IDENTITY="Developer ID Application"
 if ! security find-identity -v -p codesigning | grep -q "$SIGN_IDENTITY"; then
-    echo "Error: No '$SIGN_IDENTITY' certificate found in keychain."
-    echo "       Install a Developer ID Application certificate from https://developer.apple.com"
+    echo "Error: No '$SIGN_IDENTITY' certificate found in keychain." >&2
+    echo "       Install a Developer ID Application certificate from https://developer.apple.com" >&2
     exit 1
 fi
 
 # Verify notarization credentials are stored
 if ! xcrun notarytool history --keychain-profile "meridian-notary" &>/dev/null; then
-    echo "Error: Notarization credentials not found. Store them with:"
-    echo "  xcrun notarytool store-credentials \"meridian-notary\" \\"
-    echo "    --apple-id \"YOUR_APPLE_ID\" --team-id \"YOUR_TEAM_ID\" --password \"APP_SPECIFIC_PASSWORD\""
+    echo "Error: Notarization credentials not found. Store them with:" >&2
+    echo "  xcrun notarytool store-credentials \"meridian-notary\" \\" >&2
+    echo "    --apple-id \"YOUR_APPLE_ID\" --team-id \"YOUR_TEAM_ID\" --password \"APP_SPECIFIC_PASSWORD\"" >&2
     exit 1
 fi
 
@@ -173,7 +173,7 @@ for path in "${SPARKLE_PATHS[@]}"; do
 done
 
 if [[ -z "$SIGN_UPDATE" ]]; then
-    echo "Error: Sparkle sign_update not found. Build the project in Xcode first to resolve SPM packages."
+    echo "Error: Sparkle sign_update not found. Build the project in Xcode first to resolve SPM packages." >&2
     exit 1
 fi
 
@@ -239,7 +239,7 @@ if [[ -z "$NOTES" ]] && tty -s; then
 fi
 
 if [[ -z "$NOTES" ]]; then
-    echo "Error: Release notes cannot be empty"
+    echo "Error: Release notes cannot be empty" >&2
     exit 1
 fi
 
@@ -324,7 +324,7 @@ xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration 
 
 APP_PATH="$(find "$RELEASE_DIR" -name "Meridian.app" -type d | head -1)"
 if [[ -z "$APP_PATH" ]]; then
-    echo "Error: Meridian.app not found after build"
+    echo "Error: Meridian.app not found after build" >&2
     exit 1
 fi
 
@@ -335,7 +335,7 @@ fi
 # ${MACOSX_DEPLOYMENT_TARGET} so it always matches the binary.
 MIN_OS="$(/usr/libexec/PlistBuddy -c "Print :LSMinimumSystemVersion" "$APP_PATH/Contents/Info.plist" 2>/dev/null)"
 if [[ -z "$MIN_OS" ]]; then
-    echo "Error: could not read LSMinimumSystemVersion from $APP_PATH/Contents/Info.plist"
+    echo "Error: could not read LSMinimumSystemVersion from $APP_PATH/Contents/Info.plist" >&2
     exit 1
 fi
 echo "── Deployment target: macOS $MIN_OS"
@@ -348,8 +348,8 @@ xattr -rc "$APP_PATH"
 echo "── Re-signing Sparkle framework components..."
 SPARKLE_FW="$APP_PATH/Contents/Frameworks/Sparkle.framework"
 if [[ ! -d "$SPARKLE_FW" ]]; then
-    echo "Error: Sparkle.framework not found at $SPARKLE_FW"
-    echo "       The app cannot self-update without it — aborting."
+    echo "Error: Sparkle.framework not found at $SPARKLE_FW" >&2
+    echo "       The app cannot self-update without it — aborting." >&2
     exit 1
 fi
 
@@ -369,7 +369,7 @@ else
     done
 fi
 if [[ -z "$SPARKLE_VDIR" || ! -d "$SPARKLE_VDIR" ]]; then
-    echo "Error: could not resolve a version directory under $SPARKLE_FW/Versions"
+    echo "Error: could not resolve a version directory under $SPARKLE_FW/Versions" >&2
     exit 1
 fi
 echo "  Sparkle version dir: $SPARKLE_VDIR"
@@ -390,14 +390,14 @@ for helper in "$SPARKLE_VDIR"/*.app; do
     HELPER_COUNT=$((HELPER_COUNT + 1))
 done
 if [[ $XPC_COUNT -eq 0 || $HELPER_COUNT -eq 0 ]]; then
-    echo "Error: expected Sparkle installer components were not found under $SPARKLE_VDIR"
-    echo "       (XPC services signed: $XPC_COUNT, helper apps signed: $HELPER_COUNT)."
-    echo "       The Sparkle framework layout has likely changed — update the signing"
-    echo "       paths in scripts/release.sh before releasing."
+    echo "Error: expected Sparkle installer components were not found under $SPARKLE_VDIR" >&2
+    echo "       (XPC services signed: $XPC_COUNT, helper apps signed: $HELPER_COUNT)." >&2
+    echo "       The Sparkle framework layout has likely changed — update the signing" >&2
+    echo "       paths in scripts/release.sh before releasing." >&2
     exit 1
 fi
 if [[ ! -e "$SPARKLE_VDIR/Autoupdate" ]]; then
-    echo "Error: Sparkle Autoupdate binary not found at $SPARKLE_VDIR/Autoupdate"
+    echo "Error: Sparkle Autoupdate binary not found at $SPARKLE_VDIR/Autoupdate" >&2
     exit 1
 fi
 codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$SPARKLE_VDIR/Autoupdate"
@@ -411,7 +411,7 @@ codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" --entitle
 # Verify the app is properly signed
 echo "── Verifying code signature..."
 if ! codesign --verify --deep --strict "$APP_PATH" 2>&1; then
-    echo "Error: Code signature verification failed"
+    echo "Error: Code signature verification failed" >&2
     exit 1
 fi
 echo "  Signature valid."
@@ -442,8 +442,8 @@ ED_SIGNATURE="$(echo "$SIGN_OUTPUT" | sed -n 's/.*sparkle:edSignature="\([^"]*\)
 LENGTH="$(echo "$SIGN_OUTPUT" | sed -n 's/.*length="\([^"]*\)".*/\1/p')"
 
 if [[ -z "$ED_SIGNATURE" || -z "$LENGTH" ]]; then
-    echo "Error: Failed to parse signature output"
-    echo "Raw output: $SIGN_OUTPUT"
+    echo "Error: Failed to parse signature output" >&2
+    echo "Raw output: $SIGN_OUTPUT" >&2
     exit 1
 fi
 
@@ -538,9 +538,9 @@ rm -f "$TMPITEM"
 # Validate the generated feed BEFORE it replaces appcast.xml or gets
 # committed — a malformed appcast would break updates for every user.
 if ! xmllint --noout "$TMPAPPCAST"; then
-    echo "Error: generated appcast is not well-formed XML — aborting before commit."
-    echo "       Inspect the generated file at: $TMPAPPCAST"
-    echo "       appcast.xml in the working tree is unchanged."
+    echo "Error: generated appcast is not well-formed XML — aborting before commit." >&2
+    echo "       Inspect the generated file at: $TMPAPPCAST" >&2
+    echo "       appcast.xml in the working tree is unchanged." >&2
     exit 1
 fi
 mv "$TMPAPPCAST" "$APPCAST"

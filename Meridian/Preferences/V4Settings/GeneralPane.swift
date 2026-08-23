@@ -359,12 +359,12 @@ private struct AboutBlock: View {
 
             HStack(spacing: 10) {
                 LinkText(String(localized: "Open an issue")) {
-                    open(AboutUsConstants.GitHubIssuesURL, log: "Opened GitHub Issues")
+                    open(AboutUsConstants.gitHubIssuesURL, log: "Opened GitHub Issues")
                 }
                 .accessibilityIdentifier("MeridianPrivateFeedback")
 
                 LinkText(String(localized: "View source")) {
-                    open(AboutUsConstants.GitHubURL, log: "Opened GitHub")
+                    open(AboutUsConstants.gitHubURL, log: "Opened GitHub")
                 }
 
                 // Tahoe (#125) recovery link — escape hatch for users who lost
@@ -381,7 +381,7 @@ private struct AboutBlock: View {
                 .padding(.top, 4)
 
             LinkText(String(localized: "Open Manual")) {
-                open(AboutUsConstants.ManualURL, log: "Opened user manual")
+                open(AboutUsConstants.manualURL, log: "Opened user manual")
             }
             .accessibilityIdentifier("OpenManual")
         }

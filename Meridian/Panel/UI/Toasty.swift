@@ -29,8 +29,8 @@ private class HideAnimationDelegate: NSObject, CAAnimationDelegate {
         self.view = view
     }
 
-    fileprivate static func delegate(forView NSView: NSView) -> CAAnimationDelegate {
-        return HideAnimationDelegate(view: NSView)
+    fileprivate static func delegate(forView view: NSView) -> CAAnimationDelegate {
+        return HideAnimationDelegate(view: view)
     }
 
     fileprivate func animationDidStart(_: CAAnimation) {

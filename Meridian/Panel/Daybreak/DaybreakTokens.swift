@@ -28,7 +28,8 @@ enum DaybreakFont {
         if css <= anchors.first!.css { return NSFont.Weight(anchors.first!.w) }
         if css >= anchors.last!.css { return NSFont.Weight(anchors.last!.w) }
         for i in 0..<(anchors.count - 1) {
-            let lo = anchors[i], hi = anchors[i + 1]
+            let lo = anchors[i]
+            let hi = anchors[i + 1]
             if css >= lo.css && css <= hi.css {
                 let f = CGFloat((css - lo.css) / (hi.css - lo.css))
                 return NSFont.Weight(lo.w + (hi.w - lo.w) * f)

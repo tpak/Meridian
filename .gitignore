@@ -27,3 +27,6 @@ report.html
 # Rewritten from scratch by each task, so tracking it made every parallel PR conflict on it.
 # Durable invariants belong in their own named script (e.g. scripts/check_localization.sh).
 scripts/validate_feature.sh
+
+# ignore .mcp.json files that contain secrets
+.mcp.json
