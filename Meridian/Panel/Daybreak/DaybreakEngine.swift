@@ -244,7 +244,8 @@ enum DaybreakEngine {
         let h = ((hour.truncatingRemainder(dividingBy: 24)) + 24).truncatingRemainder(dividingBy: 24)
         let s = skyStops
         for i in 0..<(s.count - 1) {
-            let a = s[i], b = s[i + 1]
+            let a = s[i]
+            let b = s[i + 1]
             if h >= a.hour && h <= b.hour {
                 let f = (b.hour == a.hour) ? 0 : (h - a.hour) / (b.hour - a.hour)
                 func lerp(_ x: Int, _ y: Int) -> Int { Int((Double(x) + (Double(y) - Double(x)) * f).rounded()) }

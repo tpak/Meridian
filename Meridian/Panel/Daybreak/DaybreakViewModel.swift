@@ -384,7 +384,8 @@ final class DaybreakViewModel: ObservableObject {
         let totalMinutes = timeZone.secondsFromGMT(for: reference) / 60
         let sign = totalMinutes < 0 ? DaybreakEngine.minus : "+"
         let abs = Swift.abs(totalMinutes)
-        let h = abs / 60, m = abs % 60
+        let h = abs / 60
+        let m = abs % 60
         return m == 0 ? "UTC\(sign)\(h)" : "UTC\(sign)\(h):\(String(format: "%02d", m))"
     }
 

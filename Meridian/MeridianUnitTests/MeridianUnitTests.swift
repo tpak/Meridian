@@ -77,7 +77,6 @@ class MeridianUnitTests: XCTestCase {
         let oldCount = mockStore.timezones().count
 
         let timezoneData = TimezoneData(with: california)
-        let operationsObject = TimezoneDataOperations(with: timezoneData, store: mockStore)
 
         // saveObject() saves to the DataStore, but for isolated testing we verify the operation directly
         // by calling addTimezone on the mock instead
