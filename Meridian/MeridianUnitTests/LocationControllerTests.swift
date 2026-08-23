@@ -132,6 +132,61 @@ class LocationControllerTests: XCTestCase {
         XCTAssertFalse(updatedRegular.isSystemTimezone)
     }
 
+    // MARK: - Denial hands back to the coordinate backfill (#199)
+
+    /// Denial clears the row's coordinates, and `formattedSunriseTime` renders an empty string
+    /// while they're nil — so the delegate callback is the only thing standing between "user
+    /// declined" and "sunrise/sunset silently disappears until the next launch". Assert it fires.
+    func testDenialNotifiesDelegate() {
+        let spy = SpyLocationControllerDelegate()
+        controller.delegate = spy
+        store.addTimezone(makeSystemTimezone(latitude: 37.7749, longitude: -122.4194))
+
+        controller.locationManager(CLLocationManager(), didChangeAuthorization: .denied)
+
+        XCTAssertEqual(spy.statusChangeCount, 1, "denial must notify the delegate so it can refill coordinates")
+    }
+
+    func testRestrictionNotifiesDelegate() {
+        let spy = SpyLocationControllerDelegate()
+        controller.delegate = spy
+
+        controller.locationManager(CLLocationManager(), didChangeAuthorization: .restricted)
+
+        XCTAssertEqual(spy.statusChangeCount, 1, "restricted is as unusable as denied and needs the same fallback")
+    }
+
+    /// The grant path must not invoke the fallback — refilling from the timezone-name geocode there
+    /// would overwrite the precise coordinates we just asked the user for.
+    func testAuthorizedDoesNotNotifyDelegate() {
+        let spy = SpyLocationControllerDelegate()
+        controller.delegate = spy
+
+        controller.locationManager(CLLocationManager(), didChangeAuthorization: .authorizedAlways)
+
+        XCTAssertEqual(spy.statusChangeCount, 0, "granting access must not trigger the city-name fallback")
+    }
+
+    /// CoreLocation calls `locationManagerDidChangeAuthorization(_:)` in preference to the
+    /// macOS 11-deprecated variant, so the fallback has to hang off the modern one too. This
+    /// asserts both entry points reach the same place.
+    func testModernAuthorizationCallbackRoutesToSameHandler() {
+        let spy = SpyLocationControllerDelegate()
+        controller.delegate = spy
+
+        // A default-initialised CLLocationManager reports .notDetermined, which must be a no-op.
+        controller.locationManagerDidChangeAuthorization(CLLocationManager())
+
+        XCTAssertEqual(spy.statusChangeCount, 0, ".notDetermined must not trigger the fallback")
+    }
+
+    func testDelegateIsHeldWeakly() {
+        var spy: SpyLocationControllerDelegate? = SpyLocationControllerDelegate()
+        controller.delegate = spy
+        spy = nil
+        XCTAssertNil(controller.delegate, "delegate must be weak — AppDelegate owns the controller")
+    }
+
     // MARK: - didFailWithError
 
     func testDidFailWithError() {
@@ -141,6 +196,11 @@ class LocationControllerTests: XCTestCase {
     }
 
     // MARK: - Helpers
+
+    private final class SpyLocationControllerDelegate: LocationControllerDelegate {
+        private(set) var statusChangeCount = 0
+        func didChangeAuthorizationStatus() { statusChangeCount += 1 }
+    }
 
     private func makeSystemTimezone(latitude: Double, longitude: Double) -> TimezoneData {
         let timezone = TimezoneData()

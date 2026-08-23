@@ -6,6 +6,12 @@
 	<true/>
 	<key>com.apple.security.network.client</key>
 	<true/>
+	<!-- Required for CoreLocation under the sandbox. Without it a location request is
+	     denied outright, regardless of the NSLocation* usage strings in Info.plist —
+	     which is why LocationController never worked before (issue #199). Powers the
+	     sunrise/sunset times on the current-location row. -->
+	<key>com.apple.security.personal-information.location</key>
+	<true/>
 	<!-- Required for NSSavePanel/NSOpenPanel.runModal() to display under sandbox.
 	     Without this, macOS Tahoe silently refuses to show the panel (logs
 	     "Unable to display save panel: missing User Selected File Read/Write

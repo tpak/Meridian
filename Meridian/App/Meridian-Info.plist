@@ -29,9 +29,9 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2026 Chris Tirpak. Originally by Abhishek Banthia.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Meridian can be more useful when it can use your location to determine your current timezone.</string>
+	<string>Meridian uses your approximate location to show accurate sunrise and sunset times for where you actually are, rather than for the city your time zone is named after. Your location is never sent anywhere.</string>
 	<key>NSLocationUsageDescription</key>
-	<string>Meridian can be more useful when it can use your location to determine your current timezone.</string>
+	<string>Meridian uses your approximate location to show accurate sunrise and sunset times for where you actually are, rather than for the city your time zone is named after. Your location is never sent anywhere.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
