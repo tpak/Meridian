@@ -469,3 +469,15 @@ Adapt the agent breakdown to the specific refactor — not every change needs al
 ## Code Quality
 
 When migrating APIs or renaming symbols, grep the **entire codebase** for all remaining references to the old API/name **before making any edits**. Show the full list of every file with references and **wait for approval** before proceeding. Use `grep -rn "OldName" Meridian/ --include="*.swift"` to catch stragglers. A single missed reference will break the CI build.
+
+### SonarQube Cloud
+
+Static analysis runs on [SonarQube Cloud](https://sonarcloud.io/project/overview?id=tpak_Meridian) — organization `tpak`, project key **`tpak_Meridian`**.
+
+**There is no CI job for it.** The project uses *Automatic Analysis*, which the SonarQube Cloud GitHub App triggers off the push webhook on `main`. Configuration is versioned in **`.sonarcloud.properties`** at the repo root (exclusions and per-rule suppressions, each with a comment justifying why the rule is wrong for Swift/Cocoa idiom or for this codebase). Edit that file rather than the SonarQube Cloud UI, so the config survives independently of the web settings.
+
+Consequences worth knowing:
+
+- **Missed pushes are not backfilled.** If SonarQube Cloud is unavailable when a merge lands, that revision is simply never scanned, and the next scan only happens on the *next* push. Confirm what was actually analyzed by comparing the analysis `revision` against `git log` — a stale scan otherwise looks like a passing one.
+- **No test coverage is reported.** Automatic Analysis cannot ingest the `.xcresult` bundle CI produces, so the coverage metric is empty. Importing it would require switching to a CI-based scanner, which disables Automatic Analysis.
+- Suppressions in `.sonarcloud.properties` are unverified until a scan runs against them; a merge that only changes that file still needs a subsequent push before its effect shows up.
