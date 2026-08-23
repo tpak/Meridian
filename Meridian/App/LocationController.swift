@@ -61,6 +61,9 @@ class LocationController: NSObject {
         // the already-resolved branch below.
         switch locationManager.authorizationStatus {
         case .notDetermined:
+            // Never raise a system permission dialog out of a test process — it would block the
+            // runner on any machine that hasn't answered the prompt yet.
+            guard NSClassFromString("XCTestCase") == nil else { return }
             locationManager.requestWhenInUseAuthorization()
         case .denied, .restricted:
             handleAuthorizationChange(locationManager.authorizationStatus)
