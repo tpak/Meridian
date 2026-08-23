@@ -185,4 +185,59 @@ class AppDelegateTests: XCTestCase {
         XCTAssertFalse(merged.contains { TimezoneData.customObject(from: $0)?.timezoneID == "Europe/Paris" },
                        "city removed during backfill must not be resurrected")
     }
+
+    // MARK: - Fixed-offset zones (#210)
+
+    func testFixedOffsetZonesAreRecognised() {
+        for identifier in ["UTC", "GMT", "GMT+10", "GMT-5", "gmt+3",
+                           "Etc/GMT", "Etc/GMT+10", "Etc/UTC", "Zulu", "Universal", "Greenwich"] {
+            XCTAssertTrue(AppDelegate.isFixedOffsetZone(identifier),
+                          "\(identifier) denotes an offset, not a place, and must never be geocoded")
+        }
+    }
+
+    func testRealPlaceZonesAreNotTreatedAsFixedOffset() {
+        // Guards against an over-broad rule quietly disabling sunrise/sunset for real cities.
+        for identifier in ["America/Chicago", "Australia/Melbourne", "Europe/London", "Asia/Kolkata",
+                           "America/Argentina/Buenos_Aires", "Pacific/Chatham", "Africa/Bamako"] {
+            XCTAssertFalse(AppDelegate.isFixedOffsetZone(identifier),
+                           "\(identifier) is a real place and still needs its coordinates")
+        }
+    }
+
+    func testStripClearsCoordinatesOnFixedOffsetRows() throws {
+        // The exact bogus point observed on a live machine: farmland near Seymour, Victoria.
+        let utc = TimezoneData()
+        utc.timezoneID = "UTC"
+        utc.latitude = -37.1960608
+        utc.longitude = 145.7897259
+        let blob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: utc))
+
+        let stripped = try XCTUnwrap(AppDelegate.stripFixedOffsetCoordinates(from: [blob]),
+                                     "a row with bogus coordinates must be reported as changed")
+        let updated = try XCTUnwrap(TimezoneData.customObject(from: stripped[0]))
+        XCTAssertNil(updated.latitude)
+        XCTAssertNil(updated.longitude)
+        XCTAssertEqual(updated.timezoneID, "UTC", "only the coordinates change")
+    }
+
+    func testStripLeavesRealCitiesAlone() throws {
+        let melbourne = TimezoneData()
+        melbourne.timezoneID = "Australia/Melbourne"
+        melbourne.latitude = -37.8136
+        melbourne.longitude = 144.9631
+        let blob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: melbourne))
+
+        XCTAssertNil(AppDelegate.stripFixedOffsetCoordinates(from: [blob]),
+                     "nothing to change means no write — a real city keeps its coordinates")
+    }
+
+    func testStripIsIdempotentOnAlreadyCleanRows() throws {
+        let utc = TimezoneData()
+        utc.timezoneID = "UTC"
+        let blob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: utc))
+
+        XCTAssertNil(AppDelegate.stripFixedOffsetCoordinates(from: [blob]),
+                     "a UTC row that already has nil coordinates must not trigger a rewrite every launch")
+    }
 }
