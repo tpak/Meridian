@@ -13,6 +13,12 @@ class LocationController: NSObject {
     private let store: DataStore
     private let geocoder: GeocodingServicing
 
+    /// Notified whenever authorization changes. On denial the current-location row's coordinates
+    /// are cleared (see `updateHomeObject`), and `formattedSunriseTime` renders nothing without
+    /// them — so the delegate is what re-seeds them from the city-name backfill. Without it,
+    /// declining the prompt would leave the sunrise/sunset line blank until the next launch.
+    weak var delegate: LocationControllerDelegate?
+
     init(withStore dataStore: DataStore, geocoder: GeocodingServicing = MapKitGeocodingService()) {
         store = dataStore
         self.geocoder = geocoder
@@ -50,7 +56,32 @@ class LocationController: NSObject {
     func determineAndRequestLocationAuthorization() {
         setDelegate()
 
-        if CLLocationManager.locationServicesEnabled() {
+        // Ask explicitly rather than letting startUpdatingLocation() raise the prompt as a side
+        // effect. macOS shows it once and remembers the answer; a second launch goes straight to
+        // the already-resolved branch below.
+        switch locationManager.authorizationStatus {
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        case .denied, .restricted:
+            handleAuthorizationChange(locationManager.authorizationStatus)
+        default:
+            locationManager.startUpdatingLocation()
+        }
+    }
+
+    /// Shared body for both authorization callbacks (see the delegate extension for why there are
+    /// two). Clearing coordinates on denial is deliberate — holding a position after the user
+    /// revokes access would be keeping data they just took back — and the delegate hand-off is what
+    /// stops that from leaving the sunrise/sunset line blank.
+    fileprivate func handleAuthorizationChange(_ status: CLAuthorizationStatus) {
+        switch status {
+        case .denied, .restricted:
+            updateHomeObject(with: TimeZone.autoupdatingCurrent.identifier, coordinates: nil)
+            locationManager.stopUpdatingLocation()
+            delegate?.didChangeAuthorizationStatus()
+        case .notDetermined:
+            break // Nothing to do until the user answers the prompt.
+        default:
             locationManager.startUpdatingLocation()
         }
     }
@@ -94,13 +125,17 @@ extension LocationController: CLLocationManagerDelegate {
         }
     }
 
+    /// The current callback. `locationManager(_:didChangeAuthorization:)` below was deprecated in
+    /// macOS 11 and this project deploys to 26 — CoreLocation prefers this one when both exist, so
+    /// without it the denial fallback would quietly never run.
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        handleAuthorizationChange(manager.authorizationStatus)
+    }
+
+    /// Retained for older systems (and exercised directly by the unit tests, which can't make the
+    /// system deliver a real authorization change). Routes to the same place as the modern callback.
     func locationManager(_: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        if status == .denied || status == .restricted {
-            updateHomeObject(with: TimeZone.autoupdatingCurrent.identifier, coordinates: nil)
-            locationManager.stopUpdatingLocation()
-        } else if status == .notDetermined || status == .authorized || status == .authorizedAlways {
-            locationManager.startUpdatingLocation()
-        }
+        handleAuthorizationChange(status)
     }
 
     func locationManager(_: CLLocationManager, didFailWithError error: Error) {

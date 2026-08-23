@@ -48,6 +48,7 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         enableStartAtLoginByDefault()
         enableAutoUpdateByDefault()
         backfillMissingCoordinates()
+        startTrackingLocationForSunTimes()
         wirePreferencesMenuItem()
         continueUsually()
         setupMemoryPressureMonitoring()
@@ -178,7 +179,28 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Backfill Coordinates
 
-    private func backfillMissingCoordinates() {
+    // MARK: - Location (sunrise/sunset accuracy, #199)
+
+    /// Kept in a stored property: `CLLocationManager` only delivers callbacks while its owner is
+    /// alive, so a local would deallocate long before authorization resolves.
+    lazy var locationController: LocationController = {
+        let controller = LocationController(withStore: DataStore.shared())
+        controller.delegate = self
+        return controller
+    }()
+
+    /// Ask for location once, so the current-location row's sunrise/sunset reflects where the user
+    /// actually is. Without this the coordinates come from geocoding the last path component of the
+    /// IANA id (`America/Chicago` → "Chicago"), which is off by up to ~83 minutes for anyone living
+    /// elsewhere in the same zone. macOS prompts once and remembers the answer; declining is handled
+    /// in `didChangeAuthorizationStatus()`.
+    private func startTrackingLocationForSunTimes() {
+        // Skip under XCTest so the runner never triggers a system permission prompt.
+        guard NSClassFromString("XCTestCase") == nil else { return }
+        locationController.determineAndRequestLocationAuthorization()
+    }
+
+    func backfillMissingCoordinates() {
         let store = DataStore.shared()
         var timezonesToBackfill: [TimezoneData] = []
 
@@ -402,6 +424,20 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
 
     open func invalidateMenubarTimer(_ showIcon: Bool) {
         statusBarHandler.invalidateTimer(showIcon: showIcon, isSyncing: true)
+    }
+}
+
+// MARK: - Location Authorization
+
+extension AppDelegate: LocationControllerDelegate {
+    /// Called when the user denies or revokes location access. `LocationController` clears the
+    /// current-location row's coordinates at that point (it shouldn't hold a position the user just
+    /// revoked), but `formattedSunriseTime` renders an empty string while they're nil — so refill
+    /// them from the city-name geocode straight away. Declining should cost the user nothing beyond
+    /// the accuracy they never had.
+    func didChangeAuthorizationStatus() {
+        Logger.production("Location access unavailable; falling back to timezone-name coordinates")
+        backfillMissingCoordinates()
     }
 }
 

@@ -56,6 +56,7 @@ When you open Meridian, it appears in your **menu bar** (the strip at the top-ri
 
 - Meridian automatically adds **your current time zone** so the popover isn't empty.
 - **Click the menu-bar icon** to open the Daybreak popover; click again (or press `Esc`) to close it.
+- macOS asks once whether Meridian can use your **location** — it's used only to get your sunrise/sunset times right. See [Why Meridian asks for your location](#why-meridian-asks-for-your-location).
 
 ### "I can't see the icon" (macOS Tahoe and later)
 
@@ -232,6 +233,18 @@ Meridian computes each city's **sunrise and sunset** from its real coordinates a
 Turn on **Settings → Appearance → Sunrise / sunset** to show each city's next event in its row (e.g. `↑ Sunrise 6:46 AM`, `↓ Sunset 8:28 PM`) and in the hero sub-line. When it's off, rows show the UTC offset instead.
 
 > Cities added by searching for a place name have precise coordinates and accurate sun times. A city added as a bare time zone uses an approximation until Meridian backfills its coordinates (usually by the next launch).
+
+### Why Meridian asks for your location
+
+The first time you launch it, macOS asks whether Meridian can use your location. It's asked **once** — your answer is remembered, and you can change it any time in **System Settings → Privacy & Security → Location Services**.
+
+It's used for exactly one thing: the **sunrise and sunset times on your current-location row**.
+
+If you say no, Meridian falls back to the city your time zone is named after — so someone in Houston gets Chicago's sun times, because both are on `America/Chicago`. Inside a single time zone that can be **well over an hour off**. Saying yes fixes it; saying no leaves everything else working exactly as before.
+
+Your location is only ever used on your Mac to do the sun-position maths. It is never uploaded, and it never changes your time zone, your city names, or your labels.
+
+<!-- screenshot: screenshots/location-prompt.png -->
 
 ---
 
