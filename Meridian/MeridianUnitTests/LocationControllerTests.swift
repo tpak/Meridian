@@ -171,25 +171,28 @@ class LocationControllerTests: XCTestCase {
     /// macOS 11-deprecated variant, so the fallback has to hang off the modern one too. This
     /// asserts both entry points reach the same place.
     ///
-    /// Deliberately compares the two callbacks against each other rather than asserting a fixed
-    /// count: the modern one reads `manager.authorizationStatus`, which is whatever the *machine*
-    /// happens to be set to. An earlier version assumed a fresh CLLocationManager reports
-    /// `.notDetermined` — true on a dev Mac that has already answered the prompt, false on a CI
-    /// runner where location is denied, so it passed locally and broke main. The routing invariant
-    /// is what this test is actually for, and it holds under any ambient status.
+    /// Uses a stubbed manager so the status is supplied, never read from the machine.
+    ///
+    /// Two earlier attempts failed here. The first asserted a fixed count, assuming a fresh
+    /// CLLocationManager reports `.notDetermined` — true on a Mac that has answered the prompt,
+    /// false on CI. The second compared the two callbacks against each other under the ambient
+    /// status, which is still racy: `authorizationStatus` resolves asynchronously, so the value
+    /// read to set up the comparison isn't necessarily the one the callback sees a moment later.
+    /// CI caught it reporting `.notDetermined` on the first read and a denied status on the second.
+    /// The only reliable answer is to not consult the real manager at all.
     func testModernAuthorizationCallbackRoutesToSameHandler() {
-        let ambient = CLLocationManager().authorizationStatus
+        for status: CLAuthorizationStatus in [.denied, .restricted, .authorizedAlways, .notDetermined] {
+            let stub = StubLocationManager()
+            stub.stubbedStatus = status
 
-        let viaModern = SpyLocationControllerDelegate()
-        controller.delegate = viaModern
-        controller.locationManagerDidChangeAuthorization(CLLocationManager())
+            let spy = SpyLocationControllerDelegate()
+            controller.delegate = spy
+            controller.locationManagerDidChangeAuthorization(stub)
 
-        let viaLegacy = SpyLocationControllerDelegate()
-        controller.delegate = viaLegacy
-        controller.locationManager(CLLocationManager(), didChangeAuthorization: ambient)
-
-        XCTAssertEqual(viaModern.statusChangeCount, viaLegacy.statusChangeCount,
-                       "both authorization callbacks must route to the same handler (ambient status: \(ambient.rawValue))")
+            let expected = (status == .denied || status == .restricted) ? 1 : 0
+            XCTAssertEqual(spy.statusChangeCount, expected,
+                           "modern callback with status \(status.rawValue) should\(expected == 1 ? "" : " not") trigger the fallback")
+        }
     }
 
     /// Belt-and-braces on the same routing question, with statuses we control outright so the
@@ -222,6 +225,14 @@ class LocationControllerTests: XCTestCase {
     }
 
     // MARK: - Helpers
+
+    /// Lets a test supply the authorization status instead of reading the machine's. The real
+    /// property resolves asynchronously and is per-app, so anything derived from a live manager is
+    /// nondeterministic across machines and even across two reads on the same one.
+    private final class StubLocationManager: CLLocationManager {
+        var stubbedStatus: CLAuthorizationStatus = .notDetermined
+        override var authorizationStatus: CLAuthorizationStatus { stubbedStatus }
+    }
 
     private final class SpyLocationControllerDelegate: LocationControllerDelegate {
         private(set) var statusChangeCount = 0
