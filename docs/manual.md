@@ -233,6 +233,8 @@ Meridian computes each city's **sunrise and sunset** from its real coordinates a
 Turn on **Settings → Appearance → Sunrise / sunset** to show each city's next event in its row (e.g. `↑ Sunrise 6:46 AM`, `↓ Sunset 8:28 PM`) and in the hero sub-line. When it's off, rows show the UTC offset instead.
 
 > Cities added by searching for a place name have precise coordinates and accurate sun times. A city added as a bare time zone uses an approximation until Meridian backfills its coordinates (usually by the next launch).
+>
+> **UTC and GMT rows show no sunrise or sunset**, and that's deliberate — they're clock offsets, not places on Earth, so there's no sun to rise on them. Those rows show their offset instead.
 
 ### Why Meridian asks for your location
 
@@ -326,7 +328,7 @@ macOS may have hidden it in Control Center. Open **Settings → General → "Can
 Make sure you're not still time-traveling — click **↺ Back to now**, or close and reopen the popover. Times are derived from each zone's official rules, including daylight saving.
 
 **Sunrise/sunset isn't showing for a city.**
-Turn it on in **Settings → Appearance → Sunrise / sunset**. If a particular city still doesn't show times, it may have been added as a bare time zone without coordinates — remove it and re-add it by searching for the city name, or relaunch to let Meridian backfill coordinates.
+Turn it on in **Settings → Appearance → Sunrise / sunset**. If a particular city still doesn't show times, it may have been added as a bare time zone without coordinates — remove it and re-add it by searching for the city name, or relaunch to let Meridian backfill coordinates. **UTC and GMT rows never show sun times**, because an offset isn't a place — see [Sunrise, sunset & day/night](#sunrise-sunset--daynight).
 
 **My menu bar is too crowded with cities.**
 Star fewer cities, switch to a denser preset (**Dense · 24h** or **Mono**), or use the **Stacked** preset to fit more in a narrow/notched bar.
