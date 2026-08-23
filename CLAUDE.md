@@ -474,10 +474,13 @@ When migrating APIs or renaming symbols, grep the **entire codebase** for all re
 
 Static analysis runs on [SonarQube Cloud](https://sonarcloud.io/project/overview?id=tpak_Meridian) — organization `tpak`, project key **`tpak_Meridian`**.
 
-**There is no CI job for it.** The project uses *Automatic Analysis*, which the SonarQube Cloud GitHub App triggers off the push webhook on `main`. Configuration is versioned in **`.sonarcloud.properties`** at the repo root (exclusions and per-rule suppressions, each with a comment justifying why the rule is wrong for Swift/Cocoa idiom or for this codebase). Edit that file rather than the SonarQube Cloud UI, so the config survives independently of the web settings.
+Analysis runs from the **`sonar` job in `.github/workflows/ci.yml`**, after Unit Tests, on every push to `main` and every pull request. Configuration lives in **`sonar-project.properties`** at the repo root: scope, coverage, and the per-rule issue suppressions, each with a comment justifying why the rule is wrong for Swift/Cocoa idiom or for this codebase. The scanner reads all of it.
 
-Consequences worth knowing:
+Two things it needs:
 
-- **Only `sonar.exclusions` takes effect.** Automatic Analysis honours the exclusions in `.sonarcloud.properties` but ignores the `sonar.issue.ignore.multicriteria` block entirely — verified at revision `82df73ba`, where all ten entries were still firing. Issue suppression is server-side: enter it under Project → Administration → General Settings → Analysis Scope → Issues. The properties are kept in the file, commented out, because a CI-based scanner does honour them.
-- **Missed pushes are not backfilled.** If SonarQube Cloud is unavailable when a merge lands, that revision is simply never scanned, and the next scan only happens on the *next* push. Confirm what was actually analyzed by comparing the analysis `revision` against `git log` — a stale scan otherwise looks like a passing one.
-- **No test coverage is reported.** Automatic Analysis cannot ingest the `.xcresult` bundle CI produces, so the coverage metric is empty. Importing it would require switching to a CI-based scanner, which disables Automatic Analysis.
+- **`SONAR_TOKEN`** repo secret — the Actions runner authenticates to SonarQube Cloud with it. Authorizing the SonarQube Cloud GitHub App is a *separate* trust relationship (SonarQube → GitHub, for PR decoration) and does not replace the token. Generate a project analysis token under My Account → Security.
+- **Full git history** — the job checks out with `fetch-depth: 0` so the scanner can attribute issues and compute "new code".
+
+**Coverage** comes from the `.xcresult` bundle the Unit Tests job already uploads. `scripts/xccov_to_sonar.py` converts it to SonarQube's generic coverage XML (SonarQube cannot read `.xcresult` directly). If the conversion yields nothing the workflow drops the report rather than publishing a misleading 0%.
+
+**Why not Automatic Analysis:** it was the original setup and fired on 2 of 11 pushes — once when the project was created, once when the toggle was flipped by hand in the web UI. It also honoured only `sonar.exclusions` from `.sonarcloud.properties`, silently ignoring the `sonar.issue.ignore.multicriteria` block (verified at revision `82df73ba`, where all ten entries were still firing), and could not import coverage at all. Enabling CI-based analysis disables Automatic Analysis. `.sonarcloud.properties` is retained only as the record of that period and has no effect once the `sonar` job is running.
