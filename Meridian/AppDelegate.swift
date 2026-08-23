@@ -202,12 +202,22 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
 
     func backfillMissingCoordinates() {
         let store = DataStore.shared()
+
+        // Self-healing rather than a one-shot migration: cheap, and it also catches rows written
+        // by an older build after the user downgrades or restores a settings export.
+        if let cleaned = Self.stripFixedOffsetCoordinates(from: store.timezones()) {
+            Logger.production("Cleared coordinates on fixed-offset timezone row(s)")
+            store.setTimezones(cleaned)
+        }
+
         var timezonesToBackfill: [TimezoneData] = []
 
         for data in store.timezones() {
             guard let timezone = TimezoneData.customObject(from: data) else { continue }
             if timezone.latitude == nil || timezone.longitude == nil,
-               let timezoneID = timezone.timezoneID, !timezoneID.isEmpty {
+               let timezoneID = timezone.timezoneID, !timezoneID.isEmpty,
+               // UTC has no location; geocoding the string is what caused #210.
+               !Self.isFixedOffsetZone(timezoneID) {
                 timezonesToBackfill.append(timezone)
             }
         }
@@ -424,6 +434,52 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
 
     open func invalidateMenubarTimer(_ showIcon: Bool) {
         statusBarHandler.invalidateTimer(showIcon: showIcon, isSyncing: true)
+    }
+}
+
+// MARK: - Fixed-offset timezones (#210)
+
+// Kept in an extension rather than the class body: both are pure helpers with no access to
+// instance state, and AppDelegate is already at SwiftLint's type_body_length threshold.
+extension AppDelegate {
+    /// True for zones that denote a UTC offset rather than a place: `UTC`, `GMT`, `GMT+10`, and
+    /// everything under `Etc/`. The backfill derives its geocoder query from the last path
+    /// component of the id, so these used to be geocoded as literal strings — MapKit region-biases
+    /// to the caller and happily returns *something*, which then got stored as if it were a city
+    /// centre. A real machine ended up with the UTC row at -37.196, 145.790: farmland in Victoria,
+    /// driving a sunrise, a sunset and a day/night tint that mean nothing (issue #210).
+    static func isFixedOffsetZone(_ identifier: String) -> Bool {
+        if identifier.hasPrefix("Etc/") { return true }
+        let upper = identifier.uppercased()
+        switch upper {
+        case "UTC", "GMT", "UT", "Z", "ZULU", "UNIVERSAL", "GREENWICH":
+            return true
+        default:
+            return upper.hasPrefix("GMT+") || upper.hasPrefix("GMT-")
+        }
+    }
+
+    /// Clear coordinates already stored against a fixed-offset zone. Skipping the geocode only
+    /// helps rows created from here on; without this pass every existing user keeps the bogus
+    /// point forever, since the backfill only ever fills rows whose coordinates are nil.
+    /// With them nil, `formattedSunriseTime` returns an empty string and `DaybreakComputation`
+    /// falls back to its default window, so the row shows its UTC offset — correct for UTC.
+    /// Pure so tests can drive it; returns nil when nothing changed, to avoid a pointless write.
+    static func stripFixedOffsetCoordinates(from current: [Data]) -> [Data]? {
+        var changed = false
+        let updated: [Data] = current.map { blob in
+            guard let timezone = TimezoneData.customObject(from: blob),
+                  let identifier = timezone.timezoneID,
+                  isFixedOffsetZone(identifier),
+                  timezone.latitude != nil || timezone.longitude != nil else {
+                return blob
+            }
+            timezone.latitude = nil
+            timezone.longitude = nil
+            changed = true
+            return NSKeyedArchiver.secureArchive(with: timezone) ?? blob
+        }
+        return changed ? updated : nil
     }
 }
 
