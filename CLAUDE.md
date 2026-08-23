@@ -478,6 +478,6 @@ Static analysis runs on [SonarQube Cloud](https://sonarcloud.io/project/overview
 
 Consequences worth knowing:
 
+- **Only `sonar.exclusions` takes effect.** Automatic Analysis honours the exclusions in `.sonarcloud.properties` but ignores the `sonar.issue.ignore.multicriteria` block entirely — verified at revision `82df73ba`, where all ten entries were still firing. Issue suppression is server-side: enter it under Project → Administration → General Settings → Analysis Scope → Issues. The properties are kept in the file, commented out, because a CI-based scanner does honour them.
 - **Missed pushes are not backfilled.** If SonarQube Cloud is unavailable when a merge lands, that revision is simply never scanned, and the next scan only happens on the *next* push. Confirm what was actually analyzed by comparing the analysis `revision` against `git log` — a stale scan otherwise looks like a passing one.
 - **No test coverage is reported.** Automatic Analysis cannot ingest the `.xcresult` bundle CI produces, so the coverage metric is empty. Importing it would require switching to a CI-based scanner, which disables Automatic Analysis.
-- Suppressions in `.sonarcloud.properties` are unverified until a scan runs against them; a merge that only changes that file still needs a subsequent push before its effect shows up.
