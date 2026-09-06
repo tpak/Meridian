@@ -79,11 +79,15 @@ The release script (`scripts/release.sh`) handles everything:
 **Release notes style**: Keep notes short and user-facing. One line per change describing what was fixed or added — not why or how. No internal details (class names, property names, root cause analysis). Write for customers, not developers. Reference closing GitHub issues inline with the relevant change (e.g. "Add keyboard shortcuts (#50)"). Good: "Fix sunrise/sunset not displaying for some timezones". Bad: "Sunrise/sunset was only displayed when selectionType == .city; now checks for coordinates instead".
 
 **Post-release cleanup** (do this after every release):
+
+`release.sh` already handles the build artifacts — its final phase runs
+`scripts/cleanup-artifacts.sh --beta`, which quits and removes the local UAT beta, prunes dead Xcode
+DerivedData, and deletes its own `/tmp` staging (see [Artifact Cleanup](#artifact-cleanup)). What is
+left is the human part:
+
 ```bash
-# 1. Switch the user back to the released prod app and remove any local UAT beta
-#    so they aren't accidentally testing an older or differently-signed build.
-osascript -e 'tell application "Meridian" to quit' ; sleep 2
-rm -rf ~/Applications/Meridian-beta.app
+# 1. Switch the user back to the released prod app.
+#    (The UAT beta is already gone — release.sh removed it.)
 # Confirm /Applications/Meridian.app is the version we just released
 # (Sparkle should have updated it after the appcast push; if not, apply the update)
 /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" /Applications/Meridian.app/Contents/Info.plist
@@ -203,15 +207,8 @@ you end up verifying and shipping code you did not just compile. (Quoting the gl
 never expands, and `PlistBuddy`/`cp` get a literal `*` and fail.)
 
 Always pass `-derivedDataPath` and read the product back from that same path, as step 2 above and
-`scripts/release.sh` both do. To reclaim the space from the stale directories:
-
-```bash
-# Inspect first — each info.plist records the checkout it belongs to
-for d in ~/Library/Developer/Xcode/DerivedData/Meridian-*/; do
-  echo "$(basename "$d")  <-  $(/usr/libexec/PlistBuddy -c 'Print :WorkspacePath' "$d/info.plist" 2>/dev/null)"
-done
-# Then delete the ones whose WorkspacePath no longer exists.
-```
+`scripts/release.sh` both do. `scripts/cleanup-artifacts.sh` prunes the dead directories — see
+[Artifact Cleanup](#artifact-cleanup).
 
 ### Conventions
 - **Naming**: `MARKETING_VERSION=X.Y.Z-betaN` (e.g. `4.2.1-beta1`, `4.2.1-beta2`). The user-visible version string in the panel footer reads `vX.Y.Z-betaN` — that's the unambiguous "this is the test build" signal.
@@ -258,6 +255,56 @@ Only after the user explicitly signs off on the latest beta:
 4. `make release VERSION=X.Y.Z NOTES="..."` (multiline and special characters are fine; `bash scripts/release.sh -n "..." X.Y.Z` works too)
 
 The released binary is what Sparkle ships to all users; the beta UAT path makes sure that binary's behavior was confirmed by the user first.
+
+## Artifact Cleanup
+
+Meridian's build artifacts land in machine-local directories that nothing ever reaps, and none of
+them belong on a new laptop — they are all regenerable from the repo. `scripts/cleanup-artifacts.sh`
+is the single owner of removing them.
+
+```bash
+make clean-artifacts             # prune
+make clean-artifacts DRY=1       # preview; deletes nothing
+make clean-artifacts BETA=1      # also remove ~/Applications/Meridian-beta.app
+bash scripts/cleanup-artifacts.sh --dry-run --beta   # same thing, directly
+```
+
+`make clean` is a different, narrower thing: it only removes this checkout's `build/` dir.
+
+### What it removes, and why each one accumulates
+
+- **Dead Xcode DerivedData.** Xcode names each directory `Meridian-<hash of the .xcodeproj's
+  absolute path>`, so *every distinct checkout path* gets its own and Xcode never deletes them.
+  Agent worktrees under `.claude/worktrees/`, an old `Meridian-v4` checkout and a differently-cased
+  `source/meridian` path had grown this to **4.2 GB across 14 directories, 13 of them dead**. Two
+  rules apply: a directory is *stale* when its recorded `WorkspacePath` no longer exists, and a
+  *duplicate* when another directory points at the same real project directory. Duplicates are
+  matched on **device:inode**, not path text — macOS is case-insensitive, so `source/meridian` and
+  `source/Meridian` are one directory and `pwd -P` will not tell you so (it resolves symlinks, not
+  case). The DerivedData for the checkout the script is run from is always kept.
+- **`release.sh` staging.** Each release `mktemp -d`s a `/tmp/meridian-release.*` tree — a full
+  DerivedData build, ~500 MB — plus a `/tmp/appcast.*` scratch file. These used to leak on every
+  run; `release.sh` now removes them itself on success (see below).
+- **The local UAT beta** (`--beta` / `BETA=1` only): `~/Applications/Meridian-beta.app` and
+  `/tmp/meridian-beta-dd`. Quits a running beta first.
+- **The orphan preferences plist.** Unsigned builds — Debug unit-test hosts, or a beta built
+  without the entitlements — get no sandbox and write `~/Library/Preferences/com.tpak.Meridian.plist`
+  instead of the container. The shipping app never reads it. It is removed only when the sandbox
+  container exists, which proves the real store is elsewhere.
+
+### Rules
+
+- **The release cleans up after itself.** `release.sh` removes its own staging on success, and runs
+  `cleanup-artifacts.sh --beta` as its final phase — the beta must go once the real build ships, so
+  a stale `Meridian-beta.app` can't shadow it. Cleanup failure is a warning, never fatal: the
+  release is already published and verified by then.
+- **Failures keep their evidence.** On a failed release the staging dir and generated appcast are
+  deliberately *kept* — `report_release_state` and the `xmllint` error both print paths that have to
+  still exist. The script tells you to run `cleanup-artifacts.sh` once you're done debugging.
+- **Never resolve a build product through a `DerivedData/Meridian-*` glob.** Pass
+  `-derivedDataPath` and read back from that path. See "Never glob the DerivedData path" above.
+- **Run it before migrating machines.** Everything it removes is rebuildable; nothing it removes is
+  worth copying to a new laptop.
 
 ## Sparkle Beta Channel
 

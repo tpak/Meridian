@@ -306,7 +306,37 @@ report_release_state() {
     echo "  Re-running the same release command resumes safely: the existing bump commit"
     echo "  is detected and skipped, and the push happens only after notarization."
 }
-trap report_release_state EXIT
+
+# Staging paths this run creates. RELEASE_DIR is a full DerivedData tree (~500 MB)
+# and used to be left behind in /tmp by every release. They are removed on
+# success and deliberately KEPT on failure, because the diagnostics above — and
+# the xmllint error, which prints the generated appcast's path — need them to
+# still exist.
+RELEASE_DIR=""
+TMPAPPCAST=""
+
+cleanup_staging() {
+    if [[ $RELEASE_COMPLETE -eq 1 ]]; then
+        if [[ -n "$RELEASE_DIR" ]]; then rm -rf "$RELEASE_DIR"; fi
+        if [[ -n "$TMPAPPCAST" ]]; then rm -f "$TMPAPPCAST"; fi
+        return 0
+    fi
+    local kept=0
+    if [[ -n "$RELEASE_DIR" && -d "$RELEASE_DIR" ]]; then
+        echo "  * Build staging kept for diagnosis: $RELEASE_DIR"
+        kept=1
+    fi
+    if [[ -n "$TMPAPPCAST" && -f "$TMPAPPCAST" ]]; then
+        echo "  * Generated appcast kept for diagnosis: $TMPAPPCAST"
+        kept=1
+    fi
+    if [[ $kept -eq 1 ]]; then
+        echo "  Remove them once you are done: scripts/cleanup-artifacts.sh"
+    fi
+    return 0
+}
+
+trap 'report_release_state; cleanup_staging' EXIT
 
 # ── Phase 3: Build + sign ──────────────────────────────────────────
 
@@ -600,4 +630,14 @@ echo ""
 echo "  GitHub release: https://github.com/tpak/Meridian/releases/tag/v$VERSION"
 echo "  Appcast updated with signature and download URL"
 echo "  Homebrew cask: brew install --cask tpak/tpak/meridian"
+echo ""
+
+# ── Phase 8: Cleanup ────────────────────────────────────────────────
+# Reclaim the transient artifacts this machine accumulates: dead Xcode
+# DerivedData, leftover release staging, and the local UAT beta — which must go
+# now that the real build is out, so it can't shadow what was just shipped.
+# Never fatal: the release is already published and verified by this point.
+echo "── Cleaning up build artifacts..."
+bash "$(dirname "${BASH_SOURCE[0]}")/cleanup-artifacts.sh" --beta || \
+    echo "WARNING: artifact cleanup failed; run scripts/cleanup-artifacts.sh by hand."
 echo ""
