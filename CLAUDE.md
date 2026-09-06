@@ -79,11 +79,15 @@ The release script (`scripts/release.sh`) handles everything:
 **Release notes style**: Keep notes short and user-facing. One line per change describing what was fixed or added — not why or how. No internal details (class names, property names, root cause analysis). Write for customers, not developers. Reference closing GitHub issues inline with the relevant change (e.g. "Add keyboard shortcuts (#50)"). Good: "Fix sunrise/sunset not displaying for some timezones". Bad: "Sunrise/sunset was only displayed when selectionType == .city; now checks for coordinates instead".
 
 **Post-release cleanup** (do this after every release):
+
+`release.sh` already handles the build artifacts — its final phase runs
+`scripts/cleanup-artifacts.sh --beta`, which quits and removes the local UAT beta, prunes dead Xcode
+DerivedData, and deletes its own `/tmp` staging (see [Artifact Cleanup](#artifact-cleanup)). What is
+left is the human part:
+
 ```bash
-# 1. Switch the user back to the released prod app and remove any local UAT beta
-#    so they aren't accidentally testing an older or differently-signed build.
-osascript -e 'tell application "Meridian" to quit' ; sleep 2
-rm -rf ~/Applications/Meridian-beta.app
+# 1. Switch the user back to the released prod app.
+#    (The UAT beta is already gone — release.sh removed it.)
 # Confirm /Applications/Meridian.app is the version we just released
 # (Sparkle should have updated it after the appcast push; if not, apply the update)
 /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" /Applications/Meridian.app/Contents/Info.plist
@@ -112,6 +116,10 @@ Production releases go through Sparkle to every user immediately. The user wants
 
 ### How to build a beta
 
+Build **Release**, signed with the Developer ID certificate and the real entitlements. Both of
+those matter — see "Why the beta must be signed" below; an unsigned Debug build either refuses to
+launch or silently runs against an empty preferences store.
+
 From the feature branch (do **not** merge to main yet):
 
 ```bash
@@ -121,32 +129,97 @@ sleep 2
 
 # 2. Build with version overrides — DO NOT edit project.pbxproj.
 #    Bump the betaN suffix and CURRENT_PROJECT_VERSION on each iteration.
-xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Debug build \
-  CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY= \
-  MARKETING_VERSION=2.19.1-beta1 CURRENT_PROJECT_VERSION=2191001
+#    -derivedDataPath pins the output; never glob DerivedData (see below).
+BETA_DD=/tmp/meridian-beta-dd
+xcodebuild -project Meridian/Meridian.xcodeproj -scheme Meridian -configuration Release \
+  -derivedDataPath "$BETA_DD" \
+  CODE_SIGN_IDENTITY="Developer ID Application" DEVELOPMENT_TEAM=3LWTY5PDSS \
+  OTHER_CODE_SIGN_FLAGS=--timestamp CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO \
+  MARKETING_VERSION=4.2.1-beta1 CURRENT_PROJECT_VERSION=4021001 \
+  build
 
-# 3. Verify the version stamped into the built bundle
-/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" \
-  "$HOME/Library/Developer/Xcode/DerivedData/Meridian-*/Build/Products/Debug/Meridian.app/Contents/Info.plist"
-
-# 4. Install to ~/Applications (separate from /Applications/Meridian.app)
+# 3. Install to ~/Applications (separate from /Applications/Meridian.app)
 rm -rf ~/Applications/Meridian-beta.app
-cp -R "$HOME/Library/Developer/Xcode/DerivedData/Meridian-*/Build/Products/Debug/Meridian.app" \
-  ~/Applications/Meridian-beta.app
+cp -R "$BETA_DD/Build/Products/Release/Meridian.app" ~/Applications/Meridian-beta.app
 xattr -cr ~/Applications/Meridian-beta.app   # strip quarantine
-open ~/Applications/Meridian-beta.app
 
-# 5. Confirm it's running
+# 4. Re-sign Sparkle inside-out, then the app with entitlements — same order as
+#    scripts/release.sh. Without this the app is signed but its Sparkle installer
+#    components are not, and codesign --verify --deep fails.
+APP=~/Applications/Meridian-beta.app
+ID="Developer ID Application: Christopher Tirpak (3LWTY5PDSS)"
+FW="$APP/Contents/Frameworks/Sparkle.framework"
+# Resolve the version dir through Current and pwd -P. Do NOT glob Versions/[A-Z]* —
+# that matches the "Current" symlink as well as the real "B", giving you two paths.
+VD=$(cd "$FW/Versions/Current" && pwd -P)
+for x in "$VD"/XPCServices/*.xpc; do codesign --force --options runtime --timestamp --sign "$ID" "$x"; done
+for h in "$VD"/*.app;               do codesign --force --options runtime --timestamp --sign "$ID" "$h"; done
+codesign --force --options runtime --timestamp --sign "$ID" "$VD/Autoupdate"
+codesign --force --options runtime --timestamp --sign "$ID" "$FW"
+codesign --force --options runtime --timestamp --sign "$ID" \
+  --entitlements Meridian/App/Meridian.entitlements "$APP"
+codesign --verify --deep --strict "$APP"
+
+# 5. Verify the version stamped into the bundle, then launch
+/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$APP/Contents/Info.plist"
+open "$APP"
+
+# 6. Confirm it's running, and watch its own log line to confirm it loaded real data
 pgrep -lf "Meridian-beta.app/Contents/MacOS/Meridian"
+/usr/bin/log show --predicate 'subsystem == "com.tpak.Meridian"' --last 2m --style compact
 ```
 
+Step 6's log line reads `App launched v4.2.1-beta1(4021001) … timezones raw=N decoded=N`. If `N` is
+0 or 1 when the user tracks several cities, the beta is **not** reading their real preferences —
+re-check the signing in step 4.
+
+### Why the beta must be signed
+
+Two independent traps, both of which look like "the change didn't work":
+
+1. **Meridian ships sandboxed** (`com.apple.security.app-sandbox` in
+   `Meridian/App/Meridian.entitlements`), so production's data lives in
+   `~/Library/Containers/com.tpak.Meridian/Data/Library/Preferences/com.tpak.Meridian.plist`.
+   An unsigned build gets **no** entitlements — the sandbox never engages and `UserDefaults`
+   resolves to `~/Library/Preferences/com.tpak.Meridian.plist` instead. The beta then starts from
+   an empty store and seeds a fresh current-location row, so the user's real cities, labels and
+   settings are nowhere to be seen. Sharing the bundle ID is not enough; the beta only shares
+   UserDefaults with prod when it is signed **with the sandbox entitlement**.
+2. **A Debug build cannot be signed.** Debug links `@rpath/Meridian.debug.dylib`, which the build
+   leaves unsigned. Once the host binary carries a team ID, Library Validation rejects the dylib
+   (`mapping process and mapped file (non-platform) have different Team IDs`) and the app dies at
+   launch with `Library not loaded: @rpath/Meridian.debug.dylib`. Release produces no such dylib.
+
+Note that `defaults read com.tpak.Meridian` transparently reads the *container* copy, so the CLI
+can show correct-looking data while the unsigned beta is reading something else entirely. To see
+what the beta actually loaded, read the file paths directly, or trust the `timezones raw=N` log.
+
+### Never glob the DerivedData path
+
+Do not resolve the built app through `~/Library/Developer/Xcode/DerivedData/Meridian-*/…`. Xcode
+names each DerivedData directory `Meridian-<hash of the .xcodeproj's absolute path>`, so **every
+distinct checkout path gets its own directory** — this repo has accumulated a dozen or more of them
+from `.claude/worktrees/agent-*` agent worktrees, a `Meridian-v4` checkout, and a lowercase
+`source/meridian` path. The glob matches all of them and the shell expands it in lexicographic
+order, so the first match is an arbitrary, usually months-stale build from an unrelated worktree —
+you end up verifying and shipping code you did not just compile. (Quoting the glob is no better: it
+never expands, and `PlistBuddy`/`cp` get a literal `*` and fail.)
+
+Always pass `-derivedDataPath` and read the product back from that same path, as step 2 above and
+`scripts/release.sh` both do. `scripts/cleanup-artifacts.sh` prunes the dead directories — see
+[Artifact Cleanup](#artifact-cleanup).
+
 ### Conventions
-- **Naming**: `MARKETING_VERSION=X.Y.Z-betaN` (e.g. `2.19.1-beta1`, `2.19.1-beta2`). The user-visible version string in the panel footer reads `vX.Y.Z-betaN` — that's the unambiguous "this is the test build" signal.
-- **Build number**: `CURRENT_PROJECT_VERSION=XYZNNN` (e.g. `2191001` for `2.19.1-beta1`). Doesn't render in the UI; just keeps Sparkle's internal comparison consistent.
-- **Bundle ID stays `com.tpak.Meridian`**: the beta shares UserDefaults with prod, so the user's real timezones and prefs come along for realistic UAT.
-- **Don't sign or notarize**: `CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO`. The beta is for the user's own machine; Gatekeeper is satisfied by `xattr -cr`.
+- **Naming**: `MARKETING_VERSION=X.Y.Z-betaN` (e.g. `4.2.1-beta1`, `4.2.1-beta2`). The user-visible version string in the panel footer reads `vX.Y.Z-betaN` — that's the unambiguous "this is the test build" signal.
+- **Build number**: `CURRENT_PROJECT_VERSION` uses the encoding `scripts/release.sh` defines —
+  `MAJOR*1_000_000 + MINOR*10_000 + PATCH*1_000 + BETA_N`, with `BETA_N=100` reserved for stable so
+  a stable release always outranks any beta of the same `X.Y.Z`. So `4.2.1-beta1` → `4021001`, and
+  `4.2.1` stable → `4021100`. Doesn't render in the UI; it is what Sparkle actually compares.
+- **Bundle ID stays `com.tpak.Meridian`**: combined with the sandbox entitlement, the beta shares the container with prod, so the user's real timezones and prefs come along for realistic UAT. Back up `~/Library/Containers/com.tpak.Meridian/Data/Library/Preferences/com.tpak.Meridian.plist` before a beta that migrates or rewrites stored rows.
+- **Sign, but don't notarize**: Developer ID signing is required (above); notarization is not, because the app never leaves this machine and `xattr -cr` clears quarantine.
 - **Don't bump `project.pbxproj`**: the override is build-time only. The pbxproj retains the most recent released version. This prevents accidentally committing a beta version number to `main`.
-- **Sparkle won't auto-update the beta**: the production appcast tops out at the latest stable release; `2.19.1-beta1 > 2.19.1` lexically, so Sparkle sees nothing newer.
+- **Sparkle won't auto-update the beta**: the production appcast tops out at the latest stable release, whose build number is lower than the beta's, so Sparkle sees nothing newer.
 
 ### Iteration cycle
 
@@ -156,15 +229,13 @@ When the user reports a problem with `betaN`:
 # Make changes on the feature branch, commit, push (so the PR stays current)
 git add ... && git commit -m "..." && git push
 
-# Bump the beta number and rebuild + reinstall
+# Bump the beta number and re-run steps 1-6 above
 osascript -e 'tell application "Meridian" to quit' ; sleep 2
-xcodebuild ... MARKETING_VERSION=2.19.1-beta2 CURRENT_PROJECT_VERSION=2191002
-rm -rf ~/Applications/Meridian-beta.app
-cp -R "$HOME/Library/Developer/Xcode/DerivedData/Meridian-*/Build/Products/Debug/Meridian.app" \
-  ~/Applications/Meridian-beta.app
-xattr -cr ~/Applications/Meridian-beta.app
-open ~/Applications/Meridian-beta.app
+xcodebuild ... MARKETING_VERSION=4.2.1-beta2 CURRENT_PROJECT_VERSION=4021002
 ```
+
+The re-sign in step 4 is not optional on a rebuild — a fresh `cp` brings in freshly built,
+unsigned Sparkle components every time.
 
 ### Switching back to production
 
@@ -184,6 +255,56 @@ Only after the user explicitly signs off on the latest beta:
 4. `make release VERSION=X.Y.Z NOTES="..."` (multiline and special characters are fine; `bash scripts/release.sh -n "..." X.Y.Z` works too)
 
 The released binary is what Sparkle ships to all users; the beta UAT path makes sure that binary's behavior was confirmed by the user first.
+
+## Artifact Cleanup
+
+Meridian's build artifacts land in machine-local directories that nothing ever reaps, and none of
+them belong on a new laptop — they are all regenerable from the repo. `scripts/cleanup-artifacts.sh`
+is the single owner of removing them.
+
+```bash
+make clean-artifacts             # prune
+make clean-artifacts DRY=1       # preview; deletes nothing
+make clean-artifacts BETA=1      # also remove ~/Applications/Meridian-beta.app
+bash scripts/cleanup-artifacts.sh --dry-run --beta   # same thing, directly
+```
+
+`make clean` is a different, narrower thing: it only removes this checkout's `build/` dir.
+
+### What it removes, and why each one accumulates
+
+- **Dead Xcode DerivedData.** Xcode names each directory `Meridian-<hash of the .xcodeproj's
+  absolute path>`, so *every distinct checkout path* gets its own and Xcode never deletes them.
+  Agent worktrees under `.claude/worktrees/`, an old `Meridian-v4` checkout and a differently-cased
+  `source/meridian` path had grown this to **4.2 GB across 14 directories, 13 of them dead**. Two
+  rules apply: a directory is *stale* when its recorded `WorkspacePath` no longer exists, and a
+  *duplicate* when another directory points at the same real project directory. Duplicates are
+  matched on **device:inode**, not path text — macOS is case-insensitive, so `source/meridian` and
+  `source/Meridian` are one directory and `pwd -P` will not tell you so (it resolves symlinks, not
+  case). The DerivedData for the checkout the script is run from is always kept.
+- **`release.sh` staging.** Each release `mktemp -d`s a `/tmp/meridian-release.*` tree — a full
+  DerivedData build, ~500 MB — plus a `/tmp/appcast.*` scratch file. These used to leak on every
+  run; `release.sh` now removes them itself on success (see below).
+- **The local UAT beta** (`--beta` / `BETA=1` only): `~/Applications/Meridian-beta.app` and
+  `/tmp/meridian-beta-dd`. Quits a running beta first.
+- **The orphan preferences plist.** Unsigned builds — Debug unit-test hosts, or a beta built
+  without the entitlements — get no sandbox and write `~/Library/Preferences/com.tpak.Meridian.plist`
+  instead of the container. The shipping app never reads it. It is removed only when the sandbox
+  container exists, which proves the real store is elsewhere.
+
+### Rules
+
+- **The release cleans up after itself.** `release.sh` removes its own staging on success, and runs
+  `cleanup-artifacts.sh --beta` as its final phase — the beta must go once the real build ships, so
+  a stale `Meridian-beta.app` can't shadow it. Cleanup failure is a warning, never fatal: the
+  release is already published and verified by then.
+- **Failures keep their evidence.** On a failed release the staging dir and generated appcast are
+  deliberately *kept* — `report_release_state` and the `xmllint` error both print paths that have to
+  still exist. The script tells you to run `cleanup-artifacts.sh` once you're done debugging.
+- **Never resolve a build product through a `DerivedData/Meridian-*` glob.** Pass
+  `-derivedDataPath` and read back from that path. See "Never glob the DerivedData path" above.
+- **Run it before migrating machines.** Everything it removes is rebuildable; nothing it removes is
+  worth copying to a new laptop.
 
 ## Sparkle Beta Channel
 

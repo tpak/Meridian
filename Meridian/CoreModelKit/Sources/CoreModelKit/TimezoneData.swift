@@ -141,6 +141,15 @@ public class TimezoneData: NSObject, NSCoding, NSSecureCoding {
         overrideFormat = TimezoneOverride(rawValue: override) ?? .globalFormat
     }
 
+    /// Human-readable name derived from an IANA identifier: the last path component with
+    /// underscores turned into spaces (`America/New_York` → "New York"). Used wherever a row has
+    /// no better name to show — first-run seeding, and the current-location resync that runs when
+    /// the machine's timezone changes while travelling (issue #223).
+    public static func friendlyName(forTimezoneID identifier: String) -> String {
+        let lastComponent = identifier.split(separator: "/").last.map(String.init) ?? identifier
+        return lastComponent.replacingOccurrences(of: "_", with: " ")
+    }
+
     public static func make(timezoneID: String,
                             name: String,
                             customLabel: String,
