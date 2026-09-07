@@ -8,6 +8,9 @@
   <a href="https://github.com/tpak/Meridian/actions/workflows/ci.yml"><img src="https://github.com/tpak/Meridian/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
   <a href="https://github.com/tpak/Meridian/actions/workflows/codeql.yml"><img src="https://github.com/tpak/Meridian/actions/workflows/codeql.yml/badge.svg?branch=main" alt="CodeQL"></a>
   <a href="https://github.com/tpak/Meridian/releases/latest"><img src="https://img.shields.io/github/v/release/tpak/Meridian?display_name=tag&sort=semver" alt="Latest release"></a>
+</p>
+
+<p align="center">
   <a href="https://sonarcloud.io/summary/new_code?id=tpak_Meridian"><img src="https://sonarcloud.io/images/project_badges/sonarcloud-light.svg" alt="SonarQube Cloud"></a>
 </p>
 
