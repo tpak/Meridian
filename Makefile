@@ -1,4 +1,4 @@
-.PHONY: build test clean install release
+.PHONY: build test clean clean-artifacts install release
 
 SCHEME = Meridian
 PROJECT = Meridian/Meridian.xcodeproj
@@ -33,6 +33,19 @@ install: build
 clean:
 	rm -rf $(BUILD_DIR)
 	xcodebuild -project $(PROJECT) -scheme $(SCHEME) clean 2>/dev/null || true
+
+# Machine-wide cleanup: dead Xcode DerivedData (one per checkout path, never
+# reaped by Xcode), leftover release staging in /tmp, and the orphan prefs plist
+# unsigned builds leave behind. `make clean` only touches this checkout's
+# build/ dir; this reclaims the rest. Run DRY=1 to preview.
+#   make clean-artifacts          # prune
+#   make clean-artifacts DRY=1    # show what would go
+#   make clean-artifacts BETA=1   # also remove ~/Applications/Meridian-beta.app
+clean-artifacts:
+	@args=""; \
+	if [ -n "$(DRY)" ]; then args="$$args --dry-run"; fi; \
+	if [ -n "$(BETA)" ]; then args="$$args --beta"; fi; \
+	bash scripts/cleanup-artifacts.sh $$args
 
 # Hand the arguments to the recipe through the environment rather than interpolating them into the
 # command text. A make variable expanded inline is parsed by the shell, so quotes, backticks or
