@@ -10,6 +10,10 @@
   <a href="https://github.com/tpak/Meridian/releases/latest"><img src="https://img.shields.io/github/v/release/tpak/Meridian?display_name=tag&sort=semver" alt="Latest release"></a>
 </p>
 
+<p align="center">
+  <a href="https://sonarcloud.io/summary/new_code?id=tpak_Meridian"><img src="https://sonarcloud.io/images/project_badges/sonarcloud-light.svg" alt="SonarQube Cloud"></a>
+</p>
+
 A macOS menu bar world clock. Track time across zones for your team, friends, and family.
 
 ## Features
