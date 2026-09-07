@@ -595,7 +595,7 @@ When migrating APIs or renaming symbols, grep the **entire codebase** for all re
 
 Static analysis runs on [SonarQube Cloud](https://sonarcloud.io/project/overview?id=tpak_Meridian) — organization `tpak`, project key **`tpak_Meridian`**.
 
-Analysis runs from the **`sonar` job in `.github/workflows/ci.yml`**, after Unit Tests, on every push to `main` and every pull request. Configuration lives in **`sonar-project.properties`** at the repo root: scope, coverage, and the per-rule issue suppressions, each with a comment justifying why the rule is wrong for Swift/Cocoa idiom or for this codebase. The scanner reads all of it.
+Analysis runs from the **`sonar` job in `.github/workflows/ci.yml`**, after Unit Tests, on every push to `main` and every pull request — except **fork PRs and Dependabot PRs**, which the job skips because neither can read `SONAR_TOKEN` (Dependabot runs read the separate Dependabot secret store), and a scan with an empty token fails red rather than reporting anything. Neither kind of PR touches `sonar.sources`. Configuration lives in **`sonar-project.properties`** at the repo root: scope, coverage, and the per-rule issue suppressions, each with a comment justifying why the rule is wrong for Swift/Cocoa idiom or for this codebase. The scanner reads all of it.
 
 Two things it needs:
 
