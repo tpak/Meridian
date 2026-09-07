@@ -166,6 +166,25 @@ jobs:
             echo "found=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # The project's New Code definition is "Previous version", which needs the
+      # scanner to report one so Sonar has a boundary to diff against. Left unset,
+      # every analysis records the version as "not provided" -- one value for the
+      # whole history, so there is never a *previous* version and main's new code
+      # period stays permanently empty. The gate then renders a stale verdict
+      # rather than a current one. Pull requests are unaffected either way: they
+      # diff against the target branch, not against a version.
+      - name: Project Version
+        id: version
+        run: |
+          version=$(grep -m1 'MARKETING_VERSION' Meridian/Meridian.xcodeproj/project.pbxproj \
+            | sed 's/.*= *//; s/;.*//' | tr -d ' ')
+          if [ -z "$version" ]; then
+            echo "::error::could not read MARKETING_VERSION from project.pbxproj"
+            exit 1
+          fi
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+          echo "analysing version $version"
+
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
         env:
@@ -174,4 +193,5 @@ jobs:
           # sonar-project.properties sets coverageReportPaths unconditionally;
           # blank it out when there is no report so the scanner does not warn.
           args: >
+            -Dsonar.projectVersion=${{ steps.version.outputs.value }}
             ${{ steps.coverage.outputs.found == 'false' && '-Dsonar.coverageReportPaths=' || '' }}
