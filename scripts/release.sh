@@ -638,6 +638,11 @@ echo ""
 # now that the real build is out, so it can't shadow what was just shipped.
 # Never fatal: the release is already published and verified by this point.
 echo "── Cleaning up build artifacts..."
+# Clear THIS run's staging first. cleanup-artifacts.sh sweeps /tmp/meridian-release.*
+# as "leftover", which would include the dir this very release just used — harmless
+# at this point, but it would report the current run's staging as stale. Doing it
+# here keeps the report honest; the EXIT trap's second call is then a no-op.
+cleanup_staging
 bash "$(dirname "${BASH_SOURCE[0]}")/cleanup-artifacts.sh" --beta || \
     echo "WARNING: artifact cleanup failed; run scripts/cleanup-artifacts.sh by hand."
 echo ""
