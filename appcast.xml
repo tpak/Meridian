@@ -3,6 +3,20 @@
     <channel>
         <title>Meridian</title>
         <item>
+            <title>4.2.1</title>
+            <pubDate>Mon, 07 Sep 2026 00:17:59 +0000</pubDate>
+            <sparkle:version>4021100</sparkle:version>
+            <sparkle:shortVersionString>4.2.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[
+                <ul>
+                    <li>Fix the current location keeping its old city name and sunrise time after you travel (#223)</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/tpak/Meridian/releases/download/v4.2.1/Meridian.app.zip" length="2190996" type="application/octet-stream" sparkle:edSignature="UzXNpmyeJ8gbHnbILJqSXEk7De33GpwGeczWOusYEb4fg4tJSfmpGpqJBSFSkAmOOeOi81dGDnVG4p9l47pRAg=="/>
+        </item>
+        <item>
             <title>4.2.0</title>
             <pubDate>Sun, 23 Aug 2026 05:08:56 +0000</pubDate>
             <sparkle:version>4020100</sparkle:version>
