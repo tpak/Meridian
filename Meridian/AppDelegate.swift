@@ -49,6 +49,7 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         enableAutoUpdateByDefault()
         backfillMissingCoordinates()
         startTrackingLocationForSunTimes()
+        observeSystemTimezoneChanges()
         wirePreferencesMenuItem()
         continueUsually()
         setupMemoryPressureMonitoring()
@@ -198,6 +199,37 @@ open class AppDelegate: NSObject, NSApplicationDelegate {
         // Skip under XCTest so the runner never triggers a system permission prompt.
         guard NSClassFromString("XCTestCase") == nil else { return }
         locationController.determineAndRequestLocationAuthorization()
+    }
+
+    /// macOS switches timezone underneath a running app when the user travels ("Set time zone
+    /// automatically"), and Meridian is a menubar app that can stay up for weeks — so waiting for
+    /// the next launch to notice is not good enough. Re-point the current-location row at the new
+    /// zone the moment the system tells us, then re-derive its coordinates so the sun times stop
+    /// describing the city the user left (issue #223).
+    private func observeSystemTimezoneChanges() {
+        NotificationCenter.default.addObserver(
+            forName: .NSSystemTimeZoneDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.handleSystemTimezoneChange()
+        }
+    }
+
+    private func handleSystemTimezoneChange() {
+        // Foundation caches the system zone; without this reset `TimeZone.current` can still hand
+        // back the old one on the very notification that announces the change.
+        NSTimeZone.resetSystemTimeZone()
+
+        let store = DataStore.shared()
+        if let synced = AppDefaults.syncCurrentLocationRow(on: store.timezones()) {
+            store.setTimezones(synced)
+        }
+
+        // The sync cleared the old city's coordinates; refill them from the new zone name, and ask
+        // CoreLocation for the real position so the fallback is only in place briefly.
+        backfillMissingCoordinates()
+        startTrackingLocationForSunTimes()
     }
 
     func backfillMissingCoordinates() {

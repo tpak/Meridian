@@ -428,6 +428,146 @@ class MeridianUnitTests: XCTestCase {
         defaults.removePersistentDomain(forName: "HomeRowMigrationTest_Dedup")
     }
 
+    // MARK: - Current-location resync while travelling (#223)
+
+    /// A zone guaranteed to differ from whatever zone the test machine is in, so these tests stay
+    /// hermetic for a developer who happens to live in the otherwise-hardcoded one.
+    private var staleTravelTimezoneID: String {
+        TimeZone.autoupdatingCurrent.identifier == "Australia/Melbourne" ? "America/Denver" : "Australia/Melbourne"
+    }
+
+    private func makeCurrentLocationRow(timezoneID: String, name: String, label: String = "") -> TimezoneData {
+        let row = TimezoneData()
+        row.timezoneID = timezoneID
+        row.formattedAddress = name
+        row.setLabel(label)
+        row.latitude = -37.8136
+        row.longitude = 144.9631
+        row.isSystemTimezone = true
+        return row
+    }
+
+    /// The reported bug: after travelling, the current-location row rendered the *new* zone's clock
+    /// (timezone() resolves live) under the *old* zone's name and coordinates.
+    func testCurrentLocationRowFollowsSystemTimezone() throws {
+        let staleID = staleTravelTimezoneID
+        let row = makeCurrentLocationRow(timezoneID: staleID,
+                                         name: TimezoneData.friendlyName(forTimezoneID: staleID))
+        let blob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: row))
+
+        let synced = try XCTUnwrap(AppDefaults.syncCurrentLocationRow(on: [blob]),
+                                   "a row a zone behind must be rewritten")
+        let updated = try XCTUnwrap(TimezoneData.customObject(from: synced[0]))
+
+        let systemID = TimeZone.autoupdatingCurrent.identifier
+        XCTAssertEqual(updated.timezoneID, systemID, "stored id must catch up with the system zone")
+        XCTAssertEqual(updated.formattedAddress, TimezoneData.friendlyName(forTimezoneID: systemID),
+                       "the displayed name must describe where the user is now")
+        XCTAssertNil(updated.latitude, "the old city's coordinates must not survive the move")
+        XCTAssertNil(updated.longitude, "the old city's coordinates must not survive the move")
+        XCTAssertTrue(updated.isSystemTimezone, "the row is still the current-location row")
+    }
+
+    /// The Settings label field pre-fills with the app-derived city name, so committing it unchanged
+    /// is not a deliberate choice — it must not follow the user to another continent.
+    func testCurrentLocationSyncDropsLabelThatMirrorsTheOldCityName() throws {
+        let staleID = staleTravelTimezoneID
+        let derived = TimezoneData.friendlyName(forTimezoneID: staleID)
+        let row = makeCurrentLocationRow(timezoneID: staleID, name: derived, label: derived.lowercased())
+        let blob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: row))
+
+        let synced = try XCTUnwrap(AppDefaults.syncCurrentLocationRow(on: [blob]))
+        let updated = try XCTUnwrap(TimezoneData.customObject(from: synced[0]))
+
+        XCTAssertEqual(updated.customLabel, "", "an echo of the old city name must be dropped")
+        XCTAssertEqual(updated.formattedTimezoneLabel(),
+                       TimezoneData.friendlyName(forTimezoneID: TimeZone.autoupdatingCurrent.identifier))
+    }
+
+    /// A label the user actually chose describes the row, not the city, so it travels with them.
+    func testCurrentLocationSyncKeepsAGenuineCustomLabel() throws {
+        let staleID = staleTravelTimezoneID
+        let row = makeCurrentLocationRow(timezoneID: staleID,
+                                         name: TimezoneData.friendlyName(forTimezoneID: staleID),
+                                         label: "Me")
+        let blob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: row))
+
+        let synced = try XCTUnwrap(AppDefaults.syncCurrentLocationRow(on: [blob]))
+        let updated = try XCTUnwrap(TimezoneData.customObject(from: synced[0]))
+
+        XCTAssertEqual(updated.customLabel, "Me", "a user-chosen label must survive the move")
+        XCTAssertEqual(updated.formattedAddress,
+                       TimezoneData.friendlyName(forTimezoneID: TimeZone.autoupdatingCurrent.identifier),
+                       "the derived name underneath still updates")
+    }
+
+    /// Colors, ordering and favourites are keyed off placeID — a move must not reset the row's look.
+    func testCurrentLocationSyncPreservesRowIdentityAndFavourite() throws {
+        let staleID = staleTravelTimezoneID
+        let row = makeCurrentLocationRow(timezoneID: staleID,
+                                         name: TimezoneData.friendlyName(forTimezoneID: staleID))
+        row.placeID = "stable-place-id"
+        row.isFavourite = 1
+        let blob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: row))
+
+        let synced = try XCTUnwrap(AppDefaults.syncCurrentLocationRow(on: [blob]))
+        let updated = try XCTUnwrap(TimezoneData.customObject(from: synced[0]))
+
+        XCTAssertEqual(updated.placeID, "stable-place-id")
+        XCTAssertEqual(updated.isFavourite, 1)
+    }
+
+    /// Staying put must not churn the store — the launch path skips the write when this returns nil.
+    func testCurrentLocationSyncIsNoOpWhenAlreadyCurrent() throws {
+        let systemID = TimeZone.autoupdatingCurrent.identifier
+        let row = makeCurrentLocationRow(timezoneID: systemID,
+                                         name: TimezoneData.friendlyName(forTimezoneID: systemID))
+        let blob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: row))
+
+        XCTAssertNil(AppDefaults.syncCurrentLocationRow(on: [blob]))
+    }
+
+    /// Only the auto-detected row moves. Cities the user added deliberately keep their own identity.
+    func testCurrentLocationSyncLeavesTrackedCitiesAlone() throws {
+        let tracked = TimezoneData()
+        tracked.timezoneID = "Asia/Tokyo"
+        tracked.formattedAddress = "Tokyo"
+        tracked.latitude = 35.6762
+        tracked.longitude = 139.6503
+        tracked.isSystemTimezone = false
+
+        let staleID = staleTravelTimezoneID
+        let current = makeCurrentLocationRow(timezoneID: staleID,
+                                             name: TimezoneData.friendlyName(forTimezoneID: staleID))
+
+        let trackedBlob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: tracked))
+        let currentBlob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: current))
+
+        let synced = try XCTUnwrap(AppDefaults.syncCurrentLocationRow(on: [trackedBlob, currentBlob]))
+
+        XCTAssertEqual(synced[0], trackedBlob, "an ordinary city row must pass through byte-identical")
+        let updatedCurrent = try XCTUnwrap(TimezoneData.customObject(from: synced[1]))
+        XCTAssertEqual(updatedCurrent.timezoneID, TimeZone.autoupdatingCurrent.identifier)
+    }
+
+    /// Running twice in a row must settle — the second pass has nothing left to do.
+    func testCurrentLocationSyncIsIdempotent() throws {
+        let staleID = staleTravelTimezoneID
+        let row = makeCurrentLocationRow(timezoneID: staleID,
+                                         name: TimezoneData.friendlyName(forTimezoneID: staleID))
+        let blob = try XCTUnwrap(NSKeyedArchiver.secureArchive(with: row))
+
+        let first = try XCTUnwrap(AppDefaults.syncCurrentLocationRow(on: [blob]))
+        XCTAssertNil(AppDefaults.syncCurrentLocationRow(on: first))
+    }
+
+    func testFriendlyNameFromTimezoneIdentifier() {
+        XCTAssertEqual(TimezoneData.friendlyName(forTimezoneID: "America/New_York"), "New York")
+        XCTAssertEqual(TimezoneData.friendlyName(forTimezoneID: "Australia/Melbourne"), "Melbourne")
+        XCTAssertEqual(TimezoneData.friendlyName(forTimezoneID: "America/Argentina/Buenos_Aires"), "Buenos Aires")
+        XCTAssertEqual(TimezoneData.friendlyName(forTimezoneID: "UTC"), "UTC")
+    }
+
     func testHomeRowMigrationKeepsFirstFlaggedRowWhenNoMatch() throws {
         let defaults = UserDefaults(suiteName: "HomeRowMigrationTest_NoMatch")!
         defaults.removePersistentDomain(forName: "HomeRowMigrationTest_NoMatch")
