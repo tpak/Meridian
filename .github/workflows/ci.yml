@@ -125,9 +125,19 @@ jobs:
     name: SonarQube
     runs-on: macos-26
     needs: unit-tests
-    # Fork PRs cannot read secrets, so the scan would fail on an empty token.
-    # Skip rather than fail red on contributions from outside the repo.
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    # Two kinds of PR reach the scanner with no usable SONAR_TOKEN, and both
+    # would fail red on an empty one rather than telling you anything:
+    #   - Fork PRs cannot read this repo's secrets at all.
+    #   - Dependabot PRs read the *Dependabot* secret store, not the Actions
+    #     one, so secrets.SONAR_TOKEN is empty even though the branch is local.
+    # Skip both. Nothing is lost: sonar.sources is Meridian,scripts, and a
+    # Dependabot PR only ever touches workflow YAML or a dependency manifest.
+    # Keyed off the PR author rather than github.actor, which becomes whoever
+    # pressed re-run and would quietly re-enable the broken scan.
+    if: >
+      github.event_name == 'push' ||
+      (github.event.pull_request.head.repo.full_name == github.repository &&
+       github.event.pull_request.user.login != 'dependabot[bot]')
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
