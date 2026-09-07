@@ -34,13 +34,45 @@ HERE = pathlib.Path(__file__).resolve().parent
 # "@@ -1,2 +34,5 @@" -> the post-image hunk starts at 34 and runs 5 lines.
 HUNK_RE = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
 
+# What git itself accepts in a refname, minus the characters that would be
+# surprising on a command line. Nothing here reaches a shell -- every subprocess
+# call is shell=False with an argv list -- but validating before the value gets
+# anywhere near git keeps unchecked argv strings off the command line entirely,
+# the same discipline xccov_to_sonar.py applies to its paths.
+REF_RE = re.compile(r"^[A-Za-z0-9._/-]{1,255}$")
+
+
+def checked_dir(raw):
+    """Resolve a path from argv and confirm it is a real directory."""
+    resolved = pathlib.Path(raw).resolve(strict=False)
+    return resolved if resolved.is_dir() else None
+
+
+def checked_file(raw):
+    """Resolve a path from argv and confirm it is a real regular file."""
+    resolved = pathlib.Path(raw).resolve(strict=False)
+    return resolved if resolved.is_file() else None
+
+
+def checked_ref(raw):
+    """Confirm a git ref looks like a refname before it reaches the command line."""
+    return raw if REF_RE.match(raw) and ".." not in raw else None
+
 
 def git(args, cwd):
-    """Run a git command and return stdout, or None if git itself failed."""
+    """Run a git command and return stdout, or None if git itself failed.
+
+    cwd is re-checked here rather than trusted from the caller: this is the point
+    where a value from argv would reach an OS command.
+    """
+    directory = checked_dir(cwd)
+    if directory is None:
+        print(f"not a directory: {cwd}", file=sys.stderr)
+        return None
     try:
         completed = subprocess.run(
             ["git", *args], capture_output=True, text=True, check=True,
-            shell=False, cwd=str(cwd),
+            shell=False, cwd=str(directory),
         )
     except (subprocess.CalledProcessError, OSError) as exc:
         print(f"git failed: {exc}", file=sys.stderr)
@@ -55,7 +87,12 @@ def changed_lines_from_git(base, root):
     what Sonar analyses for a pull request rather than penalising the branch for
     everything that landed on main in the meantime.
     """
-    diff = git(["diff", "--unified=0", "--no-color", f"{base}...HEAD", "--", "*.swift"], root)
+    ref = checked_ref(base)
+    if ref is None:
+        print(f"not a usable git ref: {base}", file=sys.stderr)
+        return None
+
+    diff = git(["diff", "--unified=0", "--no-color", f"{ref}...HEAD", "--", "*.swift"], root)
     if diff is None:
         return None
 
@@ -81,8 +118,13 @@ def changed_lines_from_git(base, root):
 
 def changed_lines_from_file(path):
     """Read a literal "path:line" list. Keeps the arithmetic testable without git."""
+    source = checked_file(path)
+    if source is None:
+        print(f"no such changed-lines file: {path}", file=sys.stderr)
+        return None
+
     changed = {}
-    for raw in pathlib.Path(path).read_text().splitlines():
+    for raw in source.read_text().splitlines():
         entry = raw.strip()
         if not entry or ":" not in entry:
             continue
@@ -95,9 +137,14 @@ def changed_lines_from_file(path):
 def coverage_from_xcresult(bundle, root):
     """Convert an .xcresult with the same script CI uses, so both read one source."""
     converter = HERE / "xccov_to_sonar.py"
+    archive = checked_dir(bundle)
+    if archive is None:
+        print(f"not an .xcresult bundle: {bundle}", file=sys.stderr)
+        return None
+
     try:
         completed = subprocess.run(
-            [sys.executable, str(converter), str(bundle), "--root", str(root)],
+            [sys.executable, str(converter), str(archive), "--root", str(root)],
             capture_output=True, text=True, check=True, shell=False,
         )
     except (subprocess.CalledProcessError, OSError) as exc:
@@ -262,8 +309,8 @@ def main():
     if opts.xcresult:
         xml_text = coverage_from_xcresult(opts.xcresult, root)
     else:
-        path = pathlib.Path(opts.coverage)
-        if not path.is_file():
+        path = checked_file(opts.coverage)
+        if path is None:
             print(f"no such coverage report: {opts.coverage}", file=sys.stderr)
             return 2
         xml_text = path.read_text()
