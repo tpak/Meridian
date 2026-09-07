@@ -241,7 +241,7 @@ final class DaybreakViewModel: ObservableObject {
         let heroTZID = currentCity?.timezone() ?? TimeZone.current.identifier
         heroTimeZoneIdentifier = heroTZID
         let heroTZ = TimeZone(identifier: heroTZID) ?? .current
-        let heroName = currentCity?.formattedTimezoneLabel() ?? Self.friendlyName(heroTZID)
+        let heroName = currentCity?.formattedTimezoneLabel() ?? TimezoneData.friendlyName(forTimezoneID: heroTZID)
         let heroWindow = sunWindow(for: currentCity, timeZone: heroTZ, reference: reference)
         let heroLocal = DaybreakComputation.localMinutes(reference: reference, timeZone: heroTZ)
         let heroOrdinal = DaybreakComputation.dayOrdinal(reference: reference, timeZone: heroTZ)
@@ -392,10 +392,6 @@ final class DaybreakViewModel: ObservableObject {
     private func string(_ formatter: DateFormatter, _ date: Date, _ timeZone: TimeZone) -> String {
         formatter.timeZone = timeZone
         return formatter.string(from: date)
-    }
-
-    private static func friendlyName(_ tzID: String) -> String {
-        (tzID.split(separator: "/").last.map(String.init) ?? tzID).replacingOccurrences(of: "_", with: " ")
     }
 
     private static func versionText() -> String {

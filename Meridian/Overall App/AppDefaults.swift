@@ -32,10 +32,16 @@ class AppDefaults {
 
         defaults.register(defaults: defaultsDictionary())
 
+        // Re-point the auto-detected current-location row at the machine's timezone before the
+        // migration looks at it: after a trip the row's stored identity is a zone behind, and the
+        // migration reads `timezoneID` to decide which row deserves the flag. Sync first and it
+        // sees the healed value, so travelling no longer looks like flag drift.
+        let synced = syncCurrentLocationRow(on: timezones) ?? timezones
+
         // Heal any rows whose isSystemTimezone flag drifted from the actual
         // current system timezone. Runs after the row blob is read so the
         // healed blob is what we write back.
-        let healed = runHomeRowMigrationV1(on: timezones, defaults: defaults)
+        let healed = runHomeRowMigrationV1(on: synced, defaults: defaults)
         store.setTimezones(healed)
 
         // Never present an empty app: if no timezones are tracked, seed the current one.
@@ -80,8 +86,7 @@ class AppDefaults {
         guard store.timezoneObjects().isEmpty else { return }
 
         let identifier = TimeZone.autoupdatingCurrent.identifier
-        let friendlyName = identifier.split(separator: "/").last
-            .map { $0.replacingOccurrences(of: "_", with: " ") } ?? identifier
+        let friendlyName = TimezoneData.friendlyName(forTimezoneID: identifier)
 
         let seeded = TimezoneData.make(timezoneID: identifier, name: friendlyName, customLabel: "",
                                        latitude: 0, longitude: 0, placeIdentifier: UUID().uuidString)
@@ -168,6 +173,79 @@ class AppDefaults {
     /// names, so neither pattern collides with current state.
     static func isLegacyArtifactKey(_ key: String) -> Bool {
         key.hasPrefix("com.abhishek.") || key.contains("Clocker")
+    }
+
+    /// Keep the auto-detected current-location row pointed at the machine's timezone.
+    ///
+    /// `TimezoneData.timezone()` resolves that row's zone live from `TimeZone.autoupdatingCurrent`,
+    /// so its *clock* follows the user the moment macOS switches zones. Everything else about the
+    /// row — the persisted `timezoneID`, the display name in `formattedAddress`, and the
+    /// latitude/longitude the sun times are computed from — was frozen when the row was created.
+    /// Fly Melbourne → New York and the row shows New York's time under the name "Melbourne", with
+    /// Melbourne's sunrise (issue #223).
+    ///
+    /// This rewrites that stored identity:
+    ///   - `timezoneID` becomes the current system zone.
+    ///   - `formattedAddress` becomes the friendly name of that zone ("New York").
+    ///   - `customLabel` is preserved — it is the user's own word for this row ("Home", "Me") —
+    ///     *unless* it is just a copy of the name the app derived for the zone they left. The
+    ///     Settings label field pre-fills with the derived name, so committing it unchanged is not
+    ///     a real choice and should not follow them across the world.
+    ///   - coordinates are cleared, because they describe the old city.
+    ///     `AppDelegate.backfillMissingCoordinates()` re-derives them from the new zone name and
+    ///     `LocationController` replaces them with the real position once location is available.
+    ///
+    /// `placeID` is deliberately left alone: it is the row's identity for colors, ordering and
+    /// favourites, so the row keeps its appearance across a move.
+    ///
+    /// Self-healing rather than a one-time migration — the user can travel any number of times.
+    /// Only the first flagged row is touched; `runHomeRowMigrationV1` unflags any duplicates.
+    /// Returns the rewritten blobs, or `nil` when nothing needed changing (the overwhelmingly
+    /// common case), so callers can skip the write. Public for tests.
+    class func syncCurrentLocationRow(on timezones: [Data]) -> [Data]? {
+        let systemTimezoneID = TimeZone.autoupdatingCurrent.identifier
+        let decoded = timezones.map { TimezoneData.customObject(from: $0) }
+
+        guard let index = decoded.firstIndex(where: { $0?.isSystemTimezone == true }),
+              let model = decoded[index],
+              model.timezoneID != systemTimezoneID else { return nil }
+
+        let previousDerivedName = model.formattedAddress ?? ""
+        let previousTimezoneID = model.timezoneID ?? ""
+
+        model.timezoneID = systemTimezoneID
+        model.formattedAddress = TimezoneData.friendlyName(forTimezoneID: systemTimezoneID)
+
+        let label = model.customLabel ?? ""
+        if isDerivedLabel(label, derivedName: previousDerivedName, timezoneID: previousTimezoneID) {
+            model.customLabel = ""
+        }
+
+        model.latitude = nil
+        model.longitude = nil
+        model.sunriseTime = nil
+        model.sunsetTime = nil
+
+        guard let rewrittenBlob = NSKeyedArchiver.secureArchive(with: model) else { return nil }
+
+        var rewritten = timezones
+        rewritten[index] = rewrittenBlob
+        Logger.production("Current location moved \(previousTimezoneID) → \(systemTimezoneID); resynced row")
+        return rewritten
+    }
+
+    /// True when a custom label is indistinguishable from the name the app itself would have shown
+    /// for the zone the user just left — either the stored `formattedAddress` or the friendly name
+    /// derived from the old IANA id. Compared case- and whitespace-insensitively so "melbourne "
+    /// counts too.
+    private class func isDerivedLabel(_ label: String, derivedName: String, timezoneID: String) -> Bool {
+        let normalized = label.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !normalized.isEmpty else { return false }
+        let candidates = [derivedName, TimezoneData.friendlyName(forTimezoneID: timezoneID)]
+        return candidates.contains { candidate in
+            let normalizedCandidate = candidate.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            return !normalizedCandidate.isEmpty && normalizedCandidate == normalized
+        }
     }
 
     /// One-time migration that heals the "stuck home row" bug. Two failure
