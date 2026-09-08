@@ -1,4 +1,4 @@
-.PHONY: build test clean clean-artifacts coverage-new install release
+.PHONY: build test clean clean-artifacts install release
 
 SCHEME = Meridian
 PROJECT = Meridian/Meridian.xcodeproj
@@ -18,23 +18,6 @@ test:
 		-only-testing:MeridianUnitTests \
 		-parallel-testing-enabled NO -disable-concurrent-destination-testing \
 		$(SIGNING) test
-
-# Coverage on new code, the way SonarQube's quality gate measures it: lines this
-# branch adds or changes, relative to BASE. The gate fails a PR under 80% and
-# that verdict otherwise only arrives from CI, long after the push.
-#   make coverage-new                    # test, convert, report against origin/main
-#   make coverage-new BASE=origin/main   # explicit base ref
-#   make coverage-new THRESHOLD=90       # stricter than the gate
-coverage-new: RESULTS = TestResults/unit-tests.xcresult
-coverage-new:
-	@rm -rf $(RESULTS)
-	xcodebuild -project $(PROJECT) -scheme $(SCHEME) -configuration Debug \
-		-only-testing:MeridianUnitTests \
-		-parallel-testing-enabled NO -disable-concurrent-destination-testing \
-		-enableCodeCoverage YES -resultBundlePath $(RESULTS) \
-		$(SIGNING) test
-	@python3 scripts/new_code_coverage.py --xcresult $(RESULTS) \
-		$(if $(BASE),--base $(BASE),) $(if $(THRESHOLD),--threshold $(THRESHOLD),)
 
 lint:
 	swiftlint
