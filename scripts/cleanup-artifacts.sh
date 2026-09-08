@@ -67,6 +67,12 @@ fsid() {
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 PROTECTED_PROJECT="$REPO_ROOT/Meridian/Meridian.xcodeproj"
 
+# Every section ends by reporting whether it found anything. One definition so
+# the wording stays identical across all four (Sonar shelldre:S1192).
+nothing_to_remove() {
+    echo "  nothing to remove"
+}
+
 remove() {
     local path="$1" reason="$2" size_kb verb
     [[ -e "$path" ]] || return 0
@@ -144,7 +150,7 @@ if [[ -s "$TABLE" ]]; then
 fi
 
 if [[ $REMOVED_COUNT -eq $BEFORE ]]; then
-    echo "  nothing to remove"
+    nothing_to_remove
 fi
 
 # ── release.sh staging leftovers ────────────────────────────────────
@@ -156,7 +162,7 @@ for leftover in /tmp/meridian-release.* /tmp/meridian-release-notes.* /tmp/appca
     remove "$leftover" "leftover release staging"
 done
 if [[ $REMOVED_COUNT -eq $BEFORE ]]; then
-    echo "  nothing to remove"
+    nothing_to_remove
 fi
 
 # ── Beta UAT artifacts ──────────────────────────────────────────────
@@ -171,7 +177,7 @@ if [[ $CLEAN_BETA -eq 1 ]]; then
     remove "$BETA_APP" "superseded by the released build"
     remove "$BETA_BUILD_DIR" "beta build directory"
     if [[ $REMOVED_COUNT -eq $BEFORE ]]; then
-        echo "  nothing to remove"
+        nothing_to_remove
     fi
 else
     echo "  skipped (pass --beta to remove ~/Applications/Meridian-beta.app)"
@@ -191,7 +197,7 @@ if [[ -e "$ORPHAN_PREFS" && -d "$SANDBOX_CONTAINER" ]]; then
 elif [[ -e "$ORPHAN_PREFS" ]]; then
     echo "  KEPT $ORPHAN_PREFS — no sandbox container found, so this may be the live store"
 else
-    echo "  nothing to remove"
+    nothing_to_remove
 fi
 
 echo ""

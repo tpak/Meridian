@@ -602,24 +602,6 @@ Two things it needs:
 - **`SONAR_TOKEN`** repo secret — the Actions runner authenticates to SonarQube Cloud with it. Authorizing the SonarQube Cloud GitHub App is a *separate* trust relationship (SonarQube → GitHub, for PR decoration) and does not replace the token. Generate a project analysis token under My Account → Security.
 - **Full git history** — the job checks out with `fetch-depth: 0` so the scanner can attribute issues and compute "new code".
 
-**Checking new-code coverage before you push.** The gate fails a PR whose coverage on *new*
-code is under 80%, and that verdict otherwise only arrives from CI — which is how #224 merged at
-75%. `make coverage-new` reproduces the metric locally: it runs the unit tests with coverage,
-converts the bundle, intersects the result with the lines the branch adds relative to `BASE`
-(default `origin/main`), and exits non-zero below the threshold.
-
-```bash
-make coverage-new                       # against origin/main, 80% threshold
-make coverage-new BASE=v4.2.0           # against a release tag
-make coverage-new THRESHOLD=90          # stricter than the gate
-```
-
-`scripts/new_code_coverage.py` reads `sonar.tests`, `sonar.exclusions` and
-`sonar.coverage.exclusions` out of `sonar-project.properties` rather than restating them, so the
-local number cannot drift from the gate's. That matters more than it sounds: test sources run on
-every invocation and are therefore ~100% covered, and counting them turned a real 48.6% reading
-into a reassuring 74.0%.
-
 **Coverage** comes from the `.xcresult` bundle the Unit Tests job already uploads. `scripts/xccov_to_sonar.py` converts it to SonarQube's generic coverage XML (SonarQube cannot read `.xcresult` directly). If the conversion yields nothing the workflow drops the report rather than publishing a misleading 0%.
 
 **New Code is "Previous version"**, set in Project Settings -> New Code. It pairs with the
