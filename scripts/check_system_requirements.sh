@@ -53,6 +53,13 @@ else
     bad "no Homebrew name for macOS $MAJOR — add it to homebrew_macos_symbol() in scripts/homebrew_cask.sh"
 fi
 
+# Homebrew can only require a whole release, so nothing here can close this gap — but it
+# shouldn't pass in silence either. release.sh repeats it in the release summary.
+POINT="${TARGET#*.}"
+if [[ -n "$NAME" && "$TARGET" == *.* && "$POINT" =~ [1-9] ]]; then
+    note "Homebrew can only require a whole release: the cask will still offer Meridian to macOS $MAJOR.0, though it needs $TARGET"
+fi
+
 # A name Homebrew doesn't know — a typo in the table — makes the cask fail to load for everyone,
 # and release.sh can't tell: it would write the bad name and then find it. So ask Homebrew.
 # Only a definite disagreement fails; being unable to ask is a note, not a blocker.
