@@ -17,6 +17,8 @@ brew install --cask meridian
 
 Cask definition lives in [`tpak/homebrew-tpak`](https://github.com/tpak/homebrew-tpak). Updated automatically by the release script.
 
+Requires macOS 26 (Tahoe) or later on Apple silicon — the cask says so with `depends_on macos: :tahoe` and `depends_on arch: :arm64`, so Homebrew refuses to install it anywhere else.
+
 ## Git Workflow
 
 **Always create a feature branch before making changes.** Never commit directly to `main`. Use descriptive branch names like `fix/sunrise-bug` or `feature/accessibility-labels`. Open a PR when the work is ready for review. This applies to all work — bug fixes, features, refactors, doc updates.
@@ -72,7 +74,7 @@ The release script (`scripts/release.sh`) handles everything:
 6. Signs zip with Sparkle EdDSA key
 7. Creates GitHub release with zip attached
 8. Updates `appcast.xml` with new entry, commits, and pushes
-9. Updates Homebrew cask in `tpak/homebrew-tpak` via GitHub API
+9. Updates Homebrew cask in `tpak/homebrew-tpak` via GitHub API — version, checksum, and the minimum macOS (`depends_on macos:`), taken from the built app's `LSMinimumSystemVersion`. Homebrew names releases by symbol, so `homebrew_macos_symbol()` in `release.sh` holds the number → name table; a deployment target it doesn't know stops the release before anything is published, with a message saying which line to add
 
 **Release notes** are auto-collected from all PRs merged since the last release tag. Override with `NOTES="..."` or specify a single PR with `PR=35`. If no PRs found, opens `$EDITOR`.
 

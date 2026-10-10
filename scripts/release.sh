@@ -39,6 +39,35 @@ html_escape() {
     printf '%s' "$s"
 }
 
+# Homebrew names macOS releases by symbol, not by number, so the cask's
+# `depends_on macos:` line can't be written from LSMinimumSystemVersion as-is.
+# Print Homebrew's name for a macOS version ("26.0" → "tahoe"); print nothing
+# and return 1 for a release this table doesn't know. The names are the keys of
+# MacOSVersion::SYMBOLS in Homebrew's Library/Homebrew/macos_version.rb.
+homebrew_macos_symbol() {
+    case "${1%%.*}" in
+        13) echo "ventura" ;;
+        14) echo "sonoma" ;;
+        15) echo "sequoia" ;;
+        26) echo "tahoe" ;;
+        27) echo "golden_gate" ;;
+        *)  return 1 ;;
+    esac
+}
+
+# Rewrite the Homebrew cask (stdin → stdout) for a new release: its version,
+# the zip's checksum, and the oldest macOS Homebrew will install it on. A bare
+# symbol is how Homebrew spells "this release or newer"; the quoted
+# ">= :name" spelling it replaces is deprecated. Only the value is swapped, so
+# anything else on that line survives.
+render_cask() {
+    local version="$1" sha256="$2" macos_symbol="$3"
+    sed -E \
+        -e "s/version \".*\"/version \"$version\"/" \
+        -e "s/sha256 \".*\"/sha256 \"$sha256\"/" \
+        -e "s/(depends_on macos: )(:[a-z_]+|\"[^\"]*\")/\1:$macos_symbol/"
+}
+
 # ── Phase 1: Validate ──────────────────────────────────────────────
 
 if [[ -z "$VERSION" ]]; then
@@ -370,6 +399,22 @@ if [[ -z "$MIN_OS" ]]; then
 fi
 echo "── Deployment target: macOS $MIN_OS"
 
+# The Homebrew cask states the same minimum, under Homebrew's name for the
+# release (Phase 6 writes it). Resolve that name now, while nothing has been
+# pushed or published: the cask once advertised macOS 13 for an app that needed
+# 26 because nothing here ever looked. Betas never touch the cask.
+CASK_MACOS=""
+if [[ $IS_BETA -eq 0 ]]; then
+    if ! CASK_MACOS="$(homebrew_macos_symbol "$MIN_OS")"; then
+        echo "Error: no Homebrew name is known for macOS $MIN_OS, so the cask's" >&2
+        echo "       'depends_on macos:' line can't be set to match this build." >&2
+        echo "       Add the release to homebrew_macos_symbol() in scripts/release.sh" >&2
+        echo "       (names: Library/Homebrew/macos_version.rb in Homebrew), then re-run." >&2
+        exit 1
+    fi
+    echo "── Homebrew cask will require macOS :$CASK_MACOS or later."
+fi
+
 # Strip extended attributes and resource forks that create ._* files on extraction
 echo "── Stripping extended attributes..."
 xattr -rc "$APP_PATH"
@@ -535,6 +580,9 @@ if [[ $IS_BETA -eq 1 ]]; then
             <sparkle:channel>beta</sparkle:channel>"
 fi
 
+# hardwareRequirements is fixed at arm64: Meridian ships an Apple-silicon-only
+# binary. The Homebrew cask says the same with `depends_on arch: :arm64`; if
+# this ever changes, change that line in tpak/homebrew-tpak too.
 NEW_ITEM="        <item>
             <title>$VERSION</title>
             <pubDate>$PUB_DATE</pubDate>$CHANNEL_TAG
@@ -591,6 +639,8 @@ echo "── Appcast updated and pushed."
 
 # ── Phase 6: Update Homebrew cask ──────────────────────────────────
 # Skipped for betas — the Homebrew cask tracks stable releases only.
+# Sets the version, the zip checksum and the minimum macOS (CASK_MACOS,
+# resolved in Phase 3 from the bundle that was just built).
 
 if [[ $IS_BETA -eq 1 ]]; then
     echo "── Skipping Homebrew cask update for beta release."
@@ -604,17 +654,29 @@ else
     if FILE_SHA="$(gh api "repos/$CASK_REPO/contents/$CASK_FILE" --jq '.sha' 2>/dev/null)"; then
         CASK_CONTENT="$(gh api "repos/$CASK_REPO/contents/$CASK_FILE" \
             --jq '.content' | base64 -d \
-            | sed "s/version \".*\"/version \"$VERSION\"/" \
-            | sed "s/sha256 \".*\"/sha256 \"$ZIP_SHA256\"/")"
+            | render_cask "$VERSION" "$ZIP_SHA256" "$CASK_MACOS")"
 
-        ENCODED="$(printf '%s' "$CASK_CONTENT" | base64)"
+        # $(...) stripped the file's final newline; put it back (brew style
+        # flags a cask without one).
+        ENCODED="$(printf '%s\n' "$CASK_CONTENT" | base64)"
 
         gh api --method PUT "repos/$CASK_REPO/contents/$CASK_FILE" \
             -f message="Update meridian to v$VERSION" \
             -f content="$ENCODED" \
             -f sha="$FILE_SHA" > /dev/null
 
-        echo "── Homebrew cask updated to v$VERSION."
+        # render_cask can only rewrite a requirement that is there, in a form
+        # it recognises. The release is already out, so a miss is a warning —
+        # but a loud one: with the wrong minimum, Homebrew installs Meridian
+        # on Macs where it then refuses to launch.
+        if grep -qF "depends_on macos: :$CASK_MACOS" <<< "$CASK_CONTENT"; then
+            echo "── Homebrew cask updated to v$VERSION (requires macOS :$CASK_MACOS or later)."
+        else
+            echo "── Homebrew cask updated to v$VERSION."
+            echo "WARNING: the cask has no 'depends_on macos:' line this script could set to" >&2
+            echo "         :$CASK_MACOS (macOS $MIN_OS). Homebrew may offer Meridian to Macs that" >&2
+            echo "         can't run it. Fix by hand: https://github.com/$CASK_REPO/blob/HEAD/$CASK_FILE" >&2
+        fi
     else
         echo "WARNING: Homebrew cask file not found at $CASK_REPO/$CASK_FILE. Skipping cask update."
     fi
