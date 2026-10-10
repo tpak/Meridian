@@ -23,6 +23,7 @@ Usage: `/release VERSION` (e.g. `/release 2.16.0`)
 
 1. Run: `bash scripts/release.sh -n "NOTES" VERSION`
 2. The script handles everything: version bump, build, sign, notarize, GitHub release, appcast, Homebrew cask
+3. For a stable release it first runs `scripts/check_system_requirements.sh`. If that fails, nothing has been changed yet: fix what it lists in a PR to `main`, then run the release again
 
 ## Post-release verification
 
@@ -30,6 +31,7 @@ Usage: `/release VERSION` (e.g. `/release 2.16.0`)
 2. If any CI run fails, investigate immediately — do NOT ignore failures
 3. Verify the GitHub release exists: `gh release view vVERSION`
 4. Confirm the release notes are user-facing and concise; edit with `gh release edit` if needed
+5. Read the **Homebrew cask** line of the release summary. `NEEDS ATTENTION` means the cask no longer restricts installs to the macOS and CPU the app needs — fix `Casks/meridian.rb` in `tpak/homebrew-tpak` by hand, then confirm with `bash scripts/check_system_requirements.sh --cask`
 
 ## Post-release cleanup
 

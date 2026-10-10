@@ -17,7 +17,7 @@ brew install --cask meridian
 
 Cask definition lives in [`tpak/homebrew-tpak`](https://github.com/tpak/homebrew-tpak). Updated automatically by the release script.
 
-Requires macOS 26 (Tahoe) or later on Apple silicon — the cask says so with `depends_on macos: :tahoe` and `depends_on arch: :arm64`, so Homebrew refuses to install it anywhere else.
+Requires macOS 26 (Tahoe) or later on Apple silicon — the cask says so with `depends_on macos: :tahoe` and `depends_on arch: :arm64`, so Homebrew refuses to install it anywhere else. The deployment target is the source of truth; `scripts/check_system_requirements.sh` checks that the docs and the cask's name for it still agree (see [Release Workflow](#release-workflow)).
 
 ## Git Workflow
 
@@ -74,7 +74,9 @@ The release script (`scripts/release.sh`) handles everything:
 6. Signs zip with Sparkle EdDSA key
 7. Creates GitHub release with zip attached
 8. Updates `appcast.xml` with new entry, commits, and pushes
-9. Updates Homebrew cask in `tpak/homebrew-tpak` via GitHub API — version, checksum, and the minimum macOS (`depends_on macos:`), taken from the built app's `LSMinimumSystemVersion`. Homebrew names releases by symbol, so `homebrew_macos_symbol()` in `release.sh` holds the number → name table; a deployment target it doesn't know stops the release before anything is published, with a message saying which line to add
+9. Updates Homebrew cask in `tpak/homebrew-tpak` via GitHub API — version, checksum, and the minimum macOS (`depends_on macos:`), taken from the built app's `LSMinimumSystemVersion` — then confirms the cask still restricts installs to that macOS and to Apple silicon. If it doesn't, the release summary's Homebrew line reads **NEEDS ATTENTION** instead of the usual `brew install` hint
+
+**System requirements are checked before a stable release starts.** Ahead of the version bump, `release.sh` runs `scripts/check_system_requirements.sh`, which fails if the README, the manual, the docs landing page or CLAUDE.md state a different macOS than `MACOSX_DEPLOYMENT_TARGET`, or if the cask can't be given a matching requirement. Homebrew names macOS releases by symbol (`:tahoe`), not number, so `homebrew_macos_symbol()` in `scripts/homebrew_cask.sh` holds the number → name table, and the check asks the local Homebrew to confirm the name in use — a typo there would publish a cask that fails to load for everyone. **When you raise the deployment target**, run the check and fix what it lists in the same PR; add `--cask` to also compare the published cask (only expected to match right after a release). Homebrew can only require a whole release, so a point-release target such as 26.2 still lets 26.0 install the cask — the script warns when that happens.
 
 **Release notes** are auto-collected from all PRs merged since the last release tag. Override with `NOTES="..."` or specify a single PR with `PR=35`. If no PRs found, opens `$EDITOR`.
 
@@ -550,7 +552,7 @@ Before any release, run a full pre-release check and **show the status of each i
 2. All file changes (including Info.plist, storyboards) are committed
 3. Release notes read as user-facing changes (see *Release notes style* above). Quotes, backticks, `$(...)` and newlines in `NOTES=` are safe — the recipe passes them to `release.sh` as a literal argument (#196)
 4. Sparkle appcast configuration is correct (`SUFeedURL`, `SUPublicEDKey` in Info.plist)
-5. After `make release` completes, run `gh run list --branch main --limit 3` and verify the version bump and appcast commits pass CI
+5. After `make release` completes, run `gh run list --branch main --limit 3` and verify the version bump and appcast commits pass CI. Check the summary's **Homebrew cask** line too: `NEEDS ATTENTION` means the cask's macOS / Apple silicon requirement needs a hand fix (`scripts/check_system_requirements.sh --cask` re-checks it)
 6. **User manual is current** — `docs/manual.md` reflects any new/changed setting, option, or feature in this release (see *User Documentation* below)
 
 ## User Documentation
@@ -573,7 +575,7 @@ Before implementing any feature or fix, follow this workflow:
 3. **Implement the feature.**
 4. **Run the validation script again.** If ANY check fails, fix the issue and re-run. Do not present the result until all checks pass.
 5. **Show the final diff and the passing validation output.**
-6. **Promote anything durable.** If a check encodes an invariant worth keeping — not "did I build this feature" but "is this still true of the repo" — move it into its own named script under `scripts/` before the scratch file is overwritten. `scripts/check_localization.sh` (every localizable literal has a catalog entry) is the current example.
+6. **Promote anything durable.** If a check encodes an invariant worth keeping — not "did I build this feature" but "is this still true of the repo" — move it into its own named script under `scripts/` before the scratch file is overwritten. `scripts/check_localization.sh` (every localizable literal has a catalog entry) and `scripts/check_system_requirements.sh` (the docs and the Homebrew cask state the macOS the app actually requires) are the current examples.
 
 ## Large Refactors — Parallel Agents
 

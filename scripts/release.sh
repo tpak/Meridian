@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
+# homebrew_macos_symbol, render_cask, cask_requirement_problems (Phases 3 and 6).
+# shellcheck source=scripts/homebrew_cask.sh
+source "$(dirname "$0")/homebrew_cask.sh"
+
 VERSION=""
 NOTES=""
 PR_NUMBER=""
@@ -37,35 +41,6 @@ html_escape() {
     s="${s//</&lt;}"
     s="${s//>/&gt;}"
     printf '%s' "$s"
-}
-
-# Homebrew names macOS releases by symbol, not by number, so the cask's
-# `depends_on macos:` line can't be written from LSMinimumSystemVersion as-is.
-# Print Homebrew's name for a macOS version ("26.0" → "tahoe"); print nothing
-# and return 1 for a release this table doesn't know. The names are the keys of
-# MacOSVersion::SYMBOLS in Homebrew's Library/Homebrew/macos_version.rb.
-homebrew_macos_symbol() {
-    case "${1%%.*}" in
-        13) echo "ventura" ;;
-        14) echo "sonoma" ;;
-        15) echo "sequoia" ;;
-        26) echo "tahoe" ;;
-        27) echo "golden_gate" ;;
-        *)  return 1 ;;
-    esac
-}
-
-# Rewrite the Homebrew cask (stdin → stdout) for a new release: its version,
-# the zip's checksum, and the oldest macOS Homebrew will install it on. A bare
-# symbol is how Homebrew spells "this release or newer"; the quoted
-# ">= :name" spelling it replaces is deprecated. Only the value is swapped, so
-# anything else on that line survives.
-render_cask() {
-    local version="$1" sha256="$2" macos_symbol="$3"
-    sed -E \
-        -e "s/version \".*\"/version \"$version\"/" \
-        -e "s/sha256 \".*\"/sha256 \"$sha256\"/" \
-        -e "s/(depends_on macos: )(:[a-z_]+|\"[^\"]*\")/\1:$macos_symbol/"
 }
 
 # ── Phase 1: Validate ──────────────────────────────────────────────
@@ -160,6 +135,20 @@ fi
 if git tag -l "v$VERSION" | grep -q "v$VERSION"; then
     echo "Error: Tag v$VERSION already exists" >&2
     exit 1
+fi
+
+# The README, the manual, the docs page and the name the cask is about to be
+# given (Phase 6) all restate the deployment target, and must agree with it
+# before a stable release goes out. Checked here, ahead of the version bump:
+# every fix is an ordinary commit, and that is only easy now. Betas skip it —
+# they never touch the cask.
+if [[ $IS_BETA -eq 0 ]]; then
+    echo "── Checking the system requirements are stated consistently..."
+    if ! bash "$(dirname "$0")/check_system_requirements.sh"; then
+        echo "Error: fix the above in a commit on main (a PR), then re-run the release." >&2
+        echo "       Nothing has been changed: no version bump, no tag, no release." >&2
+        exit 1
+    fi
 fi
 
 for cmd in xcodebuild gh ditto xcrun xmllint; do
@@ -400,19 +389,31 @@ fi
 echo "── Deployment target: macOS $MIN_OS"
 
 # The Homebrew cask states the same minimum, under Homebrew's name for the
-# release (Phase 6 writes it). Resolve that name now, while nothing has been
-# pushed or published: the cask once advertised macOS 13 for an app that needed
-# 26 because nothing here ever looked. Betas never touch the cask.
+# release (Phase 6 writes it). Resolve that name from the bundle that was just
+# built, while nothing has been pushed or published: the cask once advertised
+# macOS 13 for an app that needed 26 because nothing here ever looked. The
+# Phase 1 check reads the project file and should already have caught an
+# unknown release; this is the same question asked of the real artifact.
+# Betas never touch the cask.
 CASK_MACOS=""
+CASK_WARNING=""
 if [[ $IS_BETA -eq 0 ]]; then
     if ! CASK_MACOS="$(homebrew_macos_symbol "$MIN_OS")"; then
         echo "Error: no Homebrew name is known for macOS $MIN_OS, so the cask's" >&2
         echo "       'depends_on macos:' line can't be set to match this build." >&2
-        echo "       Add the release to homebrew_macos_symbol() in scripts/release.sh" >&2
-        echo "       (names: Library/Homebrew/macos_version.rb in Homebrew), then re-run." >&2
+        echo "       Add the release to homebrew_macos_symbol() in scripts/homebrew_cask.sh," >&2
+        echo "       commit that, then re-run (the state report below says how to back out)." >&2
         exit 1
     fi
     echo "── Homebrew cask will require macOS :$CASK_MACOS or later."
+
+    # Homebrew can only require a whole release. A point-release minimum such
+    # as 26.2 still becomes ":tahoe", which lets 26.0 and 26.1 install it.
+    MIN_OS_POINT="${MIN_OS#*.}"
+    if [[ "$MIN_OS" == *.* && "$MIN_OS_POINT" =~ [1-9] ]]; then
+        CASK_WARNING="Homebrew can only require a whole release, so the cask still offers Meridian to macOS ${MIN_OS%%.*}.0 and later, though the app needs $MIN_OS"
+        echo "WARNING: $CASK_WARNING." >&2
+    fi
 fi
 
 # Strip extended attributes and resource forks that create ._* files on extraction
@@ -640,7 +641,8 @@ echo "── Appcast updated and pushed."
 # ── Phase 6: Update Homebrew cask ──────────────────────────────────
 # Skipped for betas — the Homebrew cask tracks stable releases only.
 # Sets the version, the zip checksum and the minimum macOS (CASK_MACOS,
-# resolved in Phase 3 from the bundle that was just built).
+# resolved in Phase 3 from the bundle that was just built), then confirms the
+# result still restricts installs to that macOS and to Apple silicon.
 
 if [[ $IS_BETA -eq 1 ]]; then
     echo "── Skipping Homebrew cask update for beta release."
@@ -667,15 +669,16 @@ else
 
         # render_cask can only rewrite a requirement that is there, in a form
         # it recognises. The release is already out, so a miss is a warning —
-        # but a loud one: with the wrong minimum, Homebrew installs Meridian
-        # on Macs where it then refuses to launch.
-        if grep -qF "depends_on macos: :$CASK_MACOS" <<< "$CASK_CONTENT"; then
-            echo "── Homebrew cask updated to v$VERSION (requires macOS :$CASK_MACOS or later)."
+        # but a loud one, repeated in the summary: with the wrong requirements,
+        # Homebrew installs Meridian on Macs where it then refuses to launch.
+        CASK_PROBLEMS="$(cask_requirement_problems "$CASK_MACOS" <<< "$CASK_CONTENT")"
+        if [[ -z "$CASK_PROBLEMS" ]]; then
+            echo "── Homebrew cask updated to v$VERSION (requires macOS :$CASK_MACOS or later, Apple silicon)."
         else
             echo "── Homebrew cask updated to v$VERSION."
-            echo "WARNING: the cask has no 'depends_on macos:' line this script could set to" >&2
-            echo "         :$CASK_MACOS (macOS $MIN_OS). Homebrew may offer Meridian to Macs that" >&2
-            echo "         can't run it. Fix by hand: https://github.com/$CASK_REPO/blob/HEAD/$CASK_FILE" >&2
+            CASK_WARNING="the cask has $(paste -sd ';' - <<< "$CASK_PROBLEMS" | sed 's/;/; /g'), so Homebrew may offer Meridian to Macs that can't run it"
+            echo "WARNING: $CASK_WARNING." >&2
+            echo "         Fix by hand: https://github.com/$CASK_REPO/blob/HEAD/$CASK_FILE" >&2
         fi
     else
         echo "WARNING: Homebrew cask file not found at $CASK_REPO/$CASK_FILE. Skipping cask update."
@@ -691,7 +694,12 @@ echo "=== Release v$VERSION complete! ==="
 echo ""
 echo "  GitHub release: https://github.com/tpak/Meridian/releases/tag/v$VERSION"
 echo "  Appcast updated with signature and download URL"
-echo "  Homebrew cask: brew install --cask tpak/tpak/meridian"
+if [[ -n "$CASK_WARNING" ]]; then
+    echo "  Homebrew cask: NEEDS ATTENTION — $CASK_WARNING."
+    echo "                 https://github.com/tpak/homebrew-tpak/blob/HEAD/Casks/meridian.rb"
+else
+    echo "  Homebrew cask: brew install --cask tpak/tpak/meridian"
+fi
 echo ""
 
 # ── Phase 8: Cleanup ────────────────────────────────────────────────
