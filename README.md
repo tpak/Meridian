@@ -50,7 +50,7 @@ Updates are delivered automatically via Sparkle (in-app). Because the cask sets 
 
 Download the latest `.zip` from [GitHub Releases](https://github.com/tpak/Meridian/releases), unzip, and drag Meridian to your Applications folder.
 
-Requires macOS 13 (Ventura) or later.
+Requires macOS 26 (Tahoe) or later on a Mac with Apple silicon.
 
 ## Using Meridian
 
@@ -128,7 +128,7 @@ A **global hotkey** to open the panel from any app can be set in **Settings → 
 
 ## Development
 
-Requires Xcode 15+ and macOS 13 (Ventura) or later.
+Requires Xcode 26+ and macOS 26 (Tahoe) or later.
 
 ```bash
 git clone https://github.com/tpak/Meridian.git

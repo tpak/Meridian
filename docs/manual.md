@@ -44,6 +44,8 @@ brew install --cask meridian
 
 Or download the latest `.zip` from the [Releases page](https://github.com/tpak/Meridian/releases), unzip it, and drag **Meridian.app** into your **Applications** folder.
 
+Meridian needs **macOS 26 (Tahoe) or later** on a Mac with **Apple silicon**.
+
 Meridian keeps itself up to date automatically, so you only have to install it once. See [Updates & the beta channel](#updates--the-beta-channel).
 
 ![Meridian's starred cities in the macOS menu bar](screenshots/menu-bar-item.png)

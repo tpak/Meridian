@@ -21,6 +21,8 @@ brew install --cask meridian
 
 Or download the latest build from the [Releases page](https://github.com/tpak/Meridian/releases).
 
+Requires macOS 26 (Tahoe) or later on a Mac with Apple silicon.
+
 ## Links
 
 - [Source code](https://github.com/tpak/Meridian)
