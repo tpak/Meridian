@@ -15,8 +15,9 @@
 #   4. The orphan non-container preferences plist that unsigned builds write.
 #
 # Safe by construction: it only ever touches paths matching Meridian's own
-# patterns, always keeps the DerivedData for the checkout it is run from, and
-# --dry-run prints the plan without deleting anything.
+# patterns, always keeps the DerivedData for the checkout it is run from, never
+# removes a DerivedData it can't attribute to a checkout, and --dry-run prints
+# the plan without deleting anything.
 #
 # Usage:
 #   scripts/cleanup-artifacts.sh [--dry-run] [--beta]
@@ -73,20 +74,37 @@ nothing_to_remove() {
     echo "  nothing to remove"
 }
 
+size_kb_of() {
+    local kb
+    kb="$(du -sk "$1" 2>/dev/null | cut -f1)"
+    echo "${kb:-0}"
+}
+
+# One two-line entry per item. verb is padded to 12 columns so they line up.
+report() {
+    local verb="$1" size_kb="$2" path="$3" reason="$4"
+    printf '  %s %6s MB  %s\n                     (%s)\n' "$verb" "$((size_kb / 1024))" "$path" "$reason"
+}
+
 remove() {
     local path="$1" reason="$2" size_kb verb
     [[ -e "$path" ]] || return 0
-    size_kb="$(du -sk "$path" 2>/dev/null | cut -f1)"
-    size_kb="${size_kb:-0}"
+    size_kb="$(size_kb_of "$path")"
     if [[ $DRY_RUN -eq 1 ]]; then
         verb="would remove"
     else
         rm -rf "$path"
         verb="removed     "
     fi
-    printf '  %s %6s MB  %s\n                     (%s)\n' "$verb" "$((size_kb / 1024))" "$path" "$reason"
+    report "$verb" "$size_kb" "$path" "$reason"
     RECLAIMED_KB=$((RECLAIMED_KB + size_kb))
     REMOVED_COUNT=$((REMOVED_COUNT + 1))
+}
+
+# Something deliberately left in place, reported with its size so whoever reads
+# the output can decide whether to delete it by hand.
+keep() {
+    report "KEPT        " "$(size_kb_of "$1")" "$1" "$2"
 }
 
 echo "=== Meridian artifact cleanup ==="
@@ -101,6 +119,13 @@ echo "Protecting DerivedData for: $PROTECTED_PROJECT"
 #   duplicate — another directory points at the SAME real project directory
 #               (case-variant or symlinked checkouts); keep this checkout's,
 #               else the most recently built.
+# Both rules need the workspace recorded in the directory's info.plist. A
+# directory with no info.plist (or none naming a workspace) can't be attributed,
+# so it is KEPT and reported, never guessed at. That is not an edge case:
+# `xcodebuild -showBuildSettings`, which release.sh runs to find sign_update,
+# creates a checkout's whole DerivedData (Build/, Logs/, SourcePackages/) without
+# writing info.plist. Treating that as stale made every release finish by
+# deleting this checkout's own live DerivedData.
 #
 # bash 3.2 on macOS has no associative arrays, so group with sort/awk over a
 # "fsid<TAB>exact<TAB>mtime<TAB>dir<TAB>workspace" table instead.
@@ -115,10 +140,19 @@ if [[ -d "$DERIVED_ROOT" ]]; then
     for dir in "$DERIVED_ROOT"/Meridian-*/; do
         [[ -d "$dir" ]] || continue
         dir="${dir%/}"
-        ws="$(/usr/libexec/PlistBuddy -c 'Print :WorkspacePath' "$dir/info.plist" 2>/dev/null || true)"
+        # Check for the file first: on a missing file PlistBuddy prints "File
+        # Doesn't Exist, Will Create: …" to STDOUT, which would land in $ws.
+        ws=""
+        if [[ -f "$dir/info.plist" ]]; then
+            ws="$(/usr/libexec/PlistBuddy -c 'Print :WorkspacePath' "$dir/info.plist" 2>/dev/null || true)"
+        fi
 
-        if [[ -z "$ws" || ! -e "$ws" ]]; then
-            remove "$dir" "stale — ${ws:-no recorded workspace} no longer exists"
+        if [[ -z "$ws" ]]; then
+            keep "$dir" "no info.plist naming its checkout, so it can't be shown to be dead; delete by hand if unused"
+            continue
+        fi
+        if [[ ! -e "$ws" ]]; then
+            remove "$dir" "stale — $ws no longer exists"
             continue
         fi
 
