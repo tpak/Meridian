@@ -285,7 +285,12 @@ bash scripts/cleanup-artifacts.sh --dry-run --beta   # same thing, directly
   *duplicate* when another directory points at the same real project directory. Duplicates are
   matched on **device:inode**, not path text — macOS is case-insensitive, so `source/meridian` and
   `source/Meridian` are one directory and `pwd -P` will not tell you so (it resolves symlinks, not
-  case). The DerivedData for the checkout the script is run from is always kept.
+  case). The DerivedData for the checkout the script is run from is always kept. A directory with
+  no `info.plist` records no workspace, so neither rule can apply: it is reported as **KEPT**, with
+  its size, and never guessed at. That case is common, not exotic — `xcodebuild -showBuildSettings`,
+  which `release.sh` runs to find `sign_update`, creates a checkout's whole DerivedData without
+  writing `info.plist`. Counting those as stale made every release end by deleting this checkout's
+  own live DerivedData (4.2.3, 2026-11-16).
 - **`release.sh` staging.** Each release `mktemp -d`s a `/tmp/meridian-release.*` tree — a full
   DerivedData build, ~500 MB — plus a `/tmp/appcast.*` scratch file. These used to leak on every
   run; `release.sh` now removes them itself on success (see below).
